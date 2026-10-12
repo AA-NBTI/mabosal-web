@@ -1,0 +1,28 @@
+{
+  "fourPillarsText": "임신년 계묘월 경인일 경진시",
+  "dayMaster": "경",
+  "dayMasterElement": "강한 열을 견디고 벼려진 원석이자 무쇠(강철, 劍戟)의 기운으로, 단호한 결단력과 의리를 상징합니다.",
+  "strength": "신약",
+  "dominantElement": "목",
+  "lackingElement": "화",
+  "elementsDistribution": {
+    "distribution": {
+      "목": 2,
+      "화": 0,
+      "토": 1,
+      "금": 3,
+      "수": 2
+    },
+    "dominant": "목",
+    "dominantByPower": "목",
+    "dominantByCount": "금",
+    "dominantDefinition": "월령(묘월 목왕절) 및 계절 사령 가중치를 반영한 세력 판정 최왕 오행 (단순 개수 최다는 금 3개)",
+    "lacking": [
+      "화"
+    ],
+    "lackingElement": "화",
+    "lackingDefinition": "원국 8자 표면 글자 미표출(0개) 결핍 오행 (지장간 인목 내 병화 암장)",
+    "temperature_balance": "춘절(봄)생으로 만물이 생동하는 목기운이 활발하여 균형 잡힌 활동성을 띱니다.",
+    "commentary": "원국 8자 표면에 화(0개) 기운이 결핍되어 있으나 일지 인목의 지장간에 병화가 암장되어 있습니다. 계절과 월령(묘월 목왕절)의 득령으로 목의 세력이 가장 왕성(단순 개수는 금 3개 최다)하며, 표면에 드러나지 않은 화 기운의 세심한 조절과 보완이 요구되는 구조입니다."
+  }
+}

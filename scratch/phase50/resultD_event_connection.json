@@ -1,0 +1,28 @@
+{
+  "userEvent": {
+    "text": "3년간 만난 연인과 큰 다툼 후 헤어졌습니다.\n왜 이런 일이 발생했는지 알고 싶고,\n지금 연락하는 것이 좋은지 알고 싶습니다.",
+    "dateProvided": false
+  },
+  "eventConnection": {
+    "eventDomain": "연애마",
+    "eventType": "연인 갈등 및 결별",
+    "eventText": "3년간 만난 연인과 큰 다툼 후 헤어졌습니다.\n왜 이런 일이 발생했는지 알고 싶고,\n지금 연락하는 것이 좋은지 알고 싶습니다.",
+    "eventDateKnown": false,
+    "candidate_period": {
+      "startYearMonth": "2026-06",
+      "endYearMonth": "2026-09",
+      "reason": "병오(丙午) 세운의 화기 팽창 및 정유(丁酉) 월운의 인유(寅酉) 원진·양인 활성화로 인한 감정 충돌 취약 후보 기간",
+      "ruleId": "RULE_EVENT_CANDIDATE_PERIOD_ONLY"
+    },
+    "relevanceScore": 95,
+    "matchedSinsals": [
+      "육해살",
+      "화개살",
+      "도화",
+      "원진",
+      "귀문관",
+      "현침"
+    ],
+    "explanation": "사용자께서 구체적 이별 일자를 제공하지 않았으므로 사건 발생일을 특정하지 않습니다. 명리 구조상 원국의 묘신(卯申) 원진과 운에서 유입된 정유(丁酉)월 인유(寅酉) 원진 및 양인 기운이 맞물린 최근 시기(2026-06~2026-09)가 감정적 폭발과 단절이 발생하기 가장 쉬웠던 명리학적 갈등 후보 구간으로 분석됩니다."
+  }
+}

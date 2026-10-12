@@ -1,0 +1,19 @@
+{
+  "scores": {
+    "dayMaster": "경금",
+    "strength": "유근한 신약",
+    "dominantElement": "금",
+    "lackingElement": "화(원국 겉표면 미표출)"
+  },
+  "ruleIds": [
+    "RULE_FREE_SAJU_FOUNDATION"
+  ],
+  "calculationEvidence": {
+    "basis": "원국 4주 8자 및 기본 오행 분포"
+  },
+  "timeAxis": {
+    "currentYear": 2026,
+    "daewoonGanji": "병오"
+  },
+  "relations": []
+}

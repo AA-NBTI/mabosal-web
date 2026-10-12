@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&amp;family=Noto+Serif+KR:wght@500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#0f131d;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "inverse-on-surface": "#2c303b", "tertiary-fixed": "#acedff", "on-error": "#690005", "error": "#ffb4ab", "secondary-container": "#3e475a", "on-primary": "#3c2f00", "outline": "#99907c", "surface-container-low": "#171b26", "secondary-fixed": "#dae2fa", "secondary-fixed-dim": "#bec6dd", "error-container": "#93000a", "on-primary-container": "#554300", "inverse-surface": "#dfe2f1", "on-tertiary-fixed": "#001f26", "primary-container": "#d4af37", "surface-container-highest": "#313540", "primary-fixed": "#ffe088", "on-tertiary-fixed-variant": "#004e5c", "tertiary-fixed-dim": "#4cd7f6", "surface-container-lowest": "#0a0e18", "tertiary-container": "#2dc3e1", "on-secondary-fixed-variant": "#3e475a", "surface": "#0f131d", "on-surface": "#dfe2f1", "outline-variant": "#4d4635", "on-secondary-fixed": "#121c2c", "surface-container-high": "#262a35", "on-tertiary-container": "#004c5a", "inverse-primary": "#735c00", "surface-variant": "#313540", "surface-container": "#1c1f2a", "background": "#0f131d", "on-primary-fixed": "#241a00", "on-secondary-container": "#acb5cb", "on-primary-fixed-variant": "#574500", "on-surface-variant": "#d0c5af", "tertiary": "#56dffe", "secondary": "#bec6dd", "on-secondary": "#283042", "surface-tint": "#e9c349", "primary": "#f2ca50", "surface-bright": "#353944", "primary-fixed-dim": "#e9c349", "on-error-container": "#ffdad6", "surface-dim": "#0f131d", "on-tertiary": "#003640", "on-background": "#dfe2f1" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-md": "0.875rem", "space-xl": "1.75rem", "margin": "1.25rem", "space-xs": "0.25rem", "gutter": "1rem", "space-sm": "0.5rem", "space-lg": "1.25rem" }, fontFamily: { "title-lg": ["Noto Sans KR", "Noto Sans"], "title-md": ["Noto Sans KR", "Noto Sans"], "headline-xl": ["Noto Serif KR", "Noto Serif"], "body-md": ["Noto Sans KR", "Noto Sans"], "body-sm": ["Noto Sans KR", "Noto Sans"], "label-kr": ["Noto Sans KR", "Noto Sans"], "headline-md": ["Noto Serif KR", "Noto Serif"], "label-caps": ["Space Grotesk"], "caption": ["Noto Sans KR", "Noto Sans"], "headline-lg": ["Noto Serif KR", "Noto Serif"], "body-lg": ["Noto Sans KR", "Noto Sans"] }, fontSize: { "title-lg": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "title-md": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }], "headline-xl": ["32px", { "lineHeight": "42px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }], "body-sm": ["13px", { "lineHeight": "19px", "letterSpacing": "0.005em", "fontWeight": "400" }], "label-kr": ["12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "label-caps": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "600" }], "caption": ["11px", { "lineHeight": "15px", "letterSpacing": "0.01em", "fontWeight": "400" }], "headline-lg": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface flex flex-col min-h-screen selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.4)] pt-safe"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-primary text-[24px]">explore</span></div><div class="flex flex-col"><div class="flex items-baseline gap-1.5"><span class="font-headline-md text-headline-md font-semibold text-primary tracking-tight">천명원</span><span class="font-label-caps text-label-caps text-primary/60 tracking-widest uppercase">天命院</span></div><span class="font-caption text-caption text-on-surface-variant sr-only">Home</span></div></div><div class="flex items-center gap-space-sm"><div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/20 text-primary border border-primary/40 shadow-[0_0_12px_rgba(242,202,80,0.35)] transition-all animate-pulse"><span class="material-symbols-outlined text-[15px] text-primary">monetization_on</span><span class="font-label-caps text-label-caps tracking-tight font-bold text-primary">3,350</span><span class="font-label-kr text-label-kr text-primary-fixed">엽</span><span class="font-caption text-[10px] text-tertiary font-bold pl-0.5">+100</span></div><button aria-label="알림" class="relative w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary transition-colors focus:outline-none"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-primary ring-2 ring-surface"></span></button><img alt="Profile" class="w-8 h-8 rounded-full object-cover shadow-[0_0_10px_rgba(242,202,80,0.25)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_y5dQKydphchpcTMO9__yOAFFEgeD_3sXWyVzYITbc9ScEMV9UusNnB8MrP3rRNehnDosDEmgGTWmCVZDuDxtUgZIJB-PI5DB6yJ6G0rP79YMm9UpRAvEvRMhKMFhz9CbgcrP7slqEw8CSSw12AWe1dRk4izXRXaXLcWpULWkj2U34H_Px7ilYcQFBYZV477Qm9WM2HxzSMgDd2hTe0zLYB3kYdOCEqFkhcxtyMqu"/></div></div></header><main class="flex flex-col relative w-full pt-16 pb-28 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Top Navigation & Utility Bar -->
+<div class="px-margin pt-space-md pb-space-sm flex items-center justify-between">
+<button aria-label="이전 화면으로 이동" class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">arrow_back_ios_new</span>
+</button>
+<div class="flex flex-col items-center">
+<span class="font-label-caps text-label-caps text-primary tracking-widest uppercase">Consultation Brief</span>
+<h1 class="font-headline-md text-headline-md text-on-surface">AI 상담 요약 리포트</h1>
+</div>
+<div class="flex items-center gap-space-xs">
+<button aria-label="리포트 공유하기" class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+<button aria-label="PDF 다운로드" class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+</div>
+<div class="px-margin flex flex-col gap-space-lg mt-space-sm">
+<!-- Certificate Meta Card -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container-high p-space-md shadow-xl">
+<div class="absolute -right-10 -bottom-10 w-36 h-36 rounded-full bg-primary/10 blur-2xl pointer-events-none"></div>
+<div class="flex items-center justify-between gap-space-sm mb-space-sm">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/15 text-primary">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+<span class="font-label-kr text-label-kr font-semibold">상담 완료 • AI 요약서 발급 성공</span>
+</div>
+<span class="font-label-caps text-label-caps text-secondary font-mono">#RES-2025-1014-DOWON</span>
+</div>
+<!-- Astrologer Profile Strip -->
+<div class="flex items-center gap-space-md pt-space-xs">
+<div class="relative shrink-0">
+<img class="w-14 h-14 rounded-full object-cover bg-surface-container-highest shadow-md" data-alt="Dignified mature Korean male Saju master Dowon Kim Hak-seon dressed in refined modern dark navy modernized hanbok, subtle celestial golden starlight backlight, serene professional portrait photography, deep midnight aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTiWxANzvWvc3EtJ64zHRffCqH3JmtX_ONG0i8dPqF3D7OslJ0uFfDBbKoiq94lm0Xkd3mREO39R-uTtvr4zVm2n_UXwxdA5XZMov4wn8xviKU9a7nkw3EpKWT1PdHO5DqTkeVYe_aZzMlcRBj6nVU6Bz_avxrNA1QjzKqEHC76JNBrzAnd6gAcJy4pfHlQdftZZ5JCkiy4iL5Oz568f9z-GVirbrhJ1XriAgBNsuP"/>
+<span class="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded-full bg-primary text-on-primary font-label-caps text-[9px] font-bold">MASTER</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-md text-headline-md text-on-surface font-bold">도원(道元) 김학선</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-highest text-primary font-label-kr text-[11px]">수석 역술가</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-caption text-caption mt-0.5">
+<span>2025.10.14 술시(20:00)</span>
+<span class="w-1 h-1 rounded-full bg-outline"></span>
+<span class="text-tertiary">32분 심층 통화</span>
+</div>
+</div>
+</div>
+<!-- Rating Pill Strip -->
+<div class="mt-space-md pt-space-sm bg-surface-container-lowest/60 rounded-lg p-2.5 flex items-center justify-between">
+<div class="flex items-center gap-1">
+<span class="font-label-kr text-label-kr text-on-surface-variant">상담 체감 만족도</span>
+<span class="font-label-caps text-label-caps text-primary font-bold ml-1">5.0</span>
+</div>
+<div class="flex items-center gap-0.5 text-primary">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+</div>
+<!-- Section 1: 3-Line Core Synthesis -->
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">auto_awesome</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">도원 선생의 총평 3줄 요약</h2>
+</div>
+<span class="font-label-caps text-label-caps text-secondary">AI SYNTHESIS</span>
+</div>
+<div class="flex flex-col gap-2.5">
+<div class="p-space-md rounded-xl bg-surface-container flex items-start gap-space-sm">
+<div class="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 font-label-caps text-[12px] font-bold">
+            01
+          </div>
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-tertiary tracking-wide uppercase">CLASH OF EARTH • 辰戌沖</span>
+<p class="font-body-md text-body-md text-on-surface mt-0.5">
+              10월 병술월의 <strong class="text-primary font-semibold">진술충(辰戌沖)</strong>은 불안이 아닌, 감춰져 있던 내면의 <span class="text-tertiary">재고(財庫·재물창고)</span>가 활짝 열리는 도약의 신호입니다.
+            </p>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container flex items-start gap-space-sm">
+<div class="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 font-label-caps text-[12px] font-bold">
+            02
+          </div>
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-tertiary tracking-wide uppercase">DIRECTION &amp; TIMING • 方位吉時</span>
+<p class="font-body-md text-body-md text-on-surface mt-0.5">
+              이직 제안지는 현 거주지 기준 <strong class="text-primary font-semibold">서남방(坤方)</strong> 위치일 때 길하며, <span class="text-tertiary">10월 22일(을사일) 미시</span>에 최종 날인함이 가장 길합니다.
+            </p>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container flex items-start gap-space-sm">
+<div class="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 font-label-caps text-[12px] font-bold">
+            03
+          </div>
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-tertiary tracking-wide uppercase">3-YEAR FORTUNE CYCLE • 食傷生財</span>
+<p class="font-body-md text-body-md text-on-surface mt-0.5">
+              향후 3년간 강렬한 <strong class="text-primary font-semibold">목(木)·화(火)</strong> 운이 식상생재로 발현되어, 독자적 프로젝트나 신사업 분야에서 두각을 나타내게 됩니다.
+            </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 2: Tailored Inquiry Prescriptions -->
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">help_center</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">사전 질문 맞춤 감명 카드</h2>
+</div>
+<span class="font-caption text-caption text-on-surface-variant">2건 분석 완료</span>
+</div>
+<!-- Question Card 1 -->
+<div class="rounded-xl bg-surface-container p-space-md flex flex-col gap-space-sm shadow-md">
+<div class="flex items-start gap-2">
+<span class="px-2 py-0.5 rounded bg-secondary-container text-secondary font-label-caps text-[11px] font-bold">Q1</span>
+<p class="font-title-md text-title-md text-on-surface font-semibold">
+            10월 대길월에 이직 제안 수락 여부 및 방위 길흉 검토
+          </p>
+</div>
+<!-- Prescription Box -->
+<div class="rounded-lg bg-surface-container-high p-space-sm flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-primary">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+<span class="font-label-kr text-label-kr font-bold">도원 선생의 처방 : 수락 강력 권장</span>
+</div>
+<div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/20 text-primary font-label-caps text-[11px] font-bold">
+<span>길 확률 92%</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+            서남방으로의 전직은 정관(正官)운을 강화하는 이동입니다. 계약서는 반드시 <strong class="text-on-surface">10월 22일(수) 을사일 미시(13:30)</strong>에 날인하십시오. 대면 시에는 화기를 북돋는 <strong class="text-tertiary">네이비 및 인디고 블루 계열 착장</strong>을 권장합니다.
+          </p>
+</div>
+</div>
+<!-- Question Card 2 -->
+<div class="rounded-xl bg-surface-container p-space-md flex flex-col gap-space-sm shadow-md">
+<div class="flex items-start gap-2">
+<span class="px-2 py-0.5 rounded bg-secondary-container text-secondary font-label-caps text-[11px] font-bold">Q2</span>
+<p class="font-title-md text-title-md text-on-surface font-semibold">
+            향후 3년간 재물 대운(大運) 진입 주기 분석
+          </p>
+</div>
+<!-- Prescription Box -->
+<div class="rounded-lg bg-surface-container-high p-space-sm flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-primary">
+<span class="material-symbols-outlined text-[18px]">account_balance</span>
+<span class="font-label-kr text-label-kr font-bold">도원 선생의 처방 : 3개년 연속 재성 활성</span>
+</div>
+<span class="font-label-caps text-[11px] text-tertiary font-bold">2025~2027 대운</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+            2025 을사년(乙巳)부터 2027 정미년(丁未)까지 막힘없는 재화 흐름이 이어집니다. 다만 독단적 투자는 손재를 부를 수 있으니 <strong class="text-on-surface">천을귀인(天乙貴人) 성향의 파트너 조력</strong>을 적극 수용하는 것이 성패를 가릅니다.
+          </p>
+</div>
+</div>
+</div>
+<!-- Section 3: Audio Player & Transcript -->
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">graphic_eq</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">통화 녹음 다시듣기 &amp; 전문</h2>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-caption text-caption">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+<span>E2E 암호화</span>
+</div>
+</div>
+<!-- Audio Box -->
+<div class="rounded-xl bg-surface-container p-space-md flex flex-col gap-space-sm shadow-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<button aria-label="오디오 재생 또는 정지" class="w-11 h-11 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-lg transition-transform active:scale-95" id="playBtn" type="button">
+<span class="material-symbols-outlined text-[24px]" id="playIcon">play_arrow</span>
+</button>
+<div class="flex flex-col">
+<span class="font-label-kr text-label-kr text-on-surface font-semibold">도원 김학선 1:1 감명 원음</span>
+<span class="font-label-caps text-label-caps text-secondary font-mono">04:12 / 31:42</span>
+</div>
+</div>
+<button class="px-2.5 py-1 rounded bg-surface-container-high text-primary font-label-caps text-label-caps font-bold" id="speedBtn" type="button">
+            1.2x
+          </button>
+</div>
+<!-- Simulated Waveform Track -->
+<div class="w-full flex items-center gap-1 h-9 px-1 py-1 rounded-lg bg-surface-container-lowest">
+<span class="w-1 h-3 rounded-full bg-primary"></span>
+<span class="w-1 h-5 rounded-full bg-primary"></span>
+<span class="w-1 h-6 rounded-full bg-primary"></span>
+<span class="w-1 h-4 rounded-full bg-primary"></span>
+<span class="w-1 h-7 rounded-full bg-primary"></span>
+<span class="w-1 h-8 rounded-full bg-primary"></span>
+<span class="w-1 h-5 rounded-full bg-primary"></span>
+<span class="w-1 h-3 rounded-full bg-primary/50"></span>
+<span class="w-1 h-6 rounded-full bg-surface-container-highest"></span>
+<span class="w-1 h-4 rounded-full bg-surface-container-highest"></span>
+<span class="w-1 h-7 rounded-full bg-surface-container-highest"></span>
+<span class="w-1 h-5 rounded-full bg-surface-container-highest"></span>
+<span class="w-1 h-8 rounded-full bg-surface-container-highest"></span>
+<span class="w-1 h-6 rounded-full bg-surface-container-highest"></span>
+<span class="w-1 h-3 rounded-full bg-surface-container-highest"></span>
+<span class="w-1 h-5 rounded-full bg-surface-container-highest"></span>
+<span class="w-1 h-7 rounded-full bg-surface-container-highest"></span>
+<span class="w-1 h-4 rounded-full bg-surface-container-highest"></span>
+<span class="w-1 h-6 rounded-full bg-surface-container-highest"></span>
+<span class="w-1 h-3 rounded-full bg-surface-container-highest"></span>
+<span class="w-1 h-4 rounded-full bg-surface-container-highest"></span>
+<span class="w-1 h-7 rounded-full bg-surface-container-highest"></span>
+<span class="w-1 h-5 rounded-full bg-surface-container-highest"></span>
+<span class="w-1 h-2 rounded-full bg-surface-container-highest"></span>
+</div>
+<!-- Bookmark Badges -->
+<div class="flex items-center gap-2 pt-1 overflow-x-auto">
+<button class="shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-kr text-[11px] transition-colors" type="button">
+<span class="material-symbols-outlined text-[13px] text-primary">bookmark</span>
+<span>04:12 재고 개방 해설</span>
+</button>
+<button class="shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-kr text-[11px] transition-colors" type="button">
+<span class="material-symbols-outlined text-[13px] text-primary">bookmark</span>
+<span>18:30 이직 계약 길시</span>
+</button>
+</div>
+<!-- Transcript Accordion -->
+<div class="pt-space-xs">
+<button class="w-full py-2.5 px-3 rounded-lg bg-surface-container-high flex items-center justify-between text-on-surface hover:text-primary transition-colors" id="transcriptToggle" type="button">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">notes</span>
+<span class="font-label-kr text-label-kr font-medium">전체 통화 텍스트 전문(Full Script) 열람하기</span>
+</div>
+<span class="material-symbols-outlined text-[18px] transition-transform" id="transcriptArrow">expand_more</span>
+</button>
+<div class="hidden mt-2 p-3 rounded-lg bg-surface-container-lowest text-on-surface-variant font-body-sm text-body-sm flex-col gap-2" id="transcriptBody">
+<div class="flex gap-2">
+<span class="text-primary font-bold shrink-0">[도원]</span>
+<p>반갑습니다. 오늘 명식을 보아하니 이번 10월 병술월이 내담자님께 참 의미심장한 분기점입니다. 진술충이 오는데, 많은 분들이 '충'이라 하면 겁을 내십니다만...</p>
+</div>
+<div class="flex gap-2">
+<span class="text-tertiary font-bold shrink-0">[내담자]</span>
+<p>네, 안 그래도 이번 달에 큰 이직 제안이 들어왔는데 잘못될까 봐 조마조마했습니다.</p>
+</div>
+<div class="flex gap-2">
+<span class="text-primary font-bold shrink-0">[도원]</span>
+<p>아닙니다. 오히려 흙 속에 묻혀 있던 보물 창고 문이 열리는 기운입니다. 단, 날짜와 시간을 잘 골라야 탈이 없습니다. 10월 22일 미시를 점지해 드리겠습니다.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 4: Daily Prescription & Lucky Day Calendar -->
+<div class="flex flex-col gap-space-sm mb-space-xl">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">calendar_month</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">실천 길일 캘린더 &amp; 비보 처방</h2>
+</div>
+<span class="font-label-caps text-label-caps text-primary">ACTION PLAN</span>
+</div>
+<!-- Action Card -->
+<div class="rounded-xl bg-surface-container p-space-md flex flex-col gap-space-md shadow-md">
+<!-- Target Day Box -->
+<div class="rounded-lg bg-surface-container-high p-space-sm flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg bg-primary/20 flex flex-col items-center justify-center text-primary">
+<span class="font-label-caps text-[11px] font-bold">10.22</span>
+<span class="font-headline-md text-[13px] font-bold">을사일</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md text-on-surface font-semibold">이직 최종 계약서 날인 추천</span>
+<span class="font-caption text-caption text-tertiary">미시 (오후 13:30 ~ 15:30) 천우신조 시간대</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="px-2 py-0.5 rounded-full bg-primary text-on-primary font-label-caps text-[11px] font-bold">D-8</span>
+<span class="font-caption text-[10px] text-on-surface-variant">캘린더 연동됨</span>
+</div>
+</div>
+<!-- 3 Remedies Grid -->
+<div class="grid grid-cols-3 gap-2">
+<div class="rounded-lg bg-surface-container-lowest p-2.5 flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-tertiary text-[20px] mb-1">palette</span>
+<span class="font-label-kr text-[11px] text-on-surface-variant">비보 색상</span>
+<span class="font-label-kr text-label-kr text-on-surface font-bold mt-0.5">네이비 &amp; 골드</span>
+</div>
+<div class="rounded-lg bg-surface-container-lowest p-2.5 flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-primary text-[20px] mb-1">explore</span>
+<span class="font-label-kr text-[11px] text-on-surface-variant">행운의 방위</span>
+<span class="font-label-kr text-label-kr text-on-surface font-bold mt-0.5">서남방(坤)</span>
+</div>
+<div class="rounded-lg bg-surface-container-lowest p-2.5 flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-error text-[20px] mb-1">gpp_maybe</span>
+<span class="font-label-kr text-[11px] text-on-surface-variant">주의 사항</span>
+<span class="font-label-kr text-label-kr text-on-surface font-bold mt-0.5">구두 합의 지양</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Sticky Action Bar -->
+<div class="sticky bottom-0 inset-x-0 bg-surface-container-lowest/95 backdrop-blur-xl p-margin flex flex-col gap-2 shadow-2xl z-40">
+<div class="flex items-center gap-2">
+<button class="w-1/3 py-3 px-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-kr text-label-kr font-medium flex items-center justify-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+<span>PDF 평생 소장</span>
+</button>
+<button class="w-2/3 py-3 px-4 rounded-xl bg-gradient-to-r from-primary-container via-primary to-primary-fixed text-on-primary font-label-kr text-label-kr font-bold shadow-lg flex items-center justify-center gap-1.5 active:scale-[0.99] transition-transform" type="button">
+<span class="material-symbols-outlined text-[18px]">chat_spark</span>
+<span>리포트 후속 질문 (무료 1회)</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  // Simple Audio Toggle Micro-interaction
+  const playBtn = document.getElementById('playBtn');
+  const playIcon = document.getElementById('playIcon');
+  let isPlaying = false;
+
+  if (playBtn && playIcon) {
+    playBtn.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      playIcon.textContent = isPlaying ? 'pause' : 'play_arrow';
+    });
+  }
+
+  // Playback Speed Toggle
+  const speedBtn = document.getElementById('speedBtn');
+  const speeds = ['1.0x', '1.2x', '1.5x'];
+  let currentSpeedIdx = 1;
+
+  if (speedBtn) {
+    speedBtn.addEventListener('click', () => {
+      currentSpeedIdx = (currentSpeedIdx + 1) % speeds.length;
+      speedBtn.textContent = speeds[currentSpeedIdx];
+    });
+  }
+
+  // Full Transcript Accordion Toggle
+  const transcriptToggle = document.getElementById('transcriptToggle');
+  const transcriptBody = document.getElementById('transcriptBody');
+  const transcriptArrow = document.getElementById('transcriptArrow');
+
+  if (transcriptToggle && transcriptBody && transcriptArrow) {
+    transcriptToggle.addEventListener('click', () => {
+      const isHidden = transcriptBody.classList.contains('hidden');
+      if (isHidden) {
+        transcriptBody.classList.remove('hidden');
+        transcriptBody.classList.add('flex');
+        transcriptArrow.classList.add('rotate-180');
+      } else {
+        transcriptBody.classList.add('hidden');
+        transcriptBody.classList.remove('flex');
+        transcriptArrow.classList.remove('rotate-180');
+      }
+    });
+  }
+</script></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface-container-lowest/90 backdrop-blur-2xl shadow-[0_-8px_32px_rgba(0,0,0,0.65)]" data-active-classes="text-primary font-semibold"><div class="flex justify-around items-center h-16 px-space-xs"><a class="flex flex-col items-center justify-center gap-1 w-20 h-14 text-on-surface-variant hover:text-on-surface transition-all group" data-path="home" href="#"><span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">explore</span><span class="font-label-kr text-label-kr tracking-tight">홈</span></a><a class="flex flex-col items-center justify-center gap-1 w-20 h-14 text-on-surface-variant hover:text-on-surface transition-all group" data-path="saju-calendar" href="#"><span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">auto_stories</span><span class="font-label-kr text-label-kr tracking-tight">만세력</span></a><a class="flex flex-col items-center justify-center gap-1 w-20 h-14 text-on-surface-variant hover:text-on-surface transition-all group" data-path="destiny-report" href="#"><span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">stars</span><span class="font-label-kr text-label-kr tracking-tight">운세리포트</span></a><a class="flex flex-col items-center justify-center gap-1 w-20 h-14 text-on-surface-variant hover:text-on-surface transition-all group" data-path="consultation" href="#"><span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">forum</span><span class="font-label-kr text-label-kr tracking-tight">1:1 상담</span></a></div></nav></body></html>

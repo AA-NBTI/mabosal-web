@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&amp;family=Noto+Serif+KR:wght@500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#0f131d;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "inverse-on-surface": "#2c303b", "tertiary-fixed": "#acedff", "on-error": "#690005", "error": "#ffb4ab", "secondary-container": "#3e475a", "on-primary": "#3c2f00", "outline": "#99907c", "surface-container-low": "#171b26", "secondary-fixed": "#dae2fa", "secondary-fixed-dim": "#bec6dd", "error-container": "#93000a", "on-primary-container": "#554300", "inverse-surface": "#dfe2f1", "on-tertiary-fixed": "#001f26", "primary-container": "#d4af37", "surface-container-highest": "#313540", "primary-fixed": "#ffe088", "on-tertiary-fixed-variant": "#004e5c", "tertiary-fixed-dim": "#4cd7f6", "surface-container-lowest": "#0a0e18", "tertiary-container": "#2dc3e1", "on-secondary-fixed-variant": "#3e475a", "surface": "#0f131d", "on-surface": "#dfe2f1", "outline-variant": "#4d4635", "on-secondary-fixed": "#121c2c", "surface-container-high": "#262a35", "on-tertiary-container": "#004c5a", "inverse-primary": "#735c00", "surface-variant": "#313540", "surface-container": "#1c1f2a", "background": "#0f131d", "on-primary-fixed": "#241a00", "on-secondary-container": "#acb5cb", "on-primary-fixed-variant": "#574500", "on-surface-variant": "#d0c5af", "tertiary": "#56dffe", "secondary": "#bec6dd", "on-secondary": "#283042", "surface-tint": "#e9c349", "primary": "#f2ca50", "surface-bright": "#353944", "primary-fixed-dim": "#e9c349", "on-error-container": "#ffdad6", "surface-dim": "#0f131d", "on-tertiary": "#003640", "on-background": "#dfe2f1" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-md": "0.875rem", "space-xl": "1.75rem", "margin": "1.25rem", "space-xs": "0.25rem", "gutter": "1rem", "space-sm": "0.5rem", "space-lg": "1.25rem" }, fontFamily: { "title-lg": ["Noto Sans KR", "Noto Sans"], "title-md": ["Noto Sans KR", "Noto Sans"], "headline-xl": ["Noto Serif KR", "Noto Serif"], "body-md": ["Noto Sans KR", "Noto Sans"], "body-sm": ["Noto Sans KR", "Noto Sans"], "label-kr": ["Noto Sans KR", "Noto Sans"], "headline-md": ["Noto Serif KR", "Noto Serif"], "label-caps": ["Space Grotesk"], "caption": ["Noto Sans KR", "Noto Sans"], "headline-lg": ["Noto Serif KR", "Noto Serif"], "body-lg": ["Noto Sans KR", "Noto Sans"] }, fontSize: { "title-lg": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "title-md": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }], "headline-xl": ["32px", { "lineHeight": "42px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }], "body-sm": ["13px", { "lineHeight": "19px", "letterSpacing": "0.005em", "fontWeight": "400" }], "label-kr": ["12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "label-caps": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "600" }], "caption": ["11px", { "lineHeight": "15px", "letterSpacing": "0.01em", "fontWeight": "400" }], "headline-lg": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface flex flex-col min-h-screen selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.4)] pt-safe"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-primary text-[24px]">explore</span></div><div class="flex flex-col"><div class="flex items-baseline gap-1.5"><span class="font-headline-md text-headline-md font-semibold text-primary tracking-tight">천명원</span><span class="font-label-caps text-label-caps text-primary/60 tracking-widest uppercase">天命院</span></div><span class="font-caption text-caption text-on-surface-variant sr-only">Home</span></div></div><div class="flex items-center gap-space-sm"><div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/20 text-primary border border-primary/40 shadow-[0_0_12px_rgba(242,202,80,0.35)] transition-all animate-pulse"><span class="material-symbols-outlined text-[15px] text-primary">monetization_on</span><span class="font-label-caps text-label-caps tracking-tight font-bold text-primary">3,350</span><span class="font-label-kr text-label-kr text-primary-fixed">엽</span><span class="font-caption text-[10px] text-tertiary font-bold pl-0.5">+100</span></div><button aria-label="알림" class="relative w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary transition-colors focus:outline-none"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-primary ring-2 ring-surface"></span></button><img alt="Profile" class="w-8 h-8 rounded-full object-cover shadow-[0_0_10px_rgba(242,202,80,0.25)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_y5dQKydphchpcTMO9__yOAFFEgeD_3sXWyVzYITbc9ScEMV9UusNnB8MrP3rRNehnDosDEmgGTWmCVZDuDxtUgZIJB-PI5DB6yJ6G0rP79YMm9UpRAvEvRMhKMFhz9CbgcrP7slqEw8CSSw12AWe1dRk4izXRXaXLcWpULWkj2U34H_Px7ilYcQFBYZV477Qm9WM2HxzSMgDd2hTe0zLYB3kYdOCEqFkhcxtyMqu"/></div></div></header><main class="flex flex-col relative w-full pt-16 pb-28 bg-surface min-h-screen"><div class="flex flex-col w-full relative">
+<!-- Dimmed Coupon Wallet Screen (Background Simulation) -->
+<div class="w-full px-margin opacity-30 pointer-events-none select-none filter blur-[1.5px] transition-all">
+<div class="flex items-center justify-between py-space-sm mb-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">account_balance_wallet</span>
+<span class="font-headline-md text-headline-md text-on-surface">보유 보관함</span>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface-variant">
+<span class="font-caption text-caption text-outline">보유 엽전</span>
+<span class="font-label-caps text-label-caps text-primary font-bold">350 엽</span>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-xl p-space-lg mb-space-md shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-kr text-label-kr text-primary">특전 쿠폰 1매 사용 가능</span>
+<span class="font-caption text-caption text-on-surface-variant">유효기간 2025.10.31</span>
+</div>
+<p class="font-headline-md text-headline-md text-on-surface mb-1">1:1 명리학 수석 역술가 30분 집중 상담권</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">갑진일 특별 혜택 발급 완료</p>
+</div>
+<div class="grid grid-cols-2 gap-space-sm mb-space-lg">
+<div class="bg-surface-container p-space-md rounded-lg h-24"></div>
+<div class="bg-surface-container p-space-md rounded-lg h-24"></div>
+</div>
+</div>
+<!-- Modal Backdrop Layer -->
+<div class="fixed inset-0 z-40 bg-surface-container-lowest/80 backdrop-blur-md transition-opacity duration-300"></div>
+<!-- Bottom Sheet Modal Content Container -->
+<div class="relative z-50 w-full mt-auto bg-surface-container-low rounded-t-xl shadow-xl flex flex-col max-h-[777px] overflow-hidden">
+<!-- Drag Handle & Modal Header -->
+<div class="sticky top-0 z-20 bg-surface-container-low/95 backdrop-blur-lg px-margin pt-3 pb-space-sm shadow-sm">
+<div class="w-10 h-1 bg-surface-variant rounded-full mx-auto mb-3"></div>
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex flex-col gap-1 min-w-0">
+<div class="inline-flex items-center gap-1.5 self-start px-2 py-0.5 rounded-full bg-surface-container-high">
+<span class="material-symbols-outlined text-[13px] text-primary" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="font-label-caps text-label-caps text-primary tracking-widest font-semibold uppercase">天命院 • 1:1 집중 상담 예약</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mt-1">역술가 1:1 심층 상담 예약</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            보유하신 30분 집중 상담권(15,000원 상당)을 사용하여 원하시는 역술가와 길시(吉時)를 예약하세요.
+          </p>
+</div>
+<button aria-label="닫기" class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors flex-shrink-0" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</div>
+<!-- Scrollable Booking Body -->
+<div class="overflow-y-auto px-margin pt-space-xs pb-32 flex flex-col gap-space-lg">
+<!-- Applied Coupon Info Strip -->
+<div class="rounded-xl bg-surface-container p-space-md shadow-sm flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-kr text-label-kr text-primary flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">confirmation_number</span>
+            적용 보유 쿠폰
+          </span>
+<span class="px-2 py-0.5 rounded-full bg-primary/15 text-primary font-label-caps text-label-caps font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">check_circle</span>
+            무료 적용 완료 (0원 결제)
+          </span>
+</div>
+<div class="flex items-baseline justify-between pt-1">
+<span class="font-title-md text-title-md text-on-surface font-semibold truncate pr-2">
+            1:1 명리학 수석 역술가 30분 집중 상담권
+          </span>
+<span class="font-label-caps text-label-caps text-outline flex-shrink-0">#CHUN-2025-GAB30M</span>
+</div>
+</div>
+<!-- Step 1: 상담 방식 선택 -->
+<section class="flex flex-col gap-space-sm">
+<div class="flex items-center gap-1.5">
+<span class="font-label-caps text-label-caps text-primary font-bold">STEP 01</span>
+<h3 class="font-title-md text-title-md text-on-surface font-semibold">상담 방식 선택</h3>
+</div>
+<div class="grid grid-cols-2 gap-space-sm" id="consultation-methods">
+<!-- Voice Call (Active Selected) -->
+<button class="method-card text-left p-space-md rounded-xl bg-surface-container-high shadow-md flex flex-col gap-2 transition-all relative overflow-hidden" data-method="call" type="button">
+<div class="flex items-center justify-between">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">phone_in_talk</span>
+</div>
+<span class="w-4 h-4 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[12px] font-bold">check</span>
+</span>
+</div>
+<div>
+<p class="font-title-md text-title-md text-primary font-semibold">전화 상담 (음성)</p>
+<p class="font-caption text-caption text-on-surface-variant mt-0.5 leading-tight">실시간 육성으로 명쾌하고 깊이 있는 문답</p>
+</div>
+</button>
+<!-- Chat Consultation -->
+<button class="method-card text-left p-space-md rounded-xl bg-surface-container shadow-sm flex flex-col gap-2 transition-all opacity-80 hover:opacity-100" data-method="chat" type="button">
+<div class="flex items-center justify-between">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">chat</span>
+</div>
+<span class="w-4 h-4 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant">
+</span>
+</div>
+<div>
+<p class="font-title-md text-title-md text-on-surface font-semibold">채팅 상담</p>
+<p class="font-caption text-caption text-on-surface-variant mt-0.5 leading-tight">메신저 형태의 실시간 문답 및 기록 보관</p>
+</div>
+</button>
+</div>
+</section>
+<!-- Step 2: 배정 역술가 확인 및 변경 -->
+<section class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="font-label-caps text-label-caps text-primary font-bold">STEP 02</span>
+<h3 class="font-title-md text-title-md text-on-surface font-semibold">배정 역술가</h3>
+</div>
+<button class="font-label-kr text-label-kr text-on-surface-variant hover:text-primary flex items-center gap-0.5 transition-colors" type="button">
+            역술가 변경
+            <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</button>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container shadow-sm flex items-center gap-space-md">
+<div class="relative flex-shrink-0">
+<img class="w-14 h-14 rounded-full object-cover shadow-md" data-alt="Dignified mature Korean male destiny master scholar with serene expression, dressed in refined modern dark charcoal hanbok garment, holding antique wooden saju celestial compass in a warm moonlit traditional observatory studio setting, photorealistic soft directional lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5hPW-JPVbpQjTLkqoFpUPXhDnNB62zBPhP9yiZHOPS8nvrFGnAYF7sdifjkGe5WYSdSoqkJZZG2yue8P_PagRpU1lR-VDe05VMUCQ1E1Jrm8dw0s8zS_F7TudDelmCO7WQlk0UeWywh53PHI-SUVymRJb_gxwpHXjqzaXyIZizx5IThEtPTllXoS-dHUzY75K22JB3tiASPjZa4lJUpAlJkc4JtNUbtJ93UAfYlA7"/>
+<span class="absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-full bg-primary text-on-primary font-label-caps text-[9px] font-bold">
+              首席
+            </span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center gap-2 mb-0.5">
+<span class="px-1.5 py-0.5 rounded bg-primary/15 text-primary font-label-kr text-[10px] font-semibold">
+                쿠폰 우선 배정
+              </span>
+<span class="font-caption text-caption text-tertiary flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                4.98 (782회)
+              </span>
+</div>
+<p class="font-headline-md text-headline-md text-on-surface font-semibold truncate">
+              도원(道元) 김학선 선생
+            </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">
+              명리학 28년 정통 비기 · 갑진일 진토(辰土) 재고 전문 간명
+            </p>
+</div>
+</div>
+</section>
+<!-- Step 3: 상담 희망 일시 선택 -->
+<section class="flex flex-col gap-space-sm">
+<div class="flex items-center gap-1.5">
+<span class="font-label-caps text-label-caps text-primary font-bold">STEP 03</span>
+<h3 class="font-title-md text-title-md text-on-surface font-semibold">상담 희망 일시</h3>
+<span class="font-caption text-caption text-primary ml-auto flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]">schedule</span>
+            길시(吉時) 우선 추천
+          </span>
+</div>
+<!-- Date Selection Horizontal Pills -->
+<div class="flex gap-2 overflow-x-auto pb-1" id="date-selector">
+<!-- Today (Selected) -->
+<button class="date-chip flex-shrink-0 px-3 py-2 rounded-lg bg-surface-container-high shadow-sm flex flex-col items-center gap-0.5 text-center min-w-[84px] transition-all" data-date="today" type="button">
+<span class="font-label-kr text-label-kr text-primary font-semibold">오늘 10.14(화)</span>
+<span class="font-caption text-[10px] text-tertiary font-medium">잔여 길시 2개</span>
+</button>
+<!-- Tomorrow -->
+<button class="date-chip flex-shrink-0 px-3 py-2 rounded-lg bg-surface-container opacity-85 hover:opacity-100 flex flex-col items-center gap-0.5 text-center min-w-[84px] transition-all" data-date="tomorrow" type="button">
+<span class="font-label-kr text-label-kr text-on-surface">내일 10.15(수)</span>
+<span class="font-caption text-[10px] text-on-surface-variant">잔여 5슬롯</span>
+</button>
+<!-- Day After -->
+<button class="date-chip flex-shrink-0 px-3 py-2 rounded-lg bg-surface-container opacity-85 hover:opacity-100 flex flex-col items-center gap-0.5 text-center min-w-[84px] transition-all" data-date="day3" type="button">
+<span class="font-label-kr text-label-kr text-on-surface">10.16(목)</span>
+<span class="font-caption text-[10px] text-on-surface-variant">잔여 6슬롯</span>
+</button>
+<!-- Friday -->
+<button class="date-chip flex-shrink-0 px-3 py-2 rounded-lg bg-surface-container opacity-85 hover:opacity-100 flex flex-col items-center gap-0.5 text-center min-w-[84px] transition-all" data-date="day4" type="button">
+<span class="font-label-kr text-label-kr text-on-surface">10.17(금)</span>
+<span class="font-caption text-[10px] text-on-surface-variant">잔여 4슬롯</span>
+</button>
+</div>
+<!-- Time Slots Grid -->
+<div class="grid grid-cols-2 gap-space-sm pt-1" id="time-slot-grid">
+<!-- Slot 1: Active Selected -->
+<button class="time-slot text-left p-space-sm rounded-xl bg-surface-container-high shadow-md flex flex-col gap-1 transition-all relative overflow-hidden" data-time="16:00" type="button">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-primary font-bold">16:00 ~ 16:30</span>
+<span class="px-1.5 py-0.2 rounded-full bg-primary/20 text-primary font-label-kr text-[10px] font-semibold">선택됨</span>
+</div>
+<p class="font-caption text-caption text-tertiary">신시(申時) 대길 타임 · 예약 가능</p>
+</button>
+<!-- Slot 2 -->
+<button class="time-slot text-left p-space-sm rounded-xl bg-surface-container shadow-sm flex flex-col gap-1 transition-all opacity-85 hover:opacity-100" data-time="17:30" type="button">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-on-surface font-semibold">17:30 ~ 18:00</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container-highest text-on-surface-variant font-label-kr text-[10px]">가능</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant">유시(酉時) · 예약 가능</p>
+</button>
+<!-- Slot 3 -->
+<button class="time-slot text-left p-space-sm rounded-xl bg-surface-container shadow-sm flex flex-col gap-1 transition-all opacity-85 hover:opacity-100" data-time="20:00" type="button">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-on-surface font-semibold">20:00 ~ 20:30</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container-highest text-on-surface-variant font-label-kr text-[10px]">가능</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant">술시(戌時) 심야 집중 · 예약 가능</p>
+</button>
+<!-- Slot 4 (Closed/Disabled) -->
+<div class="p-space-sm rounded-xl bg-surface-container-lowest opacity-40 flex flex-col gap-1 cursor-not-allowed select-none">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-outline font-semibold line-through">21:30 ~ 22:00</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-variant text-outline font-label-kr text-[10px]">마감</span>
+</div>
+<p class="font-caption text-caption text-outline">예약 마감된 시간대</p>
+</div>
+</div>
+</section>
+<!-- Step 4: 사전 상담 질문 및 관심 분야 -->
+<section class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="font-label-caps text-label-caps text-primary font-bold">STEP 04</span>
+<h3 class="font-title-md text-title-md text-on-surface font-semibold">사전 질문 및 관심 분야</h3>
+</div>
+<span class="font-caption text-caption text-on-surface-variant">간명 정밀도 향상</span>
+</div>
+<!-- Quick Select Question Tags -->
+<div class="flex flex-wrap gap-1.5" id="topic-tags">
+<button class="px-2.5 py-1 rounded-full bg-primary/20 text-primary font-label-kr text-label-kr font-medium transition-all shadow-sm" type="button">
+            #갑진일 재고 개방 점검
+          </button>
+<button class="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-kr text-label-kr hover:text-on-surface transition-all" type="button">
+            #향후 3개월 월운
+          </button>
+<button class="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-kr text-label-kr hover:text-on-surface transition-all" type="button">
+            #이직 및 사업운
+          </button>
+<button class="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-kr text-label-kr hover:text-on-surface transition-all" type="button">
+            #연애·궁합
+          </button>
+</div>
+<!-- Pre-Question Textarea Box -->
+<div class="bg-surface-container rounded-xl p-space-md shadow-sm flex flex-col gap-2">
+<textarea class="w-full bg-transparent text-on-surface font-body-sm text-body-sm focus:outline-none resize-none placeholder-outline" placeholder="역술가에게 미리 전달할 핵심 질문이나 상황을 적어주시면 더욱 정밀한 사전 간명이 가능합니다." rows="3">오늘 대길일 행동 가이드를 실천했는데, 10~11월 진행 중인 이직 계약 건에 미칠 영향이 궁금합니다.</textarea>
+<div class="flex items-center justify-between pt-1 border-t-0">
+<span class="font-caption text-caption text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">lock</span>
+              상담 내용 및 사주 원국 정보는 철저히 암호화됩니다
+            </span>
+<span class="font-caption text-caption text-outline">58 / 200자</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Bottom Sticky Reservation Action Deck -->
+<div class="absolute bottom-0 inset-x-0 bg-surface-container-low/95 backdrop-blur-xl p-margin pt-3 shadow-[0_-8px_24px_rgba(0,0,0,0.6)] flex flex-col gap-2 z-30">
+<button class="w-full py-3.5 px-space-lg rounded-xl bg-gradient-to-r from-primary-container to-primary text-on-primary font-title-md text-title-md font-bold tracking-tight shadow-md hover:brightness-105 active:scale-[0.99] transition-all flex items-center justify-center gap-2" id="confirm-booking-btn" type="button">
+<span>상담권으로 무료 예약 확정하기</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/30 text-on-primary font-label-caps text-label-caps font-bold">0원 결제</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+<div class="flex items-center justify-center gap-1 text-center">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">notifications_active</span>
+<p class="font-caption text-caption text-on-surface-variant">
+          예약 10분 전 카카오톡 알림톡 및 앱 푸시로 상담 입장 링크가 발송됩니다.
+        </p>
+</div>
+</div>
+</div>
+<script>
+    (function initModalInteractions() {
+      // Consultation Method Switch
+      const methodCards = document.querySelectorAll('.method-card');
+      methodCards.forEach(card => {
+        card.addEventListener('click', () => {
+          methodCards.forEach(c => {
+            c.classList.remove('bg-surface-container-high', 'shadow-md');
+            c.classList.add('bg-surface-container', 'opacity-80');
+            const title = c.querySelector('p.font-title-md');
+            if (title) title.classList.replace('text-primary', 'text-on-surface');
+            const check = c.querySelector('.material-symbols-outlined.font-bold');
+            if (check) check.parentElement.classList.replace('bg-primary', 'bg-surface-variant');
+          });
+          card.classList.remove('bg-surface-container', 'opacity-80');
+          card.classList.add('bg-surface-container-high', 'shadow-md');
+          const activeTitle = card.querySelector('p.font-title-md');
+          if (activeTitle) activeTitle.classList.replace('text-on-surface', 'text-primary');
+          const checkIcon = card.querySelector('span.material-symbols-outlined');
+          if (checkIcon && checkIcon.textContent.trim() === 'check') {
+            checkIcon.parentElement.classList.replace('bg-surface-variant', 'bg-primary');
+          }
+        });
+      });
+
+      // Time Slot Selector
+      const timeSlots = document.querySelectorAll('.time-slot');
+      timeSlots.forEach(slot => {
+        slot.addEventListener('click', () => {
+          timeSlots.forEach(s => {
+            s.classList.remove('bg-surface-container-high', 'shadow-md');
+            s.classList.add('bg-surface-container', 'opacity-85');
+            const badge = s.querySelector('.font-label-kr');
+            if (badge) {
+              badge.textContent = '가능';
+              badge.className = 'px-1.5 py-0.2 rounded-full bg-surface-container-highest text-on-surface-variant font-label-kr text-[10px]';
+            }
+          });
+          slot.classList.remove('bg-surface-container', 'opacity-85');
+          slot.classList.add('bg-surface-container-high', 'shadow-md');
+          const activeBadge = slot.querySelector('.font-label-kr');
+          if (activeBadge) {
+            activeBadge.textContent = '선택됨';
+            activeBadge.className = 'px-1.5 py-0.2 rounded-full bg-primary/20 text-primary font-label-kr text-[10px] font-semibold';
+          }
+        });
+      });
+
+      // Quick Tag Selector
+      const topicTags = document.querySelectorAll('#topic-tags button');
+      topicTags.forEach(tag => {
+        tag.addEventListener('click', () => {
+          tag.classList.toggle('bg-primary/20');
+          tag.classList.toggle('text-primary');
+          tag.classList.toggle('bg-surface-container');
+          tag.classList.toggle('text-on-surface-variant');
+        });
+      });
+    })();
+  </script>
+</div></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface-container-lowest/90 backdrop-blur-2xl shadow-[0_-8px_32px_rgba(0,0,0,0.65)]" data-active-classes="text-primary font-semibold"><div class="flex justify-around items-center h-16 px-space-xs"><a class="flex flex-col items-center justify-center gap-1 w-20 h-14 text-on-surface-variant hover:text-on-surface transition-all group" data-path="home" href="#"><span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">explore</span><span class="font-label-kr text-label-kr tracking-tight">홈</span></a><a class="flex flex-col items-center justify-center gap-1 w-20 h-14 text-on-surface-variant hover:text-on-surface transition-all group" data-path="saju-calendar" href="#"><span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">auto_stories</span><span class="font-label-kr text-label-kr tracking-tight">만세력</span></a><a class="flex flex-col items-center justify-center gap-1 w-20 h-14 text-on-surface-variant hover:text-on-surface transition-all group" data-path="destiny-report" href="#"><span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">stars</span><span class="font-label-kr text-label-kr tracking-tight">운세리포트</span></a><a class="flex flex-col items-center justify-center gap-1 w-20 h-14 text-on-surface-variant hover:text-on-surface transition-all group" data-path="consultation" href="#"><span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">forum</span><span class="font-label-kr text-label-kr tracking-tight">1:1 상담</span></a></div></nav></body></html>

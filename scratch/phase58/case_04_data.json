@@ -1,0 +1,289 @@
+{
+  "caseId": "CASE_04",
+  "name": "CASE 04: 투자 손실 / 재물 위기",
+  "input": {
+    "id": "CASE_04",
+    "name": "CASE 04: 투자 손실 / 재물 위기",
+    "birthDate": "1982-04-05",
+    "birthTime": "06:00",
+    "gender": "male",
+    "calendarType": "solar",
+    "troubleCategory": "wealth",
+    "userTroubleText": "무리한 투자로 인해 극심한 재물 손실이 커졌고 빚을 갚기가 막막하여 재물 위기에 처했습니다.",
+    "clientId": "tester-case04",
+    "currentDate": "2026-10-03"
+  },
+  "fourPillarsText": "임술년 계묘월 무오일 을묘시",
+  "pillarsObj": {
+    "year": {
+      "stem": "임",
+      "branch": "술"
+    },
+    "month": {
+      "stem": "계",
+      "branch": "묘"
+    },
+    "day": {
+      "stem": "무",
+      "branch": "오"
+    },
+    "hour": {
+      "stem": "을",
+      "branch": "묘"
+    }
+  },
+  "sajuAnalysis": {
+    "fourPillars": {
+      "year": {
+        "stem": "임",
+        "branch": "술",
+        "ganji": "임술년"
+      },
+      "month": {
+        "stem": "계",
+        "branch": "묘",
+        "ganji": "계묘월"
+      },
+      "day": {
+        "stem": "무",
+        "branch": "오",
+        "ganji": "무오일"
+      },
+      "hour": {
+        "stem": "을",
+        "branch": "묘",
+        "ganji": "을묘시"
+      }
+    },
+    "dayMaster": {
+      "stem": "무",
+      "element": "토",
+      "yinYang": "양",
+      "name": "무토(戊土)",
+      "nature": "웅장한 산맥이나 드넓은 대지",
+      "characteristics": "포용력이 넓고 묵직하며 신용을 목숨처럼 여깁니다. 사소한 일에 동요하지 않는 든든한 신뢰감을 줍니다.",
+      "careerGuidance": "부동산, 건설, 공공기관, 금융, 자산관리, 총괄 관리자 등 중심을 잡고 운영하는 직무에 적합합니다.",
+      "wealthGuidance": "기반을 튼튼히 닦아 큰 규모의 자산을 안정적으로 유지하고 운용하는 대기만성형 재복입니다.",
+      "relationshipGuidance": "듬직하고 변함없는 모습으로 상대에게 안정감을 주며, 믿음직스러운 버팀목이 되어줍니다."
+    },
+    "ohaeng": {
+      "distribution": {
+        "wood": 3,
+        "fire": 1,
+        "earth": 2,
+        "metal": 0,
+        "water": 2
+      },
+      "dominant": "목",
+      "dominantKorean": "목(木)",
+      "lacking": [
+        "금"
+      ],
+      "lackingKorean": "금(金)",
+      "commentary": "오행 중 목(木)의 기운이 가장 왕성하여 성취와 추진의 동력이 되며, 상대적으로 잠재된 금(金)의 기운을 보완할 때 삶의 조화와 균형이 완성됩니다."
+    },
+    "strength": {
+      "status": "중화신약",
+      "score": 35,
+      "deungryeong": false,
+      "deungji": true,
+      "deungse": false,
+      "deungryeongScore": 15,
+      "deungJiScore": 80,
+      "deungSeScore": 16.67,
+      "description": "월령(묘)에 기운을 빼앗기고(실령) 일지(오)의 조력을 얻지 못해(실지), 환경의 압박과 생각의 설기가 많은 신약(身弱) 구조입니다. 그러나 시주와 년지의 통근으로 내면의 뒷심이 존재합니다.",
+      "calculationBasis": "월령 가중치 40%(15점 -> 6.0점) + 득지 30%(80점 -> 24.0점) + 득세 30%(16.67점 -> 5.0점) = 최종 점수 35점 (신약 판정 기준: 15~35점 구간)"
+    },
+    "geokguk": {
+      "name": "정관격",
+      "basis": "월지 묘의 지장간 본기 에너지에 기반함",
+      "condition": "월지 묘의 지장간 본기가 일간 무토(戊土)과 정관 관계를 형성하며, 사왕지(子午卯酉) 고유의 순수한 기운에 의거하여 정격으로 취격되었습니다.",
+      "description": "월지 묘의 기운을 바탕으로 정관격이 정립되어, 삶의 사회적 목표와 활동 반경을 명확하게 설정하는 틀을 형성합니다."
+    },
+    "tenGods": {
+      "counts": {
+        "비겁": 2,
+        "식상": 0,
+        "재성": 2,
+        "관성": 3,
+        "인성": 1
+      },
+      "surfaceCounts8": {
+        "비겁": 2,
+        "식상": 0,
+        "재성": 2,
+        "관성": 3,
+        "인성": 1
+      },
+      "hiddenCounts": {
+        "비겁": 2,
+        "식상": 1,
+        "재성": 0,
+        "관성": 4,
+        "인성": 3
+      },
+      "dominant": [
+        "관성",
+        "비겁",
+        "재성"
+      ],
+      "lacking": [
+        "식상"
+      ],
+      "summary": "표면 명식(8자)에서 [관성, 비겁, 재성]의 세력이 주도적인 동력으로 작용하며, 표면상 결핍된 [식상]의 기운을 보완할 때 인생의 안정성이 극대화됩니다. (단, 지장간에 암장된 기운의 잠재적 영향력 별도 감안)"
+    },
+    "yongshin": {
+      "primary": "화",
+      "secondary": "토",
+      "eokbu": {
+        "primary": "화",
+        "secondary": "토",
+        "reason": "신약한 일간을 생조하고 태왕한 설기와 재성을 다스리기 위해 인성(화(火))을 용신으로, 비겁(토(土))을 희신으로 삼습니다."
+      },
+      "johu": {
+        "season": "춘절(봄)",
+        "primary": "화",
+        "reason": "봄철의 목기를 따스하게 북돋우기 위해 화(火)의 조후가 조화를 돕습니다.",
+        "luckNote": "운의 흐름에 따라 화열과 수기의 균형을 맞추는 것이 중요합니다."
+      },
+      "reason": "[억부 용신] 화(火)(용신) / 토(土)(희신) — 신약한 일간을 생조하고 태왕한 설기와 재성을 다스리기 위해 인성(화(火))을 용신으로, 비겁(토(土))을 희신으로 삼습니다. | [조후 용신] 화(火) — 봄철의 목기를 따스하게 북돋우기 위해 화(火)의 조후가 조화를 돕습니다."
+    },
+    "clashesAndHarmonies": {
+      "clashes": [],
+      "harmonies": [
+        "묘술합(卯戌合)",
+        "묘술합(卯戌合)"
+      ],
+      "tripleHarmonies": [],
+      "semiHarmonies": [
+        "인오술 화국 (왕묘 반합)"
+      ],
+      "punishments": [],
+      "destructions": [
+        "오묘파(卯午破)",
+        "오묘파(卯午破)"
+      ],
+      "harms": [],
+      "wonjin": [],
+      "relationsSummary": "원국 지지 간에 거친 충돌이 적어 온화하고 안정적인 삶의 기반을 다져가는 구조입니다."
+    }
+  },
+  "relations": {
+    "clashes": [],
+    "sixHarmonies": [
+      {
+        "name": "묘술합화",
+        "branches": [
+          "술",
+          "묘"
+        ],
+        "positions": [
+          "year",
+          "month"
+        ],
+        "source": "NATAL",
+        "intensity": 85,
+        "evidence": [
+          "육합 성립 (거리 1)"
+        ],
+        "temporalCompletion": false,
+        "description": "원국 지지 묘술합화 육합"
+      },
+      {
+        "name": "묘술합화",
+        "branches": [
+          "술",
+          "묘"
+        ],
+        "positions": [
+          "year",
+          "hour"
+        ],
+        "source": "NATAL",
+        "intensity": 29.75,
+        "evidence": [
+          "육합 성립 (거리 3)"
+        ],
+        "temporalCompletion": false,
+        "description": "원국 지지 묘술합화 육합"
+      }
+    ],
+    "tripleHarmonies": [],
+    "semiHarmonies": [
+      {
+        "name": "인오술 화국 (왕묘 반합)",
+        "branches": [
+          "오",
+          "술"
+        ],
+        "positions": [
+          "year",
+          "day"
+        ],
+        "source": "NATAL",
+        "intensity": 65,
+        "evidence": [
+          "왕지(오)를 포함한 왕묘 반합",
+          "왕지(오) 포함 반합 결합",
+          ""
+        ],
+        "temporalCompletion": false,
+        "description": "원국 반합 성립: 인오술 화국 (왕묘 반합)"
+      }
+    ],
+    "punishments": [],
+    "destructions": [
+      {
+        "name": "오묘파",
+        "branches": [
+          "묘",
+          "오"
+        ],
+        "positions": [
+          "month",
+          "day"
+        ],
+        "source": "NATAL",
+        "intensity": 60,
+        "evidence": [
+          "목생화의 균열, 도화성 분쟁/파탄",
+          "궁위: month ↔ day",
+          "거리: 1칸"
+        ],
+        "temporalCompletion": false,
+        "description": "원국 지지 오묘파: 목생화의 균열, 도화성 분쟁/파탄"
+      },
+      {
+        "name": "오묘파",
+        "branches": [
+          "오",
+          "묘"
+        ],
+        "positions": [
+          "day",
+          "hour"
+        ],
+        "source": "NATAL",
+        "intensity": 60,
+        "evidence": [
+          "목생화의 균열, 도화성 분쟁/파탄",
+          "궁위: day ↔ hour",
+          "거리: 1칸"
+        ],
+        "temporalCompletion": false,
+        "description": "원국 지지 오묘파: 목생화의 균열, 도화성 분쟁/파탄"
+      }
+    ],
+    "harms": [],
+    "wonjin": []
+  },
+  "daewoon": {
+    "cycle_years": 10,
+    "direction": "순행",
+    "current_daewoon": {
+      "pillar": "병오 대운",
+      "age_range": "27세 ~ 36세",
+      "flow_summary": "사회적 책임과 경험이 축적되며 외부 환경과의 조율이 활발하게 일어나는 구간입니다."
+    }
+  }
+}

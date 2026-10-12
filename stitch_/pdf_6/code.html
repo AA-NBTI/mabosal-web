@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&amp;family=Noto+Serif+KR:wght@500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-surface":"#dfe2f1","inverse-surface":"#dfe2f1","surface-dim":"#0f131d","on-secondary-container":"#acb5cb","outline":"#99907c","surface-container":"#1c1f2a","surface-container-highest":"#313540","surface-variant":"#313540","on-tertiary-fixed":"#001f26","surface":"#0f131d","secondary-container":"#3e475a","inverse-on-surface":"#2c303b","surface-container-high":"#262a35","primary-container":"#d4af37","primary-fixed":"#ffe088","on-secondary-fixed-variant":"#3e475a","on-primary":"#3c2f00","on-tertiary-fixed-variant":"#004e5c","surface-container-low":"#171b26","primary-fixed-dim":"#e9c349","on-primary-fixed-variant":"#574500","tertiary-fixed":"#acedff","secondary":"#bec6dd","surface-tint":"#e9c349","secondary-fixed":"#dae2fa","on-background":"#dfe2f1","surface-bright":"#353944","surface-container-lowest":"#0a0e18","on-primary-container":"#554300","on-error-container":"#ffdad6","on-error":"#690005","primary":"#f2ca50","background":"#0f131d","outline-variant":"#4d4635","on-secondary":"#283042","on-tertiary-container":"#004c5a","secondary-fixed-dim":"#bec6dd","error-container":"#93000a","on-tertiary":"#003640","tertiary-fixed-dim":"#4cd7f6","on-secondary-fixed":"#121c2c","on-surface-variant":"#d0c5af","tertiary":"#56dffe","inverse-primary":"#735c00","tertiary-container":"#2dc3e1","on-primary-fixed":"#241a00","error":"#ffb4ab"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-xs":"0.25rem","space-lg":"1.25rem","space-sm":"0.5rem","space-xl":"1.75rem","gutter":"1rem","space-md":"0.875rem","margin":"1.25rem"},"fontFamily":{"body-md":["Noto Sans KR","Noto Sans"],"title-lg":["Noto Sans KR","Noto Sans"],"label-kr":["Noto Sans KR","Noto Sans"],"body-lg":["Noto Sans KR","Noto Sans"],"body-sm":["Noto Sans KR","Noto Sans"],"title-md":["Noto Sans KR","Noto Sans"],"caption":["Noto Sans KR","Noto Sans"],"label-caps":["Space Grotesk"],"headline-xl":["Noto Serif KR","Noto Serif"],"headline-lg":["Noto Serif KR","Noto Serif"],"headline-md":["Noto Serif KR","Noto Serif"]},"fontSize":{"body-md":["14px",{"lineHeight":"22px","letterSpacing":"0em","fontWeight":"400"}],"title-lg":["18px",{"lineHeight":"26px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-kr":["12px",{"lineHeight":"16px","letterSpacing":"0em","fontWeight":"500"}],"body-lg":["16px",{"lineHeight":"26px","letterSpacing":"-0.005em","fontWeight":"400"}],"body-sm":["13px",{"lineHeight":"19px","letterSpacing":"0.005em","fontWeight":"400"}],"title-md":["16px",{"lineHeight":"24px","letterSpacing":"0em","fontWeight":"600"}],"caption":["11px",{"lineHeight":"15px","letterSpacing":"0.01em","fontWeight":"400"}],"label-caps":["11px",{"lineHeight":"14px","letterSpacing":"0.08em","fontWeight":"600"}],"headline-xl":["32px",{"lineHeight":"42px","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-lg":["26px",{"lineHeight":"34px","letterSpacing":"-0.015em","fontWeight":"600"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"500"}]}}}};</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_12px_rgba(0,0,0,0.35)]"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><button class="w-11 h-11 -ml-2 flex items-center justify-center text-on-surface hover:text-primary transition-colors" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[24px]">arrow_back_ios_new</span></button><h1 class="font-title-lg text-title-lg text-on-surface tracking-tight">Live Consultation Room</h1></div><div class="flex items-center gap-space-sm"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/90 text-primary"><span class="material-symbols-outlined text-[15px] text-primary">toll</span><span class="font-label-caps text-caption text-primary tracking-tight font-semibold">3,350<span class="font-label-kr text-caption ml-0.5 text-on-surface-variant">엽</span></span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-[0_0_8px_rgba(242,202,80,0.25)]"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 bg-surface min-h-screen pb-safe"><div class="flex flex-col w-full pb-28 select-none">
+<!-- Top Document Meta Bar (Secondary Viewer Bar) -->
+<div class="w-full bg-surface-container-low px-margin py-2.5 flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="material-symbols-outlined text-primary text-[20px] shrink-0" style="font-variation-settings: 'FILL' 1;">picture_as_pdf</span>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-body-sm text-on-surface truncate">천명원_도원선생_최종감명서_v2.4.pdf</span>
+<span class="font-label-caps text-caption text-on-surface-variant uppercase tracking-wider">A4 Digital Certified • 8.4 MB</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs shrink-0">
+<button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:text-primary transition-colors" id="share-action-btn" title="공유" type="button">
+<span class="material-symbols-outlined text-[17px]">ios_share</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:text-primary transition-colors" id="print-action-btn" title="인쇄" type="button">
+<span class="material-symbols-outlined text-[17px]">print</span>
+</button>
+<div class="px-2 py-0.5 rounded-full bg-surface-container-high flex items-center gap-1 text-on-surface">
+<span class="font-label-caps text-caption font-semibold text-primary" id="cur-page-num">01</span>
+<span class="text-caption text-outline text-[10px]">/</span>
+<span class="font-label-caps text-caption text-secondary">06</span>
+</div>
+</div>
+</div>
+<!-- Document Viewport Canvas -->
+<div class="w-full px-space-md pt-space-md flex flex-col items-center">
+<!-- Paper Sheet Container (Simulating High-Grade Korean Traditional Mulberry Hanji Document) -->
+<div class="w-full max-w-md bg-[#faf8f2] text-[#1a1714] rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.7)] p-5 relative overflow-hidden transition-transform duration-200" id="pdf-paper-viewport">
+<!-- Subtle Paper Fiber Overlay & Background Watermark -->
+<div class="absolute inset-0 pointer-events-none opacity-4 flex items-center justify-center">
+<span class="font-headline-xl text-[140px] font-bold text-[#20180a] select-none rotate-[-30deg] tracking-widest opacity-[0.035]">天命</span>
+</div>
+<!-- Traditional Double Ornamental Filigree Header Frame -->
+<div class="w-full bg-[#f4efe4] rounded p-3 mb-4 relative shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<!-- Celestial Trigram Logo Badge -->
+<div class="w-9 h-9 rounded bg-[#181d28] flex items-center justify-center text-primary shadow-sm shrink-0">
+<span class="font-headline-md text-primary text-[17px] font-bold tracking-tighter">天</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-md text-body-sm font-bold text-[#1e1b18] tracking-widest leading-none">天命院 秘傳 命理 鑑明書</span>
+<span class="font-caption text-[10px] text-[#635c52] tracking-wider mt-0.5">CHUNMYUNGWON METAPHYSICAL ARCHIVE</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-label-caps text-[9px] bg-[#93000a] text-[#ffffff] px-1.5 py-0.5 rounded font-semibold tracking-wider">1급 비공개 친필</span>
+<span class="font-label-caps text-[9px] text-[#786d5e] mt-1 font-mono">DOC: 2025-1014-DW</span>
+</div>
+</div>
+</div>
+<!-- Document Metadata Strip -->
+<div class="grid grid-cols-2 gap-2 mb-4 bg-[#f1ece1] rounded p-2.5 text-[#302b24]">
+<div class="flex flex-col">
+<span class="font-caption text-[10px] text-[#796f60]">의뢰인 정보 (명식)</span>
+<span class="font-body-sm text-[12px] font-semibold text-[#181614] mt-0.5">건명(乾命) • 성명 비공개 본원</span>
+<span class="font-label-caps text-[10px] text-[#554e42] font-mono">1994.02.15 13:40 (미시 生)</span>
+</div>
+<div class="flex flex-col items-end text-right">
+<span class="font-caption text-[10px] text-[#796f60]">담당 수석 명리가</span>
+<span class="font-title-md text-[13px] font-bold text-[#181614] mt-0.5">道元 김학선 首席</span>
+<span class="font-caption text-[10px] text-[#7a4f00]">천명원 명리연구원장</span>
+</div>
+</div>
+<!-- Core Saju Four Pillars Mini Matrix -->
+<div class="w-full bg-[#f8f5ee] rounded p-3 mb-4 shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<span class="font-title-md text-[12px] font-bold text-[#2d271f] flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-[#a37910]"></span>
+            사주원국표(四柱元局) 정밀배치
+          </span>
+<span class="font-label-caps text-[10px] text-[#796f60]">SOLAR / LUNAR COMPLIANT</span>
+</div>
+<div class="grid grid-cols-4 gap-1.5 text-center">
+<!-- Hour Pillar -->
+<div class="bg-[#ebe4d4] rounded p-1.5 flex flex-col items-center">
+<span class="font-label-caps text-[9px] text-[#706657]">時柱 (시)</span>
+<div class="my-1 flex flex-col items-center font-headline-md leading-none font-bold">
+<span class="text-[#a83232] text-[15px]">丁</span>
+<span class="text-[#997320] text-[15px] mt-0.5">未</span>
+</div>
+<span class="font-caption text-[9px] text-[#544c3f]">정화 · 미토</span>
+</div>
+<!-- Day Pillar (Master) -->
+<div class="bg-[#e4dcbe] rounded p-1.5 flex flex-col items-center shadow-[0_0_0_1px_rgba(163,121,16,0.3)]">
+<span class="font-label-caps text-[9px] text-[#a37910] font-bold">日柱 (일·본원)</span>
+<div class="my-1 flex flex-col items-center font-headline-md leading-none font-bold">
+<span class="text-[#207567] text-[15px]">甲</span>
+<span class="text-[#1f509e] text-[15px] mt-0.5">子</span>
+</div>
+<span class="font-caption text-[9px] text-[#1b4332] font-semibold">갑목 · 자수</span>
+</div>
+<!-- Month Pillar -->
+<div class="bg-[#ebe4d4] rounded p-1.5 flex flex-col items-center">
+<span class="font-label-caps text-[9px] text-[#706657]">月柱 (월)</span>
+<div class="my-1 flex flex-col items-center font-headline-md leading-none font-bold">
+<span class="text-[#a83232] text-[15px]">丙</span>
+<span class="text-[#207567] text-[15px] mt-0.5">寅</span>
+</div>
+<span class="font-caption text-[9px] text-[#544c3f]">병화 · 인목</span>
+</div>
+<!-- Year Pillar -->
+<div class="bg-[#ebe4d4] rounded p-1.5 flex flex-col items-center">
+<span class="font-label-caps text-[9px] text-[#706657]">年柱 (년)</span>
+<div class="my-1 flex flex-col items-center font-headline-md leading-none font-bold">
+<span class="text-[#207567] text-[15px]">甲</span>
+<span class="text-[#997320] text-[15px] mt-0.5">戌</span>
+</div>
+<span class="font-caption text-[9px] text-[#544c3f]">갑목 · 술토</span>
+</div>
+</div>
+</div>
+<!-- Core Prescription Summary Box -->
+<div class="w-full bg-[#f6f2e8] rounded p-3 mb-4 space-y-2.5">
+<div class="flex items-center gap-1.5 pb-1">
+<span class="material-symbols-outlined text-[#a37910] text-[16px]">verified</span>
+<span class="font-title-md text-[13px] font-bold text-[#1f1a14]">핵심 감명 총결 요약 (總結)</span>
+</div>
+<!-- Point 1 -->
+<div class="bg-[#eee7d8] rounded p-2">
+<div class="flex items-baseline justify-between mb-0.5">
+<span class="font-caption text-[11px] font-bold text-[#3d362b]">격국 (格局) 분석</span>
+<span class="font-label-caps text-[9px] text-[#7a4f00] font-semibold">식신제살(食神制殺) &amp; 식상생재격</span>
+</div>
+<p class="font-body-sm text-[11px] text-[#4d4438] leading-tight">
+            봄철 거목(甲木)이 화(火)의 기운을 만나 재능을 화려하게 발현시키는 명식. 추진력과 전문성 축적이 대운과 강력히 공명함.
+          </p>
+</div>
+<!-- Point 2 -->
+<div class="bg-[#eee7d8] rounded p-2">
+<div class="flex items-baseline justify-between mb-0.5">
+<span class="font-caption text-[11px] font-bold text-[#3d362b]">2025년 10월 대길일(大吉日) 처방</span>
+<span class="font-label-caps text-[9px] bg-[#93000a]/10 text-[#93000a] px-1 rounded font-bold">을사일 서남방</span>
+</div>
+<p class="font-body-sm text-[11px] text-[#4d4438] leading-tight">
+            10월 22일(乙巳日) 미시(13:30~15:30)에 계약 체결 시 최상의 결실. 부득이 지연 시 붉은 계열 소품 및 온기 보완 비보 필수.
+          </p>
+</div>
+<!-- Point 3: 3-Year Strategic Table -->
+<div class="bg-[#eee7d8] rounded p-2">
+<span class="font-caption text-[10px] font-bold text-[#3d362b] block mb-1">향후 3개년 대운 전환기 핵심 지표</span>
+<div class="grid grid-cols-3 gap-1 text-center font-caption text-[10px]">
+<div class="bg-[#f7f4ec] rounded py-1 px-0.5">
+<span class="font-label-caps text-[9px] text-[#857b6d] block">2025 (乙巳)</span>
+<span class="font-bold text-[#a37910] text-[11px]">기반 확립</span>
+<span class="text-[9px] text-[#554e42] block">신규 계약 성사</span>
+</div>
+<div class="bg-[#f7f4ec] rounded py-1 px-0.5">
+<span class="font-label-caps text-[9px] text-[#857b6d] block">2026 (丙午)</span>
+<span class="font-bold text-[#93000a] text-[11px]">대발복(發福)</span>
+<span class="text-[9px] text-[#554e42] block">재물운 극대화</span>
+</div>
+<div class="bg-[#f7f4ec] rounded py-1 px-0.5">
+<span class="font-label-caps text-[9px] text-[#857b6d] block">2027 (丁未)</span>
+<span class="font-bold text-[#1f509e] text-[11px]">자산 안정</span>
+<span class="text-[9px] text-[#554e42] block">부동산 문서화</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Seal & Signature Section -->
+<div class="w-full flex items-center justify-between pt-1 pb-2">
+<div class="flex flex-col">
+<span class="font-caption text-[10px] text-[#706657]">감명일자: 2025년 10월 14일</span>
+<span class="font-caption text-[10px] text-[#706657]">발행처: 사단법인 천명원 명리심리감정원</span>
+<span class="font-label-caps text-[9px] text-[#8a7f70] mt-0.5">AUTHENTIC CERTIFICATE #0924</span>
+</div>
+<!-- Master Stamp Impression & Signature -->
+<div class="relative flex items-center gap-2">
+<div class="flex flex-col items-end">
+<span class="font-caption text-[10px] text-[#524a3e]">도원 김학선</span>
+<span class="font-headline-md text-[13px] text-[#221c15] tracking-widest italic font-bold">金鶴宣 謹書</span>
+</div>
+<!-- Red Inju Seal (도원지인) -->
+<div class="w-12 h-12 rounded bg-[#93000a] text-[#ffffff] flex flex-col items-center justify-center shadow-md rotate-[-3deg] p-0.5 shrink-0 relative overflow-hidden">
+<div class="w-full h-full rounded flex flex-col items-center justify-center p-0.5">
+<span class="font-headline-md text-[9px] leading-tight font-bold tracking-tight text-center">道元<br/>之印</span>
+</div>
+<div class="absolute inset-0 bg-gradient-to-tr from-black/25 via-transparent to-white/10 pointer-events-none"></div>
+</div>
+</div>
+</div>
+<!-- Blockchain Watermark Footer -->
+<div class="w-full mt-3 pt-2 bg-[#ece6d8] rounded px-2.5 py-1.5 flex items-center justify-between text-[#61574a]">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[13px] text-[#a37910]">lock</span>
+<span class="font-label-caps text-[9px] tracking-tight">SHA-256 E2E ENCRYPTED REPORT</span>
+</div>
+<span class="font-label-caps text-[9px] font-mono tracking-tight">b94d27b9934d3e08a52e52d7...</span>
+</div>
+<!-- Page Watermark Footer Tag -->
+<div class="w-full text-center mt-2">
+<span class="font-label-caps text-[9px] text-[#8e8474] font-semibold tracking-widest">- PAGE 1 OF 6 -</span>
+</div>
+</div>
+<!-- Quick Feedback Notice Under Paper -->
+<div class="w-full max-w-md mt-3 flex items-center justify-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[15px] text-primary">pinch</span>
+<span class="font-caption text-caption">두 손가락으로 문서를 확대하거나 맞춤 보기를 사용할 수 있습니다.</span>
+</div>
+</div>
+<!-- Thumbnails Drawer / Sheet Modal (Toggleable) -->
+<div class="hidden fixed inset-x-0 bottom-24 z-40 px-space-md max-w-md mx-auto" id="pages-drawer">
+<div class="bg-surface-container-high/95 backdrop-blur-xl rounded-xl p-space-md shadow-2xl">
+<div class="flex items-center justify-between mb-space-sm pb-2">
+<span class="font-title-md text-title-md text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[18px]">auto_stories</span>
+          전체 페이지 목차 (총 6장)
+        </span>
+<button class="w-7 h-7 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:text-primary" id="close-drawer-btn" type="button">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<!-- Page 1 (Active) -->
+<button class="flex flex-col items-center bg-surface-container-lowest rounded-lg p-2 text-left bg-surface-tint/10 shadow-sm" onclick="selectPage(1)" type="button">
+<div class="w-full h-16 bg-[#faf8f2] rounded flex flex-col items-center justify-center p-1 text-center relative overflow-hidden mb-1.5">
+<span class="text-[7px] text-[#1a1714] font-bold line-clamp-1">天命院 鑑明書</span>
+<span class="text-[6px] text-[#93000a] mt-0.5">● 표지/총평</span>
+<span class="absolute bottom-0.5 right-0.5 text-[6px] text-[#8e8474]">P.1</span>
+</div>
+<span class="font-caption text-[11px] text-primary font-semibold truncate w-full text-center">1. 표지 및 총평</span>
+</button>
+<!-- Page 2 -->
+<button class="flex flex-col items-center bg-surface-container-lowest rounded-lg p-2 text-left hover:bg-surface-container transition-colors" onclick="selectPage(2)" type="button">
+<div class="w-full h-16 bg-[#faf8f2] rounded flex flex-col items-center justify-center p-1 text-center relative overflow-hidden mb-1.5">
+<span class="text-[7px] text-[#1a1714] font-bold line-clamp-1">四柱 精密解析</span>
+<span class="text-[6px] text-[#302b24] mt-0.5">오행 원형 분포</span>
+<span class="absolute bottom-0.5 right-0.5 text-[6px] text-[#8e8474]">P.2</span>
+</div>
+<span class="font-caption text-[11px] text-on-surface truncate w-full text-center">2. 원국정밀해석</span>
+</button>
+<!-- Page 3 -->
+<button class="flex flex-col items-center bg-surface-container-lowest rounded-lg p-2 text-left hover:bg-surface-container transition-colors" onclick="selectPage(3)" type="button">
+<div class="w-full h-16 bg-[#faf8f2] rounded flex flex-col items-center justify-center p-1 text-center relative overflow-hidden mb-1.5">
+<span class="text-[7px] text-[#1a1714] font-bold line-clamp-1">10年 大運 흐름</span>
+<span class="text-[6px] text-[#1f509e] mt-0.5">생애 운세 곡선</span>
+<span class="absolute bottom-0.5 right-0.5 text-[6px] text-[#8e8474]">P.3</span>
+</div>
+<span class="font-caption text-[11px] text-on-surface truncate w-full text-center">3. 10년대운도</span>
+</button>
+<!-- Page 4 -->
+<button class="flex flex-col items-center bg-surface-container-lowest rounded-lg p-2 text-left hover:bg-surface-container transition-colors" onclick="selectPage(4)" type="button">
+<div class="w-full h-16 bg-[#faf8f2] rounded flex flex-col items-center justify-center p-1 text-center relative overflow-hidden mb-1.5">
+<span class="text-[7px] text-[#1a1714] font-bold line-clamp-1">2025 歲運 월별</span>
+<span class="text-[6px] text-[#302b24] mt-0.5">12개월 처방록</span>
+<span class="absolute bottom-0.5 right-0.5 text-[6px] text-[#8e8474]">P.4</span>
+</div>
+<span class="font-caption text-[11px] text-on-surface truncate w-full text-center">4. 세운월별처방</span>
+</button>
+<!-- Page 5 -->
+<button class="flex flex-col items-center bg-surface-container-lowest rounded-lg p-2 text-left hover:bg-surface-container transition-colors" onclick="selectPage(5)" type="button">
+<div class="w-full h-16 bg-[#faf8f2] rounded flex flex-col items-center justify-center p-1 text-center relative overflow-hidden mb-1.5">
+<span class="text-[7px] text-[#1a1714] font-bold line-clamp-1">實戰 吉日 祕補</span>
+<span class="text-[6px] text-[#a37910] mt-0.5">방위 및 소품법</span>
+<span class="absolute bottom-0.5 right-0.5 text-[6px] text-[#8e8474]">P.5</span>
+</div>
+<span class="font-caption text-[11px] text-on-surface truncate w-full text-center">5. 실전길일비보</span>
+</button>
+<!-- Page 6 -->
+<button class="flex flex-col items-center bg-surface-container-lowest rounded-lg p-2 text-left hover:bg-surface-container transition-colors" onclick="selectPage(6)" type="button">
+<div class="w-full h-16 bg-[#faf8f2] rounded flex flex-col items-center justify-center p-1 text-center relative overflow-hidden mb-1.5">
+<span class="text-[7px] text-[#1a1714] font-bold line-clamp-1">親筆 後續回信</span>
+<span class="text-[6px] text-[#221c15] mt-0.5">도원 수석 서명</span>
+<span class="absolute bottom-0.5 right-0.5 text-[6px] text-[#8e8474]">P.6</span>
+</div>
+<span class="font-caption text-[11px] text-on-surface truncate w-full text-center">6. 후속회신문</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Bottom Floating Viewer Control Dock -->
+<div class="fixed bottom-0 inset-x-0 z-30 pb-safe px-margin pt-2 bg-surface/90 backdrop-blur-2xl shadow-[0_-8px_24px_rgba(0,0,0,0.6)]">
+<div class="max-w-md mx-auto flex flex-col gap-2 pb-3">
+<!-- Dock Upper Utility Strip (Zoom, Page Thumbnails Toggle) -->
+<div class="flex items-center justify-between bg-surface-container/90 rounded-full px-3 py-1.5 shadow-inner">
+<!-- Zoom Controls -->
+<div class="flex items-center gap-1">
+<button class="w-7 h-7 rounded-full flex items-center justify-center text-on-surface hover:text-primary transition-colors" id="zoom-out-btn" title="축소" type="button">
+<span class="material-symbols-outlined text-[17px]">zoom_out</span>
+</button>
+<button class="px-2 py-0.5 text-caption font-label-caps text-on-surface-variant hover:text-primary transition-colors" id="zoom-reset-btn" type="button">
+<span id="zoom-level-text">100%</span>
+</button>
+<button class="w-7 h-7 rounded-full flex items-center justify-center text-on-surface hover:text-primary transition-colors" id="zoom-in-btn" title="확대" type="button">
+<span class="material-symbols-outlined text-[17px]">zoom_in</span>
+</button>
+</div>
+<div class="h-3.5 w-[1px] bg-outline-variant"></div>
+<!-- Page Navigator Buttons -->
+<div class="flex items-center gap-2">
+<button class="w-7 h-7 rounded-full flex items-center justify-center text-on-surface hover:text-primary transition-colors" id="prev-page-btn" title="이전 장" type="button">
+<span class="material-symbols-outlined text-[17px]">chevron_left</span>
+</button>
+<button class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface text-caption font-medium hover:text-primary transition-colors" id="toggle-drawer-btn" type="button">
+<span class="material-symbols-outlined text-[14px]">grid_view</span>
+<span class="font-label-kr text-[11px]">목차 6P</span>
+</button>
+<button class="w-7 h-7 rounded-full flex items-center justify-center text-on-surface hover:text-primary transition-colors" id="next-page-btn" title="다음 장" type="button">
+<span class="material-symbols-outlined text-[17px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Dock Main Action Buttons -->
+<div class="grid grid-cols-5 gap-2">
+<!-- Secondary Action: Print / Export (2 Cols) -->
+<button class="col-span-2 h-11 rounded-full bg-surface-container-high text-on-surface font-title-md text-body-sm flex items-center justify-center gap-1.5 hover:bg-surface-bright active:scale-[0.98] transition-all shadow-sm" id="direct-print-btn" type="button">
+<span class="material-symbols-outlined text-[18px]">print</span>
+<span class="font-label-kr font-semibold">인쇄 · 내보내기</span>
+</button>
+<!-- Primary Action: Save PDF to Device (3 Cols) -->
+<button class="col-span-3 h-11 rounded-full bg-gradient-to-r from-primary-container to-primary text-on-primary font-title-md text-body-sm flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all shadow-[0_4px_16px_rgba(212,175,55,0.25)]" id="download-doc-btn" type="button">
+<span class="material-symbols-outlined text-[19px]" style="font-variation-settings: 'FILL' 1;">download</span>
+<span class="font-label-kr font-bold tracking-tight">기기에 PDF 저장 (8.4MB)</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Toast Notification Container for Viewer Events -->
+<div class="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-surface-container-highest/95 backdrop-blur-md text-on-surface shadow-2xl flex items-center gap-2 transition-all duration-300 opacity-0 pointer-events-none -translate-y-2" id="viewer-toast">
+<span class="material-symbols-outlined text-primary text-[18px]" id="toast-icon">check_circle</span>
+<span class="font-body-sm text-[12px] font-medium" id="toast-message">저장이 완료되었습니다.</span>
+</div>
+</div>
+<script>
+  (function() {
+    let currentZoom = 100;
+    let currentPage = 1;
+    const totalPages = 6;
+    
+    const viewport = document.getElementById('pdf-paper-viewport');
+    const zoomText = document.getElementById('zoom-level-text');
+    const curPageNumEl = document.getElementById('cur-page-num');
+    const drawer = document.getElementById('pages-drawer');
+    const toast = document.getElementById('viewer-toast');
+    const toastMsg = document.getElementById('toast-message');
+    const toastIcon = document.getElementById('toast-icon');
+
+    function showToast(message, icon = 'check_circle') {
+      if (!toast) return;
+      toastMsg.textContent = message;
+      toastIcon.textContent = icon;
+      toast.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-2');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
+      }, 2500);
+    }
+
+    function applyZoom(delta) {
+      currentZoom = Math.min(Math.max(currentZoom + delta, 80), 140);
+      if (viewport) {
+        viewport.style.transform = `scale(${currentZoom / 100})`;
+        viewport.style.transformOrigin = 'top center';
+      }
+      if (zoomText) {
+        zoomText.textContent = `${currentZoom}%`;
+      }
+    }
+
+    function resetZoom() {
+      currentZoom = 100;
+      if (viewport) {
+        viewport.style.transform = 'scale(1)';
+      }
+      if (zoomText) {
+        zoomText.textContent = '100%';
+      }
+      showToast('화면 크기에 맞춤 보기로 조정되었습니다.', 'fit_screen');
+    }
+
+    window.selectPage = function(page) {
+      currentPage = page;
+      if (curPageNumEl) {
+        curPageNumEl.textContent = page < 10 ? `0${page}` : `${page}`;
+      }
+      if (drawer) {
+        drawer.classList.add('hidden');
+      }
+      showToast(`${page}페이지로 이동하였습니다.`, 'description');
+    };
+
+    document.getElementById('zoom-in-btn')?.addEventListener('click', () => applyZoom(10));
+    document.getElementById('zoom-out-btn')?.addEventListener('click', () => applyZoom(-10));
+    document.getElementById('zoom-reset-btn')?.addEventListener('click', resetZoom);
+
+    document.getElementById('toggle-drawer-btn')?.addEventListener('click', () => {
+      drawer?.classList.toggle('hidden');
+    });
+
+    document.getElementById('close-drawer-btn')?.addEventListener('click', () => {
+      drawer?.classList.add('hidden');
+    });
+
+    document.getElementById('prev-page-btn')?.addEventListener('click', () => {
+      if (currentPage > 1) {
+        window.selectPage(currentPage - 1);
+      } else {
+        showToast('첫 번째 페이지입니다.', 'info');
+      }
+    });
+
+    document.getElementById('next-page-btn')?.addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        window.selectPage(currentPage + 1);
+      } else {
+        showToast('마지막 페이지입니다.', 'info');
+      }
+    });
+
+    document.getElementById('download-doc-btn')?.addEventListener('click', () => {
+      showToast('보안 서명 감명서 다운로드를 시작합니다 (8.4MB).', 'cloud_download');
+    });
+
+    document.getElementById('share-action-btn')?.addEventListener('click', () => {
+      if (navigator.share) {
+        navigator.share({
+          title: '천명원 도원선생 최종감명서',
+          text: '천명원 1급 비공개 친필 명리 감명서 인증 PDF입니다.',
+          url: window.location.href,
+        }).catch(() => {});
+      } else {
+        showToast('보안 링크가 클립보드에 복사되었습니다.', 'content_copy');
+      }
+    });
+
+    const printHandler = () => {
+      window.print();
+    };
+    document.getElementById('print-action-btn')?.addEventListener('click', printHandler);
+    document.getElementById('direct-print-btn')?.addEventListener('click', printHandler);
+  })();
+</script></main></body></html>

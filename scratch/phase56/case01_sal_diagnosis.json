@@ -1,0 +1,3313 @@
+{
+  "totalSinsalsEvaluated": 25,
+  "natalSinsals": [
+    {
+      "sinsalId": "ji_sal",
+      "name": "지살",
+      "aliases": [
+        "地煞",
+        "자발적 이동살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "year"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 24,
+      "supportScore": 0,
+      "domainScores": {
+        "이동마": 45,
+        "사업마": 25,
+        "직장마": 20,
+        "생활마": 10
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_JI",
+        "RULE_NATAL_PRESENT"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "year:신",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_12SINSAL_JI",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "yeok_ma",
+      "name": "역마살",
+      "aliases": [
+        "驛馬煞",
+        "활동살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "day"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": true,
+      "activationScore": 80,
+      "riskScore": 65,
+      "supportScore": 0,
+      "domainScores": {
+        "이동마": 60,
+        "직장마": 15,
+        "사업마": 15,
+        "생활마": 10
+      },
+      "triggerRelations": [
+        "역마×인신충(충마)",
+        "역마×일진(인)"
+      ],
+      "ruleIds": [
+        "RULE_12SINSAL_YEOKMA",
+        "RULE_NATAL_PRESENT",
+        "ACT_DAY_12SINSAL",
+        "REL_YEOKMA_CLASH_ACTIVATED",
+        "REL_YEOKMA_TIMING_일진"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "day:인",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "MOD_DAY_PILLAR_WEIGHT",
+              "reason": "일지 위치 가중치 적용",
+              "delta": 15
+            },
+            {
+              "ruleId": "ACT_DAY_12SINSAL",
+              "reason": "일진 지지(인)에 역마살 도래",
+              "delta": 10
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 60,
+          "ruleIds": [
+            "RULE_12SINSAL_YEOKMA",
+            "RULE_NATAL_PRESENT",
+            "ACT_DAY_12SINSAL"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "yuk_hae",
+      "name": "육해살",
+      "aliases": [
+        "六害煞",
+        "의지소멸살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "month"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 28,
+      "supportScore": 0,
+      "domainScores": {
+        "가족마": 35,
+        "인마": 30,
+        "생활마": 20,
+        "연애마": 15
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_YUKHAE",
+        "RULE_NATAL_PRESENT"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "month:묘",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "MOD_MONTH_PILLAR_WEIGHT",
+              "reason": "월지 위치 가중치 적용",
+              "delta": 10
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_12SINSAL_YUKHAE",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "hwa_gae",
+      "name": "화개살",
+      "aliases": [
+        "華蓋煞",
+        "예술살",
+        "명예살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "hour"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 24,
+      "supportScore": 0,
+      "domainScores": {
+        "생활마": 30,
+        "인마": 25,
+        "직장마": 25,
+        "연애마": 20
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_HWAGAE",
+        "RULE_NATAL_PRESENT"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "hour:진",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_12SINSAL_HWAGAE",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "dohwa_major",
+      "name": "도화",
+      "aliases": [
+        "桃花",
+        "목욕도화",
+        "사정도화"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "day_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "month"
+      ],
+      "activationByDaeun": true,
+      "activationBySeun": true,
+      "activationByMonth": true,
+      "activationByDay": false,
+      "activationScore": 100,
+      "riskScore": 71,
+      "supportScore": 34,
+      "domainScores": {
+        "연애마": 50,
+        "인마": 25,
+        "결혼마": 15,
+        "분쟁마": 10
+      },
+      "triggerRelations": [
+        "도화×월운(인유원진)",
+        "도화×원국(묘신원진)"
+      ],
+      "ruleIds": [
+        "RULE_MAJOR_DOHWA",
+        "RULE_NATAL_PRESENT",
+        "ACT_DAEUN_DOHWA",
+        "ACT_SEUN_DOHWA",
+        "ACT_MONTH_DOHWA",
+        "REL_DOHWA_WONJIN_TIMING",
+        "REL_DOHWA_MYOSHIN_WONJIN"
+      ],
+      "calculationEvidence": {
+        "basis": "일지(인) 삼합 목욕지(묘) 및 자오묘유 탐지",
+        "matchedTarget": "month:묘",
+        "referenceValue": "인",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "MOD_DOHWA_MONTH_BRANCH",
+              "reason": "월지 도화 가중",
+              "delta": 10
+            },
+            {
+              "ruleId": "ACT_DAEUN_DOHWA",
+              "reason": "대운 지지(오) 도화 활성",
+              "delta": 20
+            },
+            {
+              "ruleId": "ACT_SEUN_DOHWA",
+              "reason": "세운 지지(오) 도화 활성",
+              "delta": 15
+            },
+            {
+              "ruleId": "ACT_MONTH_DOHWA",
+              "reason": "월운 지지(유) 도화 활성",
+              "delta": 15
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 100,
+          "ruleIds": [
+            "RULE_MAJOR_DOHWA",
+            "RULE_NATAL_PRESENT",
+            "ACT_DAEUN_DOHWA",
+            "ACT_SEUN_DOHWA",
+            "ACT_MONTH_DOHWA"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "cheondeok_guiin",
+      "name": "천덕귀인",
+      "aliases": [
+        "天德貴人",
+        "하늘의 은덕"
+      ],
+      "category": "support_sinsal",
+      "calculationBasis": "month_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "year"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 0,
+      "supportScore": 75,
+      "domainScores": {
+        "분쟁마": 35,
+        "가족마": 25,
+        "생활마": 20,
+        "직장마": 20
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_MAJOR_CHEONDEOK",
+        "RULE_NATAL_PRESENT"
+      ],
+      "calculationEvidence": {
+        "basis": "월지(묘) 기준 천덕(신)",
+        "matchedTarget": "year",
+        "referenceValue": "묘",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_MAJOR_CHEONDEOK",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "goe_gang",
+      "name": "괴강",
+      "aliases": [
+        "魁罡",
+        "북두괴강"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "fixed_pillar",
+      "presentInNatal": true,
+      "natalLocations": [
+        "hour"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 36,
+      "supportScore": 32,
+      "domainScores": {
+        "직장마": 30,
+        "사업마": 30,
+        "분쟁마": 20,
+        "결혼마": 20
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_MAJOR_GOEGANG",
+        "RULE_NATAL_PRESENT"
+      ],
+      "calculationEvidence": {
+        "basis": "4대 괴강 간지 (경진, 경술, 임진, 무술) 탐지",
+        "matchedTarget": "hour:경진",
+        "referenceValue": "4대 괴강 목록",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "MOD_HOUR_GOEGANG",
+              "reason": "시주 괴강(결단력/추진력) 가중",
+              "delta": 10
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_MAJOR_GOEGANG",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "won_jin",
+      "name": "원진",
+      "aliases": [
+        "怨嗔",
+        "원망살",
+        "애증살"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "day_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "year",
+        "month"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": true,
+      "activationByDay": false,
+      "activationScore": 70,
+      "riskScore": 64,
+      "supportScore": 0,
+      "domainScores": {
+        "연애마": 45,
+        "결혼마": 25,
+        "인마": 20,
+        "가족마": 10
+      },
+      "triggerRelations": [
+        "원진(year(신)-month(묘))",
+        "원진×월운(유)"
+      ],
+      "ruleIds": [
+        "RULE_MAJOR_WONJIN",
+        "RULE_NATAL_PRESENT",
+        "ACT_MONTH_WONJIN",
+        "REL_WONJIN_TRIGGERED_BY_월운"
+      ],
+      "calculationEvidence": {
+        "basis": "6대 원진 지지 쌍 탐지",
+        "matchedTarget": "year(신)-month(묘)",
+        "referenceValue": "인",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "ACT_MONTH_WONJIN",
+              "reason": "월운 지지(유)가 일지(인)와 원진 형성",
+              "delta": 20
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 70,
+          "ruleIds": [
+            "RULE_MAJOR_WONJIN",
+            "RULE_NATAL_PRESENT",
+            "ACT_MONTH_WONJIN"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "gwi_mun",
+      "name": "귀문관",
+      "aliases": [
+        "鬼門關",
+        "귀문",
+        "정신예민살"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "day_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "year",
+        "month"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 51,
+      "supportScore": 20,
+      "domainScores": {
+        "연애마": 35,
+        "생활마": 30,
+        "인마": 20,
+        "분쟁마": 15
+      },
+      "triggerRelations": [
+        "귀문관(year(신)-month(묘))",
+        "귀문×묘신 결속"
+      ],
+      "ruleIds": [
+        "RULE_MAJOR_GWIMUN",
+        "RULE_NATAL_PRESENT",
+        "REL_GWIMUN_MYOSHIN_DEEP"
+      ],
+      "calculationEvidence": {
+        "basis": "6대 귀문관 지지 쌍 탐지",
+        "matchedTarget": "year(신)-month(묘)",
+        "referenceValue": "인",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_MAJOR_GWIMUN",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "hyeon_chim",
+      "name": "현침",
+      "aliases": [
+        "懸針",
+        "바늘살",
+        "필봉살"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "fixed_stem_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "year",
+        "month"
+      ],
+      "activationByDaeun": true,
+      "activationBySeun": true,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 80,
+      "riskScore": 32,
+      "supportScore": 32,
+      "domainScores": {
+        "분쟁마": 35,
+        "인마": 25,
+        "직장마": 20,
+        "연애마": 20
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_MAJOR_HYEONCHIM",
+        "RULE_NATAL_PRESENT",
+        "ACT_DAEUN_HYEONCHIM",
+        "ACT_SEUN_HYEONCHIM"
+      ],
+      "calculationEvidence": {
+        "basis": "5대 현침 글자 (갑, 신, 묘, 오, 신) 탐지",
+        "matchedTarget": "year지(신), month지(묘)",
+        "referenceValue": "5대 현침 목록",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "ACT_DAEUN_HYEONCHIM",
+              "reason": "대운에 현침 글자(병오) 도래",
+              "delta": 15
+            },
+            {
+              "ruleId": "ACT_SEUN_HYEONCHIM",
+              "reason": "세운에 현침 글자(병오) 도래",
+              "delta": 15
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 80,
+          "ruleIds": [
+            "RULE_MAJOR_HYEONCHIM",
+            "RULE_NATAL_PRESENT",
+            "ACT_DAEUN_HYEONCHIM",
+            "ACT_SEUN_HYEONCHIM"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    }
+  ],
+  "activeSinsals": [
+    {
+      "sinsalId": "jae_sal",
+      "name": "재살",
+      "aliases": [
+        "災煞",
+        "수옥살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": true,
+      "activationBySeun": true,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 45,
+      "riskScore": 0,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_JAE",
+        "ACT_DAEUN_12SINSAL",
+        "ACT_SEUN_12SINSAL"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "없음",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [
+            {
+              "ruleId": "ACT_DAEUN_12SINSAL",
+              "reason": "대운 지지(오)에 재살 도래",
+              "delta": 25
+            },
+            {
+              "ruleId": "ACT_SEUN_12SINSAL",
+              "reason": "세운 지지(오)에 재살 도래",
+              "delta": 20
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 45,
+          "ruleIds": [
+            "RULE_12SINSAL_JAE",
+            "ACT_DAEUN_12SINSAL",
+            "ACT_SEUN_12SINSAL"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "ji_sal",
+      "name": "지살",
+      "aliases": [
+        "地煞",
+        "자발적 이동살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "year"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 24,
+      "supportScore": 0,
+      "domainScores": {
+        "이동마": 45,
+        "사업마": 25,
+        "직장마": 20,
+        "생활마": 10
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_JI",
+        "RULE_NATAL_PRESENT"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "year:신",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_12SINSAL_JI",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "nyeon_sal",
+      "name": "년살",
+      "aliases": [
+        "年煞",
+        "도화살",
+        "함지살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": true,
+      "activationByDay": false,
+      "activationScore": 25,
+      "riskScore": 45,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [
+        "도화×월운(인유원진)",
+        "도화×원국(묘신원진)"
+      ],
+      "ruleIds": [
+        "RULE_12SINSAL_NYEON",
+        "ACT_MONTH_12SINSAL",
+        "REL_DOHWA_WONJIN_TIMING",
+        "REL_DOHWA_MYOSHIN_WONJIN"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "없음",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [
+            {
+              "ruleId": "ACT_MONTH_12SINSAL",
+              "reason": "월운 지지(유)에 년살 도래",
+              "delta": 15
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 25,
+          "ruleIds": [
+            "RULE_12SINSAL_NYEON",
+            "ACT_MONTH_12SINSAL"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "yeok_ma",
+      "name": "역마살",
+      "aliases": [
+        "驛馬煞",
+        "활동살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "day"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": true,
+      "activationScore": 80,
+      "riskScore": 65,
+      "supportScore": 0,
+      "domainScores": {
+        "이동마": 60,
+        "직장마": 15,
+        "사업마": 15,
+        "생활마": 10
+      },
+      "triggerRelations": [
+        "역마×인신충(충마)",
+        "역마×일진(인)"
+      ],
+      "ruleIds": [
+        "RULE_12SINSAL_YEOKMA",
+        "RULE_NATAL_PRESENT",
+        "ACT_DAY_12SINSAL",
+        "REL_YEOKMA_CLASH_ACTIVATED",
+        "REL_YEOKMA_TIMING_일진"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "day:인",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "MOD_DAY_PILLAR_WEIGHT",
+              "reason": "일지 위치 가중치 적용",
+              "delta": 15
+            },
+            {
+              "ruleId": "ACT_DAY_12SINSAL",
+              "reason": "일진 지지(인)에 역마살 도래",
+              "delta": 10
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 60,
+          "ruleIds": [
+            "RULE_12SINSAL_YEOKMA",
+            "RULE_NATAL_PRESENT",
+            "ACT_DAY_12SINSAL"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "yuk_hae",
+      "name": "육해살",
+      "aliases": [
+        "六害煞",
+        "의지소멸살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "month"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 28,
+      "supportScore": 0,
+      "domainScores": {
+        "가족마": 35,
+        "인마": 30,
+        "생활마": 20,
+        "연애마": 15
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_YUKHAE",
+        "RULE_NATAL_PRESENT"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "month:묘",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "MOD_MONTH_PILLAR_WEIGHT",
+              "reason": "월지 위치 가중치 적용",
+              "delta": 10
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_12SINSAL_YUKHAE",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "hwa_gae",
+      "name": "화개살",
+      "aliases": [
+        "華蓋煞",
+        "예술살",
+        "명예살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "hour"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 24,
+      "supportScore": 0,
+      "domainScores": {
+        "생활마": 30,
+        "인마": 25,
+        "직장마": 25,
+        "연애마": 20
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_HWAGAE",
+        "RULE_NATAL_PRESENT"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "hour:진",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_12SINSAL_HWAGAE",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "dohwa_major",
+      "name": "도화",
+      "aliases": [
+        "桃花",
+        "목욕도화",
+        "사정도화"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "day_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "month"
+      ],
+      "activationByDaeun": true,
+      "activationBySeun": true,
+      "activationByMonth": true,
+      "activationByDay": false,
+      "activationScore": 100,
+      "riskScore": 71,
+      "supportScore": 34,
+      "domainScores": {
+        "연애마": 50,
+        "인마": 25,
+        "결혼마": 15,
+        "분쟁마": 10
+      },
+      "triggerRelations": [
+        "도화×월운(인유원진)",
+        "도화×원국(묘신원진)"
+      ],
+      "ruleIds": [
+        "RULE_MAJOR_DOHWA",
+        "RULE_NATAL_PRESENT",
+        "ACT_DAEUN_DOHWA",
+        "ACT_SEUN_DOHWA",
+        "ACT_MONTH_DOHWA",
+        "REL_DOHWA_WONJIN_TIMING",
+        "REL_DOHWA_MYOSHIN_WONJIN"
+      ],
+      "calculationEvidence": {
+        "basis": "일지(인) 삼합 목욕지(묘) 및 자오묘유 탐지",
+        "matchedTarget": "month:묘",
+        "referenceValue": "인",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "MOD_DOHWA_MONTH_BRANCH",
+              "reason": "월지 도화 가중",
+              "delta": 10
+            },
+            {
+              "ruleId": "ACT_DAEUN_DOHWA",
+              "reason": "대운 지지(오) 도화 활성",
+              "delta": 20
+            },
+            {
+              "ruleId": "ACT_SEUN_DOHWA",
+              "reason": "세운 지지(오) 도화 활성",
+              "delta": 15
+            },
+            {
+              "ruleId": "ACT_MONTH_DOHWA",
+              "reason": "월운 지지(유) 도화 활성",
+              "delta": 15
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 100,
+          "ruleIds": [
+            "RULE_MAJOR_DOHWA",
+            "RULE_NATAL_PRESENT",
+            "ACT_DAEUN_DOHWA",
+            "ACT_SEUN_DOHWA",
+            "ACT_MONTH_DOHWA"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "cheondeok_guiin",
+      "name": "천덕귀인",
+      "aliases": [
+        "天德貴人",
+        "하늘의 은덕"
+      ],
+      "category": "support_sinsal",
+      "calculationBasis": "month_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "year"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 0,
+      "supportScore": 75,
+      "domainScores": {
+        "분쟁마": 35,
+        "가족마": 25,
+        "생활마": 20,
+        "직장마": 20
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_MAJOR_CHEONDEOK",
+        "RULE_NATAL_PRESENT"
+      ],
+      "calculationEvidence": {
+        "basis": "월지(묘) 기준 천덕(신)",
+        "matchedTarget": "year",
+        "referenceValue": "묘",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_MAJOR_CHEONDEOK",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "yang_in",
+      "name": "양인",
+      "aliases": [
+        "陽刃",
+        "칼날살",
+        "제왕양인"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "day_stem",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": true,
+      "activationByDay": false,
+      "activationScore": 25,
+      "riskScore": 0,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_MAJOR_YANGIN",
+        "ACT_MONTH_YANGIN"
+      ],
+      "calculationEvidence": {
+        "basis": "일간(경) 기준 제왕지(유)",
+        "matchedTarget": "없음(운에서 유입 가능)",
+        "referenceValue": "경",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [
+            {
+              "ruleId": "ACT_MONTH_YANGIN",
+              "reason": "월운 지지(유) 양인 활성",
+              "delta": 20
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 25,
+          "ruleIds": [
+            "RULE_MAJOR_YANGIN",
+            "ACT_MONTH_YANGIN"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "goe_gang",
+      "name": "괴강",
+      "aliases": [
+        "魁罡",
+        "북두괴강"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "fixed_pillar",
+      "presentInNatal": true,
+      "natalLocations": [
+        "hour"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 36,
+      "supportScore": 32,
+      "domainScores": {
+        "직장마": 30,
+        "사업마": 30,
+        "분쟁마": 20,
+        "결혼마": 20
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_MAJOR_GOEGANG",
+        "RULE_NATAL_PRESENT"
+      ],
+      "calculationEvidence": {
+        "basis": "4대 괴강 간지 (경진, 경술, 임진, 무술) 탐지",
+        "matchedTarget": "hour:경진",
+        "referenceValue": "4대 괴강 목록",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "MOD_HOUR_GOEGANG",
+              "reason": "시주 괴강(결단력/추진력) 가중",
+              "delta": 10
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_MAJOR_GOEGANG",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "won_jin",
+      "name": "원진",
+      "aliases": [
+        "怨嗔",
+        "원망살",
+        "애증살"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "day_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "year",
+        "month"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": true,
+      "activationByDay": false,
+      "activationScore": 70,
+      "riskScore": 64,
+      "supportScore": 0,
+      "domainScores": {
+        "연애마": 45,
+        "결혼마": 25,
+        "인마": 20,
+        "가족마": 10
+      },
+      "triggerRelations": [
+        "원진(year(신)-month(묘))",
+        "원진×월운(유)"
+      ],
+      "ruleIds": [
+        "RULE_MAJOR_WONJIN",
+        "RULE_NATAL_PRESENT",
+        "ACT_MONTH_WONJIN",
+        "REL_WONJIN_TRIGGERED_BY_월운"
+      ],
+      "calculationEvidence": {
+        "basis": "6대 원진 지지 쌍 탐지",
+        "matchedTarget": "year(신)-month(묘)",
+        "referenceValue": "인",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "ACT_MONTH_WONJIN",
+              "reason": "월운 지지(유)가 일지(인)와 원진 형성",
+              "delta": 20
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 70,
+          "ruleIds": [
+            "RULE_MAJOR_WONJIN",
+            "RULE_NATAL_PRESENT",
+            "ACT_MONTH_WONJIN"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "gwi_mun",
+      "name": "귀문관",
+      "aliases": [
+        "鬼門關",
+        "귀문",
+        "정신예민살"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "day_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "year",
+        "month"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 51,
+      "supportScore": 20,
+      "domainScores": {
+        "연애마": 35,
+        "생활마": 30,
+        "인마": 20,
+        "분쟁마": 15
+      },
+      "triggerRelations": [
+        "귀문관(year(신)-month(묘))",
+        "귀문×묘신 결속"
+      ],
+      "ruleIds": [
+        "RULE_MAJOR_GWIMUN",
+        "RULE_NATAL_PRESENT",
+        "REL_GWIMUN_MYOSHIN_DEEP"
+      ],
+      "calculationEvidence": {
+        "basis": "6대 귀문관 지지 쌍 탐지",
+        "matchedTarget": "year(신)-month(묘)",
+        "referenceValue": "인",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_MAJOR_GWIMUN",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "hyeon_chim",
+      "name": "현침",
+      "aliases": [
+        "懸針",
+        "바늘살",
+        "필봉살"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "fixed_stem_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "year",
+        "month"
+      ],
+      "activationByDaeun": true,
+      "activationBySeun": true,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 80,
+      "riskScore": 32,
+      "supportScore": 32,
+      "domainScores": {
+        "분쟁마": 35,
+        "인마": 25,
+        "직장마": 20,
+        "연애마": 20
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_MAJOR_HYEONCHIM",
+        "RULE_NATAL_PRESENT",
+        "ACT_DAEUN_HYEONCHIM",
+        "ACT_SEUN_HYEONCHIM"
+      ],
+      "calculationEvidence": {
+        "basis": "5대 현침 글자 (갑, 신, 묘, 오, 신) 탐지",
+        "matchedTarget": "year지(신), month지(묘)",
+        "referenceValue": "5대 현침 목록",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "ACT_DAEUN_HYEONCHIM",
+              "reason": "대운에 현침 글자(병오) 도래",
+              "delta": 15
+            },
+            {
+              "ruleId": "ACT_SEUN_HYEONCHIM",
+              "reason": "세운에 현침 글자(병오) 도래",
+              "delta": 15
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 80,
+          "ruleIds": [
+            "RULE_MAJOR_HYEONCHIM",
+            "RULE_NATAL_PRESENT",
+            "ACT_DAEUN_HYEONCHIM",
+            "ACT_SEUN_HYEONCHIM"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "gong_mang",
+      "name": "공망",
+      "aliases": [
+        "空亡",
+        "천중살",
+        "비어있음"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "day_pillar",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": true,
+      "activationBySeun": true,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 45,
+      "riskScore": 20,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [
+        "공망×대운·세운(오화공망)"
+      ],
+      "ruleIds": [
+        "RULE_MAJOR_GONGMANG",
+        "ACT_DAEUN_GONGMANG",
+        "ACT_SEUN_GONGMANG",
+        "REL_GONGMANG_FIRE_VOID"
+      ],
+      "calculationEvidence": {
+        "basis": "일주(경인) 기준 순중공망 지지(오, 미)",
+        "matchedTarget": "없음(원국 내 표출 없음, 운에서 작용 가능)",
+        "referenceValue": "오, 미",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [
+            {
+              "ruleId": "ACT_DAEUN_GONGMANG",
+              "reason": "대운 지지(오)가 순중공망에 해당",
+              "delta": 25
+            },
+            {
+              "ruleId": "ACT_SEUN_GONGMANG",
+              "reason": "세운 지지(오)가 순중공망에 해당",
+              "delta": 20
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 45,
+          "ruleIds": [
+            "RULE_MAJOR_GONGMANG",
+            "ACT_DAEUN_GONGMANG",
+            "ACT_SEUN_GONGMANG"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    }
+  ],
+  "allResults": [
+    {
+      "sinsalId": "geob_sal",
+      "name": "겁살",
+      "aliases": [
+        "劫煞",
+        "겁탈살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 0,
+      "riskScore": 0,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_GEOB"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "없음",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 0,
+          "ruleIds": [
+            "RULE_12SINSAL_GEOB"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "jae_sal",
+      "name": "재살",
+      "aliases": [
+        "災煞",
+        "수옥살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": true,
+      "activationBySeun": true,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 45,
+      "riskScore": 0,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_JAE",
+        "ACT_DAEUN_12SINSAL",
+        "ACT_SEUN_12SINSAL"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "없음",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [
+            {
+              "ruleId": "ACT_DAEUN_12SINSAL",
+              "reason": "대운 지지(오)에 재살 도래",
+              "delta": 25
+            },
+            {
+              "ruleId": "ACT_SEUN_12SINSAL",
+              "reason": "세운 지지(오)에 재살 도래",
+              "delta": 20
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 45,
+          "ruleIds": [
+            "RULE_12SINSAL_JAE",
+            "ACT_DAEUN_12SINSAL",
+            "ACT_SEUN_12SINSAL"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "cheon_sal",
+      "name": "천살",
+      "aliases": [
+        "天煞",
+        "하늘의 살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 0,
+      "riskScore": 0,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_CHEON"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "없음",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 0,
+          "ruleIds": [
+            "RULE_12SINSAL_CHEON"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "ji_sal",
+      "name": "지살",
+      "aliases": [
+        "地煞",
+        "자발적 이동살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "year"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 24,
+      "supportScore": 0,
+      "domainScores": {
+        "이동마": 45,
+        "사업마": 25,
+        "직장마": 20,
+        "생활마": 10
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_JI",
+        "RULE_NATAL_PRESENT"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "year:신",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_12SINSAL_JI",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "nyeon_sal",
+      "name": "년살",
+      "aliases": [
+        "年煞",
+        "도화살",
+        "함지살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": true,
+      "activationByDay": false,
+      "activationScore": 25,
+      "riskScore": 45,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [
+        "도화×월운(인유원진)",
+        "도화×원국(묘신원진)"
+      ],
+      "ruleIds": [
+        "RULE_12SINSAL_NYEON",
+        "ACT_MONTH_12SINSAL",
+        "REL_DOHWA_WONJIN_TIMING",
+        "REL_DOHWA_MYOSHIN_WONJIN"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "없음",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [
+            {
+              "ruleId": "ACT_MONTH_12SINSAL",
+              "reason": "월운 지지(유)에 년살 도래",
+              "delta": 15
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 25,
+          "ruleIds": [
+            "RULE_12SINSAL_NYEON",
+            "ACT_MONTH_12SINSAL"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "wol_sal",
+      "name": "월살",
+      "aliases": [
+        "月煞",
+        "고초살",
+        "어둠의 살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 0,
+      "riskScore": 0,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_WOL"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "없음",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 0,
+          "ruleIds": [
+            "RULE_12SINSAL_WOL"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "mang_sin",
+      "name": "망신살",
+      "aliases": [
+        "亡身煞",
+        "노출살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 0,
+      "riskScore": 0,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_MANGSIN"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "없음",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 0,
+          "ruleIds": [
+            "RULE_12SINSAL_MANGSIN"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "jang_seong",
+      "name": "장성살",
+      "aliases": [
+        "將星煞",
+        "군왕살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 0,
+      "riskScore": 0,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_JANGSEONG"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "없음",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 0,
+          "ruleIds": [
+            "RULE_12SINSAL_JANGSEONG"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "ban_an",
+      "name": "반안살",
+      "aliases": [
+        "攀鞍煞",
+        "말안장살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 0,
+      "riskScore": 0,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_BANAN"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "없음",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 0,
+          "ruleIds": [
+            "RULE_12SINSAL_BANAN"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "yeok_ma",
+      "name": "역마살",
+      "aliases": [
+        "驛馬煞",
+        "활동살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "day"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": true,
+      "activationScore": 80,
+      "riskScore": 65,
+      "supportScore": 0,
+      "domainScores": {
+        "이동마": 60,
+        "직장마": 15,
+        "사업마": 15,
+        "생활마": 10
+      },
+      "triggerRelations": [
+        "역마×인신충(충마)",
+        "역마×일진(인)"
+      ],
+      "ruleIds": [
+        "RULE_12SINSAL_YEOKMA",
+        "RULE_NATAL_PRESENT",
+        "ACT_DAY_12SINSAL",
+        "REL_YEOKMA_CLASH_ACTIVATED",
+        "REL_YEOKMA_TIMING_일진"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "day:인",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "MOD_DAY_PILLAR_WEIGHT",
+              "reason": "일지 위치 가중치 적용",
+              "delta": 15
+            },
+            {
+              "ruleId": "ACT_DAY_12SINSAL",
+              "reason": "일진 지지(인)에 역마살 도래",
+              "delta": 10
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 60,
+          "ruleIds": [
+            "RULE_12SINSAL_YEOKMA",
+            "RULE_NATAL_PRESENT",
+            "ACT_DAY_12SINSAL"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "yuk_hae",
+      "name": "육해살",
+      "aliases": [
+        "六害煞",
+        "의지소멸살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "month"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 28,
+      "supportScore": 0,
+      "domainScores": {
+        "가족마": 35,
+        "인마": 30,
+        "생활마": 20,
+        "연애마": 15
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_YUKHAE",
+        "RULE_NATAL_PRESENT"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "month:묘",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "MOD_MONTH_PILLAR_WEIGHT",
+              "reason": "월지 위치 가중치 적용",
+              "delta": 10
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_12SINSAL_YUKHAE",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "hwa_gae",
+      "name": "화개살",
+      "aliases": [
+        "華蓋煞",
+        "예술살",
+        "명예살"
+      ],
+      "category": "12sinsal",
+      "calculationBasis": "year_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "hour"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 24,
+      "supportScore": 0,
+      "domainScores": {
+        "생활마": 30,
+        "인마": 25,
+        "직장마": 25,
+        "연애마": 20
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_12SINSAL_HWAGAE",
+        "RULE_NATAL_PRESENT"
+      ],
+      "calculationEvidence": {
+        "basis": "년지 삼합 기준 (신 -> WATER국)",
+        "matchedTarget": "hour:진",
+        "referenceValue": "신",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_12SINSAL_HWAGAE",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "dohwa_major",
+      "name": "도화",
+      "aliases": [
+        "桃花",
+        "목욕도화",
+        "사정도화"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "day_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "month"
+      ],
+      "activationByDaeun": true,
+      "activationBySeun": true,
+      "activationByMonth": true,
+      "activationByDay": false,
+      "activationScore": 100,
+      "riskScore": 71,
+      "supportScore": 34,
+      "domainScores": {
+        "연애마": 50,
+        "인마": 25,
+        "결혼마": 15,
+        "분쟁마": 10
+      },
+      "triggerRelations": [
+        "도화×월운(인유원진)",
+        "도화×원국(묘신원진)"
+      ],
+      "ruleIds": [
+        "RULE_MAJOR_DOHWA",
+        "RULE_NATAL_PRESENT",
+        "ACT_DAEUN_DOHWA",
+        "ACT_SEUN_DOHWA",
+        "ACT_MONTH_DOHWA",
+        "REL_DOHWA_WONJIN_TIMING",
+        "REL_DOHWA_MYOSHIN_WONJIN"
+      ],
+      "calculationEvidence": {
+        "basis": "일지(인) 삼합 목욕지(묘) 및 자오묘유 탐지",
+        "matchedTarget": "month:묘",
+        "referenceValue": "인",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "MOD_DOHWA_MONTH_BRANCH",
+              "reason": "월지 도화 가중",
+              "delta": 10
+            },
+            {
+              "ruleId": "ACT_DAEUN_DOHWA",
+              "reason": "대운 지지(오) 도화 활성",
+              "delta": 20
+            },
+            {
+              "ruleId": "ACT_SEUN_DOHWA",
+              "reason": "세운 지지(오) 도화 활성",
+              "delta": 15
+            },
+            {
+              "ruleId": "ACT_MONTH_DOHWA",
+              "reason": "월운 지지(유) 도화 활성",
+              "delta": 15
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 100,
+          "ruleIds": [
+            "RULE_MAJOR_DOHWA",
+            "RULE_NATAL_PRESENT",
+            "ACT_DAEUN_DOHWA",
+            "ACT_SEUN_DOHWA",
+            "ACT_MONTH_DOHWA"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "cheoneul_guiin",
+      "name": "천을귀인",
+      "aliases": [
+        "天乙貴人",
+        "만신지주일"
+      ],
+      "category": "support_sinsal",
+      "calculationBasis": "day_stem",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 0,
+      "riskScore": 0,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_MAJOR_CHEONEUL"
+      ],
+      "calculationEvidence": {
+        "basis": "일간(경) 기준 천을귀인 지지(축,미)",
+        "matchedTarget": "없음(운에서 유입 가능)",
+        "referenceValue": "경",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 0,
+          "ruleIds": [
+            "RULE_MAJOR_CHEONEUL"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "munchang_guiin",
+      "name": "문창귀인",
+      "aliases": [
+        "文昌貴人",
+        "총명귀인"
+      ],
+      "category": "support_sinsal",
+      "calculationBasis": "day_stem",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 0,
+      "riskScore": 0,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_MAJOR_MUNCHANG"
+      ],
+      "calculationEvidence": {
+        "basis": "일간(경) 기준 식신 건록지(해)",
+        "matchedTarget": "없음",
+        "referenceValue": "경",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 0,
+          "ruleIds": [
+            "RULE_MAJOR_MUNCHANG"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "cheondeok_guiin",
+      "name": "천덕귀인",
+      "aliases": [
+        "天德貴人",
+        "하늘의 은덕"
+      ],
+      "category": "support_sinsal",
+      "calculationBasis": "month_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "year"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 0,
+      "supportScore": 75,
+      "domainScores": {
+        "분쟁마": 35,
+        "가족마": 25,
+        "생활마": 20,
+        "직장마": 20
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_MAJOR_CHEONDEOK",
+        "RULE_NATAL_PRESENT"
+      ],
+      "calculationEvidence": {
+        "basis": "월지(묘) 기준 천덕(신)",
+        "matchedTarget": "year",
+        "referenceValue": "묘",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_MAJOR_CHEONDEOK",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "woldeok_guiin",
+      "name": "월덕귀인",
+      "aliases": [
+        "月德貴人",
+        "달의 은혜"
+      ],
+      "category": "support_sinsal",
+      "calculationBasis": "month_branch",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 0,
+      "riskScore": 0,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_MAJOR_WOLDEOK"
+      ],
+      "calculationEvidence": {
+        "basis": "월지(묘 -> WOOD국) 기준 삼합 양간(갑)",
+        "matchedTarget": "없음",
+        "referenceValue": "묘",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 0,
+          "ruleIds": [
+            "RULE_MAJOR_WOLDEOK"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "yang_in",
+      "name": "양인",
+      "aliases": [
+        "陽刃",
+        "칼날살",
+        "제왕양인"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "day_stem",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": true,
+      "activationByDay": false,
+      "activationScore": 25,
+      "riskScore": 0,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_MAJOR_YANGIN",
+        "ACT_MONTH_YANGIN"
+      ],
+      "calculationEvidence": {
+        "basis": "일간(경) 기준 제왕지(유)",
+        "matchedTarget": "없음(운에서 유입 가능)",
+        "referenceValue": "경",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [
+            {
+              "ruleId": "ACT_MONTH_YANGIN",
+              "reason": "월운 지지(유) 양인 활성",
+              "delta": 20
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 25,
+          "ruleIds": [
+            "RULE_MAJOR_YANGIN",
+            "ACT_MONTH_YANGIN"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "baek_ho",
+      "name": "백호",
+      "aliases": [
+        "白虎",
+        "백호대살",
+        "구궁백호"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "fixed_pillar",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 0,
+      "riskScore": 0,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_MAJOR_BAEKHO"
+      ],
+      "calculationEvidence": {
+        "basis": "60갑자 중 7대 백호 간지 탐지",
+        "matchedTarget": "없음",
+        "referenceValue": "7대 백호 목록",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 0,
+          "ruleIds": [
+            "RULE_MAJOR_BAEKHO"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "goe_gang",
+      "name": "괴강",
+      "aliases": [
+        "魁罡",
+        "북두괴강"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "fixed_pillar",
+      "presentInNatal": true,
+      "natalLocations": [
+        "hour"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 36,
+      "supportScore": 32,
+      "domainScores": {
+        "직장마": 30,
+        "사업마": 30,
+        "분쟁마": 20,
+        "결혼마": 20
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_MAJOR_GOEGANG",
+        "RULE_NATAL_PRESENT"
+      ],
+      "calculationEvidence": {
+        "basis": "4대 괴강 간지 (경진, 경술, 임진, 무술) 탐지",
+        "matchedTarget": "hour:경진",
+        "referenceValue": "4대 괴강 목록",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "MOD_HOUR_GOEGANG",
+              "reason": "시주 괴강(결단력/추진력) 가중",
+              "delta": 10
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_MAJOR_GOEGANG",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "won_jin",
+      "name": "원진",
+      "aliases": [
+        "怨嗔",
+        "원망살",
+        "애증살"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "day_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "year",
+        "month"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": true,
+      "activationByDay": false,
+      "activationScore": 70,
+      "riskScore": 64,
+      "supportScore": 0,
+      "domainScores": {
+        "연애마": 45,
+        "결혼마": 25,
+        "인마": 20,
+        "가족마": 10
+      },
+      "triggerRelations": [
+        "원진(year(신)-month(묘))",
+        "원진×월운(유)"
+      ],
+      "ruleIds": [
+        "RULE_MAJOR_WONJIN",
+        "RULE_NATAL_PRESENT",
+        "ACT_MONTH_WONJIN",
+        "REL_WONJIN_TRIGGERED_BY_월운"
+      ],
+      "calculationEvidence": {
+        "basis": "6대 원진 지지 쌍 탐지",
+        "matchedTarget": "year(신)-month(묘)",
+        "referenceValue": "인",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "ACT_MONTH_WONJIN",
+              "reason": "월운 지지(유)가 일지(인)와 원진 형성",
+              "delta": 20
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 70,
+          "ruleIds": [
+            "RULE_MAJOR_WONJIN",
+            "RULE_NATAL_PRESENT",
+            "ACT_MONTH_WONJIN"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "gwi_mun",
+      "name": "귀문관",
+      "aliases": [
+        "鬼門關",
+        "귀문",
+        "정신예민살"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "day_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "year",
+        "month"
+      ],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 51,
+      "supportScore": 20,
+      "domainScores": {
+        "연애마": 35,
+        "생활마": 30,
+        "인마": 20,
+        "분쟁마": 15
+      },
+      "triggerRelations": [
+        "귀문관(year(신)-month(묘))",
+        "귀문×묘신 결속"
+      ],
+      "ruleIds": [
+        "RULE_MAJOR_GWIMUN",
+        "RULE_NATAL_PRESENT",
+        "REL_GWIMUN_MYOSHIN_DEEP"
+      ],
+      "calculationEvidence": {
+        "basis": "6대 귀문관 지지 쌍 탐지",
+        "matchedTarget": "year(신)-month(묘)",
+        "referenceValue": "인",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 35,
+          "ruleIds": [
+            "RULE_MAJOR_GWIMUN",
+            "RULE_NATAL_PRESENT"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "hong_yeom",
+      "name": "홍염",
+      "aliases": [
+        "紅艶",
+        "붉은꽃살"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "day_stem",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 0,
+      "riskScore": 0,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_MAJOR_HONGYEOM"
+      ],
+      "calculationEvidence": {
+        "basis": "일간(경) 기준 홍염 지지(술)",
+        "matchedTarget": "없음",
+        "referenceValue": "경",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [],
+          "caps": 100,
+          "floors": 0,
+          "final": 0,
+          "ruleIds": [
+            "RULE_MAJOR_HONGYEOM"
+          ]
+        }
+      },
+      "reliabilityLevel": "medium",
+      "status": "active"
+    },
+    {
+      "sinsalId": "hyeon_chim",
+      "name": "현침",
+      "aliases": [
+        "懸針",
+        "바늘살",
+        "필봉살"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "fixed_stem_branch",
+      "presentInNatal": true,
+      "natalLocations": [
+        "year",
+        "month"
+      ],
+      "activationByDaeun": true,
+      "activationBySeun": true,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 80,
+      "riskScore": 32,
+      "supportScore": 32,
+      "domainScores": {
+        "분쟁마": 35,
+        "인마": 25,
+        "직장마": 20,
+        "연애마": 20
+      },
+      "triggerRelations": [],
+      "ruleIds": [
+        "RULE_MAJOR_HYEONCHIM",
+        "RULE_NATAL_PRESENT",
+        "ACT_DAEUN_HYEONCHIM",
+        "ACT_SEUN_HYEONCHIM"
+      ],
+      "calculationEvidence": {
+        "basis": "5대 현침 글자 (갑, 신, 묘, 오, 신) 탐지",
+        "matchedTarget": "year지(신), month지(묘)",
+        "referenceValue": "5대 현침 목록",
+        "scoreBreakdown": {
+          "base": 50,
+          "modifiers": [
+            {
+              "ruleId": "ACT_DAEUN_HYEONCHIM",
+              "reason": "대운에 현침 글자(병오) 도래",
+              "delta": 15
+            },
+            {
+              "ruleId": "ACT_SEUN_HYEONCHIM",
+              "reason": "세운에 현침 글자(병오) 도래",
+              "delta": 15
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 80,
+          "ruleIds": [
+            "RULE_MAJOR_HYEONCHIM",
+            "RULE_NATAL_PRESENT",
+            "ACT_DAEUN_HYEONCHIM",
+            "ACT_SEUN_HYEONCHIM"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    },
+    {
+      "sinsalId": "gong_mang",
+      "name": "공망",
+      "aliases": [
+        "空亡",
+        "천중살",
+        "비어있음"
+      ],
+      "category": "major_sinsal",
+      "calculationBasis": "day_pillar",
+      "presentInNatal": false,
+      "natalLocations": [],
+      "activationByDaeun": true,
+      "activationBySeun": true,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 45,
+      "riskScore": 20,
+      "supportScore": 0,
+      "domainScores": {},
+      "triggerRelations": [
+        "공망×대운·세운(오화공망)"
+      ],
+      "ruleIds": [
+        "RULE_MAJOR_GONGMANG",
+        "ACT_DAEUN_GONGMANG",
+        "ACT_SEUN_GONGMANG",
+        "REL_GONGMANG_FIRE_VOID"
+      ],
+      "calculationEvidence": {
+        "basis": "일주(경인) 기준 순중공망 지지(오, 미)",
+        "matchedTarget": "없음(원국 내 표출 없음, 운에서 작용 가능)",
+        "referenceValue": "오, 미",
+        "scoreBreakdown": {
+          "base": 0,
+          "modifiers": [
+            {
+              "ruleId": "ACT_DAEUN_GONGMANG",
+              "reason": "대운 지지(오)가 순중공망에 해당",
+              "delta": 25
+            },
+            {
+              "ruleId": "ACT_SEUN_GONGMANG",
+              "reason": "세운 지지(오)가 순중공망에 해당",
+              "delta": 20
+            }
+          ],
+          "caps": 100,
+          "floors": 0,
+          "final": 45,
+          "ruleIds": [
+            "RULE_MAJOR_GONGMANG",
+            "ACT_DAEUN_GONGMANG",
+            "ACT_SEUN_GONGMANG"
+          ]
+        }
+      },
+      "reliabilityLevel": "high",
+      "status": "active"
+    }
+  ],
+  "riskSignals": [
+    {
+      "sinsalId": "nyeon_sal",
+      "name": "년살",
+      "score": 45,
+      "reason": "년살의 부정적 작용으로 인한 영역별 불안정성",
+      "ruleId": "RISK_SIGNAL_NYEON_SAL"
+    },
+    {
+      "sinsalId": "yeok_ma",
+      "name": "역마살",
+      "score": 65,
+      "reason": "역마살(일지 인)의 부정적 작용으로 인한 영역별 불안정성",
+      "ruleId": "RISK_SIGNAL_YEOK_MA"
+    },
+    {
+      "sinsalId": "dohwa_major",
+      "name": "도화",
+      "score": 71,
+      "reason": "도화(월지 묘)의 부정적 작용으로 인한 영역별 불안정성",
+      "ruleId": "RISK_SIGNAL_DOHWA_MAJOR"
+    },
+    {
+      "sinsalId": "goe_gang",
+      "name": "괴강",
+      "score": 36,
+      "reason": "괴강(시주 경진)의 부정적 작용으로 인한 영역별 불안정성",
+      "ruleId": "RISK_SIGNAL_GOE_GANG"
+    },
+    {
+      "sinsalId": "won_jin",
+      "name": "원진",
+      "score": 64,
+      "reason": "원진살(년지(신)-월지(묘)) 작용으로 인한 대인관계 및 감정 소통의 앙금과 오해",
+      "ruleId": "RISK_SIGNAL_WON_JIN"
+    },
+    {
+      "sinsalId": "gwi_mun",
+      "name": "귀문관",
+      "score": 51,
+      "reason": "귀문관(년지(신)-월지(묘))으로 인한 예민한 직관과 생각 과다로 인한 신경성 피로",
+      "ruleId": "RISK_SIGNAL_GWI_MUN"
+    },
+    {
+      "sinsalId": "hyeon_chim",
+      "name": "현침",
+      "score": 32,
+      "reason": "현침(년지지(신), 월지지(묘))의 부정적 작용으로 인한 영역별 불안정성",
+      "ruleId": "RISK_SIGNAL_HYEON_CHIM"
+    }
+  ],
+  "supportSignals": [
+    {
+      "sinsalId": "dohwa_major",
+      "name": "도화",
+      "score": 34,
+      "reason": "도화(월지 묘)의 긍정적 역량을 통한 위기 극복 지원",
+      "ruleId": "SUPPORT_SIGNAL_DOHWA_MAJOR"
+    },
+    {
+      "sinsalId": "cheondeok_guiin",
+      "name": "천덕귀인",
+      "score": 75,
+      "reason": "천덕귀인(년지)의 긍정적 역량을 통한 위기 극복 지원",
+      "ruleId": "SUPPORT_SIGNAL_CHEONDEOK_GUIIN"
+    },
+    {
+      "sinsalId": "goe_gang",
+      "name": "괴강",
+      "score": 32,
+      "reason": "괴강(시주 경진)의 카리스마와 독립적 문제 돌파력",
+      "ruleId": "SUPPORT_SIGNAL_GOE_GANG"
+    },
+    {
+      "sinsalId": "gwi_mun",
+      "name": "귀문관",
+      "score": 20,
+      "reason": "귀문관(년지(신)-월지(묘))의 긍정적 역량을 통한 위기 극복 지원",
+      "ruleId": "SUPPORT_SIGNAL_GWI_MUN"
+    },
+    {
+      "sinsalId": "hyeon_chim",
+      "name": "현침",
+      "score": 32,
+      "reason": "현침(년지지(신), 월지지(묘))의 정밀한 관찰력과 문제의 핵심을 꿰뚫는 분석력",
+      "ruleId": "SUPPORT_SIGNAL_HYEON_CHIM"
+    }
+  ],
+  "changeSignals": [
+    {
+      "sinsalId": "ji_sal",
+      "name": "지살",
+      "score": 35,
+      "reason": "지살(년지 신)의 작용으로 인한 주도적인 새로운 영역 개척 및 생활 반경 변화",
+      "ruleId": "CHANGE_SIGNAL_JI_SAL"
+    },
+    {
+      "sinsalId": "yeok_ma",
+      "name": "역마살",
+      "score": 80,
+      "reason": "역마살(일지 인)의 활성화로 인한 환경과 생활 반경의 급격한 위치 이동 및 재편",
+      "ruleId": "CHANGE_SIGNAL_YEOK_MA"
+    },
+    {
+      "sinsalId": "hwa_gae",
+      "name": "화개살",
+      "score": 35,
+      "reason": "화개살(시지 진)의 기운으로 인한 과거 정리와 내면 성찰 및 재도약 준비",
+      "ruleId": "CHANGE_SIGNAL_HWA_GAE"
+    }
+  ],
+  "relationInteractions": [
+    {
+      "relationType": "원진",
+      "targetSinsal": "년살",
+      "pillarLocation": "월운-일지",
+      "timingPillar": "월운",
+      "effect": "월운 酉(도화)가 일지 寅과 인유(寅酉) 원진을 형성하여 애정사 오해 및 원망 증폭",
+      "scoreDelta": 25,
+      "ruleId": "REL_DOHWA_WONJIN_TIMING"
+    },
+    {
+      "relationType": "원진",
+      "targetSinsal": "년살",
+      "pillarLocation": "월지(묘)-년지(신)",
+      "effect": "월지 묘목 도화가 년지 신금과 묘신 원진·귀문관을 이루어 집착과 애증 심화",
+      "scoreDelta": 20,
+      "ruleId": "REL_DOHWA_MYOSHIN_WONJIN"
+    },
+    {
+      "relationType": "충",
+      "targetSinsal": "역마살",
+      "pillarLocation": "일지(인)-년지(신)",
+      "effect": "인신충으로 충마(沖馬) 발동: 이동, 환경 변화, 관계의 급변동성 극대화",
+      "scoreDelta": 20,
+      "ruleId": "REL_YEOKMA_CLASH_ACTIVATED"
+    },
+    {
+      "relationType": "충",
+      "targetSinsal": "역마살",
+      "pillarLocation": "일진",
+      "timingPillar": "일진",
+      "effect": "일진 지지(인)가 역마축과 맞물려 활동성 및 물리적/심리적 변동 촉발",
+      "scoreDelta": 15,
+      "ruleId": "REL_YEOKMA_TIMING_일진"
+    },
+    {
+      "relationType": "원진",
+      "targetSinsal": "도화",
+      "pillarLocation": "월운-일지",
+      "timingPillar": "월운",
+      "effect": "월운 酉(도화)가 일지 寅과 인유(寅酉) 원진을 형성하여 애정사 오해 및 원망 증폭",
+      "scoreDelta": 25,
+      "ruleId": "REL_DOHWA_WONJIN_TIMING"
+    },
+    {
+      "relationType": "원진",
+      "targetSinsal": "도화",
+      "pillarLocation": "월지(묘)-년지(신)",
+      "effect": "월지 묘목 도화가 년지 신금과 묘신 원진·귀문관을 이루어 집착과 애증 심화",
+      "scoreDelta": 20,
+      "ruleId": "REL_DOHWA_MYOSHIN_WONJIN"
+    },
+    {
+      "relationType": "원진",
+      "targetSinsal": "원진살",
+      "pillarLocation": "일지(인)-월운(유)",
+      "timingPillar": "월운",
+      "effect": "월운 지지(유)가 배우자궁(일지 인)과 원진을 일으켜 심리적 불신과 미련 가중",
+      "scoreDelta": 25,
+      "ruleId": "REL_WONJIN_TRIGGERED_BY_월운"
+    },
+    {
+      "relationType": "원진",
+      "targetSinsal": "귀문관살",
+      "pillarLocation": "월지-년지",
+      "effect": "묘신(卯申) 귀문관 형성으로 사소한 언행에 대한 과민 반응과 내적 반추 심화",
+      "scoreDelta": 15,
+      "ruleId": "REL_GWIMUN_MYOSHIN_DEEP"
+    },
+    {
+      "relationType": "충",
+      "targetSinsal": "공망",
+      "pillarLocation": "대운·세운(오)",
+      "timingPillar": "대운/세운",
+      "effect": "대운과 세운의 오화(午火)가 순중공망에 해당하여 노력과 기대 대비 공허감과 심리적 불안정 야기",
+      "scoreDelta": 20,
+      "ruleId": "REL_GONGMANG_FIRE_VOID"
+    }
+  ],
+  "eventConnection": {
+    "eventDomain": "일반",
+    "eventType": "상담",
+    "eventText": "연애 결별 후 재회 가능성이 궁금합니다.",
+    "eventDateKnown": false,
+    "candidate_period": {
+      "startYearMonth": "2026-06",
+      "endYearMonth": "2026-09",
+      "reason": "병오(丙午) 세운의 화기 팽창 및 정유(丁酉) 월운의 인유(寅酉) 원진·양인 활성화로 인한 감정 충돌 취약 후보 기간",
+      "ruleId": "RULE_EVENT_CANDIDATE_PERIOD_ONLY"
+    },
+    "relevanceScore": 10,
+    "matchedSinsals": [],
+    "explanation": "사용자께서 구체적 이별 일자를 제공하지 않았으므로 사건 발생일을 특정하지 않습니다. 명리 구조상 원국의 묘신(卯申) 원진과 운에서 유입된 정유(丁酉)월 인유(寅酉) 원진 및 양인 기운이 맞물린 최근 시기(2026-06~2026-09)가 감정적 폭발과 단절이 발생하기 가장 쉬웠던 명리학적 갈등 후보 구간으로 분석됩니다. 이 시기와 실제 사건 시점이 겹친다면 해당 작용과의 연관성을 더 강하게 볼 수 있습니다."
+  },
+  "maImpactSummary": {
+    "재물마": {
+      "domain": "재물마",
+      "rawScore": 0,
+      "weightedScore": 0,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 0,
+      "totalImpactScore": 0,
+      "ruleIds": [],
+      "contributingSinsals": []
+    },
+    "사업마": {
+      "domain": "사업마",
+      "rawScore": 34,
+      "weightedScore": 34,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 34,
+      "totalImpactScore": 34,
+      "ruleIds": [
+        "RULE_12SINSAL_JI",
+        "RULE_12SINSAL_YEOKMA",
+        "RULE_MAJOR_GOEGANG"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "지살",
+          "score": 10,
+          "ruleId": "RULE_12SINSAL_JI"
+        },
+        {
+          "name": "역마살",
+          "score": 12,
+          "ruleId": "RULE_12SINSAL_YEOKMA"
+        },
+        {
+          "name": "괴강",
+          "score": 12,
+          "ruleId": "RULE_MAJOR_GOEGANG"
+        }
+      ]
+    },
+    "직장마": {
+      "domain": "직장마",
+      "rawScore": 66,
+      "weightedScore": 57,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 57,
+      "totalImpactScore": 57,
+      "ruleIds": [
+        "RULE_12SINSAL_JI",
+        "RULE_12SINSAL_YEOKMA",
+        "RULE_12SINSAL_HWAGAE",
+        "RULE_MAJOR_CHEONDEOK",
+        "RULE_MAJOR_GOEGANG",
+        "RULE_MAJOR_HYEONCHIM"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "지살",
+          "score": 8,
+          "ruleId": "RULE_12SINSAL_JI"
+        },
+        {
+          "name": "역마살",
+          "score": 12,
+          "ruleId": "RULE_12SINSAL_YEOKMA"
+        },
+        {
+          "name": "화개살",
+          "score": 10,
+          "ruleId": "RULE_12SINSAL_HWAGAE"
+        },
+        {
+          "name": "천덕귀인",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_CHEONDEOK"
+        },
+        {
+          "name": "괴강",
+          "score": 12,
+          "ruleId": "RULE_MAJOR_GOEGANG"
+        },
+        {
+          "name": "현침",
+          "score": 16,
+          "ruleId": "RULE_MAJOR_HYEONCHIM"
+        }
+      ]
+    },
+    "인마": {
+      "domain": "인마",
+      "rawScore": 89,
+      "weightedScore": 68,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 68,
+      "totalImpactScore": 68,
+      "ruleIds": [
+        "RULE_12SINSAL_YUKHAE",
+        "RULE_12SINSAL_HWAGAE",
+        "RULE_MAJOR_DOHWA",
+        "RULE_MAJOR_WONJIN",
+        "RULE_MAJOR_GWIMUN",
+        "RULE_MAJOR_HYEONCHIM"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "육해살",
+          "score": 12,
+          "ruleId": "RULE_12SINSAL_YUKHAE"
+        },
+        {
+          "name": "화개살",
+          "score": 10,
+          "ruleId": "RULE_12SINSAL_HWAGAE"
+        },
+        {
+          "name": "도화",
+          "score": 25,
+          "ruleId": "RULE_MAJOR_DOHWA"
+        },
+        {
+          "name": "원진",
+          "score": 14,
+          "ruleId": "RULE_MAJOR_WONJIN"
+        },
+        {
+          "name": "귀문관",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_GWIMUN"
+        },
+        {
+          "name": "현침",
+          "score": 20,
+          "ruleId": "RULE_MAJOR_HYEONCHIM"
+        }
+      ]
+    },
+    "연애마": {
+      "domain": "연애마",
+      "rawScore": 126,
+      "weightedScore": 84,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 84,
+      "totalImpactScore": 84,
+      "ruleIds": [
+        "RULE_12SINSAL_YUKHAE",
+        "RULE_12SINSAL_HWAGAE",
+        "RULE_MAJOR_DOHWA",
+        "RULE_MAJOR_WONJIN",
+        "RULE_MAJOR_GWIMUN",
+        "RULE_MAJOR_HYEONCHIM"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "육해살",
+          "score": 6,
+          "ruleId": "RULE_12SINSAL_YUKHAE"
+        },
+        {
+          "name": "화개살",
+          "score": 8,
+          "ruleId": "RULE_12SINSAL_HWAGAE"
+        },
+        {
+          "name": "도화",
+          "score": 50,
+          "ruleId": "RULE_MAJOR_DOHWA"
+        },
+        {
+          "name": "원진",
+          "score": 32,
+          "ruleId": "RULE_MAJOR_WONJIN"
+        },
+        {
+          "name": "귀문관",
+          "score": 14,
+          "ruleId": "RULE_MAJOR_GWIMUN"
+        },
+        {
+          "name": "현침",
+          "score": 16,
+          "ruleId": "RULE_MAJOR_HYEONCHIM"
+        }
+      ]
+    },
+    "결혼마": {
+      "domain": "결혼마",
+      "rawScore": 41,
+      "weightedScore": 41,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 41,
+      "totalImpactScore": 41,
+      "ruleIds": [
+        "RULE_MAJOR_DOHWA",
+        "RULE_MAJOR_GOEGANG",
+        "RULE_MAJOR_WONJIN"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "도화",
+          "score": 15,
+          "ruleId": "RULE_MAJOR_DOHWA"
+        },
+        {
+          "name": "괴강",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_GOEGANG"
+        },
+        {
+          "name": "원진",
+          "score": 18,
+          "ruleId": "RULE_MAJOR_WONJIN"
+        }
+      ]
+    },
+    "가족마": {
+      "domain": "가족마",
+      "rawScore": 31,
+      "weightedScore": 31,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 31,
+      "totalImpactScore": 31,
+      "ruleIds": [
+        "RULE_12SINSAL_YUKHAE",
+        "RULE_MAJOR_CHEONDEOK",
+        "RULE_MAJOR_WONJIN"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "육해살",
+          "score": 14,
+          "ruleId": "RULE_12SINSAL_YUKHAE"
+        },
+        {
+          "name": "천덕귀인",
+          "score": 10,
+          "ruleId": "RULE_MAJOR_CHEONDEOK"
+        },
+        {
+          "name": "원진",
+          "score": 7,
+          "ruleId": "RULE_MAJOR_WONJIN"
+        }
+      ]
+    },
+    "이동마": {
+      "domain": "이동마",
+      "rawScore": 66,
+      "weightedScore": 57,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 57,
+      "totalImpactScore": 57,
+      "ruleIds": [
+        "RULE_12SINSAL_JI",
+        "RULE_12SINSAL_YEOKMA"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "지살",
+          "score": 18,
+          "ruleId": "RULE_12SINSAL_JI"
+        },
+        {
+          "name": "역마살",
+          "score": 48,
+          "ruleId": "RULE_12SINSAL_YEOKMA"
+        }
+      ]
+    },
+    "분쟁마": {
+      "domain": "분쟁마",
+      "rawScore": 66,
+      "weightedScore": 57,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 57,
+      "totalImpactScore": 57,
+      "ruleIds": [
+        "RULE_MAJOR_DOHWA",
+        "RULE_MAJOR_CHEONDEOK",
+        "RULE_MAJOR_GOEGANG",
+        "RULE_MAJOR_GWIMUN",
+        "RULE_MAJOR_HYEONCHIM"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "도화",
+          "score": 10,
+          "ruleId": "RULE_MAJOR_DOHWA"
+        },
+        {
+          "name": "천덕귀인",
+          "score": 14,
+          "ruleId": "RULE_MAJOR_CHEONDEOK"
+        },
+        {
+          "name": "괴강",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_GOEGANG"
+        },
+        {
+          "name": "귀문관",
+          "score": 6,
+          "ruleId": "RULE_MAJOR_GWIMUN"
+        },
+        {
+          "name": "현침",
+          "score": 28,
+          "ruleId": "RULE_MAJOR_HYEONCHIM"
+        }
+      ]
+    },
+    "생활마": {
+      "domain": "생활마",
+      "rawScore": 52,
+      "weightedScore": 51,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 51,
+      "totalImpactScore": 51,
+      "ruleIds": [
+        "RULE_12SINSAL_JI",
+        "RULE_12SINSAL_YEOKMA",
+        "RULE_12SINSAL_YUKHAE",
+        "RULE_12SINSAL_HWAGAE",
+        "RULE_MAJOR_CHEONDEOK",
+        "RULE_MAJOR_GWIMUN"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "지살",
+          "score": 4,
+          "ruleId": "RULE_12SINSAL_JI"
+        },
+        {
+          "name": "역마살",
+          "score": 8,
+          "ruleId": "RULE_12SINSAL_YEOKMA"
+        },
+        {
+          "name": "육해살",
+          "score": 8,
+          "ruleId": "RULE_12SINSAL_YUKHAE"
+        },
+        {
+          "name": "화개살",
+          "score": 12,
+          "ruleId": "RULE_12SINSAL_HWAGAE"
+        },
+        {
+          "name": "천덕귀인",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_CHEONDEOK"
+        },
+        {
+          "name": "귀문관",
+          "score": 12,
+          "ruleId": "RULE_MAJOR_GWIMUN"
+        }
+      ]
+    }
+  },
+  "prescriptionAdvice": {
+    "corePrescription": "지금은 원진(오해)과 양인(칼날)이 겹친 감정 과열기이므로 즉각적인 연락은 반작용을 부릅니다. 억지로 결과를 내기보다 충마의 에너지를 자기 일상으로 돌리고 냉각기를 확보하십시오.",
+    "actionGuidelines": [
+      "감정적 독대보다는 2~3주의 심리적 냉각기를 갖고 상호 오해의 뇌관을 가라앉히는 감정 환기를 우선하십시오.",
+      "인신충(충마)의 폭발적 활동 에너지를 관계에 쏟지 말고, 운동·업무 환경 전환·산책 등 생산적 물리적 이동으로 소화하십시오."
+    ],
+    "cautionGuidelines": [
+      "현재 원진살(인유 원진)이 활성화되어 있으므로 상대방의 침묵이나 짧은 답변을 자의적으로 확대해석하여 추궁하지 마십시오."
+    ],
+    "remedyPrinciple": "신살의 기운은 억누르는 것이 아니라 충(沖)은 운동/이동으로, 원진(怨嗔)은 거리두기로, 귀인(貴人)은 조언자 구하기로 물상대체(物象代替)하여 해소하는 것이 정통 명리의 지혜입니다."
+  }
+}

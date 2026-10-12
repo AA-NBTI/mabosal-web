@@ -1,0 +1,1296 @@
+import { renderAdminVoucherPanel, bindAdminVoucherEvents } from '../modules/voucher/AdminVoucherPanel.js';
+import { renderAdminPaymentPanel } from '../modules/payment/AdminPaymentPanel.js';
+import { SiteContentStore } from '../state/site-content-store.js';
+import { PartnerTracker } from '../modules/partner-tracker.js';
+/**
+ * 최고 관리자 대시보드 뷰 (WordPress-Style Admin Master Control Tower)
+ * 
+ * 워드프레스 관리자 아키텍처:
+ * - PC: 좌측 250px 고정 카테고리 사이드바 + 우측 메인 워크스페이스
+ * - 모바일: 상단 햄버거 메뉴 버튼 + 부드러운 오버레이 슬라이드 드로어 사이드바
+ * - 실시간 명리 마스터 / 협력 상담사 / 엽전 지갑 기능의 화면 노출 원클릭 ON/OFF 통제
+ */
+
+import { CatalogStore } from '../state/catalog-store.js';
+import { ModuleRegistry } from '../state/module-registry.js';
+import {
+  VERTICALS,
+  getAllSolutions,
+  getAllPartners,
+  getSolutionStats,
+  getPartnerApplications,
+} from '../extensions/solution-hub/index.js';
+import { renderAdminStorePanel } from '../extensions/commerce-store/index.js';
+
+let activeEditingStoreProductId: string | null = null;
+export function setEditingStoreProductId(id: string | null): void {
+  activeEditingStoreProductId = id;
+}
+export function getEditingStoreProductId(): string | null {
+  return activeEditingStoreProductId;
+}
+
+let activeAdminTabId = 'tab-features';
+
+export function setAdminActiveTab(tabId: string): void {
+ activeAdminTabId = tabId;
+}
+
+export function getAdminActiveTab(): string {
+ return activeAdminTabId;
+}
+
+export function renderAdminDashboardView(): string {
+ const products = CatalogStore.getProducts();
+ const vendors = CatalogStore.getVendors();
+ const allModules = ModuleRegistry.getAllModules();
+ const masterToggles = ModuleRegistry.getAllMasterToggles();
+
+ const activeProductsCount = products.filter(p => p.enabled).length;
+ const activeVendorsCount = vendors.filter(v => v.enabled).length;
+ const activeModulesCount = allModules.filter(m => m.enabled).length;
+ const activeMasterCount = masterToggles.filter(m => m.enabled).length;
+
+ const currentTab = activeAdminTabId;
+
+ // 탭별 브레드크럼 타이틀 매핑
+ const tabTitles: Record<string, string> = {
+    'tab-payments': 'PG 결제 연동 설정 (토스페이먼츠 · 무통장)',
+    'tab-vouchers': '쿠폰 발행 & 무통장 입금 원클릭 승인 센터',
+    'tab-store': '스토어 상품 & 실시간 주문 관리',
+    'tab-study': '스터디 블로그 & 지식 허브 CMS 관리',
+    'tab-features': '서비스 기능 제어 (ON/OFF)',
+    'tab-site-content': '사이트 문구 및 브랜딩 설정 (CMS)',
+    'tab-solutions': '솔루션 허브 & 6대 버티컬 통제탑',
+    'tab-products': '사주 감정서 티어 가격 설정',
+    'tab-vendors': '협력업체 & 전문 상담사 관리',
+    'tab-orders': '사주 결제 주문 장부',
+    'tab-affiliate': '제휴 파트너스 정산 및 출금 승인',
+  };
+ const activeTitle = tabTitles[currentTab] || '관리자 통제탑';
+
+ return `
+ <div class="admin-dashboard-container" style="max-width: 1360px; width: 100%; margin: 0 auto; padding: 1rem 0.75rem 5rem; font-family: var(--font-body); box-sizing: border-box;">
+ 
+ <!-- 워드프레스 스타일 2컬럼 레이아웃 래퍼 -->
+ <div class="wp-admin-wrapper">
+ 
+ <!-- 모바일 드로어용 백드롭 오버레이 -->
+ <div class="wp-admin-backdrop" id="wp-admin-backdrop"></div>
+
+ <!-- [좌측 카테고리 사이드바] -->
+ <aside class="wp-admin-sidebar" id="wp-admin-sidebar">
+ <!-- 사이드바 상단 브랜딩 -->
+ <div class="wp-admin-sidebar-header">
+ <div style="display: flex; align-items: center; gap: 0.65rem;">
+ <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.4); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+ <span class="material-symbols-outlined" style="font-size: 20px;">admin_panel_settings</span>
+ </div>
+ <div>
+            <div style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 800; color: #dfe2f1; line-height: 1.15; display: flex; align-items: center; gap: 0.45rem;">
+              마보살 관리자
+              <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(242, 202, 80, 0.15); color: #f2ca50; border: 1px solid rgba(242, 202, 80, 0.35); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v1.0.0</span>
+            </div>
+ <div style="font-size: 0.68rem; color: var(--primary); font-family: var(--font-display); letter-spacing: 0.05em;">WP-CONTROL TOWER</div>
+ </div>
+ </div>
+ </div>
+
+ <!-- 좌측 카테고리 네비게이션 메뉴 목록 -->
+ <ul class="wp-admin-menu-list" style="margin: 0; padding: 0.5rem; list-style: none; display: flex; flex-direction: column; gap: 0.35rem;">
+              <!-- 1. 솔루션 허브 (최우선) -->
+              <li>
+                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-solutions' ? 'active' : ''}" data-tab="tab-solutions" style="border-left: 3px solid ${currentTab === 'tab-solutions' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-solutions' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
+                  <span class="material-symbols-outlined" style="font-size: 19px; color: ${currentTab === 'tab-solutions' ? 'var(--primary)' : 'inherit'};">hub</span>
+                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-solutions' ? '800' : '600'};">솔루션 허브</span>
+                  <span class="menu-badge" style="background: rgba(242,202,80,0.18); color: #f2ca50; font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;">6대</span>
+                </button>
+              </li>
+
+              <!-- 2.4 PG 결제 연동 -->
+              <li>
+                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-payments' ? 'active' : ''}" data-tab="tab-payments" style="border-left: 3px solid ${currentTab === 'tab-payments' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-payments' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
+                  <span class="material-symbols-outlined" style="font-size: 20px; color: ${currentTab === 'tab-payments' ? 'var(--primary)' : 'inherit'};">credit_card</span>
+                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-payments' ? '800' : '600'};">결제 연동 설정</span>
+                  <span class="menu-badge" style="background: rgba(96,165,250,0.2); color: #93c5fd; font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700;">PG</span>
+                </button>
+              </li>
+
+              <!-- 2.5 쿠폰 & 무통장 승인 -->
+              <li>
+                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-vouchers' ? 'active' : ''}" data-tab="tab-vouchers" style="border-left: 3px solid ${currentTab === 'tab-vouchers' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-vouchers' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
+                  <span class="material-symbols-outlined" style="font-size: 20px; color: ${currentTab === 'tab-vouchers' ? 'var(--primary)' : 'inherit'};">confirmation_number</span>
+                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-vouchers' ? '800' : '600'};">쿠폰·무통장 승인</span>
+                  <span class="menu-badge" style="background: rgba(255,107,107,0.22); color: #ff8585; font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700;">원클릭승인</span>
+                </button>
+              </li>
+
+              <!-- 2. 스토어 관리 -->
+              <li>
+                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-store' ? 'active' : ''}" data-tab="tab-store" style="border-left: 3px solid ${currentTab === 'tab-store' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-store' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
+                  <span class="material-symbols-outlined" style="font-size: 20px; color: ${currentTab === 'tab-store' ? 'var(--primary)' : 'inherit'};">storefront</span>
+                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-store' ? '800' : '600'};">스토어 관리</span>
+                  <span class="menu-badge" style="background: var(--primary); color: #1c1500; font-weight: 800; font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;">쇼핑몰</span>
+                </button>
+              </li>
+
+              <!-- 3. 스터디 관리 -->
+              <li>
+                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-study' ? 'active' : ''}" data-tab="tab-study" style="border-left: 3px solid ${currentTab === 'tab-study' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-study' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
+                  <span class="material-symbols-outlined" style="font-size: 20px; color: ${currentTab === 'tab-study' ? 'var(--primary)' : 'inherit'};">menu_book</span>
+                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-study' ? '800' : '600'};">스터디 관리</span>
+                  <span class="menu-badge" style="background: rgba(242, 202, 80, 0.15); color: #f2ca50; padding: 0.15rem 0.5rem; border-radius: 9999px; font-size: 0.72rem; font-weight: 600;">블로그/지식</span>
+                </button>
+              </li>
+
+              <!-- 4. 서비스 기능 제어 -->
+              <li>
+                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-features' ? 'active' : ''}" data-tab="tab-features" style="border-left: 3px solid ${currentTab === 'tab-features' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-features' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
+                  <span class="material-symbols-outlined" style="font-size: 19px; color: ${currentTab === 'tab-features' ? 'var(--primary)' : 'inherit'};">toggle_on</span>
+                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-features' ? '800' : '600'};">서비스 기능 제어</span>
+                  <span class="menu-badge" style="font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;">${activeModulesCount}/${allModules.length}</span>
+                </button>
+              </li>
+
+              <!-- 5. 문구·브랜딩 설정 (CMS) -->
+              <li>
+                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-site-content' ? 'active' : ''}" data-tab="tab-site-content" style="border-left: 3px solid ${currentTab === 'tab-site-content' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-site-content' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
+                  <span class="material-symbols-outlined" style="font-size: 19px; color: ${currentTab === 'tab-site-content' ? 'var(--primary)' : 'inherit'};">edit_note</span>
+                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-site-content' ? '800' : '600'};">문구·브랜딩 설정</span>
+                  <span class="menu-badge" style="font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;">CMS</span>
+                </button>
+              </li>
+
+              <!-- 6. 사주 가격 설정 -->
+              <li>
+                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-products' ? 'active' : ''}" data-tab="tab-products" style="border-left: 3px solid ${currentTab === 'tab-products' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-products' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
+                  <span class="material-symbols-outlined" style="font-size: 19px; color: ${currentTab === 'tab-products' ? 'var(--primary)' : 'inherit'};">price_change</span>
+                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-products' ? '800' : '600'};">사주 가격 설정</span>
+                  <span class="menu-badge" style="font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;">${products.length}종</span>
+                </button>
+              </li>
+
+              <!-- 7. 협력사 & 상담사 -->
+              <li>
+                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-vendors' ? 'active' : ''}" data-tab="tab-vendors" style="border-left: 3px solid ${currentTab === 'tab-vendors' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-vendors' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
+                  <span class="material-symbols-outlined" style="font-size: 19px; color: ${currentTab === 'tab-vendors' ? 'var(--primary)' : 'inherit'};">handshake</span>
+                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-vendors' ? '800' : '600'};">협력사 &amp; 상담사</span>
+                  <span class="menu-badge" style="font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;">${vendors.length}</span>
+                </button>
+              </li>
+
+              <!-- 8. 사주 결제 장부 -->
+              <li>
+                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-orders' ? 'active' : ''}" data-tab="tab-orders" style="border-left: 3px solid ${currentTab === 'tab-orders' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-orders' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
+                  <span class="material-symbols-outlined" style="font-size: 19px; color: ${currentTab === 'tab-orders' ? 'var(--primary)' : 'inherit'};">receipt_long</span>
+                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-orders' ? '800' : '600'};">사주 결제 장부</span>
+                  <span class="menu-badge" style="font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;">3건</span>
+                </button>
+              </li>
+
+              <!-- 9. 제휴 정산 & 출금 -->
+              <li>
+                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-affiliate' ? 'active' : ''}" data-tab="tab-affiliate" style="border-left: 3px solid ${currentTab === 'tab-affiliate' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-affiliate' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
+                  <span class="material-symbols-outlined" style="font-size: 19px; color: ${currentTab === 'tab-affiliate' ? 'var(--primary)' : 'inherit'};">payments</span>
+                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-affiliate' ? '800' : '600'};">제휴 정산 &amp; 출금</span>
+                  <span class="menu-badge" style="font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;">2건</span>
+                </button>
+              </li>
+            </ul>
+
+ <!-- 사이드바 하단 바로가기 -->
+ <div style="padding: 1rem 1.15rem; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.2);">
+ <button type="button" id="btn-admin-to-service" class="btn-cta-primary" style="width: 100%; padding: 0.6rem 0.8rem; font-size: 0.82rem; font-weight: 700; border-radius: 8px; justify-content: center; gap: 0.35rem;">
+ <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
+ 사용자 화면 보기
+ </button>
+ <div style="font-size: 0.68rem; color: var(--text-muted); text-align: center; margin-top: 0.65rem;">
+ Core Engine v2.4 <span style="color: #f2ca50;">● Online</span>
+ </div>
+ </div>
+ </aside>
+
+ <!-- [우측 메인 워크스페이스] -->
+ <main class="wp-admin-workspace">
+ <!-- 상단 툴바 (모바일 햄버거 토글 + 브레드크럼 + 퀵 액션) -->
+ <div class="wp-admin-topbar">
+ <div style="display: flex; align-items: center; gap: 0.75rem;">
+ <!-- 모바일 전용 햄버거 버튼 -->
+ <button type="button" class="wp-admin-hamburger" id="btn-admin-hamburger" aria-label="메뉴 열기">
+ <span class="material-symbols-outlined" style="font-size: 22px;">menu</span>
+ </button>
+ <div>
+ <div style="font-size: 0.72rem; color: var(--text-muted);">마보살 통제탑 &gt; 카테고리</div>
+ <div style="font-size: 1rem; font-weight: 700; color: #dfe2f1;">${activeTitle}</div>
+ </div>
+ </div>
+
+ <div style="display: flex; align-items: center; gap: 0.5rem;">
+ <button type="button" id="btn-admin-reset-defaults" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); color: #dfe2f1; border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
+ <span class="material-symbols-outlined" style="font-size: 14px;">refresh</span>
+ 초기화
+ </button>
+ </div>
+ </div>
+
+ <!-- 내부 콘텐츠 영역 (스크롤 가능) -->
+ <div style="padding: 1.5rem; flex: 1; overflow-y: auto;">
+ 
+ <!-- [패널 0] 사이트 문구 및 브랜딩 설정 (CMS) -->
+        <div id="tab-site-content" class="admin-tab-panel" style="display: ${currentTab === 'tab-site-content' ? 'block' : 'none'};">
+          <div style="background: var(--surface-container); border: 1.5px solid rgba(242,202,80,0.35); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;">
+              <div>
+                <div style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.6rem; border-radius: 9999px; background: rgba(242,202,80,0.15); border: 1px solid rgba(242,202,80,0.3); margin-bottom: 0.4rem;">
+                  <span class="material-symbols-outlined" style="font-size: 0.85rem; color: var(--primary);">edit_note</span>
+                  <span style="font-size: 0.72rem; font-weight: 700; color: var(--primary); letter-spacing: 0.05em;">SITE CONTENT &amp; BRANDING CMS</span>
+                </div>
+                <h2 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 700; color: #dfe2f1; margin: 0 0 0.3rem;">
+                  로고, 본문 문구 및 푸터 정보 통합 관리
+                </h2>
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">
+                  최고 관리자가 직접 사이트 상단 로고, 메인 화면 본문 히어로 타이틀과 설명문, 그리고 하단 푸터 사업자 정보를 수정하고 즉시 사이트에 반영할 수 있습니다.
+                </p>
+              </div>
+            </div>
+
+            ${(() => {
+              const cms = SiteContentStore.getConfig();
+              return `
+              <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                
+                <!-- 1. 상단 로고 & 브랜딩 -->
+                <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--primary); margin: 0 0 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">branding_watermark</span>
+                    1. 상단 헤더 로고 및 브랜드 구성
+                  </h3>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+                    <div>
+                      <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">브랜드명 (로고 텍스트)</label>
+                      <input type="text" id="input-cms-brand-name" value="${cms.header.brandName}" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem;" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">도메인 표시 문구</label>
+                      <input type="text" id="input-cms-domain-text" value="${cms.header.domainText}" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem;" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. 메인 화면 본문 히어로 -->
+                <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--primary); margin: 0 0 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">title</span>
+                    2. 메인 화면 본문 히어로 섹션
+                  </h3>
+                  <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                    <div>
+                      <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">메인 타이틀 (줄바꿈 가능)</label>
+                      <textarea id="input-cms-hero-title" rows="2" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem; resize: vertical;">${cms.hero.mainTitle}</textarea>
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">서브 배지 문구</label>
+                      <input type="text" id="input-cms-hero-subpill" value="${cms.hero.subPill}" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem;" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">상세 설명문</label>
+                      <textarea id="input-cms-hero-desc" rows="3" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem; resize: vertical;">${cms.hero.description}</textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. 사이트 하단 푸터 기본 정보 -->
+                <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1.25rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--primary); margin: 0 0 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">business</span>
+                    3. 하단 기본 푸터 정보 (사업자 및 고객센터)
+                  </h3>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+                    <div>
+                      <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">상호명</label>
+                      <input type="text" id="input-cms-footer-company" value="${cms.footer.companyName}" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem;" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">대표자명</label>
+                      <input type="text" id="input-cms-footer-ceo" value="${cms.footer.ceoName}" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem;" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">사업자등록번호</label>
+                      <input type="text" id="input-cms-footer-biz" value="${cms.footer.bizNumber}" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem;" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">통신판매업신고번호</label>
+                      <input type="text" id="input-cms-footer-mail" value="${cms.footer.mailOrderNumber}" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem;" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">고객센터 연락처 및 운영시간</label>
+                      <input type="text" id="input-cms-footer-contact" value="${cms.footer.contactInfo}" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem;" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">카피라이트 표기</label>
+                      <input type="text" id="input-cms-footer-copy" value="${cms.footer.copyright}" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem;" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 저장 및 복원 버튼 -->
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; padding-top: 0.5rem;">
+                  <button type="button" id="btn-reset-site-content" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: var(--text-muted); border-radius: 8px; padding: 0.65rem 1.15rem; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                    기본값으로 복원
+                  </button>
+                  <button type="button" id="btn-save-site-content" class="btn-cta-primary" style="padding: 0.65rem 1.5rem; font-size: 0.9rem; font-weight: 800; border-radius: 8px; background: var(--primary); color: #241a00; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; box-shadow: 0 4px 14px rgba(242,202,80,0.3);">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">save</span>
+                    설정 즉시 저장 및 화면 반영
+                  </button>
+                </div>
+              </div>
+              `;
+            })()}
+          </div>
+        </div>
+
+        <!-- [패널 1] ️ 서비스 기능 제어 (ON/OFF 원클릭 토글 스위치) -->
+ <div id="tab-features" class="admin-tab-panel" style="display: ${currentTab === 'tab-features' ? 'block' : 'none'};">
+<!-- 상단 핵심 4대 KPI 요약 카드 그리드 -->
+ <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem; margin-bottom: 1.5rem;">
+ <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem;">
+ <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.25rem;">오늘 누적 매출액</div>
+ <div style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; color: var(--primary);">₩ 1,489,200</div>
+ <div style="font-size: 0.68rem; color: #f2ca50; margin-top: 0.2rem;">↑ 전일 대비 +28.4%</div>
+ </div>
+ <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem;">
+ <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.25rem;">화면 노출 활성 기능</div>
+ <div style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; color: #f2ca50;">${activeModulesCount} <span style="font-size: 0.8rem; color: var(--text-muted);">/ ${allModules.length}개</span></div>
+ <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 0.2rem;">원클릭 노출 통제 중</div>
+ </div>
+ <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem;">
+ <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.25rem;">판매 중인 상품</div>
+ <div style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; color: #f2ca50;">${activeProductsCount} <span style="font-size: 0.8rem; color: var(--text-muted);">/ ${products.length}개</span></div>
+ <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 0.2rem;">정상 노출 중</div>
+ </div>
+ <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem;">
+ <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.25rem;">입점 협력사 &amp; 상담사</div>
+ <div style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; color: #f2ca50;">${activeVendorsCount} <span style="font-size: 0.8rem; color: var(--text-muted);">/ ${vendors.length}곳</span></div>
+ <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 0.2rem;">제휴 운영 관리</div>
+ </div>
+ </div>
+
+ <!-- [1. 중간 단계: 핵심 비즈니스 마스터 서비스 제어 (Master Service Control Layer)] -->
+ <div style="background: linear-gradient(135deg, rgba(28,31,42,0.95), rgba(20,23,34,0.95)); border: 1.5px solid rgba(242,202,80,0.4); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.75rem; box-shadow: 0 8px 30px rgba(0,0,0,0.4);">
+ <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;">
+ <div>
+ <div style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.2rem 0.6rem; border-radius: 9999px; background: rgba(242,202,80,0.15); border: 1px solid rgba(242,202,80,0.3); margin-bottom: 0.4rem;">
+ <span class="material-symbols-outlined" style="font-size: 0.85rem; color: var(--primary);">stars</span>
+ <span style="font-size: 0.72rem; font-weight: 700; color: var(--primary); letter-spacing: 0.05em;">INTERMEDIATE CONTROL LAYER</span>
+ </div>
+ <h2 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 700; color: #dfe2f1; margin: 0 0 0.3rem; display: flex; align-items: center; gap: 0.5rem;">
+ <span class="material-symbols-outlined" style="color: var(--primary);">tune</span>
+ 핵심 서비스 마스터 기능 제어 (중간 단계 제어탑)
+ </h2>
+ <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+ 세부 모듈 앞단에서 <strong>엽전 기능, 협력업체, 제휴 파트너스, 정산 관리, 일일 리텐션</strong> 등 핵심 비즈니스 기능을 통째로 삽입하거나 즉시 제거합니다.
+ </p>
+ </div>
+ <div style="text-align: right;">
+ <span style="font-size: 0.75rem; color: var(--text-muted);">활성 마스터 기능</span>
+ <div style="font-size: 1.25rem; font-weight: 800; color: var(--primary);">${activeMasterCount} / ${masterToggles.length}</div>
+ </div>
+ </div>
+
+ <!-- 마스터 기능 제어 카드 그리드 -->
+ <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+ ${masterToggles.map(mt => `
+ <div style="background: ${mt.enabled ? 'rgba(242,202,80,0.04)' : 'rgba(255,255,255,0.02)'}; border: 1.5px solid ${mt.enabled ? 'rgba(242,202,80,0.45)' : 'rgba(255,255,255,0.08)'}; border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; gap: 0.85rem; transition: border-color 0.2s;">
+ <div>
+ <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+ <div style="display: flex; align-items: center; gap: 0.5rem;">
+ <div style="width: 34px; height: 34px; border-radius: 8px; background: ${mt.enabled ? 'rgba(242,202,80,0.18)' : 'rgba(255,255,255,0.05)'}; display: flex; align-items: center; justify-content: center;">
+ <span class="material-symbols-outlined" style="font-size: 1.15rem; color: ${mt.enabled ? 'var(--primary)' : 'var(--text-muted)'};">${mt.icon}</span>
+ </div>
+ <div>
+ <span style="font-size: 0.68rem; font-weight: 700; color: ${mt.enabled ? 'var(--primary)' : 'var(--text-muted)'};">[${mt.category}]</span>
+ <h4 style="font-size: 0.98rem; font-weight: 700; color: #dfe2f1; margin: 0.1rem 0 0;">${mt.title}</h4>
+ </div>
+ </div>
+ </div>
+ <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.45; margin: 0.35rem 0 0;">
+ ${mt.description}
+ </p>
+ </div>
+
+ <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+ <span style="font-size: 0.74rem; font-weight: 700; color: ${mt.enabled ? '#f2ca50' : '#e2e8f0'}; display: flex; align-items: center; gap: 0.3rem;">
+ <span class="material-symbols-outlined" style="font-size: 0.9rem;">${mt.enabled ? 'check_circle' : 'do_not_disturb_on'}</span>
+ ${mt.enabled ? '기능 탑재 (ON)' : '기능 제거 (OFF)'}
+ </span>
+
+ <!-- 마스터 토글 스위치 -->
+ <label style="position: relative; display: inline-block; width: 48px; height: 26px; cursor: pointer;" title="${mt.title} 삽입/제거">
+ <input type="checkbox" class="admin-master-toggle" data-master-key="${mt.key}" ${mt.enabled ? 'checked' : ''} style="opacity: 0; width: 0; height: 0;">
+ <span style="position: absolute; cursor: pointer; inset: 0; background-color: ${mt.enabled ? 'var(--primary)' : 'rgba(255,255,255,0.18)'}; border-radius: 26px; transition: .25s;">
+ <span style="position: absolute; content: ''; height: 20px; width: 20px; left: ${mt.enabled ? '24px' : '3px'}; bottom: 3px; background-color: #0f131d; border-radius: 50%; transition: .25s; box-shadow: 0 2px 4px rgba(0,0,0,0.4);"></span>
+ </span>
+ </label>
+ </div>
+ </div>
+ `).join('')}
+ </div>
+ </div>
+
+ <!-- [2. 세부 분류: 모듈별 미세 제어 (Micro Feature Toggles)] -->
+ <div style="background: var(--surface-container); border: 1px solid rgba(167,139,250,0.35); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;">
+ <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+ <div>
+ <h2 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: #dfe2f1; margin: 0 0 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
+ <span class="material-symbols-outlined" style="color: #f2ca50;">tune</span>
+ 세부 모듈별 미세 노출 제어 (마이크로 스위치)
+ </h2>
+ <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">
+ 엔진 및 시각화 대시보드의 개별 컴포넌트 단위로 노출 여부를 미세 조정합니다.
+ </p>
+ </div>
+ <div>
+ <span style="font-size: 0.75rem; color: var(--text-muted);">활성 모듈</span>
+ <span style="font-size: 1rem; font-weight: 700; color: #f2ca50; margin-left: 0.35rem;">${activeModulesCount} / ${allModules.length}</span>
+ </div>
+ </div>
+
+ <!-- 모듈 카드 그리드 -->
+ <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0.85rem;">
+ ${allModules.map(mod => `
+ <div style="background: var(--surface-container-low); border: 1px solid ${mod.enabled ? 'rgba(167,139,250,0.35)' : 'rgba(255,255,255,0.06)'}; border-radius: 12px; padding: 1.1rem; display: flex; flex-direction: column; justify-content: space-between; gap: 0.75rem;">
+ <div>
+ <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem;">
+ <div style="display: flex; align-items: center; gap: 0.35rem;">
+ <span style="font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700; background: ${mod.category === 'ui_feature_toggle' ? 'rgba(242,202,80,0.15)' : 'rgba(242, 202, 80, 0.15)'}; color: ${mod.category === 'ui_feature_toggle' ? 'var(--primary)' : '#f2ca50'};">
+ ${mod.category === 'ui_feature_toggle' ? 'UI 제어' : mod.category}
+ </span>
+ <h4 style="font-size: 0.95rem; font-weight: 700; color: #dfe2f1; margin: 0;">${mod.name}</h4>
+ </div>
+ <span style="font-size: 0.7rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700; background: ${mod.enabled ? 'rgba(242, 202, 80, 0.15)' : 'rgba(248,113,113,0.15)'}; color: ${mod.enabled ? '#f2ca50' : '#e2e8f0'};">
+ ${mod.enabled ? '화면 노출 ON' : '화면 숨김 OFF'}
+ </span>
+ </div>
+ <p style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; margin: 0.25rem 0 0;">
+ ${mod.description}
+ </p>
+ <div style="display: gap: 0.3rem; margin-top: 0.45rem; flex-wrap: wrap;">
+ ${mod.tags.map(t => `<span style="font-size: 0.66rem; color: var(--text-muted); background: rgba(255,255,255,0.04); padding: 0.1rem 0.3rem; border-radius: 3px;">#${t}</span>`).join('')}
+ </div>
+ </div>
+
+ <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.65rem; display: flex; justify-content: space-between; align-items: center;">
+ <span style="font-size: 0.72rem; color: var(--text-muted); font-family: monospace;">
+ ${mod.id}
+ </span>
+
+ <!-- 토글 스위치 -->
+ <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer;" title="화면 노출 ON / OFF">
+ <input type="checkbox" class="admin-module-toggle" data-module-id="${mod.id}" ${mod.enabled ? 'checked' : ''} style="opacity: 0; width: 0; height: 0;">
+ <span style="position: absolute; cursor: pointer; inset: 0; background-color: ${mod.enabled ? 'var(--primary)' : 'rgba(255,255,255,0.2)'}; border-radius: 24px; transition: .3s; display: flex; align-items: center;">
+ <span style="position: absolute; content: ''; height: 18px; width: 18px; left: ${mod.enabled ? '23px' : '3px'}; bottom: 3px; background-color: #0f131d; border-radius: 50%; transition: .3s;"></span>
+ </span>
+ </label>
+ </div>
+ </div>
+ `).join('')}
+ </div>
+ </div>
+ </div>
+
+ <!-- [패널 2] ️ 판매 상품 관리 -->
+ <div id="tab-products" class="admin-tab-panel" style="display: ${currentTab === 'tab-products' ? 'block' : 'none'};">
+ <!-- 신규 상품 등록 폼 -->
+ <div style="background: var(--surface-container); border: 1px solid rgba(242,202,80,0.3); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;">
+ <h2 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: #dfe2f1; margin: 0 0 1rem; display: flex; align-items: center; gap: 0.4rem;">
+ <span class="material-symbols-outlined" style="color: var(--primary);">add_circle</span>
+ 신규 판매 상품 추가하기
+ </h2>
+ <form id="form-add-product" onsubmit="return false;" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
+ <div>
+ <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">상품명</label>
+ <input type="text" id="new-prod-title" placeholder="예: 2027 정미년 신년운세" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem 0.7rem; color: #dfe2f1; font-size: 0.85rem;" required />
+ </div>
+ <div>
+ <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">티어 식별자 (Tier ID)</label>
+ <input type="text" id="new-prod-tier" placeholder="예: NEWYEAR2027" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem 0.7rem; color: #dfe2f1; font-size: 0.85rem;" required />
+ </div>
+ <div>
+ <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">판매 가격 (원)</label>
+ <input type="number" id="new-prod-price" placeholder="49900" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem 0.7rem; color: #dfe2f1; font-size: 0.85rem;" required />
+ </div>
+ <div>
+ <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">정가 (원)</label>
+ <input type="number" id="new-prod-original-price" placeholder="90000" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem 0.7rem; color: #dfe2f1; font-size: 0.85rem;" />
+ </div>
+ <div>
+ <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">분류</label>
+ <select id="new-prod-category" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem 0.7rem; color: #dfe2f1; font-size: 0.85rem;">
+ <option value="core">기본 핵심 상품</option>
+ <option value="specialized">특화 분석 상품</option>
+ <option value="seasonal">시즌/신년 기획</option>
+ </select>
+ </div>
+ <div>
+ <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">뱃지 (선택)</label>
+ <input type="text" id="new-prod-badge" placeholder="예: NEW, HOT" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem 0.7rem; color: #dfe2f1; font-size: 0.85rem;" />
+ </div>
+ <div style="grid-column: 1 / -1;">
+ <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">상품 상세 설명</label>
+ <input type="text" id="new-prod-desc" placeholder="상품에 대한 핵심 해설 및 포함 섹션 요약" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem 0.7rem; color: #dfe2f1; font-size: 0.85rem;" required />
+ </div>
+ <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end;">
+ <button type="submit" id="btn-submit-add-product" class="btn-cta-primary" style="padding: 0.6rem 1.4rem; font-weight: 700; font-size: 0.85rem; border-radius: 8px;">
+ + 상품 신규 등록 완료
+ </button>
+ </div>
+ </form>
+ </div>
+
+ <!-- 등록된 상품 목록 그리드 -->
+ <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.5rem;">
+ <h2 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: #dfe2f1; margin: 0 0 1rem;">
+ 등록된 판매 상품 목록
+ </h2>
+ <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 0.85rem;">
+ ${products.map(p => `
+ <div style="background: var(--surface-container-low); border: 1px solid ${p.enabled ? 'rgba(242,202,80,0.3)' : 'rgba(255,255,255,0.06)'}; border-radius: 12px; padding: 1.15rem; display: flex; flex-direction: column; justify-content: space-between; position: relative;">
+ <div>
+ <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.45rem;">
+ <div>
+ ${p.badge ? `<span style="font-size: 0.68rem; background: rgba(242,202,80,0.15); color: var(--primary); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700; border: 1px solid rgba(242,202,80,0.3); margin-bottom: 0.25rem; display: inline-block;">${p.badge}</span>` : ''}
+ <h3 style="font-size: 1.05rem; font-weight: 700; color: #dfe2f1; margin: 0;">${p.title}</h3>
+ <span style="font-size: 0.72rem; color: var(--text-muted); font-family: monospace;">티어: ${p.tierId}</span>
+ </div>
+ <span style="font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700; background: ${p.enabled ? 'rgba(242, 202, 80, 0.15)' : 'rgba(248,113,113,0.15)'}; color: ${p.enabled ? '#f2ca50' : '#e2e8f0'};">
+ ${p.enabled ? '판매 중' : '판매 중단'}
+ </span>
+ </div>
+ <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.45; margin: 0.4rem 0 0.85rem;">
+ ${p.description}
+ </p>
+ </div>
+
+ <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+ <div>
+ <div style="font-size: 0.7rem; color: var(--text-muted); text-decoration: line-through;">정가 ₩ ${p.originalPrice.toLocaleString()}</div>
+ <div style="font-family: var(--font-display); font-size: 1.2rem; font-weight: 800; color: var(--primary);">₩ ${p.price.toLocaleString()}</div>
+ </div>
+
+ <div style="display: flex; align-items: center; gap: 0.65rem;">
+ <!-- 토글 스위치 -->
+ <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer;" title="스토어 노출 ON / OFF">
+ <input type="checkbox" class="product-toggle-btn" data-product-id="${p.id}" ${p.enabled ? 'checked' : ''} style="opacity: 0; width: 0; height: 0;">
+ <span style="position: absolute; cursor: pointer; inset: 0; background-color: ${p.enabled ? 'var(--primary)' : 'rgba(255,255,255,0.2)'}; border-radius: 24px; transition: .3s; display: flex; align-items: center;">
+ <span style="position: absolute; content: ''; height: 18px; width: 18px; left: ${p.enabled ? '23px' : '3px'}; bottom: 3px; background-color: #0f131d; border-radius: 50%; transition: .3s;"></span>
+ </span>
+ </label>
+
+ <button type="button" class="btn-delete-product" data-product-id="${p.id}" style="background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: #e2e8f0; border-radius: 8px; padding: 0.35rem 0.6rem; font-size: 0.75rem; cursor: pointer;" title="상품 삭제">
+ <span class="material-symbols-outlined" style="font-size: 15px; vertical-align: middle;">delete</span>
+ 삭제
+ </button>
+ </div>
+ </div>
+ </div>
+ `).join('')}
+ </div>
+ </div>
+ </div>
+
+ <!-- [패널 3] 협력업체 & 전문 상담사 관리 -->
+ <div id="tab-vendors" class="admin-tab-panel" style="display: ${currentTab === 'tab-vendors' ? 'block' : 'none'};">
+ <!-- 신규 협력사 등록 폼 -->
+ <div style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;">
+ <h2 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: #dfe2f1; margin: 0 0 1rem; display: flex; align-items: center; gap: 0.4rem;">
+ <span class="material-symbols-outlined" style="color: #f2ca50;">person_add</span>
+ 신규 협력업체 / 전문 상담사 등록
+ </h2>
+ <form id="form-add-vendor" onsubmit="return false;" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
+ <div>
+ <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">상담사/업체명</label>
+ <input type="text" id="new-ven-name" placeholder="예: 백운선생 (白雲)" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem 0.7rem; color: #dfe2f1; font-size: 0.85rem;" required />
+ </div>
+ <div>
+ <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">전문 분야</label>
+ <input type="text" id="new-ven-specialty" placeholder="예: 궁합·이별재회·심리상담" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem 0.7rem; color: #dfe2f1; font-size: 0.85rem;" required />
+ </div>
+ <div>
+ <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">제휴 분류</label>
+ <select id="new-ven-type" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem 0.7rem; color: #dfe2f1; font-size: 0.85rem;">
+ <option value="상담사">1:1 역술 상담사</option>
+ <option value="플랫폼">외부 사주 플랫폼</option>
+ <option value="크리에이터">유튜브/SNS 인플루언서</option>
+ </select>
+ </div>
+ <div>
+ <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">정산 요율</label>
+ <input type="text" id="new-ven-rate" placeholder="상담 80% (플랫폼 20%)" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem 0.7rem; color: #dfe2f1; font-size: 0.85rem;" />
+ </div>
+ <div>
+ <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">연락처</label>
+ <input type="text" id="new-ven-contact" placeholder="010-0000-0000" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem 0.7rem; color: #dfe2f1; font-size: 0.85rem;" />
+ </div>
+ <div>
+ <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">프로필 사진 URL</label>
+ <input type="text" id="new-ven-avatar" placeholder="https://..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem 0.7rem; color: #dfe2f1; font-size: 0.85rem;" />
+ </div>
+ <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end;">
+ <button type="submit" id="btn-submit-add-vendor" class="btn-cta-primary" style="padding: 0.6rem 1.4rem; font-weight: 700; font-size: 0.85rem; border-radius: 8px; background: #f2ca50; color: #003640;">
+ + 협력업체 제휴 등록 완료
+ </button>
+ </div>
+ </form>
+ </div>
+
+ <!-- 입점된 협력사 목록 -->
+ <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.5rem;">
+ <h2 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: #dfe2f1; margin: 0 0 1rem;">
+ 입점된 협력업체 및 공인 상담사 목록
+ </h2>
+ <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+ ${vendors.map(v => `
+ <div style="background: var(--surface-container-low); border: 1px solid ${v.enabled ? 'rgba(242, 202, 80, 0.3)' : 'rgba(255,255,255,0.06)'}; border-radius: 12px; padding: 0.9rem 1.15rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.85rem;">
+ <div style="display: flex; align-items: center; gap: 0.85rem;">
+ <img src="${v.avatarUrl || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120'}" alt="${v.name}" style="width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid ${v.enabled ? 'var(--primary)' : 'rgba(255,255,255,0.2)'};" />
+ <div>
+ <div style="display: flex; align-items: center; gap: 0.45rem;">
+ <span style="font-size: 0.7rem; padding: 0.12rem 0.45rem; border-radius: 4px; font-weight: 700; background: rgba(242, 202, 80, 0.15); color: #f2ca50; border: 1px solid rgba(242, 202, 80, 0.3);">
+ ${v.vendorType}
+ </span>
+ <h3 style="font-size: 1rem; font-weight: 700; color: #dfe2f1; margin: 0;">
+ ${v.name}
+ </h3>
+ <span style="font-size: 0.75rem; color: #f2ca50;"> ${v.rating}</span>
+ </div>
+ <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
+ ${v.specialty} • 연락처: <strong>${v.contact}</strong>
+ </div>
+ <div style="font-size: 0.72rem; color: var(--primary); margin-top: 0.1rem;">
+ 정산: ${v.commissionRate} (상담 ${v.consultationCount.toLocaleString()}건)
+ </div>
+ </div>
+ </div>
+
+ <div style="display: flex; align-items: center; gap: 0.75rem;">
+ <span style="font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700; background: ${v.enabled ? 'rgba(242, 202, 80, 0.15)' : 'rgba(248,113,113,0.15)'}; color: ${v.enabled ? '#f2ca50' : '#e2e8f0'};">
+ ${v.enabled ? '노출 중' : '비노출'}
+ </span>
+
+ <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer;" title="노출 ON / OFF">
+ <input type="checkbox" class="vendor-toggle-btn" data-vendor-id="${v.id}" ${v.enabled ? 'checked' : ''} style="opacity: 0; width: 0; height: 0;">
+ <span style="position: absolute; cursor: pointer; inset: 0; background-color: ${v.enabled ? 'var(--primary)' : 'rgba(255,255,255,0.2)'}; border-radius: 24px; transition: .3s; display: flex; align-items: center;">
+ <span style="position: absolute; content: ''; height: 18px; width: 18px; left: ${v.enabled ? '23px' : '3px'}; bottom: 3px; background-color: #0f131d; border-radius: 50%; transition: .3s;"></span>
+ </span>
+ </label>
+
+ <button type="button" class="btn-delete-vendor" data-vendor-id="${v.id}" style="background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: #e2e8f0; border-radius: 8px; padding: 0.35rem 0.6rem; font-size: 0.75rem; cursor: pointer;" title="협력업체 삭제">
+ <span class="material-symbols-outlined" style="font-size: 15px; vertical-align: middle;">delete</span>
+ 삭제
+ </button>
+ </div>
+ </div>
+ `).join('')}
+ </div>
+ </div>
+ </div>
+
+ <!-- [패널 4] 실시간 주문 장부 -->
+ <div id="tab-orders" class="admin-tab-panel" style="display: ${currentTab === 'tab-orders' ? 'block' : 'none'};">
+ <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.5rem;">
+ <h2 style="font-size: 1.15rem; font-weight: 700; color: #dfe2f1; margin: 0 0 1rem;">
+ 실시간 결제 주문 장부 (최근 24시간)
+ </h2>
+ <div style="overflow-x: auto;">
+ <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.82rem; color: #dfe2f1;">
+ <thead>
+ <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);">
+ <th style="padding: 0.6rem;">주문번호</th>
+ <th style="padding: 0.6rem;">고객명</th>
+ <th style="padding: 0.6rem;">구매 상품</th>
+ <th style="padding: 0.6rem;">결제 금액</th>
+ <th style="padding: 0.6rem;">유입 파트너</th>
+ <th style="padding: 0.6rem;">상태</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+ <td style="padding: 0.6rem; font-family: monospace;">ORD-20261008-089</td>
+ <td style="padding: 0.6rem; font-weight: 700;">홍길동</td>
+ <td style="padding: 0.6rem;">프리미엄 정밀 사주 감정서 (VIP)</td>
+ <td style="padding: 0.6rem; color: var(--primary); font-weight: 700;">₩ 149,900</td>
+ <td style="padding: 0.6rem; color: #f2ca50;">vip_creator</td>
+ <td style="padding: 0.6rem; color: #f2ca50; font-weight: 700;">결제완료</td>
+ </tr>
+ <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+ <td style="padding: 0.6rem; font-family: monospace;">ORD-20261008-088</td>
+ <td style="padding: 0.6rem; font-weight: 700;">박지훈</td>
+ <td style="padding: 0.6rem;">유료 심층 사주풀이 (완결본)</td>
+ <td style="padding: 0.6rem; color: var(--primary); font-weight: 700;">₩ 39,900</td>
+ <td style="padding: 0.6rem; color: #f2ca50;">vip_creator</td>
+ <td style="padding: 0.6rem; color: #f2ca50; font-weight: 700;">결제완료</td>
+ </tr>
+ <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+ <td style="padding: 0.6rem; font-family: monospace;">ORD-20261008-085</td>
+ <td style="padding: 0.6rem; font-weight: 700;">이수진</td>
+ <td style="padding: 0.6rem;">2027 정미년 신년운세 &amp; 월운</td>
+ <td style="padding: 0.6rem; color: var(--primary); font-weight: 700;">₩ 19,900</td>
+ <td style="padding: 0.6rem; color: #f2ca50;">saju_master</td>
+ <td style="padding: 0.6rem; color: #f2ca50; font-weight: 700;">결제완료</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
+ </div>
+
+ <!-- [패널 5] 제휴 정산 & 출금 승인 -->
+ <div id="tab-affiliate" class="admin-tab-panel" style="display: ${currentTab === 'tab-affiliate' ? 'block' : 'none'};">
+
+                <!-- 제휴 정산 및 실시간 매출 집중 지표 -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.85rem; margin-bottom: 1.5rem;">
+                  <div style="background: var(--surface-container-low); border: 1px solid rgba(242,202,80,0.3); border-radius: 12px; padding: 1.15rem;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">오늘 누적 매출액</div>
+                    <div style="font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; color: var(--primary); margin-top: 0.25rem;">₩ 1,489,200</div>
+                    <div style="font-size: 0.7rem; color: #f2ca50; margin-top: 0.25rem;">↑ 전일 대비 +28.4% 달성</div>
+                  </div>
+                  <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.15rem;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">제휴 파트너 출금 대기</div>
+                    <div style="font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; color: #ffffff; margin-top: 0.25rem;">₩ 234,000</div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">2건 즉시 승인 대기 중</div>
+                  </div>
+                </div>
+
+ <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.5rem;">
+ <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+ <div>
+ <h2 style="font-size: 1.15rem; font-weight: 700; color: #dfe2f1; margin: 0;">
+ 통합 파트너스 개별 수수료율 부여 및 정산 관리
+ </h2>
+ <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.25rem 0 0 0;">
+ 기본 정책: <strong>수수료 미제공 (준비 중)</strong> 상태이며, 최고 관리자가 승인한 파트너에게만 개별 수수료율을 차등 부여합니다.
+ </p>
+ </div>
+ <span style="font-size: 0.72rem; background: rgba(255, 180, 171, 0.15); color: #ffb4ab; border: 1px solid rgba(255, 180, 171, 0.3); padding: 0.2rem 0.6rem; border-radius: 9999px; font-weight: 700;">
+ 기본 정책: 수수료 미제공 상태로 보호 중
+ </span>
+ </div>
+
+ <!-- 파트너별 개별 수수료 설정 카드 목록 -->
+ <div style="display: flex; flex-direction: column; gap: 0.85rem;" id="partner-commission-list">
+ ${(() => {
+ const partners = PartnerTracker.getAllPartners();
+ return Object.values(partners).map((p) => {
+ const isInactive = p.status === 'inactive' || p.commissionRate <= 0;
+ return `
+ <div class="partner-admin-card" data-partner="${p.partnerCode}" style="background: var(--surface-container-low); border: 1px solid ${isInactive ? 'rgba(255,255,255,0.08)' : 'rgba(242,202,80,0.35)'}; border-radius: 12px; padding: 1.1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+ <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+ <div style="display: flex; align-items: center; gap: 0.5rem;">
+ <span style="font-size: 0.72rem; color: ${isInactive ? 'var(--text-muted)' : '#f2ca50'}; background: ${isInactive ? 'rgba(255,255,255,0.06)' : 'rgba(242, 202, 80, 0.15)'}; border: 1px solid ${isInactive ? 'rgba(255,255,255,0.12)' : 'rgba(242, 202, 80, 0.3)'}; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">
+ ${isInactive ? '수수료 미제공 (비활성)' : `개별 요율 ${(p.commissionRate * 100).toFixed(0)}%`}
+ </span>
+ <strong style="font-size: 0.95rem; color: #dfe2f1;">${p.partnerCode} (${p.name})</strong>
+ </div>
+ <div style="font-size: 0.76rem; color: var(--text-muted);">
+ 누적 클릭: ${p.clicks}회 • 결제 전환: ${p.conversions}건 • 매출: ₩ ${p.totalSalesAmount.toLocaleString()}
+ </div>
+ </div>
+
+ <!-- 개별 수수료율 설정 폼 -->
+ <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; background: rgba(0,0,0,0.25); padding: 0.65rem 0.85rem; border-radius: 8px;">
+ <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+ <label style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">상태:</label>
+ <select class="partner-status-select" data-partner="${p.partnerCode}" style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #dfe2f1; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.78rem;">
+ <option value="inactive" ${p.status === 'inactive' ? 'selected' : ''}>미제공 (수수료 0%)</option>
+ <option value="active" ${p.status === 'active' ? 'selected' : ''}>개별 수수료 지급 승인</option>
+ </select>
+
+ <label style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600; margin-left: 0.4rem;">수수료율(%):</label>
+ <input type="number" min="0" max="100" step="1" value="${(p.commissionRate * 100).toFixed(0)}" class="partner-rate-input" data-partner="${p.partnerCode}" style="width: 65px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #dfe2f1; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.78rem; text-align: right;" />
+ <span style="font-size: 0.78rem; color: var(--text-muted);">%</span>
+ </div>
+
+ <div style="display: flex; align-items: center; gap: 0.5rem;">
+ <button type="button" class="btn-save-partner-rate" data-partner="${p.partnerCode}" style="background: var(--primary); color: #1c1500; border: none; border-radius: 6px; padding: 0.35rem 0.75rem; font-size: 0.76rem; font-weight: 800; cursor: pointer;">
+ 수수료율 개별 저장
+ </button>
+ ${p.availablePayout > 0 ? `
+ <button type="button" class="btn-approve-payout btn-cta-primary" data-partner="${p.partnerCode}" style="padding: 0.35rem 0.75rem; font-size: 0.76rem; font-weight: 700;">
+ ₩ ${p.availablePayout.toLocaleString()} 송금 승인
+ </button>
+ ` : ''}
+ </div>
+ </div>
+ </div>
+ `;
+ }).join('');
+ })()}
+ </div>
+ </div>
+ </div>
+ </div>
+ 
+          <!-- [패널 6] 솔루션 허브 & 6대 버티컬 통제탑 -->
+          <div id="tab-solutions" class="admin-tab-panel" style="display: ${currentTab === 'tab-solutions' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+            <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; width: 100%; box-sizing: border-box;">
+              
+              <!-- 상단 헤더 & 설명 -->
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">
+                <div>
+                  <h2 style="font-size: 1.25rem; font-weight: 800; color: #dfe2f1; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="material-symbols-outlined" style="color: var(--primary);">hub</span>
+                    태그 기반 솔루션 오케스트레이터 &amp; 6대 버티컬 통제탑
+                  </h2>
+                  <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.35rem 0 0 0;">
+                    마보살 엔진 결과를 바탕으로 경제·커리어·주거·정서 등 맞춤 솔루션을 연결하고, 노출·클릭·전환 통계를 실시간 모니터링합니다.
+                  </p>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button type="button" id="btn-reload-solution-stats" class="btn-refresh-admin" style="background: rgba(255,255,255,0.08); color: #dfe2f1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 0.4rem 0.8rem; font-size: 0.78rem; cursor: pointer;">
+                    새로고침
+                  </button>
+                </div>
+              </div>
+
+              <!-- 요약 KPI 대시보드 카드 -->
+              ${(() => {
+                const allSols = getAllSolutions();
+                const allParts = getAllPartners();
+                const stats = getSolutionStats(allSols, allParts);
+                const totalImpressions = stats.reduce((acc, cur) => acc + cur.impressions, 0);
+                const totalClicks = stats.reduce((acc, cur) => acc + cur.clicks, 0);
+                const avgCtr = totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(1) : '0.0';
+                const appList = getPartnerApplications();
+
+                return `
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem;">
+                    <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
+                      <div style="font-size: 0.75rem; color: var(--text-muted);">총 솔루션 / 제휴사</div>
+                      <div style="font-size: 1.4rem; font-weight: 800; color: #fff; margin-top: 0.25rem;">${allSols.length}개 / ${allParts.length}곳</div>
+                    </div>
+                    <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
+                      <div style="font-size: 0.75rem; color: var(--text-muted);">누적 노출 수 (Impressions)</div>
+                      <div style="font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-top: 0.25rem;">${totalImpressions.toLocaleString()}회</div>
+                    </div>
+                    <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
+                      <div style="font-size: 0.75rem; color: var(--text-muted);">누적 클릭 수 (Clicks)</div>
+                      <div style="font-size: 1.4rem; font-weight: 800; color: #f2ca50; margin-top: 0.25rem;">${totalClicks.toLocaleString()}회</div>
+                    </div>
+                    <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
+                      <div style="font-size: 0.75rem; color: var(--text-muted);">평균 클릭률 (CTR)</div>
+                      <div style="font-size: 1.4rem; font-weight: 800; color: #dfe2f1; margin-top: 0.25rem;">${avgCtr}%</div>
+                    </div>
+                    <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
+                      <div style="font-size: 0.75rem; color: var(--text-muted);">입점 신청 대기</div>
+                      <div style="font-size: 1.4rem; font-weight: 800; color: #dfe2f1; margin-top: 0.25rem;">${appList.filter(a => a.status === 'pending').length}건</div>
+                    </div>
+                  </div>
+                `;
+              })()}
+
+              <!-- 1. 6대 버티컬 노출 스위치 통제 -->
+              <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.15rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+                  <h3 style="font-size: 1rem; font-weight: 700; color: #dfe2f1; margin: 0;">6대 버티컬 영역 실시간 노출 ON/OFF 스위치</h3>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">ModuleRegistry 연동</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem;">
+                  ${VERTICALS.map(v => {
+                    const isEnabled = ModuleRegistry.isEnabled(v.moduleId);
+                    return `
+                      <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                          <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">${v.icon}</span>
+                          <span style="font-size: 0.85rem; font-weight: 600; color: #dfe2f1;">${v.label}</span>
+                        </div>
+                        <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                          <input type="checkbox" class="solution-vertical-toggle" data-module-id="${v.moduleId}" ${isEnabled ? 'checked' : ''} style="opacity: 0; width: 0; height: 0;">
+                          <span style="position: absolute; cursor: pointer; inset: 0; background-color: ${isEnabled ? 'var(--primary)' : 'rgba(255,255,255,0.15)'}; border-radius: 24px; transition: .3s;">
+                            <span style="position: absolute; content: ''; height: 18px; width: 18px; left: ${isEnabled ? '23px' : '3px'}; bottom: 3px; background-color: #0f131d; border-radius: 50%; transition: .3s;"></span>
+                          </span>
+                        </label>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+
+              <!-- 2. 솔루션별 노출 & 클릭 성과 분석 표 -->
+              <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.15rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+                  <h3 style="font-size: 1rem; font-weight: 700; color: #dfe2f1; margin: 0;">등록 솔루션 실시간 노출 및 클릭 통계</h3>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">재노출 쿨다운 7일 자동 적용 중</span>
+                </div>
+                <div style="overflow-x: auto;">
+                  <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.82rem; color: #dfe2f1;">
+                    <thead>
+                      <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);">
+                        <th style="padding: 0.6rem;">솔루션 명</th>
+                        <th style="padding: 0.6rem;">버티컬</th>
+                        <th style="padding: 0.6rem;">파트너사</th>
+                        <th style="padding: 0.6rem;">노출 수</th>
+                        <th style="padding: 0.6rem;">클릭 수</th>
+                        <th style="padding: 0.6rem;">클릭률(CTR)</th>
+                        <th style="padding: 0.6rem;">상태</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${(() => {
+                        const allSols = getAllSolutions();
+                        const allParts = getAllPartners();
+                        const stats = getSolutionStats(allSols, allParts);
+                        if (stats.length === 0) {
+                          return '<tr><td colspan="7" style="padding: 1.5rem; text-align: center; color: var(--text-muted);">등록된 솔루션이 없습니다.</td></tr>';
+                        }
+                        return stats.map(s => {
+                          const sol = allSols.find(x => x.id === s.solutionId);
+                          const isSample = sol?.isSample;
+                          return `
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                              <td style="padding: 0.6rem; font-weight: 700;">${s.title}</td>
+                              <td style="padding: 0.6rem;"><span style="background: rgba(242,202,80,0.12); color: var(--primary); padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.75rem;">${s.verticalId}</span></td>
+                              <td style="padding: 0.6rem; color: #a1a1aa;">${s.partnerName}</td>
+                              <td style="padding: 0.6rem; color: var(--primary); font-weight: 600;">${s.impressions.toLocaleString()}회</td>
+                              <td style="padding: 0.6rem; color: #f2ca50; font-weight: 600;">${s.clicks.toLocaleString()}회</td>
+                              <td style="padding: 0.6rem; color: #dfe2f1; font-weight: 700;">${s.ctr}%</td>
+                              <td style="padding: 0.6rem;">
+                                <span style="font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 4px; ${isSample ? 'background: rgba(255,255,255,0.08); color: var(--text-muted);' : 'background: rgba(52,211,153,0.15); color: #dfe2f1;'}">
+                                  ${isSample ? '샘플(준비중)' : '활성'}
+                                </span>
+                              </td>
+                            </tr>
+                          `;
+                        }).join('');
+                      })()}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- 3. 신규 솔루션 등록 폼 -->
+              <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.15rem;">
+                <h3 style="font-size: 1rem; font-weight: 700; color: #dfe2f1; margin: 0 0 0.85rem 0;">신규 제휴 솔루션 즉시 등록</h3>
+                <form id="admin-add-solution-form" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <div>
+                      <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">솔루션 명칭 *</label>
+                      <input type="text" id="sol-title" required placeholder="예: 1:1 맞춤 재무 포트폴리오 상담" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.45rem 0.65rem; border-radius: 6px; font-size: 0.82rem;" />
+                    </div>
+                    <div>
+                      <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">버티컬 분류 *</label>
+                      <select id="sol-vertical" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.45rem 0.65rem; border-radius: 6px; font-size: 0.82rem;">
+                        <option value="finance">경제 · 재테크</option>
+                        <option value="career">커리어 · 창업</option>
+                        <option value="home">부동산 · 공간</option>
+                        <option value="mind">정서 · 마음돌봄</option>
+                        <option value="body">건강 · 체질</option>
+                        <option value="legal">법률 · 분쟁</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <div>
+                      <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">파트너/제휴사 명칭 *</label>
+                      <input type="text" id="sol-partner-name" required placeholder="예: 미래자산연구소" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.45rem 0.65rem; border-radius: 6px; font-size: 0.82rem;" />
+                    </div>
+                    <div>
+                      <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">가격 표기</label>
+                      <input type="text" id="sol-price" placeholder="예: ₩ 39,000 또는 무료 진단" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.45rem 0.65rem; border-radius: 6px; font-size: 0.82rem;" />
+                    </div>
+                  </div>
+                  <div>
+                    <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">한 줄 소개 문구 *</label>
+                    <input type="text" id="sol-oneline" required placeholder="예: 손실 위험을 방어하고 안정적인 자산 운용을 돕는 리포트" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.45rem 0.65rem; border-radius: 6px; font-size: 0.82rem;" />
+                  </div>
+                  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.75rem;">
+                    <div>
+                      <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">제휴 이동 URL</label>
+                      <input type="url" id="sol-url" placeholder="https://..." style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.45rem 0.65rem; border-radius: 6px; font-size: 0.82rem;" />
+                    </div>
+                    <div>
+                      <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">노출 우선순위</label>
+                      <input type="number" id="sol-priority" value="10" min="1" max="100" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.45rem 0.65rem; border-radius: 6px; font-size: 0.82rem;" />
+                    </div>
+                  </div>
+                  <div style="text-align: right; margin-top: 0.25rem;">
+                    <button type="submit" style="background: var(--primary); color: #1c1500; font-weight: 800; border: none; border-radius: 6px; padding: 0.5rem 1.25rem; font-size: 0.82rem; cursor: pointer;">
+                      솔루션 신규 등록
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- 4. 파트너 입점 신청 접수 현황 -->
+              <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.15rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+                  <h3 style="font-size: 1rem; font-weight: 700; color: #dfe2f1; margin: 0;">제휴 및 입점 신청 접수 내역</h3>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">고객 화면 '입점 신청' 폼 연동</span>
+                </div>
+                <div style="overflow-x: auto;">
+                  <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.82rem; color: #dfe2f1;">
+                    <thead>
+                      <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);">
+                        <th style="padding: 0.6rem;">신청ID</th>
+                        <th style="padding: 0.6rem;">업체명</th>
+                        <th style="padding: 0.6rem;">담당자 / 연락처</th>
+                        <th style="padding: 0.6rem;">제안 버티컬 / 솔루션명</th>
+                        <th style="padding: 0.6rem;">신청일시</th>
+                        <th style="padding: 0.6rem;">상태</th>
+                        <th style="padding: 0.6rem;">조치</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${(() => {
+                        const appList = getPartnerApplications();
+                        if (appList.length === 0) {
+                          return '<tr><td colspan="7" style="padding: 1.5rem; text-align: center; color: var(--text-muted);">접수된 입점 신청 내역이 없습니다.</td></tr>';
+                        }
+                        return appList.map(a => {
+                          return `
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                              <td style="padding: 0.6rem; font-family: monospace;">${a.id}</td>
+                              <td style="padding: 0.6rem; font-weight: 700;">${a.partnerName}</td>
+                              <td style="padding: 0.6rem;">${a.contactName} (${a.phone})</td>
+                              <td style="padding: 0.6rem;">[${a.verticalId}] ${a.solutionTitle}</td>
+                              <td style="padding: 0.6rem; color: var(--text-muted); font-size: 0.75rem;">${new Date(a.submittedAt).toLocaleDateString()}</td>
+                              <td style="padding: 0.6rem;">
+                                <span style="font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 4px; ${a.status === 'approved' ? 'background: rgba(52,211,153,0.15); color: #dfe2f1;' : a.status === 'rejected' ? 'background: rgba(248,113,113,0.15); color: #e2e8f0;' : 'background: rgba(242,202,80,0.15); color: #f2ca50;'}">
+                                  ${a.status === 'approved' ? '승인됨' : a.status === 'rejected' ? '반려됨' : '대기중'}
+                                </span>
+                              </td>
+                              <td style="padding: 0.6rem;">
+                                <button type="button" class="btn-approve-app" data-app-id="${a.id}" style="background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.3); color: #dfe2f1; font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer; margin-right: 0.3rem;">승인</button>
+                                <button type="button" class="btn-reject-app" data-app-id="${a.id}" style="background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: #e2e8f0; font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; cursor: pointer;">반려</button>
+                              </td>
+                            </tr>
+                          `;
+                        }).join('');
+                      })()}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+
+          <!-- [패널 7] 스토어 상품 관리 CMS & 실시간 주문 장부 -->
+          <!-- [결제 연동 설정 패널] -->
+          <div id="tab-payments" class="admin-tab-panel" style="display: ${currentTab === 'tab-payments' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+            ${renderAdminPaymentPanel()}
+          </div>
+
+          <!-- [쿠폰 & 무통장 입금 승인 센터 패널] -->
+          <div id="tab-vouchers" class="admin-tab-panel" style="display: ${currentTab === 'tab-vouchers' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+            ${renderAdminVoucherPanel()}
+          </div>
+
+          <div id="tab-store" class="admin-tab-panel" style="display: ${currentTab === 'tab-store' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+            ${renderAdminStorePanel(activeEditingStoreProductId)}
+          </div>
+
+          <!-- [스터디 관리 패널] -->
+          <div id="tab-study" class="admin-tab-panel" style="display: ${currentTab === 'tab-study' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+            ${(() => {
+              const studySubTab = (typeof window !== 'undefined' && (window as any).__studyAdminSubTab) || 'articles';
+              return `
+                <div style="background: var(--surface-container); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.35rem; display: flex; flex-direction: column; gap: 1.25rem;">
+                  <!-- 상단 헤더 & 설명 -->
+                  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">
+                    <div>
+                      <h2 style="font-size: 1.3rem; font-weight: 800; color: #dfe2f1; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                        <span class="material-symbols-outlined" style="color: #f2ca50; font-size: 26px;">menu_book</span>
+                        스터디 &amp; 사주 지식 허브 CMS 관리
+                      </h2>
+                      <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.35rem 0 0 0;">
+                        명리학 정보 블로그 아티클을 발행하고 독자들의 질문과 커뮤니티 댓글을 중앙 관리합니다.
+                      </p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                      <a href="/?view=study" target="_blank" style="display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(242, 202, 80, 0.15); color: #f2ca50; border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 6px; padding: 0.45rem 0.85rem; font-size: 0.8rem; font-weight: 700; text-decoration: none;">
+                        <span class="material-symbols-outlined" style="font-size: 16px;">open_in_new</span>
+                        고객 스터디 허브 바로가기
+                      </a>
+                    </div>
+                  </div>
+
+                  <!-- 상단 3대 KPI 요약 -->
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem;">
+                    <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
+                      <div style="font-size: 0.75rem; color: var(--text-muted);">발행된 아티클</div>
+                      <div style="font-size: 1.4rem; font-weight: 800; color: #fff; margin-top: 0.25rem;">4편</div>
+                    </div>
+                    <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
+                      <div style="font-size: 0.75rem; color: var(--text-muted);">누적 조회수</div>
+                      <div style="font-size: 1.4rem; font-weight: 800; color: #f2ca50; margin-top: 0.25rem;">9,100회</div>
+                    </div>
+                    <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
+                      <div style="font-size: 0.75rem; color: var(--text-muted);">커뮤니티 질문/댓글</div>
+                      <div style="font-size: 1.4rem; font-weight: 800; color: #dfe2f1; margin-top: 0.25rem;">89건</div>
+                    </div>
+                  </div>
+
+                  <!-- 3대 보조 탭 내비게이션 바 -->
+                  <div style="display: flex; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.85rem; flex-wrap: wrap;">
+                    <button type="button" class="btn-admin-study-subtab" data-subtab="articles" style="background: ${studySubTab === 'articles' ? '#f2ca50' : 'rgba(255,255,255,0.05)'}; color: ${studySubTab === 'articles' ? '#0f172a' : '#cbd5e1'}; font-weight: 800; border: none; padding: 0.55rem 1.15rem; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                      <span class="material-symbols-outlined" style="font-size: 18px;">menu_book</span>
+                      아티클 목록 (4)
+                    </button>
+                    <button type="button" class="btn-admin-study-subtab" data-subtab="write" style="background: ${studySubTab === 'write' ? '#f2ca50' : 'rgba(255,255,255,0.05)'}; color: ${studySubTab === 'write' ? '#0f172a' : '#cbd5e1'}; font-weight: 800; border: none; padding: 0.55rem 1.15rem; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                      <span class="material-symbols-outlined" style="font-size: 18px;">edit_document</span>
+                      + 새 글 작성기 (CMS)
+                    </button>
+                    <button type="button" class="btn-admin-study-subtab" data-subtab="community" style="background: ${studySubTab === 'community' ? '#f2ca50' : 'rgba(255,255,255,0.05)'}; color: ${studySubTab === 'community' ? '#0f172a' : '#cbd5e1'}; font-weight: 800; border: none; padding: 0.55rem 1.15rem; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                      <span class="material-symbols-outlined" style="font-size: 18px;">forum</span>
+                      커뮤니티 질의응답 관리 (89)
+                    </button>
+                  </div>
+
+                  <!-- [서브탭 1] 아티클 목록 -->
+                  <div style="display: ${studySubTab === 'articles' ? 'block' : 'none'};">
+                    <div style="overflow-x: auto;">
+                      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.84rem; color: #dfe2f1;">
+                        <thead>
+                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);">
+                            <th style="padding: 0.65rem;">분류</th>
+                            <th style="padding: 0.65rem;">아티클 제목</th>
+                            <th style="padding: 0.65rem;">작성자</th>
+                            <th style="padding: 0.65rem;">조회수</th>
+                            <th style="padding: 0.65rem;">댓글수</th>
+                            <th style="padding: 0.65rem;">등록일시</th>
+                            <th style="padding: 0.65rem; text-align: right;">관리</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                            <td style="padding: 0.65rem;"><span style="background: rgba(242, 202, 80, 0.15); color: #f2ca50; padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.75rem;">십신/인간관계</span></td>
+                            <td style="padding: 0.65rem; font-weight: 700; color: #fff;">십신(十神)으로 읽어내는 나의 숨은 사회적 잠재력</td>
+                            <td style="padding: 0.65rem; color: #a1a1aa;">마보살 학술팀</td>
+                            <td style="padding: 0.65rem; color: #f2ca50; font-weight: 600;">1,240회</td>
+                            <td style="padding: 0.65rem; color: #dfe2f1; font-weight: 600;">18건</td>
+                            <td style="padding: 0.65rem; color: var(--text-muted); font-size: 0.75rem;">2026-10-10</td>
+                            <td style="padding: 0.65rem; text-align: right;">
+                              <button type="button" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #dfe2f1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">수정</button>
+                            </td>
+                          </tr>
+                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                            <td style="padding: 0.65rem;"><span style="background: rgba(242,202,80,0.15); color: var(--primary); padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.75rem;">대운&amp;세운 흐름</span></td>
+                            <td style="padding: 0.65rem; font-weight: 700; color: #fff;">삼재(三災)와 대운(大運)의 진실: 공포 마케팅에 속지 않는 법</td>
+                            <td style="padding: 0.65rem; color: #a1a1aa;">마보살 마스터</td>
+                            <td style="padding: 0.65rem; color: #f2ca50; font-weight: 600;">2,890회</td>
+                            <td style="padding: 0.65rem; color: #dfe2f1; font-weight: 600;">32건</td>
+                            <td style="padding: 0.65rem; color: var(--text-muted); font-size: 0.75rem;">2026-10-08</td>
+                            <td style="padding: 0.65rem; text-align: right;">
+                              <button type="button" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #dfe2f1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">수정</button>
+                            </td>
+                          </tr>
+                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                            <td style="padding: 0.65rem;"><span style="background: rgba(52,211,153,0.15); color: #dfe2f1; padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.75rem;">사주 기초&amp;오행</span></td>
+                            <td style="padding: 0.65rem; font-weight: 700; color: #fff;">오행(五行) 목·화·토·금·수 자가 진단과 일상 속 개운법</td>
+                            <td style="padding: 0.65rem; color: #a1a1aa;">마보살 지식허브</td>
+                            <td style="padding: 0.65rem; color: #f2ca50; font-weight: 600;">3,120회</td>
+                            <td style="padding: 0.65rem; color: #dfe2f1; font-weight: 600;">25건</td>
+                            <td style="padding: 0.65rem; color: var(--text-muted); font-size: 0.75rem;">2026-10-05</td>
+                            <td style="padding: 0.65rem; text-align: right;">
+                              <button type="button" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #dfe2f1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">수정</button>
+                            </td>
+                          </tr>
+                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                            <td style="padding: 0.65rem;"><span style="background: rgba(244,114,182,0.15); color: #dfe2f1; padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.75rem;">Q&amp;A 커뮤니티</span></td>
+                            <td style="padding: 0.65rem; font-weight: 700; color: #fff;">Q&amp;A: 사주에 역마살(驛馬殺)이 많으면 평생 방황하나요?</td>
+                            <td style="padding: 0.65rem; color: #a1a1aa;">마보살 연구소</td>
+                            <td style="padding: 0.65rem; color: #f2ca50; font-weight: 600;">1,850회</td>
+                            <td style="padding: 0.65rem; color: #dfe2f1; font-weight: 600;">14건</td>
+                            <td style="padding: 0.65rem; color: var(--text-muted); font-size: 0.75rem;">2026-10-02</td>
+                            <td style="padding: 0.65rem; text-align: right;">
+                              <button type="button" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #dfe2f1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">수정</button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <!-- [서브탭 2] 새 글 작성기 (CMS) -->
+                  <div style="display: ${studySubTab === 'write' ? 'block' : 'none'};">
+                    <form id="study-article-form" onsubmit="event.preventDefault(); alert('새 스터디 아티클이 성공적으로 발행되었습니다.');" style="display: flex; flex-direction: column; gap: 0.85rem;">
+                      <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 0.85rem;">
+                        <div>
+                          <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">카테고리 *</label>
+                          <select required style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.5rem; border-radius: 6px; font-size: 0.84rem;">
+                            <option value="saju_basics">사주 기초 &amp; 오행</option>
+                            <option value="ten_gods">십신 &amp; 인간관계</option>
+                            <option value="fortune_flow">대운 &amp; 세운 흐름</option>
+                            <option value="qna_community">Q&amp;A 커뮤니티</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">아티클 제목 *</label>
+                          <input type="text" required placeholder="예: 비견과 겁재의 실전 심리 분석과 대인관계 해법" style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.5rem; border-radius: 6px; font-size: 0.84rem;" />
+                        </div>
+                      </div>
+                      <div>
+                        <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">요약 설명 문구 *</label>
+                        <input type="text" required placeholder="본문 상단에 노출될 1~2줄 핵심 요약" style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.5rem; border-radius: 6px; font-size: 0.84rem;" />
+                      </div>
+                      <div>
+                        <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">본문 내용 (마크다운 지원) *</label>
+                        <textarea rows="6" required placeholder="아티클 본문 내용을 입력하세요..." style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.5rem; border-radius: 6px; font-size: 0.84rem; font-family: inherit; resize: vertical;"></textarea>
+                      </div>
+                      <div style="text-align: right;">
+                        <button type="submit" style="background: #f2ca50; color: #0f172a; font-weight: 800; border: none; border-radius: 6px; padding: 0.55rem 1.35rem; font-size: 0.85rem; cursor: pointer;">
+                          즉시 아티클 발행하기
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
+                  <!-- [서브탭 3] 커뮤니티 질의응답 관리 -->
+                  <div style="display: ${studySubTab === 'community' ? 'block' : 'none'};">
+                    <div style="overflow-x: auto;">
+                      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.84rem; color: #dfe2f1;">
+                        <thead>
+                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);">
+                            <th style="padding: 0.65rem;">질문자</th>
+                            <th style="padding: 0.65rem;">질문 및 상담 내용</th>
+                            <th style="padding: 0.65rem;">연결 아티클</th>
+                            <th style="padding: 0.65rem;">답변 상태</th>
+                            <th style="padding: 0.65rem; text-align: right;">조치</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                            <td style="padding: 0.65rem; font-weight: 700;">김*민 (익명)</td>
+                            <td style="padding: 0.65rem; color: #fff;">일지에 편관이 있으면 배우자운이 정말 불리한가요?</td>
+                            <td style="padding: 0.65rem; color: #f2ca50;">십신으로 읽는 잠재력</td>
+                            <td style="padding: 0.65rem;"><span style="background: rgba(52,211,153,0.15); color: #dfe2f1; padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.72rem;">답변완료</span></td>
+                            <td style="padding: 0.65rem; text-align: right;">
+                              <button type="button" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #dfe2f1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">답변 수정</button>
+                            </td>
+                          </tr>
+                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                            <td style="padding: 0.65rem; font-weight: 700;">박*우 (회원)</td>
+                            <td style="padding: 0.65rem; color: #fff;">정미년 삼재 액막이는 언제부터 준비해야 효과가 있나요?</td>
+                            <td style="padding: 0.65rem; color: #f2ca50;">삼재와 대운의 진실</td>
+                            <td style="padding: 0.65rem;"><span style="background: rgba(242,202,80,0.15); color: var(--primary); padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.72rem;">검토대기</span></td>
+                            <td style="padding: 0.65rem; text-align: right;">
+                              <button type="button" style="background: rgba(242,202,80,0.2); border: 1px solid rgba(242,202,80,0.4); color: var(--primary); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">답변 작성</button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              `;
+            })()}
+          </div>
+
+
+</main>
+ </div>
+
+ </div>
+ `;
+}

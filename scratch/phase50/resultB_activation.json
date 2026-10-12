@@ -1,0 +1,348 @@
+{
+  "timingPillarsContext": {
+    "daeun": "丙午 (병오, 35세~44세)",
+    "seun": "2026년 丙午 (병오)",
+    "month": "丁酉 (정유, 2026-09-08 ~ 2026-10-08 백로~한로)",
+    "day": "庚寅 (경인)"
+  },
+  "activeSinsalsCount": 14,
+  "activeSinsals": [
+    {
+      "sinsalId": "jae_sal",
+      "name": "재살",
+      "activationByDaeun": true,
+      "activationBySeun": true,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 45,
+      "riskScore": 0,
+      "supportScore": 0,
+      "ruleIds": [
+        "RULE_12SINSAL_JAE",
+        "ACT_DAEUN_12SINSAL",
+        "ACT_SEUN_12SINSAL"
+      ],
+      "evidenceModifiers": [
+        {
+          "ruleId": "ACT_DAEUN_12SINSAL",
+          "reason": "대운 지지(오)에 재살 도래",
+          "delta": 25
+        },
+        {
+          "ruleId": "ACT_SEUN_12SINSAL",
+          "reason": "세운 지지(오)에 재살 도래",
+          "delta": 20
+        }
+      ]
+    },
+    {
+      "sinsalId": "ji_sal",
+      "name": "지살",
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 24,
+      "supportScore": 0,
+      "ruleIds": [
+        "RULE_12SINSAL_JI",
+        "RULE_NATAL_PRESENT"
+      ],
+      "evidenceModifiers": []
+    },
+    {
+      "sinsalId": "nyeon_sal",
+      "name": "년살",
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": true,
+      "activationByDay": false,
+      "activationScore": 25,
+      "riskScore": 45,
+      "supportScore": 0,
+      "ruleIds": [
+        "RULE_12SINSAL_NYEON",
+        "ACT_MONTH_12SINSAL",
+        "REL_DOHWA_WONJIN_TIMING",
+        "REL_DOHWA_MYOSHIN_WONJIN"
+      ],
+      "evidenceModifiers": [
+        {
+          "ruleId": "ACT_MONTH_12SINSAL",
+          "reason": "월운 지지(유)에 년살 도래",
+          "delta": 15
+        }
+      ]
+    },
+    {
+      "sinsalId": "yeok_ma",
+      "name": "역마살",
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": true,
+      "activationScore": 80,
+      "riskScore": 65,
+      "supportScore": 0,
+      "ruleIds": [
+        "RULE_12SINSAL_YEOKMA",
+        "RULE_NATAL_PRESENT",
+        "ACT_DAY_12SINSAL",
+        "REL_YEOKMA_CLASH_ACTIVATED",
+        "REL_YEOKMA_TIMING_일진"
+      ],
+      "evidenceModifiers": [
+        {
+          "ruleId": "MOD_DAY_PILLAR_WEIGHT",
+          "reason": "일지 위치 가중치 적용",
+          "delta": 15
+        },
+        {
+          "ruleId": "ACT_DAY_12SINSAL",
+          "reason": "일진 지지(인)에 역마살 도래",
+          "delta": 10
+        }
+      ]
+    },
+    {
+      "sinsalId": "yuk_hae",
+      "name": "육해살",
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 28,
+      "supportScore": 0,
+      "ruleIds": [
+        "RULE_12SINSAL_YUKHAE",
+        "RULE_NATAL_PRESENT"
+      ],
+      "evidenceModifiers": [
+        {
+          "ruleId": "MOD_MONTH_PILLAR_WEIGHT",
+          "reason": "월지 위치 가중치 적용",
+          "delta": 10
+        }
+      ]
+    },
+    {
+      "sinsalId": "hwa_gae",
+      "name": "화개살",
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 24,
+      "supportScore": 0,
+      "ruleIds": [
+        "RULE_12SINSAL_HWAGAE",
+        "RULE_NATAL_PRESENT"
+      ],
+      "evidenceModifiers": []
+    },
+    {
+      "sinsalId": "dohwa_major",
+      "name": "도화",
+      "activationByDaeun": true,
+      "activationBySeun": true,
+      "activationByMonth": true,
+      "activationByDay": false,
+      "activationScore": 100,
+      "riskScore": 71,
+      "supportScore": 34,
+      "ruleIds": [
+        "RULE_MAJOR_DOHWA",
+        "RULE_NATAL_PRESENT",
+        "ACT_DAEUN_DOHWA",
+        "ACT_SEUN_DOHWA",
+        "ACT_MONTH_DOHWA",
+        "REL_DOHWA_WONJIN_TIMING",
+        "REL_DOHWA_MYOSHIN_WONJIN"
+      ],
+      "evidenceModifiers": [
+        {
+          "ruleId": "MOD_DOHWA_MONTH_BRANCH",
+          "reason": "월지 도화 가중",
+          "delta": 10
+        },
+        {
+          "ruleId": "ACT_DAEUN_DOHWA",
+          "reason": "대운 지지(오) 도화 활성",
+          "delta": 20
+        },
+        {
+          "ruleId": "ACT_SEUN_DOHWA",
+          "reason": "세운 지지(오) 도화 활성",
+          "delta": 15
+        },
+        {
+          "ruleId": "ACT_MONTH_DOHWA",
+          "reason": "월운 지지(유) 도화 활성",
+          "delta": 15
+        }
+      ]
+    },
+    {
+      "sinsalId": "cheondeok_guiin",
+      "name": "천덕귀인",
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 0,
+      "supportScore": 75,
+      "ruleIds": [
+        "RULE_MAJOR_CHEONDEOK",
+        "RULE_NATAL_PRESENT"
+      ],
+      "evidenceModifiers": []
+    },
+    {
+      "sinsalId": "yang_in",
+      "name": "양인",
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": true,
+      "activationByDay": false,
+      "activationScore": 25,
+      "riskScore": 0,
+      "supportScore": 0,
+      "ruleIds": [
+        "RULE_MAJOR_YANGIN",
+        "ACT_MONTH_YANGIN"
+      ],
+      "evidenceModifiers": [
+        {
+          "ruleId": "ACT_MONTH_YANGIN",
+          "reason": "월운 지지(유) 양인 활성",
+          "delta": 20
+        }
+      ]
+    },
+    {
+      "sinsalId": "goe_gang",
+      "name": "괴강",
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 36,
+      "supportScore": 32,
+      "ruleIds": [
+        "RULE_MAJOR_GOEGANG",
+        "RULE_NATAL_PRESENT"
+      ],
+      "evidenceModifiers": [
+        {
+          "ruleId": "MOD_HOUR_GOEGANG",
+          "reason": "시주 괴강(결단력/추진력) 가중",
+          "delta": 10
+        }
+      ]
+    },
+    {
+      "sinsalId": "won_jin",
+      "name": "원진",
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": true,
+      "activationByDay": false,
+      "activationScore": 70,
+      "riskScore": 64,
+      "supportScore": 0,
+      "ruleIds": [
+        "RULE_MAJOR_WONJIN",
+        "RULE_NATAL_PRESENT",
+        "ACT_MONTH_WONJIN",
+        "REL_WONJIN_TRIGGERED_BY_월운"
+      ],
+      "evidenceModifiers": [
+        {
+          "ruleId": "ACT_MONTH_WONJIN",
+          "reason": "월운 지지(유)가 일지(인)와 원진 형성",
+          "delta": 20
+        }
+      ]
+    },
+    {
+      "sinsalId": "gwi_mun",
+      "name": "귀문관",
+      "activationByDaeun": false,
+      "activationBySeun": false,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 35,
+      "riskScore": 51,
+      "supportScore": 20,
+      "ruleIds": [
+        "RULE_MAJOR_GWIMUN",
+        "RULE_NATAL_PRESENT",
+        "REL_GWIMUN_MYOSHIN_DEEP"
+      ],
+      "evidenceModifiers": []
+    },
+    {
+      "sinsalId": "hyeon_chim",
+      "name": "현침",
+      "activationByDaeun": true,
+      "activationBySeun": true,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 80,
+      "riskScore": 32,
+      "supportScore": 32,
+      "ruleIds": [
+        "RULE_MAJOR_HYEONCHIM",
+        "RULE_NATAL_PRESENT",
+        "ACT_DAEUN_HYEONCHIM",
+        "ACT_SEUN_HYEONCHIM"
+      ],
+      "evidenceModifiers": [
+        {
+          "ruleId": "ACT_DAEUN_HYEONCHIM",
+          "reason": "대운에 현침 글자(병오) 도래",
+          "delta": 15
+        },
+        {
+          "ruleId": "ACT_SEUN_HYEONCHIM",
+          "reason": "세운에 현침 글자(병오) 도래",
+          "delta": 15
+        }
+      ]
+    },
+    {
+      "sinsalId": "gong_mang",
+      "name": "공망",
+      "activationByDaeun": true,
+      "activationBySeun": true,
+      "activationByMonth": false,
+      "activationByDay": false,
+      "activationScore": 45,
+      "riskScore": 20,
+      "supportScore": 0,
+      "ruleIds": [
+        "RULE_MAJOR_GONGMANG",
+        "ACT_DAEUN_GONGMANG",
+        "ACT_SEUN_GONGMANG",
+        "REL_GONGMANG_FIRE_VOID"
+      ],
+      "evidenceModifiers": [
+        {
+          "ruleId": "ACT_DAEUN_GONGMANG",
+          "reason": "대운 지지(오)가 순중공망에 해당",
+          "delta": 25
+        },
+        {
+          "ruleId": "ACT_SEUN_GONGMANG",
+          "reason": "세운 지지(오)가 순중공망에 해당",
+          "delta": 20
+        }
+      ]
+    }
+  ]
+}

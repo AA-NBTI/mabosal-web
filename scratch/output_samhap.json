@@ -1,0 +1,43 @@
+{
+  "natal_branch": "寅",
+  "daewoon_branch": "午",
+  "sewoon_branch": "午",
+  "month_branch": "戌",
+  "samhapCandidate": {
+    "combination": "寅午戌",
+    "status": "활성"
+  },
+  "banhapCandidate": {
+    "combination": "午戌",
+    "status": "활성"
+  },
+  "fireFormationJudgment": "부분 성립",
+  "reasoning": {
+    "wangjiPresence": "대운 지지 午火와 세운 지지 午火로 삼합의 중심 왕지(旺支) 2개 중첩 존재",
+    "season": "월운 戌월(한로 이후 늦가을 토왕절)로서 본기는 무토이나 인오술 화국의 묘지(墓支)이자 조토(燥土)임",
+    "surroundingFire": "대운 천간 丙火(편관) 및 세운 천간 丙火(편관) 투간(透干)으로 화세가 극도로 왕성함",
+    "waterInterference": "원국 년간 壬水 식신이 존재하나 월간 癸水 상관은 월운 戊土와 戊癸合(기반)되어 화국 억제력이 제한적임",
+    "weakeningByClash": "원국 년지 申金과 일지 寅木의 寅申沖, 시지 辰土와 월지 戌土의 辰戌沖이 교차하여 완전 무결격 삼합이 아닌 충과 합이 병존하는 부분 성립(화기 대폭 강화 및 불안정 수반)으로 판정됨"
+  },
+  "mechanicsComparison": {
+    "optionA": {
+      "description": "화기 수렴/저장 -> 관성 압박 완화 (술토 화고 수납설)",
+      "evaluation": "열세. 寅·午·午·戌이 모이고 병화가 투간한 화왕 환경에서 戌土는 조토(燥土)로서 화국에 동조하는 성격이 강해 단순 화기 냉각·수납 기능을 수행하지 못함."
+    },
+    "optionB": {
+      "description": "寅午戌 화국 강화 -> 화 관성 강화 -> 경금 압박 증가 (화국 형성설)",
+      "evaluation": "우세. 왕지 午火 2개와 丙火 투간으로 화국 기운이 강력히 결집되어 신약 일간 庚金에 대한 관성 압박이 증가하고 일지 寅木(배우자궁)이 목생화로 타들어가 관계 불안정성이 가중됨."
+    },
+    "dominantOutcome": "B"
+  },
+  "muGyeCombinationAnalysis": {
+    "combinationFormed": true,
+    "combinationAction": "합반(기반, 羈絆) - 월간 癸水 상관의 소통력이 戊土 편인과 묶여 자유로운 감정 표현이 억제되고 답답함과 망설임이 유발됨",
+    "combiningIntoFire": "불성립"
+  },
+  "daewoonExpressionCorrection": {
+    "originalExpression": "丙午 대운 = 강력한 화국 (오류 표현 제거)",
+    "correctedExpression": "丙午 대운에서 화 관성이 강하게 유입됨 (천간 편관, 지지 정관의 순수 관성 간지)",
+    "fireFormationDistinction": "寅午戌 화국은 대운 자체의 고유 성격이 아니라, 원국(일지 寅)·대운(지지 午)·세운(지지 午)·월운(지지 戌)이 결합될 때 조건부로 형성되는 복합 상호작용임"
+  }
+}

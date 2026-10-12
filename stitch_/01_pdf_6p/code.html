@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600&amp;family=Noto+Serif:wght@500;600&amp;family=Space+Grotesk:wght@600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-bright": "#353944", "tertiary-container": "#2dc3e1", "error": "#ffb4ab", "on-tertiary": "#003640", "primary": "#f2ca50", "on-tertiary-container": "#004c5a", "tertiary-fixed-dim": "#4cd7f6", "on-primary": "#3c2f00", "secondary-fixed-dim": "#bec6dd", "secondary-container": "#3e475a", "inverse-primary": "#735c00", "on-secondary": "#283042", "on-error-container": "#ffdad6", "inverse-on-surface": "#2c303b", "on-tertiary-fixed": "#001f26", "on-error": "#690005", "tertiary-fixed": "#acedff", "on-primary-fixed": "#241a00", "on-surface-variant": "#d0c5af", "background": "#0f131d", "inverse-surface": "#dfe2f1", "surface": "#0f131d", "surface-container": "#1c1f2a", "surface-variant": "#313540", "outline": "#99907c", "outline-variant": "#4d4635", "surface-container-lowest": "#0a0e18", "on-background": "#dfe2f1", "surface-container-highest": "#313540", "on-secondary-fixed-variant": "#3e475a", "on-primary-container": "#554300", "surface-tint": "#e9c349", "primary-fixed": "#ffe088", "primary-fixed-dim": "#e9c349", "surface-container-low": "#171b26", "on-secondary-container": "#acb5cb", "secondary-fixed": "#dae2fa", "on-surface": "#dfe2f1", "on-tertiary-fixed-variant": "#004e5c", "surface-dim": "#0f131d", "secondary": "#bec6dd", "on-primary-fixed-variant": "#574500", "tertiary": "#56dffe", "primary-container": "#d4af37", "surface-container-high": "#262a35", "on-secondary-fixed": "#121c2c", "error-container": "#93000a" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-xl": "1.75rem", "margin": "1.25rem", "gutter": "1rem", "space-md": "0.875rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "space-lg": "1.25rem" }, "fontFamily": { "headline-md": ["Noto Serif"], "body-md": ["Noto Sans"], "headline-lg": ["Noto Serif"], "label-caps": ["Space Grotesk"], "body-sm": ["Noto Sans"], "title-lg": ["Noto Sans"], "title-md": ["Noto Sans"], "body-lg": ["Noto Sans"], "label-kr": ["Noto Sans"], "headline-xl": ["Noto Serif"], "caption": ["Noto Sans"] }, "fontSize": { "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }], "headline-lg": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-caps": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "19px", "letterSpacing": "0.005em", "fontWeight": "400" }], "title-lg": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "title-md": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }], "label-kr": ["12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" }], "headline-xl": ["32px", { "lineHeight": "42px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "caption": ["11px", { "lineHeight": "15px", "letterSpacing": "0.01em", "fontWeight": "400" }] } } } }</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.45)]"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0 flex-1"><button aria-label="목차 닫기" class="w-11 h-11 shrink-0 rounded-full flex items-center justify-center text-on-surface hover:text-primary transition-colors" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[24px]">close</span></button><div class="flex flex-col min-w-0 pr-space-xs"><span class="font-label-caps text-label-caps uppercase text-primary tracking-wider">천명원 정본 뷰어</span><h1 class="font-title-md text-title-md text-on-surface truncate">01 도원김학선 1대1심층감명서 V2.4.Pdf</h1></div></div><div class="flex items-center gap-space-xs shrink-0"><button aria-label="문서 내 검색" class="w-11 h-11 rounded-full flex items-center justify-center text-on-surface hover:text-primary transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">search</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 bg-surface min-h-screen pb-safe"><div class="flex flex-col w-full relative select-none">
+<!-- Dimmed & Blurred Document Canvas (Background Mock PDF View) -->
+<div class="fixed inset-0 top-16 pointer-events-none overflow-hidden opacity-35 filter blur-[6px] transition-all duration-300">
+<div class="max-w-[430px] mx-auto min-h-screen px-margin py-space-lg flex flex-col gap-space-md">
+<div class="h-6 w-32 bg-surface-container-high rounded-full"></div>
+<div class="w-full h-80 bg-surface-container rounded-xl flex flex-col p-space-md gap-space-sm shadow-xl">
+<div class="h-8 w-44 bg-surface-variant rounded"></div>
+<div class="grid grid-cols-4 gap-2 h-44 bg-surface-container-low rounded-lg p-3">
+<div class="bg-surface-container-high rounded flex items-center justify-center text-outline">辛未</div>
+<div class="bg-surface-container-high rounded flex items-center justify-center text-outline">甲辰</div>
+<div class="bg-surface-container-high rounded flex items-center justify-center text-outline">甲辰</div>
+<div class="bg-surface-container-high rounded flex items-center justify-center text-outline">壬申</div>
+</div>
+</div>
+<div class="h-28 w-full bg-surface-container rounded-xl"></div>
+<div class="h-44 w-full bg-surface-container rounded-xl"></div>
+</div>
+</div>
+<!-- Ambient Backdrop Scrim -->
+<div class="fixed inset-0 top-16 bg-surface-container-lowest/80 backdrop-blur-md z-10 transition-opacity"></div>
+<!-- Bottom Sheet / Full Modal Frame -->
+<div class="relative z-20 flex flex-col w-full min-h-[calc(100vh-4rem)] max-w-[430px] mx-auto px-margin pt-space-xs pb-space-lg">
+<!-- Modal Drag Handle -->
+<div class="w-full flex justify-center py-space-xs">
+<div class="w-10 h-1 rounded-full bg-outline-variant/60"></div>
+</div>
+<!-- Modal Card Box -->
+<div class="flex flex-col w-full bg-surface-container-low/95 rounded-xl shadow-2xl backdrop-blur-2xl overflow-hidden mt-space-xs">
+<!-- Modal Header -->
+<div class="px-space-md pt-space-md pb-space-sm bg-surface-container/70 flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-headline-md text-title-md text-on-surface tracking-tight">전체 페이지 목차 (6P 정본)</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button aria-label="책갈피 추가" class="w-9 h-9 rounded-full bg-surface-variant/60 hover:bg-surface-variant flex items-center justify-center text-primary-fixed transition-colors active:scale-95" type="button">
+<span class="material-symbols-outlined text-[19px]">bookmark</span>
+</button>
+<button aria-label="목차 닫기" class="w-9 h-9 rounded-full bg-surface-variant/60 hover:bg-surface-variant flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors active:scale-95" onclick="history.back()" type="button">
+<span class="material-symbols-outlined text-[19px]">close</span>
+</button>
+</div>
+</div>
+<div class="flex items-center justify-between flex-wrap gap-y-1">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary-container/20 text-primary font-caption text-caption">
+<span class="material-symbols-outlined text-[12px]">verified</span>
+            A4 HIGH-RES • 도원 친필 비보 및 전자각인 수록
+          </span>
+<div class="flex items-center gap-1.5 text-on-secondary-container font-label-caps text-label-caps bg-surface-container-highest/60 px-2 py-0.5 rounded-full">
+<span class="text-primary font-body-sm">●</span> 현재 01P 열람 중 <span class="text-outline">|</span> SCALE 100%
+          </div>
+</div>
+</div>
+<!-- Thumbnails Grid Area (2 x 3) -->
+<div class="p-space-md grid grid-cols-2 gap-space-md overflow-y-auto max-h-[calc(100vh-16rem)] overscroll-contain">
+<!-- Page 01 (Active / Selected) -->
+<div class="group relative flex flex-col bg-surface-container-high/90 rounded-xl p-space-xs cursor-pointer shadow-lg shadow-primary-container/10 transition-all transform active:scale-98" id="thumb-p1" onclick="selectPage(1)">
+<!-- Selection Glow Ring -->
+<div class="absolute inset-0 rounded-xl pointer-events-none bg-gradient-to-b from-primary/25 via-transparent to-primary/10"></div>
+<!-- Mini Thumbnail Preview Canvas -->
+<div class="relative w-full aspect-[1/1.33] bg-surface-container-lowest rounded-lg overflow-hidden p-2 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="font-label-caps text-label-caps px-1.5 py-0.5 rounded bg-primary text-on-primary">P.01</span>
+<span class="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-sm">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</span>
+</div>
+<!-- Stylized Saju 8 Characters Grid Visual -->
+<div class="w-full py-1">
+<div class="grid grid-cols-4 gap-0.5 bg-surface-container-high/50 p-1 rounded">
+<div class="bg-surface-variant/80 rounded py-0.5 text-center font-serif text-[9px] text-tertiary-fixed-dim font-bold">辛</div>
+<div class="bg-surface-variant/80 rounded py-0.5 text-center font-serif text-[9px] text-primary-fixed font-bold">甲</div>
+<div class="bg-surface-variant/80 rounded py-0.5 text-center font-serif text-[9px] text-primary-fixed font-bold">甲</div>
+<div class="bg-surface-variant/80 rounded py-0.5 text-center font-serif text-[9px] text-secondary-fixed font-bold">壬</div>
+<div class="bg-surface-container/90 rounded py-0.5 text-center font-serif text-[9px] text-on-surface-variant">未</div>
+<div class="bg-surface-container/90 rounded py-0.5 text-center font-serif text-[9px] text-tertiary">辰</div>
+<div class="bg-surface-container/90 rounded py-0.5 text-center font-serif text-[9px] text-tertiary">辰</div>
+<div class="bg-surface-container/90 rounded py-0.5 text-center font-serif text-[9px] text-primary">申</div>
+</div>
+</div>
+<!-- Red Seal Stamp Micro Visual -->
+<div class="flex justify-between items-end">
+<div class="flex flex-col gap-0.5 w-14">
+<div class="h-1 bg-outline-variant/80 rounded-full w-full"></div>
+<div class="h-1 bg-outline-variant/60 rounded-full w-3/4"></div>
+</div>
+<div class="w-5 h-5 rounded-sm bg-error/20 flex items-center justify-center text-error font-serif text-[7px] font-bold tracking-tighter">
+                道元
+              </div>
+</div>
+</div>
+<!-- Card Description -->
+<div class="mt-space-xs px-1 flex flex-col gap-0.5">
+<div class="flex items-center justify-between">
+<span class="font-title-md text-body-sm text-primary font-semibold truncate">01. 사주원국 &amp; 총평</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant truncate">기본 명식 8자 • 대길월 비보</p>
+<div class="mt-1 flex items-center gap-1">
+<span class="inline-flex px-1.5 py-0.2 rounded bg-primary/20 text-primary font-caption text-[10px]">현재 열람 중</span>
+</div>
+</div>
+</div>
+<!-- Page 02 -->
+<div class="group relative flex flex-col bg-surface-container/80 rounded-xl p-space-xs cursor-pointer hover:bg-surface-container-high transition-all transform active:scale-98" id="thumb-p2" onclick="selectPage(2)">
+<div class="relative w-full aspect-[1/1.33] bg-surface-container-lowest rounded-lg overflow-hidden p-2 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="font-label-caps text-label-caps px-1.5 py-0.5 rounded bg-surface-variant text-on-surface-variant">P.02</span>
+<span class="material-symbols-outlined text-outline text-[16px] opacity-70">open_in_new</span>
+</div>
+<!-- Wave Graph Illustration -->
+<div class="w-full flex items-center justify-center py-2">
+<svg class="w-full h-12 overflow-visible" viewbox="0 0 100 40">
+<path class="text-tertiary-container" d="M 0 32 Q 25 5, 50 20 T 100 10" fill="none" stroke="currentColor" stroke-width="2"></path>
+<path class="text-tertiary/10" d="M 0 32 Q 25 5, 50 20 T 100 10 L 100 40 L 0 40 Z" fill="currentColor"></path>
+<circle class="fill-primary text-primary" cx="50" cy="20" r="3"></circle>
+<circle class="fill-primary-fixed" cx="85" cy="12" r="2.5"></circle>
+</svg>
+</div>
+<div class="flex justify-between items-end text-outline font-label-caps text-[8px]">
+<span>2030 (전환점)</span>
+<span>대운 주기</span>
+</div>
+</div>
+<div class="mt-space-xs px-1 flex flex-col gap-0.5">
+<span class="font-title-md text-body-sm text-on-surface font-medium truncate">02. 10년 대운 &amp; 운로</span>
+<p class="font-caption text-caption text-on-surface-variant truncate">대운 전환점 • 30년 주기 곡선</p>
+<div class="mt-1 flex items-center gap-1">
+<span class="inline-flex px-1.5 py-0.2 rounded bg-surface-container-highest text-on-surface-variant font-caption text-[10px]">인생 주기 그래프</span>
+</div>
+</div>
+</div>
+<!-- Page 03 -->
+<div class="group relative flex flex-col bg-surface-container/80 rounded-xl p-space-xs cursor-pointer hover:bg-surface-container-high transition-all transform active:scale-98" id="thumb-p3" onclick="selectPage(3)">
+<div class="relative w-full aspect-[1/1.33] bg-surface-container-lowest rounded-lg overflow-hidden p-2 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="font-label-caps text-label-caps px-1.5 py-0.5 rounded bg-surface-variant text-on-surface-variant">P.03</span>
+<span class="material-symbols-outlined text-outline text-[16px] opacity-70">open_in_new</span>
+</div>
+<!-- 12-Month Bar Chart Preview -->
+<div class="w-full flex items-end justify-between h-12 px-1 gap-0.5">
+<div class="w-1.5 h-4 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-6 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-3 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-2 bg-error/70 rounded-t"></div>
+<div class="w-1.5 h-5 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-7 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-6 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-5 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-8 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-12 bg-primary rounded-t shadow-sm shadow-primary"></div>
+<div class="w-1.5 h-7 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-5 bg-surface-container-highest rounded-t"></div>
+</div>
+<div class="flex justify-between items-center text-[8px] font-label-caps text-primary">
+<span class="text-error">04월 주의</span>
+<span class="font-bold">10월 대길(95점)</span>
+</div>
+</div>
+<div class="mt-space-xs px-1 flex flex-col gap-0.5">
+<span class="font-title-md text-body-sm text-on-surface font-medium truncate">03. 2025 을사년 세운</span>
+<p class="font-caption text-caption text-on-surface-variant truncate">10월 대길월(95) • 4월 비보</p>
+<div class="mt-1 flex items-center gap-1">
+<span class="inline-flex px-1.5 py-0.2 rounded bg-surface-container-highest text-on-surface-variant font-caption text-[10px]">월별 기운표</span>
+</div>
+</div>
+</div>
+<!-- Page 04 -->
+<div class="group relative flex flex-col bg-surface-container/80 rounded-xl p-space-xs cursor-pointer hover:bg-surface-container-high transition-all transform active:scale-98" id="thumb-p4" onclick="selectPage(4)">
+<div class="relative w-full aspect-[1/1.33] bg-surface-container-lowest rounded-lg overflow-hidden p-2 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="font-label-caps text-label-caps px-1.5 py-0.5 rounded bg-surface-variant text-on-surface-variant">P.04</span>
+<span class="material-symbols-outlined text-outline text-[16px] opacity-70">open_in_new</span>
+</div>
+<!-- Dialogue Transcript Mock Visual -->
+<div class="flex flex-col gap-1.5 w-full my-auto">
+<div class="w-4/5 bg-surface-container-high/70 rounded-md p-1 flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<div class="h-1 bg-outline rounded w-12"></div>
+</div>
+<div class="w-4/5 ml-auto bg-primary-container/20 rounded-md p-1 flex items-center justify-end gap-1">
+<div class="h-1 bg-primary/70 rounded w-14"></div>
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+</div>
+<div class="flex items-center gap-1 text-[8px] text-tertiary-fixed-dim px-0.5">
+<span class="material-symbols-outlined text-[11px]">graphic_eq</span>
+<span>REC 32m 45s</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-outline text-[8px]">
+<span>질의응답 녹취</span>
+<span>진로 비방</span>
+</div>
+</div>
+<div class="mt-space-xs px-1 flex flex-col gap-0.5">
+<span class="font-title-md text-body-sm text-on-surface font-medium truncate">04. 1:1 상담 녹취록</span>
+<p class="font-caption text-caption text-on-surface-variant truncate">32분 상담 질의응답 • 처방</p>
+<div class="mt-1 flex items-center gap-1">
+<span class="inline-flex px-1.5 py-0.2 rounded bg-surface-container-highest text-on-surface-variant font-caption text-[10px]">대면·통화 전문</span>
+</div>
+</div>
+</div>
+<!-- Page 05 -->
+<div class="group relative flex flex-col bg-surface-container/80 rounded-xl p-space-xs cursor-pointer hover:bg-surface-container-high transition-all transform active:scale-98" id="thumb-p5" onclick="selectPage(5)">
+<div class="relative w-full aspect-[1/1.33] bg-[#141210] rounded-lg overflow-hidden p-2 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="font-label-caps text-label-caps px-1.5 py-0.5 rounded bg-surface-variant text-on-surface-variant">P.05</span>
+<span class="material-symbols-outlined text-outline text-[16px] opacity-70">open_in_new</span>
+</div>
+<!-- Calligraphy Parchment Mock -->
+<div class="flex flex-col gap-1 w-full my-auto px-1 opacity-90">
+<div class="h-1.5 bg-primary/40 rounded w-full"></div>
+<div class="h-1.5 bg-primary/30 rounded w-5/6"></div>
+<div class="h-1.5 bg-primary/40 rounded w-11/12"></div>
+<div class="flex justify-end pt-1">
+<div class="w-4 h-4 rounded bg-error/30 text-error flex items-center justify-center text-[6px] font-serif">印</div>
+</div>
+</div>
+<div class="flex items-center justify-between text-primary font-caption text-[8px]">
+<span>친필 서면</span>
+<span>1회 무료 질의</span>
+</div>
+</div>
+<div class="mt-space-xs px-1 flex flex-col gap-0.5">
+<span class="font-title-md text-body-sm text-on-surface font-medium truncate">05. 도원 친필 비보</span>
+<p class="font-caption text-caption text-on-surface-variant truncate">무료 추가 질의 • 행동 처방</p>
+<div class="mt-1 flex items-center gap-1">
+<span class="inline-flex px-1.5 py-0.2 rounded bg-primary-container/20 text-primary font-caption text-[10px]">★ 친필 회신 결합</span>
+</div>
+</div>
+</div>
+<!-- Page 06 -->
+<div class="group relative flex flex-col bg-surface-container/80 rounded-xl p-space-xs cursor-pointer hover:bg-surface-container-high transition-all transform active:scale-98" id="thumb-p6" onclick="selectPage(6)">
+<div class="relative w-full aspect-[1/1.33] bg-surface-container-lowest rounded-lg overflow-hidden p-2 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="font-label-caps text-label-caps px-1.5 py-0.5 rounded bg-surface-variant text-on-surface-variant">P.06</span>
+<span class="material-symbols-outlined text-outline text-[16px] opacity-70">open_in_new</span>
+</div>
+<!-- Certificate Frame Visual -->
+<div class="w-full my-auto flex flex-col items-center justify-center p-1 bg-surface-container-high/40 rounded">
+<div class="w-7 h-7 rounded bg-surface-container-highest flex items-center justify-center mb-1">
+<span class="material-symbols-outlined text-tertiary-fixed text-[18px]">token</span>
+</div>
+<span class="font-label-caps text-[7px] text-tertiary tracking-tighter">SHA-256 VERIFIED</span>
+<div class="w-12 h-1 bg-surface-variant rounded mt-1"></div>
+</div>
+<div class="flex items-center justify-between text-outline text-[8px]">
+<span>Polygon DID</span>
+<span class="text-tertiary-fixed-dim font-bold">인증 완료</span>
+</div>
+</div>
+<div class="mt-space-xs px-1 flex flex-col gap-0.5">
+<span class="font-title-md text-body-sm text-on-surface font-medium truncate">06. 블록체인 인증서</span>
+<p class="font-caption text-caption text-on-surface-variant truncate">DID 전자각인 • 무결성 보증</p>
+<div class="mt-1 flex items-center gap-1">
+<span class="inline-flex px-1.5 py-0.2 rounded bg-surface-container-highest text-tertiary font-caption text-[10px]">공인 각인 필</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Action Footer -->
+<div class="p-space-md bg-surface-container/90 flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-xs">
+<!-- Jump to 1P -->
+<button class="flex-1 py-2 px-2.5 rounded-lg bg-surface-variant/80 hover:bg-surface-variant text-on-surface text-center font-label-kr text-label-kr flex items-center justify-center gap-1 transition-colors active:scale-95" onclick="selectPage(1)" type="button">
+<span class="material-symbols-outlined text-[15px]">first_page</span>
+            1P (처음)
+          </button>
+<!-- Jump to 6P -->
+<button class="flex-1 py-2 px-2.5 rounded-lg bg-surface-variant/80 hover:bg-surface-variant text-on-surface text-center font-label-kr text-label-kr flex items-center justify-center gap-1 transition-colors active:scale-95" onclick="selectPage(6)" type="button">
+            6P (끝)
+            <span class="material-symbols-outlined text-[15px]">last_page</span>
+</button>
+</div>
+<!-- Prominent Celestial Read Button -->
+<button class="w-full py-3.5 px-space-md rounded-xl bg-gradient-to-r from-primary-container via-primary to-primary-container text-on-primary font-title-md text-title-md font-semibold shadow-lg shadow-primary/25 flex items-center justify-center gap-2 transition-all active:scale-[0.99] hover:brightness-105" id="primary-action-btn" onclick="confirmNavigation()" type="button">
+<span class="material-symbols-outlined text-[20px]">auto_stories</span>
+<span id="btn-label-text">선택한 01페이지 계속 열람하기</span>
+</button>
+<p class="text-center font-caption text-caption text-outline flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-primary">touch_app</span>
+          페이지 썸네일을 탭하면 해당 페이지 뷰어로 즉시 이동합니다.
+        </p>
+</div>
+</div>
+</div>
+<!-- Interactive Logic for Seamless Thumbnail Switching -->
+<script>
+    let activePage = 1;
+    const pageTitles = {
+      1: "01. 본명 사주원국 & 총평",
+      2: "02. 10년 대운 & 평생 운로",
+      3: "03. 2025 을사년 월별 세운",
+      4: "04. 1:1 대면·통화 녹취 록취록",
+      5: "05. 도원 친필 후속 서면 비보",
+      6: "06. 블록체인 공인 인증서"
+    };
+
+    function selectPage(pageNum) {
+      activePage = pageNum;
+      
+      for (let i = 1; i <= 6; i++) {
+        const thumb = document.getElementById('thumb-p' + i);
+        if (!thumb) continue;
+        
+        if (i === pageNum) {
+          thumb.className = "group relative flex flex-col bg-surface-container-high/90 rounded-xl p-space-xs cursor-pointer shadow-lg shadow-primary-container/10 transition-all transform active:scale-98";
+          const title = thumb.querySelector('.font-title-md');
+          if (title) {
+            title.classList.remove('text-on-surface');
+            title.classList.add('text-primary');
+          }
+        } else {
+          thumb.className = "group relative flex flex-col bg-surface-container/80 rounded-xl p-space-xs cursor-pointer hover:bg-surface-container-high transition-all transform active:scale-98 opacity-90";
+          const title = thumb.querySelector('.font-title-md');
+          if (title) {
+            title.classList.remove('text-primary');
+            title.classList.add('text-on-surface');
+          }
+        }
+      }
+
+      const btnLabel = document.getElementById('btn-label-text');
+      if (btnLabel) {
+        const formattedNum = String(pageNum).padStart(2, '0');
+        btnLabel.textContent = `선택한 ${formattedNum}페이지로 이동하기`;
+      }
+    }
+
+    function confirmNavigation() {
+      const formattedNum = String(activePage).padStart(2, '0');
+      const actionBtn = document.getElementById('primary-action-btn');
+      if (actionBtn) {
+        actionBtn.classList.add('brightness-125');
+      }
+      setTimeout(() => {
+        window.history.back();
+      }, 150);
+    }
+  </script>
+</div></main></body></html>

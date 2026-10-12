@@ -1,0 +1,272 @@
+{
+  "caseId": "CASE_03",
+  "name": "CASE 03: 직장 이직 / 승진 갈등",
+  "input": {
+    "id": "CASE_03",
+    "name": "CASE 03: 직장 이직 / 승진 갈등",
+    "birthDate": "1995-05-20",
+    "birthTime": "18:30",
+    "gender": "male",
+    "calendarType": "solar",
+    "troubleCategory": "career",
+    "userTroubleText": "회사 상사와 승진 및 인사 갈등으로 큰 마찰이 생겨 퇴사 및 이직을 고민 중입니다.",
+    "clientId": "tester-case03",
+    "currentDate": "2026-10-03"
+  },
+  "fourPillarsText": "을해년 신사월 신해일 정유시",
+  "pillarsObj": {
+    "year": {
+      "stem": "을",
+      "branch": "해"
+    },
+    "month": {
+      "stem": "신",
+      "branch": "사"
+    },
+    "day": {
+      "stem": "신",
+      "branch": "해"
+    },
+    "hour": {
+      "stem": "정",
+      "branch": "유"
+    }
+  },
+  "sajuAnalysis": {
+    "fourPillars": {
+      "year": {
+        "stem": "을",
+        "branch": "해",
+        "ganji": "을해년"
+      },
+      "month": {
+        "stem": "신",
+        "branch": "사",
+        "ganji": "신사월"
+      },
+      "day": {
+        "stem": "신",
+        "branch": "해",
+        "ganji": "신해일"
+      },
+      "hour": {
+        "stem": "정",
+        "branch": "유",
+        "ganji": "정유시"
+      }
+    },
+    "dayMaster": {
+      "stem": "신",
+      "element": "금",
+      "yinYang": "음",
+      "name": "신금(辛金)",
+      "nature": "정밀하게 세공된 보석이자 예리한 칼날",
+      "characteristics": "자존심이 높고 감각이 매우 섬세하며 완벽을 추구합니다. 총명하고 세련되며 시비분별이 정확합니다.",
+      "careerGuidance": "정밀 의료, IT 소프트웨어, 법률, 디자인, 보석/귀금속, 전문 감사 등 고도의 정밀 분야에 능합니다.",
+      "wealthGuidance": "가치 있는 곳에 정확하게 집중 투자하며 실속 없이 흩어지는 낭비를 엄격히 방어합니다.",
+      "relationshipGuidance": "눈높이가 높고 섬세한 교감을 중시하며, 서로의 품격과 영역을 존중해 줄 때 깊은 사랑을 나눕니다."
+    },
+    "ohaeng": {
+      "distribution": {
+        "wood": 1,
+        "fire": 2,
+        "earth": 0,
+        "metal": 3,
+        "water": 2
+      },
+      "dominant": "금",
+      "dominantKorean": "금(金)",
+      "lacking": [
+        "토"
+      ],
+      "lackingKorean": "토(土)",
+      "commentary": "오행 중 금(金)의 기운이 가장 왕성하여 성취와 추진의 동력이 되며, 상대적으로 잠재된 토(土)의 기운을 보완할 때 삶의 조화와 균형이 완성됩니다."
+    },
+    "strength": {
+      "status": "신약",
+      "score": 21.5,
+      "deungryeong": false,
+      "deungji": false,
+      "deungse": false,
+      "deungryeongScore": 15,
+      "deungJiScore": 10,
+      "deungSeScore": 41.67,
+      "description": "월령(사)에 기운을 빼앗기고(실령) 일지(해)의 조력을 얻지 못해(실지), 환경의 압박과 생각의 설기가 많은 신약(身弱) 구조입니다. 그러나 시주와 년지의 통근으로 내면의 뒷심이 존재합니다.",
+      "calculationBasis": "월령 가중치 40%(15점 -> 6.0점) + 득지 30%(10점 -> 3.0점) + 득세 30%(41.67점 -> 12.5점) = 최종 점수 21.5점 (신약 판정 기준: 15~35점 구간)"
+    },
+    "geokguk": {
+      "name": "정관격",
+      "basis": "월지 사의 지장간 본기 에너지에 기반함",
+      "condition": "월지 사의 지장간 본기가 일간 신금(辛金)과 정관 관계를 형성하며, 사왕지(子午卯酉) 고유의 순수한 기운에 의거하여 정격으로 취격되었습니다.",
+      "description": "월지 사의 기운을 바탕으로 정관격이 정립되어, 삶의 사회적 목표와 활동 반경을 명확하게 설정하는 틀을 형성합니다."
+    },
+    "tenGods": {
+      "counts": {
+        "비겁": 3,
+        "식상": 2,
+        "재성": 1,
+        "관성": 2,
+        "인성": 0
+      },
+      "surfaceCounts8": {
+        "비겁": 3,
+        "식상": 2,
+        "재성": 1,
+        "관성": 2,
+        "인성": 0
+      },
+      "hiddenCounts": {
+        "비겁": 3,
+        "식상": 2,
+        "재성": 2,
+        "관성": 1,
+        "인성": 3
+      },
+      "dominant": [
+        "비겁",
+        "식상",
+        "관성"
+      ],
+      "lacking": [
+        "인성"
+      ],
+      "summary": "표면 명식(8자)에서 [비겁, 식상, 관성]의 세력이 주도적인 동력으로 작용하며, 표면상 결핍된 [인성]의 기운을 보완할 때 인생의 안정성이 극대화됩니다. (단, 지장간에 암장된 기운의 잠재적 영향력 별도 감안)"
+    },
+    "yongshin": {
+      "primary": "토",
+      "secondary": "금",
+      "eokbu": {
+        "primary": "토",
+        "secondary": "금",
+        "reason": "신약한 일간을 생조하고 태왕한 설기와 재성을 다스리기 위해 인성(토(土))을 용신으로, 비겁(금(金))을 희신으로 삼습니다."
+      },
+      "johu": {
+        "season": "하절(여름)",
+        "primary": "수",
+        "reason": "여름철의 극심한 화열과 조열함을 식히기 위해 수(水)의 윤택함이 가장 시급한 조후 용신입니다.",
+        "luckNote": "수기운이 들어올 때 정서적 안정과 문제 해결의 실마리가 열립니다."
+      },
+      "reason": "[억부 용신] 토(土)(용신) / 금(金)(희신) — 신약한 일간을 생조하고 태왕한 설기와 재성을 다스리기 위해 인성(토(土))을 용신으로, 비겁(금(金))을 희신으로 삼습니다. | [조후 용신] 수(水) — 여름철의 극심한 화열과 조열함을 식히기 위해 수(水)의 윤택함이 가장 시급한 조후 용신입니다."
+    },
+    "clashesAndHarmonies": {
+      "clashes": [
+        "사해충(巳亥沖)",
+        "사해충(巳亥沖)"
+      ],
+      "harmonies": [],
+      "tripleHarmonies": [],
+      "semiHarmonies": [
+        "사유축 금국 (생왕 반합)"
+      ],
+      "punishments": [
+        "해해자형(亥亥自刑)"
+      ],
+      "destructions": [],
+      "harms": [],
+      "wonjin": [],
+      "relationsSummary": "원국 내에 사해충(巳亥沖), 사해충(巳亥沖)의 역동성이 감돌아 환경의 급변과 도전 속에서 큰 결실을 맺는 원동력이 됩니다."
+    }
+  },
+  "relations": {
+    "clashes": [
+      {
+        "name": "사해충",
+        "branches": [
+          "해",
+          "사"
+        ],
+        "positions": [
+          "year",
+          "month"
+        ],
+        "source": "NATAL",
+        "intensity": 92,
+        "evidence": [
+          "수화 역마충, 주거/직장 변동 및 급작스러운 사건",
+          "궁위: year ↔ month",
+          "거리: 1칸"
+        ],
+        "temporalCompletion": false,
+        "description": "원국 지지 사해충: 수화 역마충, 주거/직장 변동 및 급작스러운 사건"
+      },
+      {
+        "name": "사해충",
+        "branches": [
+          "사",
+          "해"
+        ],
+        "positions": [
+          "month",
+          "day"
+        ],
+        "source": "NATAL",
+        "intensity": 92,
+        "evidence": [
+          "수화 역마충, 주거/직장 변동 및 급작스러운 사건",
+          "궁위: month ↔ day",
+          "거리: 1칸"
+        ],
+        "temporalCompletion": false,
+        "description": "원국 지지 사해충: 수화 역마충, 주거/직장 변동 및 급작스러운 사건"
+      }
+    ],
+    "sixHarmonies": [],
+    "tripleHarmonies": [],
+    "semiHarmonies": [
+      {
+        "name": "사유축 금국 (생왕 반합)",
+        "branches": [
+          "사",
+          "유"
+        ],
+        "positions": [
+          "month",
+          "hour"
+        ],
+        "source": "NATAL",
+        "intensity": 75,
+        "evidence": [
+          "왕지(유)를 포함한 생왕 반합",
+          "왕지(유) 포함 반합 결합",
+          ""
+        ],
+        "temporalCompletion": false,
+        "description": "원국 반합 성립: 사유축 금국 (생왕 반합)"
+      }
+    ],
+    "punishments": [
+      {
+        "name": "해해 자형",
+        "branches": [
+          "해",
+          "해"
+        ],
+        "positions": [
+          "year",
+          "day"
+        ],
+        "source": "NATAL",
+        "intensity": 65,
+        "evidence": [
+          "스스로를 옭아매거나 자책/과열되는 심리적 작용",
+          "유형: 자형 (진진, 오오, 유유, 해해)",
+          "궁위: year, day"
+        ],
+        "temporalCompletion": false,
+        "description": "원국 해해 자형 (자형 (진진, 오오, 유유, 해해)): 스스로를 옭아매거나 자책/과열되는 심리적 작용"
+      }
+    ],
+    "destructions": [],
+    "harms": [],
+    "wonjin": []
+  },
+  "daewoon": {
+    "cycle_years": 10,
+    "direction": "순행",
+    "current_daewoon": {
+      "pillar": "정축 대운",
+      "age_range": "33세 ~ 42세",
+      "flow_summary": "사회적 책임과 경험이 축적되며 외부 환경과의 조율이 활발하게 일어나는 구간입니다."
+    }
+  }
+}

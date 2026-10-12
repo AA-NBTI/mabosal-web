@@ -1,0 +1,291 @@
+{
+  "caseId": "CASE_02",
+  "name": "CASE 02: 사업 부도 / 사업 위기",
+  "input": {
+    "id": "CASE_02",
+    "name": "CASE 02: 사업 부도 / 사업 위기",
+    "birthDate": "1988-12-10",
+    "birthTime": "14:00",
+    "gender": "female",
+    "calendarType": "solar",
+    "troubleCategory": "business",
+    "userTroubleText": "최근 사업에서 거래처와 계약 문제로 심각한 다툼과 갈등이 발생하여 사업 부도 위기에 직면했습니다. 법적 분쟁을 해야 할지 대화로 풀어야 할지 판단이 어렵습니다.",
+    "clientId": "tester-case02",
+    "currentDate": "2026-10-03"
+  },
+  "fourPillarsText": "무진년 갑자월 기해일 신미시",
+  "pillarsObj": {
+    "year": {
+      "stem": "무",
+      "branch": "진"
+    },
+    "month": {
+      "stem": "갑",
+      "branch": "자"
+    },
+    "day": {
+      "stem": "기",
+      "branch": "해"
+    },
+    "hour": {
+      "stem": "신",
+      "branch": "미"
+    }
+  },
+  "sajuAnalysis": {
+    "fourPillars": {
+      "year": {
+        "stem": "무",
+        "branch": "진",
+        "ganji": "무진년"
+      },
+      "month": {
+        "stem": "갑",
+        "branch": "자",
+        "ganji": "갑자월"
+      },
+      "day": {
+        "stem": "기",
+        "branch": "해",
+        "ganji": "기해일"
+      },
+      "hour": {
+        "stem": "신",
+        "branch": "미",
+        "ganji": "신미시"
+      }
+    },
+    "dayMaster": {
+      "stem": "기",
+      "element": "토",
+      "yinYang": "음",
+      "name": "기토(己土)",
+      "nature": "곡식을 길러내는 비옥한 전원 흙",
+      "characteristics": "온화하고 실용적이며 수용성이 뛰어납니다. 타인을 잘 품어주고 다재다능하며 내실을 중시합니다.",
+      "careerGuidance": "행정, 인사, 교육, 복지, 중개, 유통 등 사람과 자원을 조화롭게 연결하는 영역에 강합니다.",
+      "wealthGuidance": "무리한 투기를 지양하고 꾸준한 수익원을 다각화하여 알차게 모으는 알부자형 재복입니다.",
+      "relationshipGuidance": "따뜻하고 정성스러운 태도로 상대를 챙기며 가정적이고 평화로운 안식처를 지향합니다."
+    },
+    "ohaeng": {
+      "distribution": {
+        "wood": 1,
+        "fire": 0,
+        "earth": 4,
+        "metal": 1,
+        "water": 2
+      },
+      "dominant": "토",
+      "dominantKorean": "토(土)",
+      "lacking": [
+        "화"
+      ],
+      "lackingKorean": "화(火)",
+      "commentary": "오행 중 토(土)의 기운이 가장 왕성하여 성취와 추진의 동력이 되며, 상대적으로 잠재된 화(火)의 기운을 보완할 때 삶의 조화와 균형이 완성됩니다."
+    },
+    "strength": {
+      "status": "신약",
+      "score": 25.25,
+      "deungryeong": false,
+      "deungji": false,
+      "deungse": true,
+      "deungryeongScore": 15,
+      "deungJiScore": 10,
+      "deungSeScore": 54.17,
+      "description": "월령(자)에 기운을 빼앗기고(실령) 일지(해)의 조력을 얻지 못해(실지), 환경의 압박과 생각의 설기가 많은 신약(身弱) 구조입니다. 그러나 시주와 년지의 통근으로 내면의 뒷심이 존재합니다.",
+      "calculationBasis": "월령 가중치 40%(15점 -> 6.0점) + 득지 30%(10점 -> 3.0점) + 득세 30%(54.17점 -> 16.3점) = 최종 점수 25.25점 (신약 판정 기준: 15~35점 구간)"
+    },
+    "geokguk": {
+      "name": "편재격",
+      "basis": "월지 자의 지장간 본기 에너지에 기반함",
+      "condition": "월지 자의 지장간 본기가 일간 기토(己土)과 편재 관계를 형성하며, 사왕지(子午卯酉) 고유의 순수한 기운에 의거하여 정격으로 취격되었습니다.",
+      "description": "월지 자의 기운을 바탕으로 편재격이 정립되어, 삶의 사회적 목표와 활동 반경을 명확하게 설정하는 틀을 형성합니다."
+    },
+    "tenGods": {
+      "counts": {
+        "비겁": 4,
+        "식상": 1,
+        "재성": 2,
+        "관성": 1,
+        "인성": 0
+      },
+      "surfaceCounts8": {
+        "비겁": 4,
+        "식상": 1,
+        "재성": 2,
+        "관성": 1,
+        "인성": 0
+      },
+      "hiddenCounts": {
+        "비겁": 3,
+        "식상": 0,
+        "재성": 4,
+        "관성": 3,
+        "인성": 1
+      },
+      "dominant": [
+        "비겁",
+        "재성"
+      ],
+      "lacking": [
+        "인성"
+      ],
+      "summary": "표면 명식(8자)에서 [비겁, 재성]의 세력이 주도적인 동력으로 작용하며, 표면상 결핍된 [인성]의 기운을 보완할 때 인생의 안정성이 극대화됩니다. (단, 지장간에 암장된 기운의 잠재적 영향력 별도 감안)"
+    },
+    "yongshin": {
+      "primary": "화",
+      "secondary": "토",
+      "eokbu": {
+        "primary": "화",
+        "secondary": "토",
+        "reason": "신약한 일간을 생조하고 태왕한 설기와 재성을 다스리기 위해 인성(화(火))을 용신으로, 비겁(토(土))을 희신으로 삼습니다."
+      },
+      "johu": {
+        "season": "동절(겨울)",
+        "primary": "화",
+        "reason": "겨울철의 한습하고 얼어붙은 대지를 녹이기 위해 화(火)의 따뜻한 온기가 절대적인 조후 용신입니다.",
+        "luckNote": "화기운이 동반될 때 얼어붙었던 운세의 물꼬가 풀립니다."
+      },
+      "reason": "[억부 용신] 화(火)(용신) / 토(土)(희신) — 신약한 일간을 생조하고 태왕한 설기와 재성을 다스리기 위해 인성(화(火))을 용신으로, 비겁(토(土))을 희신으로 삼습니다. | [조후 용신] 화(火) — 겨울철의 한습하고 얼어붙은 대지를 녹이기 위해 화(火)의 따뜻한 온기가 절대적인 조후 용신입니다."
+    },
+    "clashesAndHarmonies": {
+      "clashes": [],
+      "harmonies": [],
+      "tripleHarmonies": [],
+      "semiHarmonies": [
+        "신자진 수국 (왕묘 반합)",
+        "해묘미 목국 (가합)"
+      ],
+      "punishments": [],
+      "destructions": [],
+      "harms": [
+        "자미해(子未害)"
+      ],
+      "wonjin": [
+        "진해원진(辰亥怨嗔)",
+        "자미원진(子未怨嗔)"
+      ],
+      "relationsSummary": "원국 지지 간에 거친 충돌이 적어 온화하고 안정적인 삶의 기반을 다져가는 구조입니다."
+    }
+  },
+  "relations": {
+    "clashes": [],
+    "sixHarmonies": [],
+    "tripleHarmonies": [],
+    "semiHarmonies": [
+      {
+        "name": "신자진 수국 (왕묘 반합)",
+        "branches": [
+          "자",
+          "진"
+        ],
+        "positions": [
+          "year",
+          "month"
+        ],
+        "source": "NATAL",
+        "intensity": 65,
+        "evidence": [
+          "왕지(자)를 포함한 왕묘 반합",
+          "왕지(자) 포함 반합 결합",
+          "월령 득령 지원"
+        ],
+        "temporalCompletion": false,
+        "description": "원국 반합 성립: 신자진 수국 (왕묘 반합)"
+      },
+      {
+        "name": "해묘미 목국 (가합)",
+        "branches": [
+          "해",
+          "미"
+        ],
+        "positions": [
+          "day",
+          "hour"
+        ],
+        "source": "NATAL",
+        "intensity": 35,
+        "evidence": [
+          "왕지 없는 가합 (해+미)",
+          "생지(해)와 묘지(미)의 약한 연결"
+        ],
+        "temporalCompletion": false,
+        "description": "원국 반합 성립: 해묘미 목국 (가합)"
+      }
+    ],
+    "punishments": [],
+    "destructions": [],
+    "harms": [
+      {
+        "name": "자미해",
+        "branches": [
+          "자",
+          "미"
+        ],
+        "positions": [
+          "month",
+          "hour"
+        ],
+        "source": "NATAL",
+        "intensity": 39,
+        "evidence": [
+          "육합 방해, 은밀한 훼손 및 질투",
+          "궁위: month ↔ hour",
+          "거리: 2칸"
+        ],
+        "temporalCompletion": false,
+        "description": "원국 지지 자미해: 육합 방해, 은밀한 훼손 및 질투"
+      }
+    ],
+    "wonjin": [
+      {
+        "name": "진해 원진",
+        "branches": [
+          "진",
+          "해"
+        ],
+        "positions": [
+          "year",
+          "day"
+        ],
+        "source": "NATAL",
+        "intensity": 33,
+        "evidence": [
+          "음습한 수토 혼탁, 은밀한 우울",
+          "궁위: year ↔ day",
+          "거리: 2칸"
+        ],
+        "temporalCompletion": false,
+        "description": "원국 지지 진해 원진: 음습한 수토 혼탁, 은밀한 우울"
+      },
+      {
+        "name": "자미 원진",
+        "branches": [
+          "자",
+          "미"
+        ],
+        "positions": [
+          "month",
+          "hour"
+        ],
+        "source": "NATAL",
+        "intensity": 33,
+        "evidence": [
+          "애증의 교차, 까다로운 감정선",
+          "궁위: month ↔ hour",
+          "거리: 2칸"
+        ],
+        "temporalCompletion": false,
+        "description": "원국 지지 자미 원진: 애증의 교차, 까다로운 감정선"
+      }
+    ]
+  },
+  "daewoon": {
+    "cycle_years": 10,
+    "direction": "순행",
+    "current_daewoon": {
+      "pillar": "정묘 대운",
+      "age_range": "27세 ~ 36세",
+      "flow_summary": "사회적 책임과 경험이 축적되며 외부 환경과의 조율이 활발하게 일어나는 구간입니다."
+    }
+  }
+}

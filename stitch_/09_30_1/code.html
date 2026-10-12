@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&amp;family=Noto+Serif+KR:wght@500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#0f131d;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "inverse-on-surface": "#2c303b", "tertiary-fixed": "#acedff", "on-error": "#690005", "error": "#ffb4ab", "secondary-container": "#3e475a", "on-primary": "#3c2f00", "outline": "#99907c", "surface-container-low": "#171b26", "secondary-fixed": "#dae2fa", "secondary-fixed-dim": "#bec6dd", "error-container": "#93000a", "on-primary-container": "#554300", "inverse-surface": "#dfe2f1", "on-tertiary-fixed": "#001f26", "primary-container": "#d4af37", "surface-container-highest": "#313540", "primary-fixed": "#ffe088", "on-tertiary-fixed-variant": "#004e5c", "tertiary-fixed-dim": "#4cd7f6", "surface-container-lowest": "#0a0e18", "tertiary-container": "#2dc3e1", "on-secondary-fixed-variant": "#3e475a", "surface": "#0f131d", "on-surface": "#dfe2f1", "outline-variant": "#4d4635", "on-secondary-fixed": "#121c2c", "surface-container-high": "#262a35", "on-tertiary-container": "#004c5a", "inverse-primary": "#735c00", "surface-variant": "#313540", "surface-container": "#1c1f2a", "background": "#0f131d", "on-primary-fixed": "#241a00", "on-secondary-container": "#acb5cb", "on-primary-fixed-variant": "#574500", "on-surface-variant": "#d0c5af", "tertiary": "#56dffe", "secondary": "#bec6dd", "on-secondary": "#283042", "surface-tint": "#e9c349", "primary": "#f2ca50", "surface-bright": "#353944", "primary-fixed-dim": "#e9c349", "on-error-container": "#ffdad6", "surface-dim": "#0f131d", "on-tertiary": "#003640", "on-background": "#dfe2f1" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-md": "0.875rem", "space-xl": "1.75rem", "margin": "1.25rem", "space-xs": "0.25rem", "gutter": "1rem", "space-sm": "0.5rem", "space-lg": "1.25rem" }, fontFamily: { "title-lg": ["Noto Sans KR", "Noto Sans"], "title-md": ["Noto Sans KR", "Noto Sans"], "headline-xl": ["Noto Serif KR", "Noto Serif"], "body-md": ["Noto Sans KR", "Noto Sans"], "body-sm": ["Noto Sans KR", "Noto Sans"], "label-kr": ["Noto Sans KR", "Noto Sans"], "headline-md": ["Noto Serif KR", "Noto Serif"], "label-caps": ["Space Grotesk"], "caption": ["Noto Sans KR", "Noto Sans"], "headline-lg": ["Noto Serif KR", "Noto Serif"], "body-lg": ["Noto Sans KR", "Noto Sans"] }, fontSize: { "title-lg": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "title-md": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }], "headline-xl": ["32px", { "lineHeight": "42px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }], "body-sm": ["13px", { "lineHeight": "19px", "letterSpacing": "0.005em", "fontWeight": "400" }], "label-kr": ["12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "label-caps": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "600" }], "caption": ["11px", { "lineHeight": "15px", "letterSpacing": "0.01em", "fontWeight": "400" }], "headline-lg": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head><body class="bg-surface font-body-md text-on-surface flex flex-col min-h-screen selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.4)] pt-safe"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-primary text-[24px]">explore</span></div><div class="flex flex-col"><div class="flex items-baseline gap-1.5"><span class="font-headline-md text-headline-md font-semibold text-primary tracking-tight">천명원</span><span class="font-label-caps text-label-caps text-primary/60 tracking-widest uppercase">天命院</span></div><span class="font-caption text-caption text-on-surface-variant sr-only">Home</span></div></div><div class="flex items-center gap-space-sm"><div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high/90 text-primary shadow-[0_2px_8px_rgba(0,0,0,0.3)]"><span class="material-symbols-outlined text-[15px] text-primary">monetization_on</span><span class="font-label-caps text-label-caps tracking-tight font-semibold text-on-surface">3,200</span><span class="font-label-kr text-label-kr text-on-surface-variant">엽</span></div><button aria-label="알림" class="relative w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary transition-colors focus:outline-none"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-primary ring-2 ring-surface"></span></button><img alt="Profile" class="w-8 h-8 rounded-full object-cover shadow-[0_0_10px_rgba(242,202,80,0.25)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_y5dQKydphchpcTMO9__yOAFFEgeD_3sXWyVzYITbc9ScEMV9UusNnB8MrP3rRNehnDosDEmgGTWmCVZDuDxtUgZIJB-PI5DB6yJ6G0rP79YMm9UpRAvEvRMhKMFhz9CbgcrP7slqEw8CSSw12AWe1dRk4izXRXaXLcWpULWkj2U34H_Px7ilYcQFBYZV477Qm9WM2HxzSMgDd2hTe0zLYB3kYdOCEqFkhcxtyMqu"/></div></div></header><main class="flex flex-col relative w-full pt-16 pb-28 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Top Navigation Context Bar -->
+<div class="px-margin pt-space-sm pb-1"><div class="p-space-sm rounded-lg bg-primary/10 flex items-center justify-between shadow-sm"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-primary animate-ping"></span><span class="font-label-kr text-label-kr font-semibold text-primary">오전 사시(09:30) 귀인 운기 정점 진입</span></div><span class="font-label-caps text-label-caps text-primary font-bold">PEAK ACTIVE</span></div></div><div class="px-margin pt-space-md pb-space-sm flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<button aria-label="뒤로가기" class="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">실전 비보(裨補) 처방</span>
+<span class="font-caption text-caption text-primary/80 font-label-caps">10.14 甲辰 (GAPJIN DAY)</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button aria-label="북마크 저장" class="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[19px]">bookmark</span>
+</button>
+<button aria-label="공유하기" class="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[19px]">share</span>
+</button>
+</div>
+</div>
+<!-- Hero Destiny Banner -->
+<div class="px-margin mt-space-xs mb-space-lg">
+<div class="relative overflow-hidden rounded-xl bg-gradient-to-br from-surface-container-high via-surface-container to-surface-container-low p-space-lg shadow-xl">
+<!-- Ambient Decorative Glyphs -->
+<div class="absolute -right-4 -bottom-6 select-none opacity-5 pointer-events-none text-primary font-headline-xl text-[140px] leading-none">辰</div>
+<div class="absolute top-0 right-0 w-44 h-44 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>
+<div class="relative flex flex-col gap-space-sm">
+<!-- Top Tag / Badge -->
+<div class="flex items-center justify-between flex-wrap gap-2">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-container/20 text-primary">
+<span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-label-kr text-label-kr font-semibold text-primary">2025 연간 최고 대길일 · TOP 1%</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-highest text-secondary">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
+<span class="font-label-caps text-label-caps tracking-wider text-on-surface-variant">LUCKY SCORE 96</span>
+</div>
+</div>
+<!-- Headline & User Salutation -->
+<div class="mt-1 flex flex-col gap-1">
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-semibold tracking-tight">
+            김서연 님, 오늘 <span class="text-primary font-headline-lg">진토(辰土) 재고</span>가 열립니다!
+          </h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            호운 지수 96점 · <span class="text-on-surface font-medium">천을귀인(天乙貴人)</span>과 <span class="text-on-surface font-medium">상관생재(傷官生財)</span>의 합일로 뜻밖의 실질적 결실을 맺는 날입니다.
+          </p>
+</div>
+<!-- Astrological Metadata Pills -->
+<div class="mt-space-xs pt-space-sm flex flex-wrap items-center gap-1.5">
+<div class="px-2.5 py-1 rounded bg-surface-container-highest/80 flex items-center gap-1.5">
+<span class="font-label-caps text-label-caps text-primary">日柱</span>
+<span class="font-label-kr text-label-kr text-on-surface font-medium">甲辰 (백호대길)</span>
+</div>
+<div class="px-2.5 py-1 rounded bg-surface-container-highest/80 flex items-center gap-1.5">
+<span class="font-label-caps text-label-caps text-tertiary">通變</span>
+<span class="font-label-kr text-label-kr text-on-surface font-medium">편재 횡재성(偏財)</span>
+</div>
+<div class="px-2.5 py-1 rounded bg-surface-container-highest/80 flex items-center gap-1.5">
+<span class="font-label-caps text-label-caps text-primary">吉方</span>
+<span class="font-label-kr text-label-kr text-on-surface font-medium">서남방(西南方)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Live Astronomical Indicator -->
+<div class="px-margin mb-space-md">
+<div class="p-space-md rounded-lg bg-surface-container-low flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="relative flex items-center justify-center"><div class="w-3 h-3 rounded-full bg-primary animate-ping absolute"></div><div class="w-2.5 h-2.5 rounded-full bg-primary"></div></div><div class="flex flex-col"><div class="flex items-center gap-2"><span class="font-label-caps text-label-caps text-primary tracking-wider uppercase font-semibold">Planetary Hour: Active</span><span class="px-1.5 py-0.2 rounded bg-primary text-on-primary font-label-kr text-[10px] font-bold">🔥 길시 가동 중</span></div><span class="font-title-md text-title-md text-on-surface font-semibold">현재 시각 09:30 <span class="text-primary font-headline-md font-bold">(사시 巳時)</span></span></div></div><div class="text-right"><span class="font-label-caps text-label-caps text-primary/80 font-medium">남은 길시 시간</span><div class="font-label-caps text-label-caps font-bold text-primary text-[15px]">01:59:00</div></div></div>
+</div>
+<!-- Section 1: Real-time Auspicious Timing Quests -->
+<div class="px-margin flex flex-col gap-space-md mb-space-xl">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">alarm_on</span>
+<h2 class="font-title-lg text-title-lg text-on-surface font-semibold">실시간 길시(吉時) 실전 퀘스트</h2>
+</div>
+<span class="font-caption text-caption text-on-surface-variant">정밀 시간대 비보</span>
+</div>
+<!-- Quest Card 1: 오전 귀인 타임 -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container p-space-md shadow-md flex flex-col gap-space-sm"><div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary via-tertiary to-primary animate-pulse"></div><div class="flex items-start justify-between pt-1"><div class="flex flex-col gap-0.5"><div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded bg-primary text-on-primary font-label-caps text-label-caps font-bold">사시 巳時</span><span class="font-label-caps text-label-caps text-primary font-semibold">09:30 ~ 11:29</span><span class="px-2 py-0.5 rounded bg-primary/20 text-primary font-label-kr text-label-kr font-bold animate-pulse">🔥 지금 활성화 중 (NOW ACTIVE)</span></div><h3 class="font-headline-md text-headline-md text-primary font-bold mt-1">1. 오전 귀인(貴人) 집중 조력 타임</h3></div><div class="text-right flex flex-col items-end"><span class="font-label-caps text-label-caps text-tertiary font-semibold">조력 확률</span><span class="font-headline-md text-headline-md font-bold text-tertiary">98%</span></div></div><div class="p-space-sm rounded-lg bg-primary/10 flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[18px]">campaign</span><span class="font-body-sm text-body-sm text-primary font-semibold">지금 실행하기: 서남쪽 좌석 착석 및 핵심 제안서 오픈 권장!</span></div></div><div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1.5"><div class="flex items-start gap-2"><span class="material-symbols-outlined text-primary text-[17px] shrink-0 mt-0.5">flag</span><p class="font-body-sm text-body-sm text-on-surface"><strong class="font-semibold text-primary">핵심 미션:</strong> 비즈니스 핵심 제안, 전략적 파트너십 미팅, 상급자 면담</p></div><div class="flex items-start gap-2"><span class="material-symbols-outlined text-on-surface-variant text-[17px] shrink-0 mt-0.5">lightbulb</span><p class="font-body-sm text-body-sm text-on-surface-variant"><strong class="font-medium text-on-surface">실전 행동 팁:</strong> 미팅 시 상대방 기준 서남쪽(西南) 좌석을 선점하세요. 밝은 네이비 및 골드 스카프/넥타이가 귀인 기운을 끌어당깁니다.</p></div></div><div class="pt-1 flex items-center justify-between"><label class="flex items-center gap-2.5 cursor-pointer select-none"><input checked="checked" class="peer sr-only" id="quest1" onchange="this.nextElementSibling.classList.toggle('bg-primary'); this.nextElementSibling.classList.toggle('bg-surface-container-highest'); document.getElementById('quest1-label').classList.toggle('line-through'); document.getElementById('quest1-label').classList.toggle('text-on-surface-variant');" type="checkbox"/><div class="w-6 h-6 rounded bg-primary flex items-center justify-center transition-all peer-checked:bg-primary"><span class="material-symbols-outlined text-on-primary text-[16px] font-bold">check</span></div><span class="font-body-sm text-body-sm text-primary font-semibold transition-all" id="quest1-label">[실행 중] 핵심 제안서 및 미팅 안건 발송하기</span></label><span class="font-label-caps text-label-caps text-primary font-bold bg-primary/10 px-2 py-0.5 rounded">+50 엽전 즉시 지급</span></div></div>
+<!-- Quest Card 2: 오후 대박 재물 타임 (Golden Hour) -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container p-space-md shadow-md flex flex-col gap-space-sm"><div class="flex items-start justify-between"><div class="flex flex-col gap-0.5"><div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-label-caps text-label-caps">미시 未時</span><span class="font-label-caps text-label-caps text-on-surface-variant">13:30 ~ 15:29</span><span class="px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-label-kr text-label-kr">대기 중 (13:30 시작 예정)</span></div><h3 class="font-headline-md text-headline-md text-on-surface font-semibold mt-1">2. 황금 재물 타임 (최고 황금 구간)</h3></div><div class="text-right flex flex-col items-end"><span class="font-label-caps text-label-caps text-primary/80">재물 성취</span><span class="font-headline-md text-headline-md font-bold text-primary/80">99%</span></div></div><div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1.5"><div class="flex items-start gap-2"><span class="material-symbols-outlined text-primary/80 text-[17px] shrink-0 mt-0.5">account_balance_wallet</span><p class="font-body-sm text-body-sm text-on-surface"><strong class="font-semibold text-primary/80">핵심 미션:</strong> 시주(辛未)와 삼합(三合) 작용! 대형 계약서 날인, 부동산/투자 집행, 고액 자금 이체</p></div><div class="flex items-start gap-2"><span class="material-symbols-outlined text-on-surface-variant text-[17px] shrink-0 mt-0.5">edit_document</span><p class="font-body-sm text-body-sm text-on-surface-variant"><strong class="font-medium text-on-surface">실전 행동 팁:</strong> 계약서 서명 시 묵직한 골드 또는 메탈 필기구를 사용하세요. 도장 인주는 번짐 없이 또렷하게 찍는 것이 비보의 핵심입니다.</p></div></div><div class="pt-1 flex items-center justify-between"><label class="flex items-center gap-2.5 cursor-pointer select-none"><input class="peer sr-only" id="quest2" onchange="this.nextElementSibling.classList.toggle('bg-primary'); this.nextElementSibling.classList.toggle('bg-surface-container-highest'); document.getElementById('quest2-label').classList.toggle('line-through'); document.getElementById('quest2-label').classList.toggle('text-on-surface-variant');" type="checkbox"/><div class="w-6 h-6 rounded bg-surface-container-highest flex items-center justify-center transition-all peer-checked:bg-primary"><span class="material-symbols-outlined text-on-primary text-[16px] font-bold">check</span></div><span class="font-body-sm text-body-sm text-on-surface-variant transition-all" id="quest2-label">중요 계약 및 핵심 자금 결행 대기</span></label><span class="font-label-caps text-label-caps text-on-surface-variant font-semibold">+100 엽전</span></div></div>
+</div>
+<!-- Section 2: Five Elements Remedial Prescription (오행 비보 처방전) -->
+<div class="px-margin flex flex-col gap-space-md mb-space-xl">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">balance</span>
+<h2 class="font-title-lg text-title-lg text-on-surface font-semibold">오늘의 개운(開運) 오행 비보 처방전</h2>
+</div>
+<span class="font-caption text-caption text-on-surface-variant">환경 조율</span>
+</div>
+<!-- 2-Column Bento Grid for Prescriptions -->
+<div class="grid grid-cols-2 gap-space-sm">
+<!-- 吉方 Card -->
+<div class="p-space-md rounded-xl bg-surface-container-high flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-kr text-label-kr font-semibold text-primary">길방 (吉方)</span>
+<span class="material-symbols-outlined text-primary text-[18px]">explore</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-on-surface font-semibold">서남방 (西南)</span>
+<span class="font-caption text-caption text-on-surface-variant mt-1">이동, 미팅 장소, 카페 선정 시 최우선 권장 방위</span>
+</div>
+</div>
+<!-- 凶方 Card -->
+<div class="p-space-md rounded-xl bg-surface-container-high flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-kr text-label-kr font-semibold text-error">흉방 (凶方)</span>
+<span class="material-symbols-outlined text-error text-[18px]">block</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-on-surface font-semibold">동북방 (東北)</span>
+<span class="font-caption text-caption text-on-surface-variant mt-1">충돌 및 언쟁 위험, 중요한 동선에서 배제 권장</span>
+</div>
+</div>
+<!-- Lucky Color Card -->
+<div class="p-space-md rounded-xl bg-surface-container-high flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-kr text-label-kr font-semibold text-on-surface-variant">행운의 색채</span>
+<div class="flex items-center -space-x-1">
+<span class="w-3.5 h-3.5 rounded-full bg-secondary-container"></span>
+<span class="w-3.5 h-3.5 rounded-full bg-primary"></span>
+</div>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md text-on-surface font-semibold">로얄 네이비 &amp; 샴페인 골드</span>
+<span class="font-caption text-caption text-on-surface-variant mt-1">토(土)와 금(金)의 상생을 돕는 정갈한 색조 배합</span>
+</div>
+</div>
+<!-- Lucky Food Card -->
+<div class="p-space-md rounded-xl bg-surface-container-high flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-kr text-label-kr font-semibold text-on-surface-variant">행운의 음식</span>
+<span class="material-symbols-outlined text-primary text-[18px]">local_cafe</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md text-on-surface font-semibold">따뜻한 차 &amp; 견과류</span>
+<span class="font-caption text-caption text-on-surface-variant mt-1">차분한 수분을 머금은 견과류로 건조한 기운 보강</span>
+</div>
+</div>
+<!-- Full-Width Lucky Number & Element Insight -->
+<div class="col-span-2 p-space-md rounded-xl bg-surface-container flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-headline-md font-bold">
+            5 · 10
+          </div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md text-on-surface font-semibold">행운의 숫자: 5, 10</span>
+<span class="font-caption text-caption text-on-surface-variant">중앙 토(土)의 기운을 상징하며 중심을 잡는 안정수</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary/60 text-[22px]">tag</span>
+</div>
+</div>
+</div>
+<!-- Visual Moodscape Imagery: Observatory Aesthetic -->
+<div class="px-margin mb-space-xl">
+<div class="relative rounded-xl overflow-hidden shadow-lg bg-surface-container">
+<img class="w-full h-36 object-cover opacity-80" data-alt="A modern astronomical observatory under a deep midnight starry Korean sky, glowing warm champagne gold constellation charts on holographic glass tablets, tranquil celestial ambiance, minimal dark luxury aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2MhONx2qafMxpX0IAtbbTZZYMRzD6tw9A_VpmcBoZJkzRjfd2l-rWZsHGTJBmX6MO5s9pg4DiiyJUgnUXwVGOv4bmMnoNLroSkhyaNRpx_0ZLJYX9Bl6lg2C82XvKfFsY2aLDFTXFoDvS9vc7BVRcA0pb9Z52Jw5anWY-twah2XS1W5AONDd5f7rBja6ZvOZweGsy7v6gNpCta5dahvObhDmgeQLSUf-oj_JSOTYh"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent flex items-end p-space-md">
+<div class="flex items-center justify-between w-full">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-primary tracking-widest uppercase">Celestial Alignment</span>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">천문 관측: 오늘의 일진(日辰)과 우주 기운이 조화롭게 동기화 중입니다</span>
+</div>
+<span class="material-symbols-outlined text-primary text-[20px]">auto_awesome</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 3: Emergency Live Master SOS & Actions -->
+<div class="px-margin flex flex-col gap-space-md mb-space-xl">
+<div class="p-space-lg rounded-xl bg-surface-container-high flex flex-col gap-space-md shadow-lg">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+<span class="font-label-kr text-label-kr text-tertiary font-semibold">실시간 즉문즉답 대기 중</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold">미팅 중 돌발 변수가 생기셨나요?</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            상담 진행 중인 전문 명리학자가 즉시 당일 시진(時辰)에 맞춘 긴급 비책을 제시해 드립니다.
+          </p>
+</div>
+<div class="flex -space-x-2 shrink-0">
+<img class="w-8 h-8 rounded-full object-cover shadow-sm" data-alt="Portrait of an experienced male Korean fortune teller with gentle expression in a minimalist dark modern studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBl5KteISAq4I4nZcnlG1VRyp99uyQsoAHue0MQZuq1nVqGE3NDtgICk1yh2HkJ8lHFWuX8SeZEm0hxE9bpOomWUfDirEYgNX5B5EjXPn6X54qQ7liTJKbhJg414RB-Hg6WflicLdUF-ip4mBNO7qghKPp4rMw8WvQid8WYTS39tntznG8JCg_OB9GSzMu6s8A3EAjX0MV4-UoDXxYgUEFVrQKhh__pHr6bScma_pNC"/>
+<img class="w-8 h-8 rounded-full object-cover shadow-sm" data-alt="Portrait of a refined female astrologer wearing dark silk clothes in a peaceful moonlit study room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDI1kxR2P4Sq0i8Qhgnh1VKuKLqu0zvhXwm_cHwBAKMrVF005EQ3v3Pv9C5SnjDZRDE1A3sfG6FpARJ8TmeMQyaSoRagf7JVpVTjiv784J_vBVvRDAK2uUTc_MZ1YproFP1IqROhJuJxbrprhNH8IDUErg00Sa4oBI94Y2KIGfN_bXibFv9fyYCNq7dCvoq75Xu2HAXtkpkYdKe1CmUDkDx-BiWqijxjTSmKSxKyKwx"/>
+<img class="w-8 h-8 rounded-full object-cover shadow-sm" data-alt="Portrait of a young scholarly Korean metaphysics expert looking analytical and confident" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDg8G2noawRtruZA1eNF7B7QYfSGrOQ7ytQy3sUApcg0NfKOUEhowpDHMqRi1yxVjaD52_6rhgX-d8xQHHuhHZDyVkU2Wj_1B4N0CPiHq_gpYw9gkqJTrqdEpa-ouGuORGnpEDZPADaIWdgieDmg5MmoC-PI7x3MPWpeDZXlmlPCiC1KgGStp1w-tF6ZuE-4ocpjrp56ywby4tPmyOqQhxqCG8SsumejZrmwaqWX7c0"/>
+</div>
+</div>
+<!-- Quick Interactive Toggles & Alerts -->
+<div class="p-space-sm rounded-lg bg-surface-container flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">notifications_active</span>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-semibold">길시 10분 전 스마트 푸시 알림</span>
+<span class="font-caption text-caption text-on-surface-variant">09:20 및 13:20에 비보 행동 리마인더 발송</span>
+</div>
+</div>
+<button class="w-12 h-6 rounded-full bg-primary p-0.5 flex items-center justify-end transition-all" id="notif-toggle" onclick="toggleAlert(this)" type="button">
+<span class="w-5 h-5 rounded-full bg-on-primary block transition-transform shadow"></span>
+</button>
+</div>
+<!-- Master Consultation CTA -->
+<button class="w-full py-3.5 px-space-md rounded-xl bg-gradient-to-r from-primary to-primary-container text-on-primary font-semibold flex items-center justify-center gap-2 shadow-lg hover:opacity-95 active:scale-[0.99] transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">support_agent</span>
+<span class="font-title-md text-title-md">오늘 실시간 행동 전략 1:1 긴급 상담</span>
+<span class="px-1.5 py-0.5 rounded bg-on-primary/20 text-on-primary font-label-kr text-label-kr">10% 페이백</span>
+</button>
+</div>
+</div>
+<!-- Bottom Disclaimers / Footnote -->
+<div class="px-margin text-center pb-space-lg flex flex-col gap-1 text-on-surface-variant">
+<p class="font-caption text-caption">천명원 사주명리 연구소 알고리즘 기반 맞춤 처방</p>
+<p class="font-caption text-caption text-on-surface-variant/70">천을귀인 및 오행 상생 배치는 사용자의 생년월일시와 당일 간지(干支) 기준입니다.</p>
+</div>
+<!-- Micro-interaction script -->
+<script>
+    function toggleAlert(btn) {
+      const knob = btn.querySelector('span');
+      const isOn = btn.classList.contains('justify-end');
+      if (isOn) {
+        btn.classList.remove('justify-end', 'bg-primary');
+        btn.classList.add('justify-start', 'bg-surface-container-highest');
+        knob.classList.remove('bg-on-primary');
+        knob.classList.add('bg-on-surface-variant');
+      } else {
+        btn.classList.add('justify-end', 'bg-primary');
+        btn.classList.remove('justify-start', 'bg-surface-container-highest');
+        knob.classList.add('bg-on-primary');
+        knob.classList.remove('bg-on-surface-variant');
+      }
+    }
+  </script>
+</div></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface-container-lowest/90 backdrop-blur-2xl shadow-[0_-8px_32px_rgba(0,0,0,0.65)]" data-active-classes="text-primary font-semibold"><div class="flex justify-around items-center h-16 px-space-xs"><a class="flex flex-col items-center justify-center gap-1 w-20 h-14 text-on-surface-variant hover:text-on-surface transition-all group" data-path="home" href="#"><span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">explore</span><span class="font-label-kr text-label-kr tracking-tight">홈</span></a><a class="flex flex-col items-center justify-center gap-1 w-20 h-14 text-on-surface-variant hover:text-on-surface transition-all group" data-path="saju-calendar" href="#"><span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">auto_stories</span><span class="font-label-kr text-label-kr tracking-tight">만세력</span></a><a class="flex flex-col items-center justify-center gap-1 w-20 h-14 text-on-surface-variant hover:text-on-surface transition-all group" data-path="destiny-report" href="#"><span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">stars</span><span class="font-label-kr text-label-kr tracking-tight">운세리포트</span></a><a class="flex flex-col items-center justify-center gap-1 w-20 h-14 text-on-surface-variant hover:text-on-surface transition-all group" data-path="consultation" href="#"><span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">forum</span><span class="font-label-kr text-label-kr tracking-tight">1:1 상담</span></a></div></nav></body></html>

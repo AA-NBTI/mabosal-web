@@ -1,0 +1,170 @@
+{
+  "relationInteractionsCount": 9,
+  "relationInteractions": [
+    {
+      "relationType": "원진",
+      "targetSinsal": "년살",
+      "pillarLocation": "월운-일지",
+      "timingPillar": "월운",
+      "effect": "월운 酉(도화)가 일지 寅과 인유(寅酉) 원진을 형성하여 애정사 오해 및 원망 증폭",
+      "scoreDelta": 25,
+      "ruleId": "REL_DOHWA_WONJIN_TIMING"
+    },
+    {
+      "relationType": "원진",
+      "targetSinsal": "년살",
+      "pillarLocation": "월지(묘)-년지(신)",
+      "effect": "월지 묘목 도화가 년지 신금과 묘신 원진·귀문관을 이루어 집착과 애증 심화",
+      "scoreDelta": 20,
+      "ruleId": "REL_DOHWA_MYOSHIN_WONJIN"
+    },
+    {
+      "relationType": "충",
+      "targetSinsal": "역마살",
+      "pillarLocation": "일지(인)-년지(신)",
+      "effect": "인신충으로 충마(沖馬) 발동: 이동, 환경 변화, 관계의 급변동성 극대화",
+      "scoreDelta": 20,
+      "ruleId": "REL_YEOKMA_CLASH_ACTIVATED"
+    },
+    {
+      "relationType": "충",
+      "targetSinsal": "역마살",
+      "pillarLocation": "일진",
+      "timingPillar": "일진",
+      "effect": "일진 지지(인)가 역마축과 맞물려 활동성 및 물리적/심리적 변동 촉발",
+      "scoreDelta": 15,
+      "ruleId": "REL_YEOKMA_TIMING_일진"
+    },
+    {
+      "relationType": "원진",
+      "targetSinsal": "도화",
+      "pillarLocation": "월운-일지",
+      "timingPillar": "월운",
+      "effect": "월운 酉(도화)가 일지 寅과 인유(寅酉) 원진을 형성하여 애정사 오해 및 원망 증폭",
+      "scoreDelta": 25,
+      "ruleId": "REL_DOHWA_WONJIN_TIMING"
+    },
+    {
+      "relationType": "원진",
+      "targetSinsal": "도화",
+      "pillarLocation": "월지(묘)-년지(신)",
+      "effect": "월지 묘목 도화가 년지 신금과 묘신 원진·귀문관을 이루어 집착과 애증 심화",
+      "scoreDelta": 20,
+      "ruleId": "REL_DOHWA_MYOSHIN_WONJIN"
+    },
+    {
+      "relationType": "원진",
+      "targetSinsal": "원진살",
+      "pillarLocation": "일지(인)-월운(유)",
+      "timingPillar": "월운",
+      "effect": "월운 지지(유)가 배우자궁(일지 인)과 원진을 일으켜 심리적 불신과 미련 가중",
+      "scoreDelta": 25,
+      "ruleId": "REL_WONJIN_TRIGGERED_BY_월운"
+    },
+    {
+      "relationType": "원진",
+      "targetSinsal": "귀문관살",
+      "pillarLocation": "월지-년지",
+      "effect": "묘신(卯申) 귀문관 형성으로 사소한 언행에 대한 과민 반응과 내적 반추 심화",
+      "scoreDelta": 15,
+      "ruleId": "REL_GWIMUN_MYOSHIN_DEEP"
+    },
+    {
+      "relationType": "충",
+      "targetSinsal": "공망",
+      "pillarLocation": "대운·세운(오)",
+      "timingPillar": "대운/세운",
+      "effect": "대운과 세운의 오화(午火)가 순중공망에 해당하여 노력과 기대 대비 공허감과 심리적 불안정 야기",
+      "scoreDelta": 20,
+      "ruleId": "REL_GONGMANG_FIRE_VOID"
+    }
+  ],
+  "sinsalTriggerRelations": [
+    {
+      "sinsalId": "nyeon_sal",
+      "name": "년살",
+      "triggerRelations": [
+        "도화×월운(인유원진)",
+        "도화×원국(묘신원진)"
+      ],
+      "ruleIds": [
+        "RULE_12SINSAL_NYEON",
+        "ACT_MONTH_12SINSAL",
+        "REL_DOHWA_WONJIN_TIMING",
+        "REL_DOHWA_MYOSHIN_WONJIN"
+      ]
+    },
+    {
+      "sinsalId": "yeok_ma",
+      "name": "역마살",
+      "triggerRelations": [
+        "역마×인신충(충마)",
+        "역마×일진(인)"
+      ],
+      "ruleIds": [
+        "RULE_12SINSAL_YEOKMA",
+        "RULE_NATAL_PRESENT",
+        "ACT_DAY_12SINSAL",
+        "REL_YEOKMA_CLASH_ACTIVATED",
+        "REL_YEOKMA_TIMING_일진"
+      ]
+    },
+    {
+      "sinsalId": "dohwa_major",
+      "name": "도화",
+      "triggerRelations": [
+        "도화×월운(인유원진)",
+        "도화×원국(묘신원진)"
+      ],
+      "ruleIds": [
+        "RULE_MAJOR_DOHWA",
+        "RULE_NATAL_PRESENT",
+        "ACT_DAEUN_DOHWA",
+        "ACT_SEUN_DOHWA",
+        "ACT_MONTH_DOHWA",
+        "REL_DOHWA_WONJIN_TIMING",
+        "REL_DOHWA_MYOSHIN_WONJIN"
+      ]
+    },
+    {
+      "sinsalId": "won_jin",
+      "name": "원진",
+      "triggerRelations": [
+        "원진(year(신)-month(묘))",
+        "원진×월운(유)"
+      ],
+      "ruleIds": [
+        "RULE_MAJOR_WONJIN",
+        "RULE_NATAL_PRESENT",
+        "ACT_MONTH_WONJIN",
+        "REL_WONJIN_TRIGGERED_BY_월운"
+      ]
+    },
+    {
+      "sinsalId": "gwi_mun",
+      "name": "귀문관",
+      "triggerRelations": [
+        "귀문관(year(신)-month(묘))",
+        "귀문×묘신 결속"
+      ],
+      "ruleIds": [
+        "RULE_MAJOR_GWIMUN",
+        "RULE_NATAL_PRESENT",
+        "REL_GWIMUN_MYOSHIN_DEEP"
+      ]
+    },
+    {
+      "sinsalId": "gong_mang",
+      "name": "공망",
+      "triggerRelations": [
+        "공망×대운·세운(오화공망)"
+      ],
+      "ruleIds": [
+        "RULE_MAJOR_GONGMANG",
+        "ACT_DAEUN_GONGMANG",
+        "ACT_SEUN_GONGMANG",
+        "REL_GONGMANG_FIRE_VOID"
+      ]
+    }
+  ]
+}

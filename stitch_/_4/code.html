@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&amp;family=Noto+Serif:wght@500;600;700&amp;family=Space+Grotesk:wght@600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#0f131d;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-surface-variant": "#d0c5af", "on-primary-container": "#554300", "inverse-primary": "#735c00", "surface-variant": "#313540", "on-error": "#690005", "surface-container": "#1c1f2a", "on-secondary-fixed": "#121c2c", "on-background": "#dfe2f1", "on-tertiary-fixed": "#001f26", "primary-container": "#d4af37", "surface-container-low": "#171b26", "primary": "#f2ca50", "tertiary": "#56dffe", "on-secondary-container": "#acb5cb", "secondary-fixed-dim": "#bec6dd", "on-tertiary-container": "#004c5a", "background": "#0f131d", "surface": "#0f131d", "inverse-surface": "#dfe2f1", "error-container": "#93000a", "primary-fixed": "#ffe088", "on-tertiary-fixed-variant": "#004e5c", "on-primary": "#3c2f00", "inverse-on-surface": "#2c303b", "on-tertiary": "#003640", "surface-bright": "#353944", "secondary": "#bec6dd", "tertiary-fixed-dim": "#4cd7f6", "outline": "#99907c", "on-primary-fixed-variant": "#574500", "outline-variant": "#4d4635", "surface-container-lowest": "#0a0e18", "tertiary-container": "#2dc3e1", "primary-fixed-dim": "#e9c349", "on-surface": "#dfe2f1", "on-error-container": "#ffdad6", "on-primary-fixed": "#241a00", "tertiary-fixed": "#acedff", "on-secondary": "#283042", "surface-container-high": "#262a35", "surface-tint": "#e9c349", "secondary-container": "#3e475a", "on-secondary-fixed-variant": "#3e475a", "error": "#ffb4ab", "surface-container-highest": "#313540", "surface-dim": "#0f131d", "secondary-fixed": "#dae2fa" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-sm": "0.5rem", "space-xs": "0.25rem", "gutter": "1rem", "space-xl": "1.75rem", "space-lg": "1.25rem", "space-md": "0.875rem", "margin": "1.25rem" }, fontFamily: { "body-sm": ["Noto Sans"], "headline-lg": ["Noto Serif"], "headline-xl": ["Noto Serif"], "title-lg": ["Noto Sans"], "headline-md": ["Noto Serif"], "label-kr": ["Noto Sans"], "caption": ["Noto Sans"], "title-md": ["Noto Sans"], "body-md": ["Noto Sans"], "body-lg": ["Noto Sans"], "label-caps": ["Space Grotesk"] }, fontSize: { "body-sm": ["13px", { "lineHeight": "19px", "letterSpacing": "0.005em", "fontWeight": "400" }], "headline-lg": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "headline-xl": ["32px", { "lineHeight": "42px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "title-lg": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "label-kr": ["12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" }], "caption": ["11px", { "lineHeight": "15px", "letterSpacing": "0.01em", "fontWeight": "400" }], "title-md": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }], "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }], "label-caps": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "600" }] } } } }</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.35)]"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center min-w-0 gap-space-xs"><button aria-label="뒤로 가기" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/40 active:scale-95 transition-all" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[22px]">arrow_back</span></button><div class="flex flex-col min-w-0 pl-1"><div class="flex items-center gap-1 text-on-surface-variant font-caption text-caption"><span class="material-symbols-outlined text-[13px]">folder</span><span class="truncate max-w-[90px]">내 파일</span><span class="material-symbols-outlined text-[12px]">chevron_right</span></div><h1 class="font-title-md text-title-md text-on-surface truncate font-semibold">천명원 감명서 20251014</h1></div></div><div class="flex items-center gap-space-xs shrink-0"><button aria-label="파일 검색" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/40 active:scale-95 transition-all" type="button"><span class="material-symbols-outlined text-[20px]">search</span></button><button aria-label="보기 방식 전환" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/40 active:scale-95 transition-all" type="button"><span class="material-symbols-outlined text-[20px]">grid_view</span></button><button aria-label="더보기 옵션" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/40 active:scale-95 transition-all" type="button"><span class="material-symbols-outlined text-[20px]">more_vert</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(242,202,80,0.3)]"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-20 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Subtle Ambient Backdrop Atmosphere -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+<div class="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-[96px]"></div>
+<div class="absolute top-1/3 -right-20 w-80 h-80 bg-tertiary/5 rounded-full blur-[80px]"></div>
+</div>
+<div class="relative z-10 px-margin flex flex-col gap-space-md pt-space-xs pb-space-lg">
+<!-- Breadcrumb Path Bar -->
+<section class="flex items-center gap-space-xs py-space-xs overflow-x-auto text-on-surface-variant text-caption font-caption scrollbar-none">
+<div class="flex items-center gap-1 shrink-0 hover:text-on-surface transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[14px]">smartphone</span>
+<span>내장 저장공간</span>
+</div>
+<span class="material-symbols-outlined text-[12px] opacity-40 shrink-0">chevron_right</span>
+<div class="shrink-0 hover:text-on-surface transition-colors cursor-pointer">Download</div>
+<span class="material-symbols-outlined text-[12px] opacity-40 shrink-0">chevron_right</span>
+<div class="shrink-0 font-medium text-primary flex items-center gap-1 bg-surface-container-high px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[13px] text-primary">folder_open</span>
+<span class="truncate max-w-[140px]">천명원_감명서_20251014</span>
+</div>
+</section>
+<!-- Success Feedback Notification Card -->
+<section class="relative overflow-hidden rounded-xl bg-surface-container-high/90 p-space-md shadow-md backdrop-blur-xl">
+<div class="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-primary via-primary-container to-tertiary"></div>
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 shadow-[0_0_16px_rgba(242,202,80,0.18)]">
+<span class="material-symbols-outlined text-primary text-[22px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-space-sm mb-1">
+<h2 class="font-title-md text-title-md text-on-surface font-semibold tracking-tight">보안 압축 풀기 완료</h2>
+<span class="font-label-caps text-label-caps uppercase text-primary px-2 py-0.5 rounded bg-surface-container-highest tracking-widest">DECRYPTED</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            생년월일(<span class="text-on-surface font-medium">920418</span>) 보안키 해제 성공 • 3개 감명서 즉시 열람 가능
+          </p>
+</div>
+</div>
+</section>
+<!-- Folder Metadata Status Strip -->
+<section class="flex items-center justify-between px-1 text-on-surface-variant font-caption text-caption">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-tertiary">check_circle</span>
+<span>총 <strong class="text-on-surface font-medium">3개</strong> 문서 (17.7 MB)</span>
+<span class="opacity-40">•</span>
+<span class="text-primary-fixed-dim">방금 전 압축 해제됨</span>
+</div>
+<button class="flex items-center gap-0.5 text-on-surface-variant hover:text-on-surface font-label-kr text-label-kr transition-colors" type="button">
+<span>이름순</span>
+<span class="material-symbols-outlined text-[14px]">arrow_downward</span>
+</button>
+</section>
+<!-- File Items Container -->
+<section aria-label="압축 해제된 감명서 파일 목록" class="flex flex-col gap-space-sm" role="list">
+<!-- File 01 (Primary Featured File) -->
+<article class="group relative rounded-xl bg-surface-container/90 hover:bg-surface-container-high transition-all duration-200 p-space-md shadow-sm active:scale-[0.99] cursor-pointer" role="listitem">
+<div class="flex items-start gap-space-md">
+<!-- Thumbnail Badge -->
+<div class="relative w-12 h-14 rounded-lg bg-surface-container-highest flex flex-col items-center justify-center shrink-0 overflow-hidden shadow-inner">
+<div class="absolute top-0 inset-x-0 h-1 bg-primary"></div>
+<span class="material-symbols-outlined text-primary text-[24px]">picture_as_pdf</span>
+<span class="font-label-caps text-[9px] font-bold text-on-surface-variant mt-0.5">PDF</span>
+</div>
+<!-- Main Info -->
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5 flex-wrap mb-1">
+<span class="bg-primary/20 text-primary font-label-kr text-label-kr px-2 py-0.5 rounded-full font-semibold">대표 정본</span>
+<span class="bg-surface-container-highest text-tertiary font-label-kr text-label-kr px-2 py-0.5 rounded-full">방금 압축 해제</span>
+</div>
+<h3 class="font-title-md text-title-md text-on-surface font-semibold truncate leading-tight group-hover:text-primary transition-colors">
+              01_도원김학선_1대1심층감명서_v2.4.pdf
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-1">
+              사주원국 8자 완성 해례 및 10년 대운·후속 서면 비보 수록
+            </p>
+<!-- File Tags -->
+<div class="flex items-center gap-2 mt-2 font-caption text-caption text-secondary">
+<span class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[13px] text-on-surface-variant">description</span>
+                A4 6쪽
+              </span>
+<span class="opacity-30">•</span>
+<span>8.2 MB</span>
+<span class="opacity-30">•</span>
+<span class="text-tertiary flex items-center gap-0.5 font-medium">
+<span class="material-symbols-outlined text-[12px]">visibility</span>
+                열람 가능
+              </span>
+</div>
+</div>
+<!-- Quick Action Icon -->
+<button aria-label="01_도원김학선_1대1심층감명서 바로 열기" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-variant/40 active:scale-95 transition-all shrink-0" type="button">
+<span class="material-symbols-outlined text-[20px]">open_in_new</span>
+</button>
+</div>
+</article>
+<!-- File 02 -->
+<article class="group relative rounded-xl bg-surface-container/70 hover:bg-surface-container-high transition-all duration-200 p-space-md shadow-sm active:scale-[0.99] cursor-pointer" role="listitem">
+<div class="flex items-start gap-space-md">
+<div class="relative w-12 h-14 rounded-lg bg-surface-container-highest flex flex-col items-center justify-center shrink-0 overflow-hidden shadow-inner">
+<div class="absolute top-0 inset-x-0 h-1 bg-tertiary"></div>
+<span class="material-symbols-outlined text-tertiary text-[24px]">picture_as_pdf</span>
+<span class="font-label-caps text-[9px] font-bold text-on-surface-variant mt-0.5">PDF</span>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-title-md text-title-md text-on-surface font-semibold truncate leading-tight group-hover:text-primary transition-colors">
+              02_2025년_을사년_연간세운_월별운세.pdf
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-1">
+              10월 병술월(95점) 대길일 및 4월 경진월 방비 비책
+            </p>
+<div class="flex items-center gap-2 mt-2 font-caption text-caption text-secondary">
+<span class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[13px] text-on-surface-variant">description</span>
+                A4 4쪽
+              </span>
+<span class="opacity-30">•</span>
+<span>5.4 MB</span>
+<span class="opacity-30">•</span>
+<span class="text-tertiary flex items-center gap-0.5 font-medium">
+<span class="material-symbols-outlined text-[12px]">visibility</span>
+                열람 가능
+              </span>
+</div>
+</div>
+<button aria-label="파일 열기" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-variant/40 active:scale-95 transition-all shrink-0" type="button">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</article>
+<!-- File 03 -->
+<article class="group relative rounded-xl bg-surface-container/70 hover:bg-surface-container-high transition-all duration-200 p-space-md shadow-sm active:scale-[0.99] cursor-pointer" role="listitem">
+<div class="flex items-start gap-space-md">
+<div class="relative w-12 h-14 rounded-lg bg-surface-container-highest flex flex-col items-center justify-center shrink-0 overflow-hidden shadow-inner">
+<div class="absolute top-0 inset-x-0 h-1 bg-secondary-fixed-dim"></div>
+<span class="material-symbols-outlined text-secondary-fixed-dim text-[24px]">picture_as_pdf</span>
+<span class="font-label-caps text-[9px] font-bold text-on-surface-variant mt-0.5">PDF</span>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-title-md text-title-md text-on-surface font-semibold truncate leading-tight group-hover:text-primary transition-colors">
+              03_갑진일주_본명사주팔자_8자원국.pdf
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-1">
+              태어난 시(미시 辛未) 정밀 반영 십성 및 오행 분포도
+            </p>
+<div class="flex items-center gap-2 mt-2 font-caption text-caption text-secondary">
+<span class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[13px] text-on-surface-variant">description</span>
+                A4 5쪽
+              </span>
+<span class="opacity-30">•</span>
+<span>4.1 MB</span>
+<span class="opacity-30">•</span>
+<span class="text-tertiary flex items-center gap-0.5 font-medium">
+<span class="material-symbols-outlined text-[12px]">visibility</span>
+                열람 가능
+              </span>
+</div>
+</div>
+<button aria-label="파일 열기" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-variant/40 active:scale-95 transition-all shrink-0" type="button">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</article>
+<!-- Verification File (Text / Blockchain Seal) -->
+<article class="group relative rounded-xl bg-surface-container-low/70 hover:bg-surface-container transition-all duration-200 p-space-md shadow-sm active:scale-[0.99] cursor-pointer" role="listitem">
+<div class="flex items-start gap-space-md">
+<div class="relative w-12 h-14 rounded-lg bg-surface-container-highest flex flex-col items-center justify-center shrink-0 overflow-hidden shadow-inner">
+<div class="absolute top-0 inset-x-0 h-1 bg-outline"></div>
+<span class="material-symbols-outlined text-outline text-[22px]">feed</span>
+<span class="font-label-caps text-[9px] font-bold text-on-surface-variant mt-0.5">TXT</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5 mb-0.5">
+<span class="material-symbols-outlined text-[13px] text-primary">gavel</span>
+<span class="font-label-kr text-label-kr text-on-surface font-medium truncate">README_블록체인_무결성검증서.txt</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">
+              Polygon #28,941,208 DID 전자서명값 및 해시 대조 가이드
+            </p>
+<div class="flex items-center gap-2 mt-2 font-caption text-caption text-secondary">
+<span>12 KB</span>
+<span class="opacity-30">•</span>
+<span class="text-on-surface-variant font-label-caps text-label-caps">BLOCKCHAIN VERIFIED</span>
+</div>
+</div>
+<button aria-label="텍스트 내용 확인" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-variant/40 active:scale-95 transition-all shrink-0" type="button">
+<span class="material-symbols-outlined text-[18px]">info</span>
+</button>
+</div>
+</article>
+</section>
+<!-- Bottom Quick Launch Action Dock -->
+<section class="mt-space-md flex flex-col gap-space-sm">
+<button class="w-full h-13 py-3.5 px-space-md rounded-xl bg-gradient-to-r from-primary-container via-primary to-primary-fixed text-on-primary font-title-md text-title-md font-semibold flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(242,202,80,0.25)] active:scale-[0.98] transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+<span>01_도원김학선 감명서 바로 열기</span>
+</button>
+<div class="grid grid-cols-2 gap-space-sm">
+<button class="h-11 px-space-md rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-kr text-label-kr font-medium flex items-center justify-center gap-1.5 transition-all active:scale-[0.98]" type="button">
+<span class="material-symbols-outlined text-[18px] text-primary">apps</span>
+<span>PDF 뷰어 앱 선택</span>
+</button>
+<button class="h-11 px-space-md rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-kr text-label-kr font-medium flex items-center justify-center gap-1.5 transition-all active:scale-[0.98]" type="button">
+<span class="material-symbols-outlined text-[18px] text-tertiary">share</span>
+<span>폴더 전체 공유</span>
+</button>
+</div>
+</section>
+</div>
+</div></main><footer class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-4px_24px_rgba(0,0,0,0.45)]"><div class="h-16 px-space-sm flex items-center justify-around"><button class="flex flex-col items-center justify-center w-14 h-14 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-variant/30 active:scale-95 transition-all" type="button"><span class="material-symbols-outlined text-[22px]">share</span><span class="font-label-kr text-label-kr mt-space-xs">공유</span></button><button class="flex flex-col items-center justify-center w-14 h-14 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-variant/30 active:scale-95 transition-all" type="button"><span class="material-symbols-outlined text-[22px]">drive_file_move</span><span class="font-label-kr text-label-kr mt-space-xs">이동</span></button><button class="flex flex-col items-center justify-center w-14 h-14 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-variant/30 active:scale-95 transition-all" type="button"><span class="material-symbols-outlined text-[22px]">content_copy</span><span class="font-label-kr text-label-kr mt-space-xs">복사</span></button><button class="flex flex-col items-center justify-center w-14 h-14 rounded-xl text-on-surface-variant hover:text-error hover:bg-surface-variant/30 active:scale-95 transition-all" type="button"><span class="material-symbols-outlined text-[22px]">delete</span><span class="font-label-kr text-label-kr mt-space-xs">삭제</span></button><button class="flex flex-col items-center justify-center w-14 h-14 rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-variant/30 active:scale-95 transition-all" type="button"><span class="material-symbols-outlined text-[22px]">more_horiz</span><span class="font-label-kr text-label-kr mt-space-xs">더보기</span></button></div></footer></body></html>

@@ -1,0 +1,373 @@
+[
+  {
+    "id": "CASE_A",
+    "name": "연애/결별",
+    "category": "relationship",
+    "fourPillarsText": "계유년 계해월 을사일 갑신시",
+    "actualEvent": "2024-04-18 5년간 교제한 연인과 가치관 충돌로 최종 결별",
+    "eventDate": "2024-04-18",
+    "dayMaster": "을목(乙木)",
+    "strength": "중화신강",
+    "strengthScore": 57,
+    "geokguk": "비겁격",
+    "eokbu": "화/금",
+    "johu": "화",
+    "tenGods": {
+      "비겁": 2,
+      "식상": 1,
+      "재성": 0,
+      "관성": 2,
+      "인성": 3
+    },
+    "clashes": [
+      "사해충(巳亥沖)"
+    ],
+    "harmonies": [
+      "사신합(巳申合)"
+    ],
+    "punishments": [
+      "사신형(巳申刑)"
+    ],
+    "wonjin": [],
+    "isNoEventCase": false,
+    "reports": {
+      "freeLength": 1949,
+      "standardLength": 2872,
+      "salLength": 2065,
+      "premiumLength": 2813
+    }
+  },
+  {
+    "id": "CASE_B",
+    "name": "결혼",
+    "category": "relationship",
+    "fourPillarsText": "기사년 기사월 갑술일 기사시",
+    "actualEvent": "2023-10-22 양가 축복 속에 정식 결혼식 거행",
+    "eventDate": "2023-10-22",
+    "dayMaster": "갑목(甲木)",
+    "strength": "극약",
+    "strengthScore": 9,
+    "geokguk": "인성격",
+    "eokbu": "수/목",
+    "johu": "수",
+    "tenGods": {
+      "비겁": 1,
+      "식상": 3,
+      "재성": 4,
+      "관성": 0,
+      "인성": 0
+    },
+    "clashes": [],
+    "harmonies": [],
+    "punishments": [],
+    "wonjin": [
+      "사술원진(巳戌怨嗔)"
+    ],
+    "isNoEventCase": false,
+    "reports": {
+      "freeLength": 1979,
+      "standardLength": 2820,
+      "salLength": 2160,
+      "premiumLength": 2725
+    }
+  },
+  {
+    "id": "CASE_C",
+    "name": "사업/폐업",
+    "category": "business",
+    "fourPillarsText": "을축년 무인월 무자일 기미시",
+    "actualEvent": "2022-08-20 동업자와 정산 소송 후 법인 폐업 신고",
+    "eventDate": "2022-08-20",
+    "dayMaster": "무토(戊土)",
+    "strength": "신약",
+    "strengthScore": 32.75,
+    "geokguk": "건록/양인격",
+    "eokbu": "화/토",
+    "johu": "화",
+    "tenGods": {
+      "비겁": 5,
+      "식상": 0,
+      "재성": 1,
+      "관성": 2,
+      "인성": 0
+    },
+    "clashes": [
+      "축미충(丑未沖)"
+    ],
+    "harmonies": [
+      "자축합(子丑合)"
+    ],
+    "punishments": [
+      "축미형(丑未刑)"
+    ],
+    "wonjin": [
+      "자미원진(子未怨嗔)"
+    ],
+    "isNoEventCase": false,
+    "reports": {
+      "freeLength": 1996,
+      "standardLength": 2940,
+      "salLength": 2131,
+      "premiumLength": 2859
+    }
+  },
+  {
+    "id": "CASE_D",
+    "name": "직장/영전",
+    "category": "career",
+    "fourPillarsText": "신미년 병신월 병인일 계사시",
+    "actualEvent": "2024-02-15 대기업 핵심 부서 총괄 팀장으로 영전 이직",
+    "eventDate": "2024-02-15",
+    "dayMaster": "병화(丙火)",
+    "strength": "중화신약",
+    "strengthScore": 42.5,
+    "geokguk": "인성격",
+    "eokbu": "목/화",
+    "johu": "화",
+    "tenGods": {
+      "비겁": 3,
+      "식상": 1,
+      "재성": 2,
+      "관성": 1,
+      "인성": 1
+    },
+    "clashes": [
+      "인신충(寅申沖)"
+    ],
+    "harmonies": [
+      "사신합(巳申合)"
+    ],
+    "punishments": [
+      "인사형(寅巳刑)",
+      "사신형(巳申刑)",
+      "인신형(寅申刑)"
+    ],
+    "wonjin": [],
+    "isNoEventCase": false,
+    "reports": {
+      "freeLength": 1973,
+      "standardLength": 2836,
+      "salLength": 2330,
+      "premiumLength": 2661
+    }
+  },
+  {
+    "id": "CASE_E",
+    "name": "재물/손실",
+    "category": "wealth",
+    "fourPillarsText": "경오년 정해월 갑진일 을축시",
+    "actualEvent": "2022-05-12 루나 코인 폭락 사태로 투자금의 80% 손실",
+    "eventDate": "2022-05-12",
+    "dayMaster": "갑목(甲木)",
+    "strength": "중화신약",
+    "strengthScore": 43.25,
+    "geokguk": "비겁격",
+    "eokbu": "수/목",
+    "johu": "화",
+    "tenGods": {
+      "비겁": 2,
+      "식상": 2,
+      "재성": 2,
+      "관성": 1,
+      "인성": 1
+    },
+    "clashes": [],
+    "harmonies": [],
+    "punishments": [],
+    "wonjin": [
+      "축오원진(丑午怨嗔)",
+      "진해원진(辰亥怨嗔)"
+    ],
+    "isNoEventCase": false,
+    "reports": {
+      "freeLength": 1973,
+      "standardLength": 2761,
+      "salLength": 2043,
+      "premiumLength": 2728
+    }
+  },
+  {
+    "id": "CASE_F",
+    "name": "사고/분쟁",
+    "category": "accident",
+    "fourPillarsText": "정묘년 정미월 병인일 병신시",
+    "actualEvent": "2023-09-15 고속도로 3중 추돌 사고로 전치 8주 골절 입원",
+    "eventDate": "2023-09-15",
+    "dayMaster": "병화(丙火)",
+    "strength": "중화신강",
+    "strengthScore": 55,
+    "geokguk": "식신격",
+    "eokbu": "토/금",
+    "johu": "수",
+    "tenGods": {
+      "비겁": 4,
+      "식상": 1,
+      "재성": 1,
+      "관성": 0,
+      "인성": 2
+    },
+    "clashes": [
+      "인신충(寅申沖)"
+    ],
+    "harmonies": [],
+    "punishments": [
+      "인신형(寅申刑)"
+    ],
+    "wonjin": [
+      "묘신원진(卯申怨嗔)"
+    ],
+    "isNoEventCase": false,
+    "reports": {
+      "freeLength": 1914,
+      "standardLength": 2834,
+      "salLength": 2281,
+      "premiumLength": 2730
+    }
+  },
+  {
+    "id": "CASE_G",
+    "name": "이사/이동",
+    "category": "movement",
+    "fourPillarsText": "갑술년 경오월 기묘일 무진시",
+    "actualEvent": "2025-02-28 싱가포르 아태본부 파견 발령 및 해외 이사",
+    "eventDate": "2025-02-28",
+    "dayMaster": "기토(己土)",
+    "strength": "중화신강",
+    "strengthScore": 53.25,
+    "geokguk": "관성격",
+    "eokbu": "금/수",
+    "johu": "수",
+    "tenGods": {
+      "비겁": 4,
+      "식상": 1,
+      "재성": 0,
+      "관성": 2,
+      "인성": 1
+    },
+    "clashes": [
+      "진술충(辰戌沖)"
+    ],
+    "harmonies": [
+      "묘술합(卯戌合)"
+    ],
+    "punishments": [],
+    "wonjin": [],
+    "isNoEventCase": false,
+    "reports": {
+      "freeLength": 1916,
+      "standardLength": 2779,
+      "salLength": 2024,
+      "premiumLength": 2637
+    }
+  },
+  {
+    "id": "CASE_H",
+    "name": "가족/상속",
+    "category": "family",
+    "fourPillarsText": "경신년 기묘월 경자일 임오시",
+    "actualEvent": "2021-11-10 모친 별세 후 유산 분할 문제로 형제간 갈등 심화",
+    "eventDate": "2021-11-10",
+    "dayMaster": "경금(庚金)",
+    "strength": "신약",
+    "strengthScore": 27.75,
+    "geokguk": "정재격",
+    "eokbu": "토/금",
+    "johu": "화",
+    "tenGods": {
+      "비겁": 3,
+      "식상": 2,
+      "재성": 1,
+      "관성": 1,
+      "인성": 1
+    },
+    "clashes": [
+      "자오충(子午沖)"
+    ],
+    "harmonies": [],
+    "punishments": [
+      "자묘형(子卯刑)"
+    ],
+    "wonjin": [
+      "묘신원진(卯申怨嗔)"
+    ],
+    "isNoEventCase": false,
+    "reports": {
+      "freeLength": 1973,
+      "standardLength": 2859,
+      "salLength": 2083,
+      "premiumLength": 2730
+    }
+  },
+  {
+    "id": "CASE_I",
+    "name": "건강사건",
+    "category": "health",
+    "fourPillarsText": "계해년 임술월 계유일 임술시",
+    "actualEvent": "2024-07-22 급성 복통으로 응급실 이송 후 담낭 절제 수술",
+    "eventDate": "2024-07-22",
+    "dayMaster": "계수(癸水)",
+    "strength": "중화신강",
+    "strengthScore": 55,
+    "geokguk": "식신격",
+    "eokbu": "목/화",
+    "johu": "화",
+    "tenGods": {
+      "비겁": 5,
+      "식상": 0,
+      "재성": 0,
+      "관성": 2,
+      "인성": 1
+    },
+    "clashes": [],
+    "harmonies": [],
+    "punishments": [],
+    "wonjin": [],
+    "isNoEventCase": false,
+    "reports": {
+      "freeLength": 1959,
+      "standardLength": 2838,
+      "salLength": 1900,
+      "premiumLength": 2730
+    }
+  },
+  {
+    "id": "CASE_J",
+    "name": "사건없음",
+    "category": "peaceful",
+    "fourPillarsText": "병자년 임진월 정축일 정미시",
+    "actualEvent": "2026년 하반기 기준 직장, 연애, 재물 등 특이 사건 없이 평온하고 안정된 일상 영위",
+    "eventDate": null,
+    "dayMaster": "정화(丁火)",
+    "strength": "신약",
+    "strengthScore": 21.5,
+    "geokguk": "인성격",
+    "eokbu": "목/화",
+    "johu": "화",
+    "tenGods": {
+      "비겁": 3,
+      "식상": 3,
+      "재성": 0,
+      "관성": 2,
+      "인성": 0
+    },
+    "clashes": [
+      "축미충(丑未沖)"
+    ],
+    "harmonies": [
+      "자축합(子丑合)"
+    ],
+    "punishments": [
+      "축미형(丑未刑)"
+    ],
+    "wonjin": [
+      "자미원진(子未怨嗔)"
+    ],
+    "isNoEventCase": true,
+    "reports": {
+      "freeLength": 2020,
+      "standardLength": 2885,
+      "salLength": 2100,
+      "premiumLength": 2637
+    }
+  }
+]

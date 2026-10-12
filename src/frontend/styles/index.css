@@ -1,0 +1,930 @@
+/* ==========================================================================
+   MABOSAL AUTHENTIC DARK/GOLD DESIGN SYSTEM & UNIFIED WIDE LAYOUT
+   ========================================================================== */
+
+:root {
+  /* Typography */
+  --font-sans: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Noto Serif KR', Georgia, serif;
+  --font-display: 'Space Grotesk', sans-serif;
+
+  /* Theme: Deep Midnight Dark & Sacred Gold Palette */
+  --bg-deep: #0b0f19;
+  --bg-dark: #0f131d;
+  --surface-container-lowest: #0a0e18;
+  --surface-container-low: #121622;
+  --surface-container: #1c1f2a;
+  --surface-container-high: #262a35;
+  --surface-container-highest: #313540;
+
+  /* Primary Accent: Gold & Celestial Amber */
+  --primary: #f2ca50;
+  --primary-hover: #fcd34d;
+  --primary-container: #d4af37;
+  --primary-muted: rgba(242, 202, 80, 0.15);
+  --secondary: #fbbf24;
+  --tertiary: #a78bfa;
+  --success: #34d399;
+  --error: #f87171;
+
+  /* Text & Border Colors */
+  --text-main: #f8fafc;
+  --text-light: #dfe2f1;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.15);
+  --border-primary: rgba(242, 202, 80, 0.35);
+
+  /* Shadows */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-gold: 0 4px 20px rgba(242, 202, 80, 0.15);
+}
+
+/* ==========================================================================
+   BASE RESETS & GLOBAL BACKGROUND
+   ========================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-deep) !important;
+  color: var(--text-main) !important;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+#app {
+  background-color: var(--bg-deep);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================================================
+   UNIFIED 1440px CONTAINER
+   ========================================================================== */
+.app-container,
+.main-container,
+.site-container {
+  width: 100% !important;
+  max-width: 1440px !important;
+  margin: 0 auto !important;
+  padding: 0 1.25rem !important;
+  box-sizing: border-box !important;
+}
+
+.mabosal-header {
+  width: 100%;
+  border-bottom: 1px solid rgba(242, 202, 80, 0.2);
+  background: rgba(15, 19, 29, 0.95) !important;
+  backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0.65rem 0;
+}
+
+.mabosal-site-footer {
+  width: 100%;
+  background: #0a0d14 !important;
+  border-top: 1px solid var(--border-subtle);
+  padding: 2rem 1.25rem 2.5rem;
+  margin-top: 1.5rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   STORE & STUDY 2-COLUMN RESPONSIVE LAYOUT
+   ========================================================================== */
+.responsive-two-col,
+.store-two-col-layout,
+.study-two-col-layout {
+  display: flex !important;
+  gap: 1.75rem !important;
+  align-items: flex-start !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.responsive-sidebar,
+.store-sidebar-nav,
+.study-sidebar-nav {
+  width: 250px !important;
+  min-width: 250px !important;
+  max-width: 250px !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.responsive-main,
+.store-content-area,
+.study-content-area {
+  flex: 1 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Desktop Left-aligned Category Buttons */
+.btn-store-cat-nav,
+.btn-study-category,
+.responsive-nav-btn {
+  text-align: left !important;
+  justify-content: flex-start !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+  width: 100% !important;
+  padding: 0.85rem 1.1rem !important;
+  border-radius: 10px !important;
+  font-size: 0.88rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: #cbd5e1 !important;
+}
+
+.btn-store-cat-nav.active,
+.btn-study-category.active {
+  background: rgba(242, 202, 80, 0.16) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  font-weight: 800 !important;
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVE RULES (860px and below)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .pc-header-nav {
+    display: none !important;
+  }
+  .mobile-hamburger-btn {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 860px) {
+  .app-container {
+    padding: 0 0.85rem !important;
+  }
+
+  .responsive-two-col,
+  .store-two-col-layout,
+  .study-two-col-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+    width: 100% !important;
+  }
+
+  .responsive-sidebar,
+  .store-sidebar-nav,
+  .study-sidebar-nav {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    flex: none !important;
+    position: static !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  .store-category-list,
+  .study-category-list,
+  .responsive-sidebar-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    gap: 0.5rem !important;
+    padding: 0.35rem 0.15rem 0.65rem !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .btn-store-cat-nav,
+  .btn-study-category,
+  .responsive-nav-btn {
+    display: inline-flex !important;
+    width: auto !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    padding: 0.55rem 0.95rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 9999px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  }
+
+  .btn-store-cat-nav.active,
+  .btn-study-category.active {
+    background: rgba(242, 202, 80, 0.22) !important;
+    border-color: var(--primary) !important;
+    color: var(--primary) !important;
+  }
+
+  .responsive-main,
+  .store-content-area,
+  .study-content-area {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    flex: none !important;
+  }
+
+  .store-product-grid {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+  }
+
+  .store-detail-container {
+    padding: 1rem !important;
+  }
+}
+
+/* ==========================================================================
+   WordPress-Style Admin Dashboard Layout & Responsiveness
+   ========================================================================== */
+.admin-dashboard-container {
+  max-width: 1440px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 1.5rem 1.25rem 4rem !important;
+  box-sizing: border-box !important;
+}
+
+.wp-admin-wrapper {
+  display: flex !important;
+  gap: 1.5rem !important;
+  align-items: flex-start !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.wp-admin-sidebar {
+  width: 250px !important;
+  flex-shrink: 0 !important;
+  background: var(--surface-container) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  position: sticky !important;
+  top: 1rem !important;
+  z-index: 40 !important;
+  box-sizing: border-box !important;
+}
+
+.wp-admin-sidebar-header {
+  padding: 1.15rem 1.25rem !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: rgba(0, 0, 0, 0.2) !important;
+}
+
+.wp-admin-menu-list {
+  padding: 0.5rem !important;
+}
+
+.wp-admin-menu-btn {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+  padding: 0.75rem 1rem !important;
+  border: none !important;
+  background: transparent !important;
+  color: #94a3b8 !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+  text-align: left !important;
+  box-sizing: border-box !important;
+}
+
+.wp-admin-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #f1f5f9 !important;
+}
+
+.wp-admin-menu-btn.active {
+  background: rgba(242, 202, 80, 0.15) !important;
+  color: var(--primary) !important;
+}
+
+.wp-admin-workspace {
+  flex: 1 !important;
+  min-width: 0 !important;
+  background: var(--surface-container) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+}
+
+.wp-admin-backdrop {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .admin-dashboard-container {
+    padding: 1rem 0.75rem 4rem !important;
+  }
+
+  .wp-admin-wrapper {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  .wp-admin-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 280px !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    z-index: 9999 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.75) !important;
+    background: #111420 !important;
+  }
+
+  .wp-admin-sidebar.open {
+    transform: translateX(0) !important;
+  }
+
+  .wp-admin-backdrop.active,
+  .wp-admin-sidebar.open + .wp-admin-backdrop,
+  #wp-admin-backdrop.open {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(0, 0, 0, 0.65) !important;
+    backdrop-filter: blur(4px) !important;
+    z-index: 9998 !important;
+  }
+
+  .wp-admin-workspace {
+    width: 100% !important;
+  }
+}
+
+/* ==========================================================================
+   사주 출생정보 입력 폼 스타일 (고급 다크 & 골드 컨셉)
+   ========================================================================== */
+.input-view-container {
+  max-width: 680px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 5rem;
+  box-sizing: border-box;
+}
+
+.form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.form-header h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+  font-family: var(--font-serif);
+  letter-spacing: -0.02em;
+}
+
+.form-header p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.form-error-alert {
+  background: rgba(242, 202, 80, 0.12);
+  border: 1px solid rgba(242, 202, 80, 0.4);
+  color: var(--primary);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.35rem;
+  text-align: left;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #dfe2f1;
+  margin-bottom: 0.5rem;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--surface-container);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  color: #ffffff;
+  padding: 0.75rem 1rem;
+  font-size: 0.92rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(242, 202, 80, 0.25);
+}
+
+.calendar-toggle-group,
+.gender-toggle-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.calendar-btn,
+.gender-btn {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-btn:hover,
+.gender-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #dfe2f1;
+}
+
+.calendar-btn.active,
+.gender-btn.active {
+  background: rgba(242, 202, 80, 0.16);
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 0 12px rgba(242, 202, 80, 0.18);
+}
+
+.form-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.84rem;
+  color: #cbd5e1;
+  cursor: pointer;
+}
+
+.trouble-input-group {
+  background: var(--surface-container);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.trouble-presets-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.85rem;
+}
+
+.preset-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  padding: 0.4rem 0.85rem;
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.preset-chip:hover,
+.preset-chip.active {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(242, 202, 80, 0.12);
+}
+
+/* ==========================================================================
+   모바일 전용 좌측 슬라이드 드로어 (스토어 & 스터디 카테고리)
+   ========================================================================== */
+.mobile-side-filter-btn {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .mobile-side-filter-btn {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.95rem;
+    border-radius: 8px;
+    background: rgba(242, 202, 80, 0.12);
+    border: 1px solid rgba(242, 202, 80, 0.35);
+    color: var(--primary);
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 1rem;
+  }
+
+  .responsive-sidebar-nav {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 280px !important;
+    height: 100vh !important;
+    background: #0d111a !important;
+    border-right: 1px solid rgba(242, 202, 80, 0.25) !important;
+    border-radius: 0 !important;
+    z-index: 99999 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 10px 0 40px rgba(0, 0, 0, 0.85) !important;
+    padding: 1.25rem !important;
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  .responsive-sidebar-nav.drawer-open {
+    transform: translateX(0) !important;
+  }
+
+  .mobile-drawer-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 99998;
+  }
+
+  .mobile-drawer-backdrop.active {
+    display: block !important;
+  }
+}
+
+
+/* ==========================================================================
+   GNB 헤더 & 푸터 모바일 최적화 & 버튼 스타일
+   ========================================================================== */
+.pc-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mobile-hamburger-btn {
+  display: none !important;
+}
+
+@media (max-width: 860px) {
+  .pc-header-nav {
+    display: none !important;
+  }
+
+  .mobile-hamburger-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(242, 202, 80, 0.14) !important;
+    border: 1px solid rgba(242, 202, 80, 0.4) !important;
+    color: var(--primary) !important;
+    border-radius: 8px !important;
+    width: 38px !important;
+    height: 38px !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+  }
+}
+
+.btn-footer-nav {
+  transition: all 0.2s ease;
+}
+
+.btn-footer-nav:hover {
+  background: rgba(242, 202, 80, 0.18) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+}
+
+/* ==========================================================================
+   [마보살 디자인 시스템: 헤더 GNB, 모바일 바텀 독, 반응형 드로어]
+   컨셉 컬러: 딥 다크(#0b0f19) + 골드(#f2ca50) + 슬레이트
+   ========================================================================== */
+
+/* 1. 상단 PC GNB 네비게이션 아이템 */
+.pc-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pc-nav-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.45rem !important;
+  padding: 0.55rem 1rem !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px !important;
+  color: #cbd5e1 !important;
+  font-size: 0.88rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+.pc-nav-item:hover {
+  background: rgba(242, 202, 80, 0.12) !important;
+  border-color: rgba(242, 202, 80, 0.45) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+.pc-nav-item.active {
+  background: rgba(242, 202, 80, 0.18) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  font-weight: 800 !important;
+  box-shadow: 0 0 16px rgba(242, 202, 80, 0.2) !important;
+}
+
+/* 2. 모바일 헤더 햄버거 토글 버튼 */
+.mobile-hamburger-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(242, 202, 80, 0.35);
+  color: var(--primary);
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-hamburger-btn:hover {
+  background: rgba(242, 202, 80, 0.15);
+  border-color: var(--primary);
+}
+
+/* 3. 모바일 하단 플로팅 바텀 독 (Mobile Bottom Dock) */
+.floating-bottom-dock {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  /* 모바일에서 상단 PC GNB 숨김 및 햄버거 노출 */
+  .pc-header-nav {
+    display: none !important;
+  }
+  .mobile-hamburger-btn {
+    display: inline-flex !important;
+  }
+
+  /* 모바일에서 폰 하단 전체 폭(100%)을 채우는 프리미엄 다크 바텀 독 활성화 */
+  .floating-bottom-dock {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 62px !important;
+    background: rgba(12, 15, 23, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-top: 1px solid rgba(242, 202, 80, 0.25) !important;
+    z-index: 99990 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.7) !important;
+    align-items: center !important;
+    justify-content: space-around !important;
+  }
+
+  .dock-tab-btn {
+    flex: 1 !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent !important;
+    border: none !important;
+    color: #94a3b8 !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    padding: 4px 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    transition: color 0.18s ease !important;
+  }
+
+  .dock-tab-btn .dock-icon {
+    font-size: 22px !important;
+    margin-bottom: 2px !important;
+    color: inherit !important;
+  }
+
+  .dock-tab-btn.active, .dock-tab-btn:hover {
+    color: var(--primary) !important;
+    font-weight: 800 !important;
+  }
+
+  .dock-tab-btn.active .dock-icon {
+    color: var(--primary) !important;
+  }
+}
+
+@media (min-width: 861px) {
+  /* PC 와이드 환경에서는 하단 바텀 독 완전 숨김 */
+  .floating-bottom-dock {
+    display: none !important;
+  }
+}
+
+/* === [FINAL BULLET-PROOF MOBILE SYSTEM] === */
+
+/* 데스크톱 기본값 */
+.mobile-hamburger-btn {
+  display: none !important;
+}
+.store-mobile-filter-bar,
+.study-mobile-filter-bar {
+  display: none !important;
+}
+.store-drawer-backdrop,
+.study-drawer-backdrop {
+  display: none;
+}
+
+/* 모바일 전용 (860px 이하 및 500px 화면) */
+@media (max-width: 860px) {
+  /* 1. 상단 PC GNB 숨김 및 햄버거 버튼 강제 노출 */
+  .pc-header-nav {
+    display: none !important;
+  }
+  .mobile-hamburger-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(242, 202, 80, 0.14) !important;
+    border: 1px solid rgba(242, 202, 80, 0.45) !important;
+    color: var(--primary) !important;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    z-index: 100 !important;
+  }
+
+  /* 2. 스토어 및 스터디 상단 모바일 필터 트리거 바 강제 노출 */
+  .store-mobile-filter-bar,
+  .study-mobile-filter-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    margin-bottom: 1.25rem !important;
+    padding: 0.75rem 1rem !important;
+    background: #0f1422 !important;
+    border: 1px solid rgba(242, 202, 80, 0.25) !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .btn-toggle-store-drawer,
+  .btn-toggle-study-drawer {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+    background: rgba(242, 202, 80, 0.18) !important;
+    border: 1px solid var(--primary) !important;
+    color: var(--primary) !important;
+    padding: 0.5rem 0.95rem !important;
+    border-radius: 8px !important;
+    font-size: 0.88rem !important;
+    font-weight: 800 !important;
+    cursor: pointer !important;
+  }
+
+  /* 3. 좌측 슬라이드 드로어 사이드바 */
+  .store-sidebar-nav,
+  .study-sidebar-nav {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 285px !important;
+    height: 100vh !important;
+    z-index: 9999999 !important;
+    border-radius: 0 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 12px 0 45px rgba(0, 0, 0, 0.9) !important;
+    background: #0b0f19 !important;
+    border-right: 1px solid rgba(242, 202, 80, 0.3) !important;
+    overflow-y: auto !important;
+    padding: 1.25rem !important;
+    box-sizing: border-box !important;
+  }
+
+  .store-sidebar-nav.drawer-open,
+  .study-sidebar-nav.drawer-open {
+    transform: translateX(0) !important;
+  }
+
+  .store-sidebar-nav .btn-hide-desktop,
+  .study-sidebar-nav .btn-hide-desktop {
+    display: flex !important;
+  }
+
+  /* 4. 드로어 백드롭 */
+  .store-drawer-backdrop,
+  .study-drawer-backdrop {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(5px) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
+    z-index: 9999990 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.25s ease !important;
+  }
+
+  .store-drawer-backdrop.active,
+  .study-drawer-backdrop.active {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}
+
+@media (max-width: 860px) {
+  .store-two-col-layout,
+  .study-two-col-layout {
+    position: relative !important;
+    z-index: 9999995 !important;
+  }
+  .store-sidebar-nav,
+  .study-sidebar-nav {
+    z-index: 9999999 !important;
+    background: #0c101a !important;
+  }
+  .store-drawer-backdrop,
+  .study-drawer-backdrop {
+    z-index: 9999990 !important;
+  }
+}

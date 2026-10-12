@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&amp;family=Noto+Serif+KR:wght@500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-surface":"#dfe2f1","inverse-surface":"#dfe2f1","surface-dim":"#0f131d","on-secondary-container":"#acb5cb","outline":"#99907c","surface-container":"#1c1f2a","surface-container-highest":"#313540","surface-variant":"#313540","on-tertiary-fixed":"#001f26","surface":"#0f131d","secondary-container":"#3e475a","inverse-on-surface":"#2c303b","surface-container-high":"#262a35","primary-container":"#d4af37","primary-fixed":"#ffe088","on-secondary-fixed-variant":"#3e475a","on-primary":"#3c2f00","on-tertiary-fixed-variant":"#004e5c","surface-container-low":"#171b26","primary-fixed-dim":"#e9c349","on-primary-fixed-variant":"#574500","tertiary-fixed":"#acedff","secondary":"#bec6dd","surface-tint":"#e9c349","secondary-fixed":"#dae2fa","on-background":"#dfe2f1","surface-bright":"#353944","surface-container-lowest":"#0a0e18","on-primary-container":"#554300","on-error-container":"#ffdad6","on-error":"#690005","primary":"#f2ca50","background":"#0f131d","outline-variant":"#4d4635","on-secondary":"#283042","on-tertiary-container":"#004c5a","secondary-fixed-dim":"#bec6dd","error-container":"#93000a","on-tertiary":"#003640","tertiary-fixed-dim":"#4cd7f6","on-secondary-fixed":"#121c2c","on-surface-variant":"#d0c5af","tertiary":"#56dffe","inverse-primary":"#735c00","tertiary-container":"#2dc3e1","on-primary-fixed":"#241a00","error":"#ffb4ab"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-xs":"0.25rem","space-lg":"1.25rem","space-sm":"0.5rem","space-xl":"1.75rem","gutter":"1rem","space-md":"0.875rem","margin":"1.25rem"},"fontFamily":{"body-md":["Noto Sans KR","Noto Sans"],"title-lg":["Noto Sans KR","Noto Sans"],"label-kr":["Noto Sans KR","Noto Sans"],"body-lg":["Noto Sans KR","Noto Sans"],"body-sm":["Noto Sans KR","Noto Sans"],"title-md":["Noto Sans KR","Noto Sans"],"caption":["Noto Sans KR","Noto Sans"],"label-caps":["Space Grotesk"],"headline-xl":["Noto Serif KR","Noto Serif"],"headline-lg":["Noto Serif KR","Noto Serif"],"headline-md":["Noto Serif KR","Noto Serif"]},"fontSize":{"body-md":["14px",{"lineHeight":"22px","letterSpacing":"0em","fontWeight":"400"}],"title-lg":["18px",{"lineHeight":"26px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-kr":["12px",{"lineHeight":"16px","letterSpacing":"0em","fontWeight":"500"}],"body-lg":["16px",{"lineHeight":"26px","letterSpacing":"-0.005em","fontWeight":"400"}],"body-sm":["13px",{"lineHeight":"19px","letterSpacing":"0.005em","fontWeight":"400"}],"title-md":["16px",{"lineHeight":"24px","letterSpacing":"0em","fontWeight":"600"}],"caption":["11px",{"lineHeight":"15px","letterSpacing":"0.01em","fontWeight":"400"}],"label-caps":["11px",{"lineHeight":"14px","letterSpacing":"0.08em","fontWeight":"600"}],"headline-xl":["32px",{"lineHeight":"42px","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-lg":["26px",{"lineHeight":"34px","letterSpacing":"-0.015em","fontWeight":"600"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"500"}]}}}};</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_12px_rgba(0,0,0,0.35)]"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><button class="w-11 h-11 -ml-2 flex items-center justify-center text-on-surface hover:text-primary transition-colors" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[24px]">arrow_back_ios_new</span></button><h1 class="font-title-lg text-title-lg text-on-surface tracking-tight">Live Consultation Room</h1></div><div class="flex items-center gap-space-sm"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/90 text-primary"><span class="material-symbols-outlined text-[15px] text-primary">toll</span><span class="font-label-caps text-caption text-primary tracking-tight font-semibold">3,350<span class="font-label-kr text-caption ml-0.5 text-on-surface-variant">엽</span></span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-[0_0_8px_rgba(242,202,80,0.25)]"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 bg-surface min-h-screen pb-safe"><div class="flex flex-col w-full relative select-none">
+<!-- Dimmed Background Overlay of SCREEN_2 PDF Viewer -->
+<div class="fixed inset-0 z-10 bg-surface-container-lowest/85 backdrop-blur-md pointer-events-none"></div>
+<!-- Ambient Hanji Viewer Silhouette in Background -->
+<div class="fixed inset-x-4 top-20 z-0 opacity-20 pointer-events-none flex flex-col items-center">
+<div class="w-full max-w-sm aspect-[1/1.414] bg-surface-container-high rounded-xl p-4 flex flex-col gap-3 shadow-2xl">
+<div class="flex justify-between items-center pb-2">
+<span class="font-headline-md text-caption text-primary">天命院 命理鑑明</span>
+<span class="font-label-caps text-caption text-on-surface-variant">DOC-2025-08492</span>
+</div>
+<div class="grid grid-cols-4 gap-1.5 h-20 bg-surface-container-lowest rounded p-1">
+<div class="bg-surface-container-low rounded"></div>
+<div class="bg-surface-container-low rounded"></div>
+<div class="bg-surface-container-low rounded"></div>
+<div class="bg-surface-container-low rounded"></div>
+</div>
+<div class="space-y-1.5 pt-2">
+<div class="h-2.5 bg-surface-container-low rounded w-3/4"></div>
+<div class="h-2.5 bg-surface-container-low rounded w-full"></div>
+<div class="h-2.5 bg-surface-container-low rounded w-5/6"></div>
+</div>
+</div>
+</div>
+<!-- Bottom Sheet Drawer Container -->
+<div class="relative z-20 mt-4 flex flex-col w-full bg-surface-container-low rounded-t-3xl shadow-[0_-12px_48px_rgba(0,0,0,0.85)] transition-all duration-300 ease-out" id="indexSheet">
+<!-- Drag Handle & Top Notch -->
+<div class="w-full flex flex-col items-center pt-3 pb-2 cursor-grab active:cursor-grabbing">
+<div class="w-12 h-1 bg-outline-variant/60 rounded-full"></div>
+</div>
+<!-- Modal Header -->
+<div class="px-margin pt-1 pb-4 flex items-center justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[19px]">menu_book</span>
+<h2 class="font-headline-md text-title-lg text-primary tracking-tight">전체 페이지 목차</h2>
+</div>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="font-label-caps text-caption text-on-surface-variant tracking-wider">A4 HIGH-RES</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<p class="font-body-sm text-caption text-secondary">총 6페이지 · 도원 친필 비보 수록</p>
+</div>
+</div>
+<!-- Action Tools -->
+<div class="flex items-center gap-1.5">
+<button class="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-primary active:scale-95 transition-all" id="bookmarkFilterBtn" type="button">
+<span class="material-symbols-outlined text-[19px]">bookmark</span>
+</button>
+<button class="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface active:scale-95 transition-all" id="closeSheetBtn" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+</div>
+<!-- Active Indicator Bar -->
+<div class="mx-margin mb-3 px-3 py-2 rounded-lg bg-surface-container flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<p class="font-body-sm text-label-kr text-on-surface"><span class="text-primary font-title-md" id="targetPageLabel">01페이지</span> 열람 모드 활성화</p>
+</div>
+<span class="font-label-caps text-caption text-primary">SCALE 100%</span>
+</div>
+<!-- 6-Page A4 Miniature Grid (Scrollable Canvas) -->
+<div class="px-margin pb-28 max-h-[548px] overflow-y-auto space-y-4">
+<div class="grid grid-cols-2 gap-3.5">
+<!-- Page 01: Active Current Page -->
+<div class="page-thumb-card group relative flex flex-col bg-surface-container rounded-xl p-2 cursor-pointer shadow-md transition-all duration-200 ring-2 ring-primary bg-gradient-to-b from-primary/10 to-transparent" data-page="1">
+<!-- A4 Aspect Ratio Canvas (1:1.414) -->
+<div class="relative w-full aspect-[1/1.414] rounded-lg bg-surface-container-lowest overflow-hidden flex flex-col p-2.5 shadow-inner">
+<!-- Mini Page Header -->
+<div class="flex items-center justify-between pb-1.5">
+<span class="font-headline-md text-caption text-primary scale-90 origin-left">天命院 命鑑</span>
+<span class="font-label-caps text-caption text-secondary scale-75 origin-right">01/06</span>
+</div>
+<!-- Mini Four Pillars Matrix Representation -->
+<div class="mt-1 bg-surface-container-low rounded p-1 flex flex-col gap-1">
+<div class="grid grid-cols-4 gap-0.5 text-center">
+<span class="font-label-caps text-caption text-on-surface-variant scale-75">時</span>
+<span class="font-label-caps text-caption text-on-surface-variant scale-75">日</span>
+<span class="font-label-caps text-caption text-on-surface-variant scale-75">月</span>
+<span class="font-label-caps text-caption text-on-surface-variant scale-75">年</span>
+</div>
+<div class="grid grid-cols-4 gap-0.5 text-center">
+<span class="rounded bg-error-container/40 text-caption font-headline-md text-error scale-75">丙</span>
+<span class="rounded bg-primary-container/30 text-caption font-headline-md text-primary scale-75">庚</span>
+<span class="rounded bg-tertiary-container/30 text-caption font-headline-md text-tertiary scale-75">壬</span>
+<span class="rounded bg-secondary-container text-caption font-headline-md text-secondary scale-75">甲</span>
+</div>
+<div class="grid grid-cols-4 gap-0.5 text-center">
+<span class="rounded bg-secondary-container text-caption font-headline-md text-secondary scale-75">申</span>
+<span class="rounded bg-primary-container/30 text-caption font-headline-md text-primary scale-75">辰</span>
+<span class="rounded bg-error-container/40 text-caption font-headline-md text-error scale-75">戌</span>
+<span class="rounded bg-tertiary-container/30 text-caption font-headline-md text-tertiary scale-75">子</span>
+</div>
+</div>
+<!-- Mini Summary & Official Seal Stamp -->
+<div class="mt-auto flex items-end justify-between pt-1">
+<div class="space-y-1 w-2/3">
+<div class="h-1 bg-surface-container-high rounded-full w-full"></div>
+<div class="h-1 bg-surface-container-high rounded-full w-4/5"></div>
+</div>
+<!-- Red Seal Replica -->
+<div class="w-5 h-5 rounded-sm bg-error-container/60 flex items-center justify-center shadow-xs">
+<span class="font-headline-md text-caption text-on-error scale-75">道</span>
+</div>
+</div>
+<!-- Active Badge Overlay -->
+<div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-full bg-primary text-on-primary font-label-caps text-caption flex items-center gap-0.5 shadow-sm">
+<span class="material-symbols-outlined text-[11px]">visibility</span>
+<span>현재</span>
+</div>
+</div>
+<!-- Description -->
+<div class="pt-2 px-1 flex flex-col">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-caption text-primary">PAGE 01</span>
+<span class="material-symbols-outlined text-primary text-[14px]">check_circle</span>
+</div>
+<h3 class="font-title-md text-body-sm text-on-surface truncate font-semibold">사주원국표 &amp; 핵심 총결</h3>
+<p class="font-body-sm text-caption text-on-surface-variant truncate">기본 명식 · 대길일 비보 요약</p>
+</div>
+</div>
+<!-- Page 02: 10-Year Great Fortune -->
+<div class="page-thumb-card group relative flex flex-col bg-surface-container rounded-xl p-2 cursor-pointer shadow-md hover:bg-surface-container-high transition-all duration-200" data-page="2">
+<div class="relative w-full aspect-[1/1.414] rounded-lg bg-surface-container-lowest overflow-hidden flex flex-col p-2.5 shadow-inner">
+<div class="flex items-center justify-between pb-1">
+<span class="font-headline-md text-caption text-secondary scale-90 origin-left">大運 運路圖</span>
+<span class="font-label-caps text-caption text-on-surface-variant scale-75 origin-right">02/06</span>
+</div>
+<!-- Mini Trend Graph (SVG) -->
+<div class="mt-1 w-full h-14 bg-surface-container-low rounded flex items-center justify-center p-1">
+<svg class="w-full h-full" viewbox="0 0 100 40">
+<path class="text-tertiary" d="M5,30 Q 25,35 45,15 T 75,10 T 95,20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path>
+<circle class="fill-primary" cx="45" cy="15" r="3"></circle>
+<circle class="fill-tertiary" cx="75" cy="10" r="3"></circle>
+</svg>
+</div>
+<!-- Mini Decennial Cycle Track -->
+<div class="mt-2 grid grid-cols-5 gap-1">
+<div class="h-2.5 rounded bg-surface-container-high"></div>
+<div class="h-2.5 rounded bg-surface-container-high"></div>
+<div class="h-2.5 rounded bg-primary/30"></div>
+<div class="h-2.5 rounded bg-primary"></div>
+<div class="h-2.5 rounded bg-surface-container-high"></div>
+</div>
+<div class="mt-auto space-y-1">
+<div class="h-1 bg-surface-container-high rounded-full w-full"></div>
+<div class="h-1 bg-surface-container-high rounded-full w-3/4"></div>
+</div>
+</div>
+<div class="pt-2 px-1 flex flex-col">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-caption text-on-surface-variant">PAGE 02</span>
+</div>
+<h3 class="font-title-md text-body-sm text-on-surface truncate font-semibold">10년 대운 &amp; 평생 운로</h3>
+<p class="font-body-sm text-caption text-on-surface-variant truncate">대운 전환점 · 30년 인생 주기</p>
+</div>
+</div>
+<!-- Page 03: 2025 Eulsa Year 12 Months -->
+<div class="page-thumb-card group relative flex flex-col bg-surface-container rounded-xl p-2 cursor-pointer shadow-md hover:bg-surface-container-high transition-all duration-200" data-page="3">
+<div class="relative w-full aspect-[1/1.414] rounded-lg bg-surface-container-lowest overflow-hidden flex flex-col p-2.5 shadow-inner">
+<div class="flex items-center justify-between pb-1">
+<span class="font-headline-md text-caption text-secondary scale-90 origin-left">乙巳年 歲運</span>
+<span class="font-label-caps text-caption text-on-surface-variant scale-75 origin-right">03/06</span>
+</div>
+<!-- 12-Month Mini Bar Chart -->
+<div class="mt-1 w-full h-14 bg-surface-container-low rounded p-1 flex items-end justify-between gap-0.5">
+<div class="w-1.5 h-3 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-4 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-5 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-4 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-6 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-5 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-7 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-6 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-8 bg-surface-container-highest rounded-t"></div>
+<div class="w-1.5 h-11 bg-primary rounded-t shadow-sm"></div>
+<div class="w-1.5 h-9 bg-primary/70 rounded-t"></div>
+<div class="w-1.5 h-6 bg-surface-container-highest rounded-t"></div>
+</div>
+<div class="mt-2 flex items-center justify-between px-0.5">
+<span class="font-label-caps text-caption text-primary scale-75">10月 대길</span>
+<span class="font-label-caps text-caption text-secondary scale-75">11-12月 순항</span>
+</div>
+<div class="mt-auto space-y-1">
+<div class="h-1 bg-surface-container-high rounded-full w-full"></div>
+<div class="h-1 bg-surface-container-high rounded-full w-2/3"></div>
+</div>
+</div>
+<div class="pt-2 px-1 flex flex-col">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-caption text-on-surface-variant">PAGE 03</span>
+</div>
+<h3 class="font-title-md text-body-sm text-on-surface truncate font-semibold">2025년 12개월 세운</h3>
+<p class="font-body-sm text-caption text-on-surface-variant truncate">월별 길흉 지수 · 황금기 분석</p>
+</div>
+</div>
+<!-- Page 04: 1:1 Consultation Transcript & Prescription -->
+<div class="page-thumb-card group relative flex flex-col bg-surface-container rounded-xl p-2 cursor-pointer shadow-md hover:bg-surface-container-high transition-all duration-200" data-page="4">
+<div class="relative w-full aspect-[1/1.414] rounded-lg bg-surface-container-lowest overflow-hidden flex flex-col p-2.5 shadow-inner">
+<div class="flex items-center justify-between pb-1">
+<span class="font-headline-md text-caption text-secondary scale-90 origin-left">1:1 對面 錄趣</span>
+<span class="font-label-caps text-caption text-on-surface-variant scale-75 origin-right">04/06</span>
+</div>
+<!-- Dialogue Visual Cards -->
+<div class="mt-1 space-y-1.5">
+<div class="bg-surface-container-low rounded p-1 flex items-start gap-1">
+<span class="w-2 h-2 rounded-full bg-primary mt-0.5 flex-shrink-0"></span>
+<div class="space-y-0.5 w-full">
+<div class="h-1 bg-surface-container-high rounded w-3/4"></div>
+<div class="h-1 bg-surface-container-high rounded w-1/2"></div>
+</div>
+</div>
+<div class="bg-surface-container-low rounded p-1 flex items-start gap-1">
+<span class="w-2 h-2 rounded-full bg-tertiary mt-0.5 flex-shrink-0"></span>
+<div class="space-y-0.5 w-full">
+<div class="h-1 bg-surface-container-high rounded w-5/6"></div>
+<div class="h-1 bg-surface-container-high rounded w-2/3"></div>
+</div>
+</div>
+</div>
+<!-- Prescription Highlight Block -->
+<div class="mt-2 p-1 rounded bg-secondary-container/40">
+<span class="font-body-sm text-caption text-secondary scale-75 block">辰戌沖 비보 개방</span>
+</div>
+<div class="mt-auto space-y-1">
+<div class="h-1 bg-surface-container-high rounded-full w-full"></div>
+</div>
+</div>
+<div class="pt-2 px-1 flex flex-col">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-caption text-on-surface-variant">PAGE 04</span>
+</div>
+<h3 class="font-title-md text-body-sm text-on-surface truncate font-semibold">1:1 집중 상담 녹취록</h3>
+<p class="font-body-sm text-caption text-on-surface-variant truncate">진술충 해소 · 재고 개방 전략</p>
+</div>
+</div>
+<!-- Page 05: Special Bookmark Written Prescription -->
+<div class="page-thumb-card group relative flex flex-col bg-surface-container rounded-xl p-2 cursor-pointer shadow-md hover:bg-surface-container-high transition-all duration-200" data-page="5">
+<div class="relative w-full aspect-[1/1.414] rounded-lg bg-surface-container-lowest overflow-hidden flex flex-col p-2.5 shadow-inner">
+<!-- Bookmark Top Ribbon -->
+<div class="absolute -top-1 right-2.5 w-4 h-6 bg-primary rounded-b flex items-center justify-center shadow-md z-10">
+<span class="material-symbols-outlined text-on-primary text-[11px]">star</span>
+</div>
+<div class="flex items-center justify-between pb-1">
+<span class="font-headline-md text-caption text-primary scale-90 origin-left">後續 親筆 鑑明</span>
+<span class="font-label-caps text-caption text-on-surface-variant scale-75 origin-right mr-4">05/06</span>
+</div>
+<!-- Calligraphy Silhouette -->
+<div class="mt-2 bg-surface-container-low/70 rounded p-1.5 flex flex-col items-center justify-center">
+<span class="font-headline-lg text-primary/70 scale-90">秘法</span>
+<span class="font-body-sm text-caption text-on-surface-variant scale-75 mt-0.5">10.22 申時 날인</span>
+</div>
+<!-- Miniature Compass Motif -->
+<div class="mt-2 flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-primary text-[14px]">explore</span>
+<span class="font-label-caps text-caption text-secondary scale-75">西南方 온기비보</span>
+</div>
+<div class="mt-auto space-y-1">
+<div class="h-1 bg-surface-container-high rounded-full w-full"></div>
+<div class="h-1 bg-surface-container-high rounded-full w-4/5"></div>
+</div>
+</div>
+<div class="pt-2 px-1 flex flex-col">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-caption text-primary">PAGE 05</span>
+<span class="font-label-caps text-caption text-primary bg-primary/20 px-1 rounded">필독</span>
+</div>
+<h3 class="font-title-md text-body-sm text-on-surface truncate font-semibold">도원 선생 친필 후속 감명</h3>
+<p class="font-body-sm text-caption text-on-surface-variant truncate">계약 날인 온기 비보 · 서남방</p>
+</div>
+</div>
+<!-- Page 06: Official Certification & Hash Seal -->
+<div class="page-thumb-card group relative flex flex-col bg-surface-container rounded-xl p-2 cursor-pointer shadow-md hover:bg-surface-container-high transition-all duration-200" data-page="6">
+<div class="relative w-full aspect-[1/1.414] rounded-lg bg-surface-container-lowest overflow-hidden flex flex-col p-2.5 shadow-inner">
+<div class="flex items-center justify-between pb-1">
+<span class="font-headline-md text-caption text-secondary scale-90 origin-left">公認 鑑明證</span>
+<span class="font-label-caps text-caption text-on-surface-variant scale-75 origin-right">06/06</span>
+</div>
+<!-- Blockchain QR / Certified Glyph -->
+<div class="mt-1 w-full bg-surface-container-low rounded p-1.5 flex flex-col items-center">
+<span class="material-symbols-outlined text-tertiary text-[20px]">verified_user</span>
+<span class="font-label-caps text-caption text-tertiary scale-75 mt-0.5">SHA-256 VERIFIED</span>
+</div>
+<!-- Signature Line -->
+<div class="mt-2 border-t border-outline-variant/40 pt-1 flex items-center justify-between">
+<div class="space-y-0.5">
+<span class="font-label-caps text-caption text-on-surface-variant scale-75 block">首席 命理家</span>
+<span class="font-headline-md text-caption text-on-surface scale-75 block">金學善 認</span>
+</div>
+<div class="w-4 h-4 rounded-full bg-error/40 flex items-center justify-center">
+<span class="font-headline-md text-caption text-error scale-50">印</span>
+</div>
+</div>
+<div class="mt-auto space-y-1">
+<div class="h-1 bg-surface-container-high rounded-full w-full"></div>
+</div>
+</div>
+<div class="pt-2 px-1 flex flex-col">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-caption text-on-surface-variant">PAGE 06</span>
+</div>
+<h3 class="font-title-md text-body-sm text-on-surface truncate font-semibold">정식 공인 인증 및 효력</h3>
+<p class="font-body-sm text-caption text-on-surface-variant truncate">E2E 암호화 · 사단법인 인가</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Fixed Floating Bottom Bar for Modal Navigation -->
+<div class="fixed bottom-0 inset-x-0 z-30 bg-surface-container-high/95 backdrop-blur-xl px-margin py-3 pb-safe shadow-[0_-8px_24px_rgba(0,0,0,0.6)]">
+<div class="flex items-center gap-2 max-w-md mx-auto">
+<!-- Quick First/Last Page Navigators -->
+<button class="h-12 px-3 rounded-xl bg-surface-container flex items-center justify-center text-on-surface hover:text-primary active:scale-95 transition-all" id="quickFirstBtn" title="맨 앞으로 (1P)" type="button">
+<span class="material-symbols-outlined text-[20px]">first_page</span>
+</button>
+<!-- Main Confirmation / Page Jump CTA -->
+<button class="flex-1 h-12 rounded-xl bg-gradient-to-r from-primary to-primary-container text-on-primary font-title-md font-semibold flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(242,202,80,0.25)] active:scale-[0.98] transition-all" id="jumpPageBtn" type="button">
+<span class="material-symbols-outlined text-[19px]">auto_stories</span>
+<span id="jumpBtnText">선택한 01페이지 바로보기</span>
+</button>
+<button class="h-12 px-3 rounded-xl bg-surface-container flex items-center justify-center text-on-surface hover:text-primary active:scale-95 transition-all" id="quickLastBtn" title="맨 뒤로 (6P)" type="button">
+<span class="material-symbols-outlined text-[20px]">last_page</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function initPdfIndexSheet() {
+    let selectedPage = 1;
+    const cards = document.querySelectorAll('.page-thumb-card');
+    const jumpBtnText = document.getElementById('jumpBtnText');
+    const targetPageLabel = document.getElementById('targetPageLabel');
+    const closeBtn = document.getElementById('closeSheetBtn');
+    const bookmarkBtn = document.getElementById('bookmarkFilterBtn');
+    const quickFirst = document.getElementById('quickFirstBtn');
+    const quickLast = document.getElementById('quickLastBtn');
+    const jumpBtn = document.getElementById('jumpPageBtn');
+
+    function updateSelection(pageNumber) {
+      selectedPage = pageNumber;
+      cards.forEach(card => {
+        const p = parseInt(card.getAttribute('data-page'), 10);
+        if (p === selectedPage) {
+          card.classList.add('ring-2', 'ring-primary', 'bg-gradient-to-b', 'from-primary/10', 'to-transparent');
+          card.classList.remove('bg-surface-container');
+        } else {
+          card.classList.remove('ring-2', 'ring-primary', 'bg-gradient-to-b', 'from-primary/10', 'to-transparent');
+          card.classList.add('bg-surface-container');
+        }
+      });
+
+      const formatted = String(selectedPage).padStart(2, '0');
+      if (jumpBtnText) jumpBtnText.textContent = `선택한 ${formatted}페이지 바로보기`;
+      if (targetPageLabel) targetPageLabel.textContent = `${formatted}페이지`;
+    }
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        const pageNum = parseInt(card.getAttribute('data-page'), 10);
+        updateSelection(pageNum);
+      });
+    });
+
+    if (quickFirst) {
+      quickFirst.addEventListener('click', () => updateSelection(1));
+    }
+
+    if (quickLast) {
+      quickLast.addEventListener('click', () => updateSelection(6));
+    }
+
+    if (jumpBtn) {
+      jumpBtn.addEventListener('click', () => {
+        jumpBtn.classList.add('scale-95');
+        setTimeout(() => jumpBtn.classList.remove('scale-95'), 150);
+        // Page jump feedback toast / history action
+        if (window.history && window.history.length > 1) {
+          window.history.back();
+        }
+      });
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        if (window.history && window.history.length > 1) {
+          window.history.back();
+        }
+      });
+    }
+
+    if (bookmarkBtn) {
+      let isBookmarkFiltered = false;
+      bookmarkBtn.addEventListener('click', () => {
+        isBookmarkFiltered = !isBookmarkFiltered;
+        bookmarkBtn.classList.toggle('text-primary', isBookmarkFiltered);
+        bookmarkBtn.classList.toggle('bg-primary/20', isBookmarkFiltered);
+        
+        cards.forEach(card => {
+          const p = parseInt(card.getAttribute('data-page'), 10);
+          if (isBookmarkFiltered) {
+            // Highlight/filter only page 5
+            if (p !== 5) {
+              card.style.opacity = '0.35';
+            } else {
+              card.style.opacity = '1';
+              updateSelection(5);
+            }
+          } else {
+            card.style.opacity = '1';
+          }
+        });
+      });
+    }
+  })();
+</script></main></body></html>

@@ -1,0 +1,132 @@
+{
+  "isForward": true,
+  "directionReason": "남성 / 년간 임(양) → 순행",
+  "daewoonNumber": 7,
+  "targetMajorTerm": {
+    "name": "청명",
+    "exactDateTimeKST": "1992-04-04 21:44:54",
+    "diffDays": 20.55
+  },
+  "daewoonList": [
+    {
+      "step": 1,
+      "startAge": 7,
+      "endAge": 16,
+      "startYear": 1998,
+      "endYear": 2007,
+      "pillar": {
+        "stem": "갑",
+        "branch": "진",
+        "name": "갑진"
+      }
+    },
+    {
+      "step": 2,
+      "startAge": 17,
+      "endAge": 26,
+      "startYear": 2008,
+      "endYear": 2017,
+      "pillar": {
+        "stem": "을",
+        "branch": "사",
+        "name": "을사"
+      }
+    },
+    {
+      "step": 3,
+      "startAge": 27,
+      "endAge": 36,
+      "startYear": 2018,
+      "endYear": 2027,
+      "pillar": {
+        "stem": "병",
+        "branch": "오",
+        "name": "병오"
+      }
+    },
+    {
+      "step": 4,
+      "startAge": 37,
+      "endAge": 46,
+      "startYear": 2028,
+      "endYear": 2037,
+      "pillar": {
+        "stem": "정",
+        "branch": "미",
+        "name": "정미"
+      }
+    },
+    {
+      "step": 5,
+      "startAge": 47,
+      "endAge": 56,
+      "startYear": 2038,
+      "endYear": 2047,
+      "pillar": {
+        "stem": "무",
+        "branch": "신",
+        "name": "무신"
+      }
+    },
+    {
+      "step": 6,
+      "startAge": 57,
+      "endAge": 66,
+      "startYear": 2048,
+      "endYear": 2057,
+      "pillar": {
+        "stem": "기",
+        "branch": "유",
+        "name": "기유"
+      }
+    },
+    {
+      "step": 7,
+      "startAge": 67,
+      "endAge": 76,
+      "startYear": 2058,
+      "endYear": 2067,
+      "pillar": {
+        "stem": "경",
+        "branch": "술",
+        "name": "경술"
+      }
+    },
+    {
+      "step": 8,
+      "startAge": 77,
+      "endAge": 86,
+      "startYear": 2068,
+      "endYear": 2077,
+      "pillar": {
+        "stem": "신",
+        "branch": "해",
+        "name": "신해"
+      }
+    },
+    {
+      "step": 9,
+      "startAge": 87,
+      "endAge": 96,
+      "startYear": 2078,
+      "endYear": 2087,
+      "pillar": {
+        "stem": "임",
+        "branch": "자",
+        "name": "임자"
+      }
+    },
+    {
+      "step": 10,
+      "startAge": 97,
+      "endAge": 106,
+      "startYear": 2088,
+      "endYear": 2097,
+      "pillar": {
+        "stem": "계",
+        "branch": "축",
+        "name": "계축"
+      }
+    }
+  ]
+}

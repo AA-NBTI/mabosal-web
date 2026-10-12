@@ -1,0 +1,293 @@
+[
+  {
+    "ganji": "戊戌",
+    "termName": "한로",
+    "nextTermName": "입동",
+    "startDateTime": "2026-10-08 15:29",
+    "endDateTime": "2026-11-07 18:51",
+    "periodScore": 42,
+    "stabilityScore": {
+      "base": 70,
+      "modifiers": [
+        {
+          "ruleId": "RULE_IN_OH_SUL_FIRE_PRESSURE",
+          "reason": "寅午戌 삼합 화국 기운 강화에 따른 화(관성) 압박 급증 (신약 일간 부담 가중)",
+          "delta": -15
+        },
+        {
+          "ruleId": "RULE_JIN_SUL_CHUNG_SHAKE",
+          "reason": "시지 진토와 월지 술토의 진술충(辰戌沖)으로 인한 환경적 변동성 및 내면 동요",
+          "delta": -10
+        },
+        {
+          "ruleId": "RULE_STEM_INSEONG_PARTIAL",
+          "reason": "월운 천간 무토 편인의 일간 생조 시도 (조토로 인한 제한적 완충)",
+          "delta": 5
+        }
+      ],
+      "cap": 100,
+      "floor": 0,
+      "final": 50
+    },
+    "relationshipScore": {
+      "base": 70,
+      "modifiers": [
+        {
+          "ruleId": "RULE_PALACE_FIRE_EXHAUSTION",
+          "reason": "배우자궁(일지 寅木)이 寅午戌 화국에 동조·소모되어 연인궁 안정성 저하",
+          "delta": -18
+        },
+        {
+          "ruleId": "RULE_JIN_SUL_FRICTION",
+          "reason": "진술충으로 인한 상대방과의 현실적 마찰 및 이견 노출",
+          "delta": -12
+        }
+      ],
+      "cap": 100,
+      "floor": 0,
+      "final": 40
+    },
+    "expressionScore": {
+      "base": 70,
+      "modifiers": [
+        {
+          "ruleId": "RULE_MU_GYE_COMBINATION_BOUND",
+          "reason": "월간 계수 상관과 월운 무토 편인의 무계합 기반(羈絆)으로 인한 표현 지체 및 소통 답답함",
+          "delta": -12
+        },
+        {
+          "ruleId": "RULE_DRY_SOIL_RIGIDITY",
+          "reason": "술토 조토(燥土)의 건조함과 경직성으로 인한 유연한 대화 결여",
+          "delta": -8
+        }
+      ],
+      "cap": 100,
+      "floor": 0,
+      "final": 50
+    },
+    "conflictRiskScore": {
+      "base": 35,
+      "modifiers": [
+        {
+          "ruleId": "RULE_FIRE_BURNING_RISK",
+          "reason": "寅午戌 화국 강화에 따른 조급증 및 감정 과열 위험 급증",
+          "delta": 25
+        },
+        {
+          "ruleId": "RULE_JIN_SUL_CLASH_VOLATILITY",
+          "reason": "진술충의 현실적 충돌 및 돌발 마찰 가능성",
+          "delta": 15
+        }
+      ],
+      "cap": 100,
+      "floor": 0,
+      "final": 75
+    },
+    "conflictSafetyScore": 25,
+    "totalActionScore": 42,
+    "actionThreshold": 75,
+    "decision": "CAUTION",
+    "periodType": "CAUTION",
+    "keyInfluencingFactors": [
+      "원국 일지 寅, 대운 午, 세운 午, 월지 戌이 결합한 寅午戌 삼합 화국 기운 강화 (RULE_IN_OH_SUL_FIRE_PRESSURE)",
+      "戌土 화고 수납(A)보다 寅午戌 화국 강화에 따른 관성 압박(B)이 우세하여 신약 일간 부담 가중",
+      "배우자궁 寅木의 화국 동조 소모 및 시지 辰土와의 辰戌沖(붕충)으로 인한 관계 마찰 (RULE_PALACE_FIRE_EXHAUSTION, RULE_JIN_SUL_FRICTION)",
+      "월간 癸水 상관과 월운 戊土 편인의 戊癸合 기반(羈絆, 묶임)으로 소통 답답함 유발 (RULE_MU_GYE_COMBINATION_BOUND)",
+      "갈등 재발 위험도(75점)가 위험 임계치(60점)를 초과하여 행동 개시에 적합하지 않음"
+    ],
+    "sajuReason": "원국 일지 寅木, 대운·세운의 왕성한 午火, 월운 戌土가 어우러져 寅午戌 삼합 화국(부분 성립)의 불길이 다시 치솟고, 시지 辰土와의 辰戌沖이 겹쳐 관성의 압박과 정서적 변동성이 최고조에 달함. 戌土의 화고 수렴보다 화국 강화(B)가 우세하여 관계 진전에 불리함.",
+    "interactionAnalysis": "원국(일간 庚金, 일지 寅木, 년지 申金, 시지 辰土, 년간 壬水, 월간 癸水)과 대운(丙午)·세운(丙午)·월운(戊戌)의 전체 상호작용 정밀 분석:\\n1. 寅午戌 삼합 화국 판단: 원국 일지 寅木, 대운 지지 午火, 세운 지지 午火, 월운 지지 戌土가 회합하여 寅午戌 화국을 형성함. 왕지 午火 2개와 천간 丙火 투간으로 화국 기운이 강력하나, 寅申沖과 辰戌沖의 협공으로 완전 성립이 아닌 부분 성립으로 감력되면서도 일간을 강하게 압박함. (RULE_IN_OH_SUL_FIRE_PRESSURE)\\n2. A(화고 수렴) vs B(화국 강화) 비교 판정: 戌土는 화국의 묘지이자 조토(燥土)로서, 寅·午·午가 이미 존재하는 화왕 환경에서는 화기를 냉각·수납(A)하기보다 화국의 일원으로 동조하여 불길을 키우는 화국 강화(B)가 압도적으로 우세함.\\n3. 배우자궁 소모: 일지 寅木(배우자궁)이 목생화로 타들어가며 화국에 휩쓸려 연인궁의 안정성이 급격히 훼손됨. (RULE_PALACE_FIRE_EXHAUSTION)\\n4. 辰戌 충(辰戌沖): 시지 진토(습토)와 월지 술토(조토)의 충돌로 내면의 변동성과 상대방과의 현실적 마찰이 심화됨. (RULE_JIN_SUL_CHUNG_SHAKE, RULE_JIN_SUL_FRICTION)\\n5. 戊癸 합(戊癸合) 성립 및 작용: 월운 천간 무토(편인)와 월간 계수(상관)가 마주하여 천간 합을 이루나, 년간 壬水 건재 및 시지 辰土로 인해 합화화(合化火)는 불성립하고 합반(기반, 羈絆)되어 상관의 소통력이 묶여 답답함을 초래함. (RULE_MU_GYE_COMBINATION_BOUND)\\n6. 寅戌 완충 규칙 삭제: 寅午戌 삼합 구조에서 寅木은 申金과의 충을 회피하여 평온해지는 것이 아니라 화국에 빨려들어가 소모되므로, 기존의 인위적인 완충 가점(+5점)은 완전히 제거함.",
+    "decisionRule": "寅午戌 화국 강화로 관성 압박이 급증하고 갈등 재발 위험도(75점)가 위험 임계치(60점)를 초과하며, 종합점수 42점이 기준치(75점)에 크게 미달하므로 성급한 연락이나 행동을 엄격히 자제하고 관망해야 하는 주의 구간으로 판정됨.",
+    "prescription": "조급한 마음에 먼저 연락을 취하면 화국과 진술충의 격화로 다툼이 재발하기 쉬우므로, 감정 표현을 일체 멈추고 현 상태를 유지하며 침묵을 지킬 것."
+  },
+  {
+    "ganji": "己亥",
+    "termName": "입동",
+    "nextTermName": "대설",
+    "startDateTime": "2026-11-07 18:51",
+    "endDateTime": "2026-12-07 11:52",
+    "periodScore": 85,
+    "stabilityScore": {
+      "base": 70,
+      "modifiers": [
+        {
+          "ruleId": "RULE_GI_TO_JEONG_IN",
+          "reason": "천간 기토 정인의 일간 생조 및 심리적 안정",
+          "delta": 8
+        },
+        {
+          "ruleId": "RULE_GWAN_IN_HARMONY",
+          "reason": "병화 편관과 기토 정인의 관인상생",
+          "delta": 6
+        }
+      ],
+      "cap": 100,
+      "floor": 0,
+      "final": 84
+    },
+    "relationshipScore": {
+      "base": 70,
+      "modifiers": [
+        {
+          "ruleId": "RULE_IN_HAE_COMBINATION",
+          "reason": "일지 인목(연인궁)과 월지 해수의 인해육합(寅亥六合, 수생목)",
+          "delta": 12
+        },
+        {
+          "ruleId": "RULE_WATER_COOLING_BALANCE",
+          "reason": "해수 지지 유입으로 화열 조후 완화 및 정서적 융화",
+          "delta": 6
+        }
+      ],
+      "cap": 100,
+      "floor": 0,
+      "final": 88
+    },
+    "expressionScore": {
+      "base": 70,
+      "modifiers": [
+        {
+          "ruleId": "RULE_HAE_SU_SIK_SIN",
+          "reason": "해수 식신의 온화하고 배려 깊은 표현력 활성화",
+          "delta": 10
+        },
+        {
+          "ruleId": "RULE_EMOTIONAL_FLOW",
+          "reason": "자연스러운 공감과 수용적 대화 분위기 형성",
+          "delta": 6
+        }
+      ],
+      "cap": 100,
+      "floor": 0,
+      "final": 86
+    },
+    "conflictRiskScore": {
+      "base": 35,
+      "modifiers": [
+        {
+          "ruleId": "RULE_IN_HAE_HARMONY_DROP",
+          "reason": "인해합으로 관계 마찰 요인 대폭 감소",
+          "delta": -10
+        },
+        {
+          "ruleId": "RULE_SIK_SIN_CALMNESS",
+          "reason": "식신의 유연한 태도로 대립 방지",
+          "delta": -5
+        }
+      ],
+      "cap": 100,
+      "floor": 0,
+      "final": 20
+    },
+    "conflictSafetyScore": 80,
+    "totalActionScore": 85,
+    "actionThreshold": 75,
+    "decision": "ACTION_RECOMMENDED",
+    "periodType": "ACTION_RECOMMENDED",
+    "keyInfluencingFactors": [
+      "일지 인목(연인궁)과 월지 해수의 인해육합(寅亥六合, 수생목) (RULE_IN_HAE_COMBINATION)",
+      "천간 기토 정인의 일간 생조 및 관인상생(官印相生) (RULE_GI_TO_JEONG_IN, RULE_GWAN_IN_HARMONY)",
+      "식신 해수의 온화하고 유연한 소통력 활성화 (RULE_HAE_SU_SIK_SIN, RULE_EMOTIONAL_FLOW)",
+      "겨울 초입 수기 유입으로 사주 전체 화열 조후 균형 회복 (RULE_WATER_COOLING_BALANCE)"
+    ],
+    "sajuReason": "천간 기토(정인)가 일간을 보호하고, 지지 해수(식신)가 일지 인목과 인해합(寅亥合, 수생목)을 이루어 온화하고 유연한 흐름을 형성함.",
+    "interactionAnalysis": "원국(일간 庚金, 일지 寅木, 년지 申金, 시지 辰土, 년간 壬水, 월간 癸水)과 대운(丙午)·세운(丙午)·월운(己亥)의 전체 상호작용 분석:\\n1. 寅亥 육합(寅亥六合, 수생목): 월지 해수(식신)가 원국 일지 인목(연인궁)과 만나 육합을 완성하여 관계궁을 생조함. (RULE_IN_HAE_COMBINATION)\\n2. 조후 균형 회복: 겨울 초입의 수기가 일년 내내 지속되었던 병오 대운·세운의 화열을 자연스럽게 냉각하여 정서적 융화력을 복원함. (RULE_WATER_COOLING_BALANCE)\\n3. 관인상생(官印相生): 천간 기토(정인)가 일간 경금을 보호하고 병화 편관의 열기를 흡수하여 마찰 없는 온화한 환경을 구축함. (RULE_GI_TO_JEONG_IN, RULE_GWAN_IN_HARMONY)\\n4. 월령 및 계절: 입동(立冬) 이후 겨울의 초입으로 식신의 배려심과 소통력이 온전하게 발현되는 시기임.",
+    "decisionRule": "식신의 표현력이 살아나고 일지와 합을 이루어 경직되었던 감정의 매듭을 부드럽게 풀기에 적합하며, 종합점수 85점이 판정 기준(75점)을 여유 있게 상회함.",
+    "prescription": "상호 존중을 바탕으로 한 자연스러운 대화 환경을 활용하되, 상대방의 반응 여부와 무관하게 자신의 일상 리듬을 지켜낼 것."
+  },
+  {
+    "ganji": "庚子",
+    "termName": "대설",
+    "nextTermName": "소한",
+    "startDateTime": "2026-12-07 11:52",
+    "endDateTime": "2027-01-05 23:06",
+    "periodScore": 38,
+    "stabilityScore": {
+      "base": 70,
+      "modifiers": [
+        {
+          "ruleId": "RULE_JA_OH_CHUNG_SHOCK",
+          "reason": "세운·대운 오화와 월운 자수의 자오충(子午沖)으로 인한 환경 격변",
+          "delta": -20
+        },
+        {
+          "ruleId": "RULE_WATER_FIRE_CLASH",
+          "reason": "수화상충(水火相沖)으로 인한 심리적 변동성 및 불안정",
+          "delta": -10
+        }
+      ],
+      "cap": 100,
+      "floor": 0,
+      "final": 40
+    },
+    "relationshipScore": {
+      "base": 70,
+      "modifiers": [
+        {
+          "ruleId": "RULE_PALACE_DISTURBANCE",
+          "reason": "자오충으로 인한 관계궁 충격 및 긴장감 재점화",
+          "delta": -25
+        },
+        {
+          "ruleId": "RULE_OPPOSING_ENERGIES",
+          "reason": "상대방과의 관점 대립 가능성 급증",
+          "delta": -10
+        }
+      ],
+      "cap": 100,
+      "floor": 0,
+      "final": 35
+    },
+    "expressionScore": {
+      "base": 70,
+      "modifiers": [
+        {
+          "ruleId": "RULE_SANG_GWAN_SEE_GWAN",
+          "reason": "월지 자수 상관과 관성의 충돌(상관견관)로 비판적·공격적 언사 위험",
+          "delta": -20
+        },
+        {
+          "ruleId": "RULE_IMPATIENT_COMMUNICATION",
+          "reason": "감정적 조급함으로 인한 말실수 가능성",
+          "delta": -5
+        }
+      ],
+      "cap": 100,
+      "floor": 0,
+      "final": 45
+    },
+    "conflictRiskScore": {
+      "base": 35,
+      "modifiers": [
+        {
+          "ruleId": "RULE_CLASH_VOLATILITY",
+          "reason": "자오충의 직접 타격으로 인한 갈등 재발 위험 극대화",
+          "delta": 35
+        },
+        {
+          "ruleId": "RULE_EMOTIONAL_TURBULENCE",
+          "reason": "수화 충돌로 인한 감정 통제 난이도 상승",
+          "delta": 15
+        }
+      ],
+      "cap": 100,
+      "floor": 0,
+      "final": 85
+    },
+    "conflictSafetyScore": 15,
+    "totalActionScore": 35,
+    "actionThreshold": 75,
+    "decision": "CAUTION",
+    "periodType": "CAUTION",
+    "keyInfluencingFactors": [
+      "세운·대운 오화와 월운 자수의 자오충(子午沖, 수화상충) (RULE_JA_OH_CHUNG_SHOCK, RULE_CLASH_VOLATILITY)",
+      "관성과 상관의 충돌인 상관견관(傷官見官)으로 인한 대립 위험 (RULE_SANG_GWAN_SEE_GWAN)",
+      "천간 경금(비견)의 자존심 경쟁 유발 (RULE_OPPOSING_ENERGIES)",
+      "갈등 재발 위험도(85점)가 안전 한계치(40점 이하)를 대폭 초과 (RULE_EMOTIONAL_TURBULENCE)"
+    ],
+    "sajuReason": "세운의 오화(午火)와 월운의 자수(子水)가 자오충(子午沖)을 형성하여 수화상충(水火相沖)이 발생함.",
+    "interactionAnalysis": "원국(일간 庚金, 일지 寅木, 년지 申金, 시지 辰土, 년간 壬水, 월간 癸水)과 대운(丙午)·세운(丙午)·월운(庚子)의 전체 상호작용 분석:\\n1. 子午 충(子午沖, 수화상충): 월지 자수(상관)가 대운과 세운의 오화(정관)와 정면 충돌함. (RULE_JA_OH_CHUNG_SHOCK, RULE_CLASH_VOLATILITY)\\n2. 상관견관(傷官見官): 관성과 상관이 맞부딪히며 비판적·공격적 언사, 돌발 변수, 정서적 불안정이 급증함. (RULE_SANG_GWAN_SEE_GWAN, RULE_EMOTIONAL_TURBULENCE)\\n3. 庚金 비견 대립: 천간 경금이 들어와 자존심 대립이 촉발되고 타협이 어려워짐. (RULE_OPPOSING_ENERGIES)\\n4. 월령 및 계절: 대설(大雪) 한겨울의 수기 극대화로 화기와 수기가 극한으로 대립하는 고위험 시기임.",
+    "decisionRule": "환경적 돌발 변수나 감정 기복이 다시 유발되기 쉬운 구간으로, 갈등 위험도(85점)가 위험 임계치(60점)를 초과하고 종합점수 35점으로 적극적인 관계 진전이나 감정 담판에는 적합하지 않은 조건으로 판정됨.",
+    "prescription": "무리한 대화 시도나 결론 도출을 피하고 현 상태를 유지하며 관망할 것."
+  }
+]

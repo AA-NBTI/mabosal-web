@@ -1,0 +1,366 @@
+{
+  "maImpactSummary": {
+    "재물마": {
+      "totalImpactScore": 0,
+      "contributingSinsals": []
+    },
+    "사업마": {
+      "totalImpactScore": 34,
+      "contributingSinsals": [
+        {
+          "name": "지살",
+          "score": 10,
+          "ruleId": "RULE_12SINSAL_JI"
+        },
+        {
+          "name": "역마살",
+          "score": 12,
+          "ruleId": "RULE_12SINSAL_YEOKMA"
+        },
+        {
+          "name": "괴강",
+          "score": 12,
+          "ruleId": "RULE_MAJOR_GOEGANG"
+        }
+      ]
+    },
+    "직장마": {
+      "totalImpactScore": 66,
+      "contributingSinsals": [
+        {
+          "name": "지살",
+          "score": 8,
+          "ruleId": "RULE_12SINSAL_JI"
+        },
+        {
+          "name": "역마살",
+          "score": 12,
+          "ruleId": "RULE_12SINSAL_YEOKMA"
+        },
+        {
+          "name": "화개살",
+          "score": 10,
+          "ruleId": "RULE_12SINSAL_HWAGAE"
+        },
+        {
+          "name": "천덕귀인",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_CHEONDEOK"
+        },
+        {
+          "name": "괴강",
+          "score": 12,
+          "ruleId": "RULE_MAJOR_GOEGANG"
+        },
+        {
+          "name": "현침",
+          "score": 16,
+          "ruleId": "RULE_MAJOR_HYEONCHIM"
+        }
+      ]
+    },
+    "인마": {
+      "totalImpactScore": 89,
+      "contributingSinsals": [
+        {
+          "name": "육해살",
+          "score": 12,
+          "ruleId": "RULE_12SINSAL_YUKHAE"
+        },
+        {
+          "name": "화개살",
+          "score": 10,
+          "ruleId": "RULE_12SINSAL_HWAGAE"
+        },
+        {
+          "name": "도화",
+          "score": 25,
+          "ruleId": "RULE_MAJOR_DOHWA"
+        },
+        {
+          "name": "원진",
+          "score": 14,
+          "ruleId": "RULE_MAJOR_WONJIN"
+        },
+        {
+          "name": "귀문관",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_GWIMUN"
+        },
+        {
+          "name": "현침",
+          "score": 20,
+          "ruleId": "RULE_MAJOR_HYEONCHIM"
+        }
+      ]
+    },
+    "연애마": {
+      "totalImpactScore": 100,
+      "contributingSinsals": [
+        {
+          "name": "육해살",
+          "score": 6,
+          "ruleId": "RULE_12SINSAL_YUKHAE"
+        },
+        {
+          "name": "화개살",
+          "score": 8,
+          "ruleId": "RULE_12SINSAL_HWAGAE"
+        },
+        {
+          "name": "도화",
+          "score": 50,
+          "ruleId": "RULE_MAJOR_DOHWA"
+        },
+        {
+          "name": "원진",
+          "score": 32,
+          "ruleId": "RULE_MAJOR_WONJIN"
+        },
+        {
+          "name": "귀문관",
+          "score": 14,
+          "ruleId": "RULE_MAJOR_GWIMUN"
+        },
+        {
+          "name": "현침",
+          "score": 16,
+          "ruleId": "RULE_MAJOR_HYEONCHIM"
+        }
+      ]
+    },
+    "결혼마": {
+      "totalImpactScore": 41,
+      "contributingSinsals": [
+        {
+          "name": "도화",
+          "score": 15,
+          "ruleId": "RULE_MAJOR_DOHWA"
+        },
+        {
+          "name": "괴강",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_GOEGANG"
+        },
+        {
+          "name": "원진",
+          "score": 18,
+          "ruleId": "RULE_MAJOR_WONJIN"
+        }
+      ]
+    },
+    "가족마": {
+      "totalImpactScore": 31,
+      "contributingSinsals": [
+        {
+          "name": "육해살",
+          "score": 14,
+          "ruleId": "RULE_12SINSAL_YUKHAE"
+        },
+        {
+          "name": "천덕귀인",
+          "score": 10,
+          "ruleId": "RULE_MAJOR_CHEONDEOK"
+        },
+        {
+          "name": "원진",
+          "score": 7,
+          "ruleId": "RULE_MAJOR_WONJIN"
+        }
+      ]
+    },
+    "이동마": {
+      "totalImpactScore": 66,
+      "contributingSinsals": [
+        {
+          "name": "지살",
+          "score": 18,
+          "ruleId": "RULE_12SINSAL_JI"
+        },
+        {
+          "name": "역마살",
+          "score": 48,
+          "ruleId": "RULE_12SINSAL_YEOKMA"
+        }
+      ]
+    },
+    "분쟁마": {
+      "totalImpactScore": 66,
+      "contributingSinsals": [
+        {
+          "name": "도화",
+          "score": 10,
+          "ruleId": "RULE_MAJOR_DOHWA"
+        },
+        {
+          "name": "천덕귀인",
+          "score": 14,
+          "ruleId": "RULE_MAJOR_CHEONDEOK"
+        },
+        {
+          "name": "괴강",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_GOEGANG"
+        },
+        {
+          "name": "귀문관",
+          "score": 6,
+          "ruleId": "RULE_MAJOR_GWIMUN"
+        },
+        {
+          "name": "현침",
+          "score": 28,
+          "ruleId": "RULE_MAJOR_HYEONCHIM"
+        }
+      ]
+    },
+    "생활마": {
+      "totalImpactScore": 52,
+      "contributingSinsals": [
+        {
+          "name": "지살",
+          "score": 4,
+          "ruleId": "RULE_12SINSAL_JI"
+        },
+        {
+          "name": "역마살",
+          "score": 8,
+          "ruleId": "RULE_12SINSAL_YEOKMA"
+        },
+        {
+          "name": "육해살",
+          "score": 8,
+          "ruleId": "RULE_12SINSAL_YUKHAE"
+        },
+        {
+          "name": "화개살",
+          "score": 12,
+          "ruleId": "RULE_12SINSAL_HWAGAE"
+        },
+        {
+          "name": "천덕귀인",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_CHEONDEOK"
+        },
+        {
+          "name": "귀문관",
+          "score": 12,
+          "ruleId": "RULE_MAJOR_GWIMUN"
+        }
+      ]
+    }
+  },
+  "signalsSeparation": {
+    "riskSignals": [
+      {
+        "sinsalId": "nyeon_sal",
+        "name": "년살",
+        "score": 45,
+        "reason": "년살의 부정적 작용으로 인한 영역별 불안정성",
+        "ruleId": "RISK_SIGNAL_NYEON_SAL"
+      },
+      {
+        "sinsalId": "yeok_ma",
+        "name": "역마살",
+        "score": 65,
+        "reason": "역마살의 부정적 작용으로 인한 영역별 불안정성",
+        "ruleId": "RISK_SIGNAL_YEOK_MA"
+      },
+      {
+        "sinsalId": "dohwa_major",
+        "name": "도화",
+        "score": 71,
+        "reason": "도화의 부정적 작용으로 인한 영역별 불안정성",
+        "ruleId": "RISK_SIGNAL_DOHWA_MAJOR"
+      },
+      {
+        "sinsalId": "goe_gang",
+        "name": "괴강",
+        "score": 36,
+        "reason": "괴강의 부정적 작용으로 인한 영역별 불안정성",
+        "ruleId": "RISK_SIGNAL_GOE_GANG"
+      },
+      {
+        "sinsalId": "won_jin",
+        "name": "원진",
+        "score": 64,
+        "reason": "원국의 묘신(卯申) 원진과 월운의 인유(寅酉) 원진 중첩으로 인한 오해와 애증 갈등",
+        "ruleId": "RISK_SIGNAL_WON_JIN"
+      },
+      {
+        "sinsalId": "gwi_mun",
+        "name": "귀문관",
+        "score": 51,
+        "reason": "묘신(卯申) 귀문관으로 인한 예민한 의심과 꼬리를 무는 생각",
+        "ruleId": "RISK_SIGNAL_GWI_MUN"
+      },
+      {
+        "sinsalId": "hyeon_chim",
+        "name": "현침",
+        "score": 32,
+        "reason": "현침의 부정적 작용으로 인한 영역별 불안정성",
+        "ruleId": "RISK_SIGNAL_HYEON_CHIM"
+      }
+    ],
+    "supportSignals": [
+      {
+        "sinsalId": "dohwa_major",
+        "name": "도화",
+        "score": 34,
+        "reason": "도화의 긍정적 역량을 통한 위기 극복 지원",
+        "ruleId": "SUPPORT_SIGNAL_DOHWA_MAJOR"
+      },
+      {
+        "sinsalId": "cheondeok_guiin",
+        "name": "천덕귀인",
+        "score": 75,
+        "reason": "천덕귀인의 긍정적 역량을 통한 위기 극복 지원",
+        "ruleId": "SUPPORT_SIGNAL_CHEONDEOK_GUIIN"
+      },
+      {
+        "sinsalId": "goe_gang",
+        "name": "괴강",
+        "score": 32,
+        "reason": "괴강의 카리스마와 독립적 문제 돌파력",
+        "ruleId": "SUPPORT_SIGNAL_GOE_GANG"
+      },
+      {
+        "sinsalId": "gwi_mun",
+        "name": "귀문관",
+        "score": 20,
+        "reason": "귀문관의 긍정적 역량을 통한 위기 극복 지원",
+        "ruleId": "SUPPORT_SIGNAL_GWI_MUN"
+      },
+      {
+        "sinsalId": "hyeon_chim",
+        "name": "현침",
+        "score": 32,
+        "reason": "정밀한 관찰력과 문제의 핵심을 꿰뚫는 분석력",
+        "ruleId": "SUPPORT_SIGNAL_HYEON_CHIM"
+      }
+    ],
+    "changeSignals": [
+      {
+        "sinsalId": "ji_sal",
+        "name": "지살",
+        "score": 35,
+        "reason": "주도적인 새로운 영역 개척 및 생활 반경 변화",
+        "ruleId": "CHANGE_SIGNAL_JI_SAL"
+      },
+      {
+        "sinsalId": "yeok_ma",
+        "name": "역마살",
+        "score": 80,
+        "reason": "인신충(寅申沖) 충마로 인한 환경과 인간관계의 급격한 위치 이동 및 재편",
+        "ruleId": "CHANGE_SIGNAL_YEOK_MA"
+      },
+      {
+        "sinsalId": "hwa_gae",
+        "name": "화개살",
+        "score": 35,
+        "reason": "과거를 정리하고 내면으로 침잠하여 재도약을 준비하는 전환기",
+        "ruleId": "CHANGE_SIGNAL_HWA_GAE"
+      }
+    ]
+  }
+}

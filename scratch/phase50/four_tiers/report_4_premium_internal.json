@@ -1,0 +1,582 @@
+{
+  "scores": {
+    "relevanceScore": 95,
+    "actionCandidates": [
+      {
+        "ganji": "戊戌",
+        "totalActionScore": 42,
+        "decision": "CAUTION",
+        "threshold": 75
+      },
+      {
+        "ganji": "己亥",
+        "totalActionScore": 85,
+        "decision": "ACTION_RECOMMENDED",
+        "threshold": 75
+      },
+      {
+        "ganji": "庚子",
+        "totalActionScore": 35,
+        "decision": "CAUTION",
+        "threshold": 75
+      }
+    ]
+  },
+  "ruleIds": [
+    "RULE_PREMIUM_SOLUTION_SYNTHESIS",
+    "RULE_EVENT_CANDIDATE_PERIOD_ONLY",
+    "RISK_SIGNAL_NYEON_SAL",
+    "RISK_SIGNAL_YEOK_MA",
+    "RISK_SIGNAL_DOHWA_MAJOR",
+    "RISK_SIGNAL_GOE_GANG",
+    "RISK_SIGNAL_WON_JIN",
+    "RISK_SIGNAL_GWI_MUN",
+    "RISK_SIGNAL_HYEON_CHIM",
+    "SUPPORT_SIGNAL_DOHWA_MAJOR",
+    "SUPPORT_SIGNAL_CHEONDEOK_GUIIN",
+    "SUPPORT_SIGNAL_GOE_GANG",
+    "SUPPORT_SIGNAL_GWI_MUN",
+    "SUPPORT_SIGNAL_HYEON_CHIM"
+  ],
+  "calculationEvidence": {
+    "samhapCalculation": {
+      "natal_branch": "寅",
+      "daewoon_branch": "午",
+      "sewoon_branch": "午",
+      "month_branch": "戌",
+      "samhapCandidate": {
+        "combination": "寅午戌",
+        "status": "활성"
+      },
+      "banhapCandidate": {
+        "combination": "午戌",
+        "status": "활성"
+      },
+      "fireFormationJudgment": "부분 성립",
+      "reasoning": {
+        "wangjiPresence": "대운 지지 午火와 세운 지지 午火로 삼합의 중심 왕지(旺支) 2개 중첩 존재",
+        "season": "월운 戌월(한로 이후 늦가을 토왕절)로서 본기는 무토이나 인오술 화국의 묘지(墓支)이자 조토(燥土)임",
+        "surroundingFire": "대운 천간 丙火(편관) 및 세운 천간 丙火(편관) 투간(透干)으로 화세가 극도로 왕성함",
+        "waterInterference": "원국 년간 壬水 식신이 존재하나 월간 癸水 상관은 월운 戊土와 戊癸合(기반)되어 화국 억제력이 제한적임",
+        "weakeningByClash": "원국 년지 申金과 일지 寅木의 寅申沖, 시지 辰土와 월지 戌土의 辰戌沖이 교차하여 완전 무결격 삼합이 아닌 충과 합이 병존하는 부분 성립(화기 대폭 강화 및 불안정 수반)으로 판정됨"
+      },
+      "mechanicsComparison": {
+        "optionA": {
+          "description": "화기 수렴/저장 -> 관성 압박 완화 (술토 화고 수납설)",
+          "evaluation": "열세. 寅·午·午·戌이 모이고 병화가 투간한 화왕 환경에서 戌土는 조토(燥土)로서 화국에 동조하는 성격이 강해 단순 화기 냉각·수납 기능을 수행하지 못함."
+        },
+        "optionB": {
+          "description": "寅午戌 화국 강화 -> 화 관성 강화 -> 경금 압박 증가 (화국 형성설)",
+          "evaluation": "우세. 왕지 午火 2개와 丙火 투간으로 화국 기운이 강력히 결집되어 신약 일간 庚金에 대한 관성 압박이 증가하고 일지 寅木(배우자궁)이 목생화로 타들어가 관계 불안정성이 가중됨."
+        },
+        "dominantOutcome": "B"
+      },
+      "muGyeCombinationAnalysis": {
+        "combinationFormed": true,
+        "combinationAction": "합반(기반, 羈絆) - 월간 癸水 상관의 소통력이 戊土 편인과 묶여 자유로운 감정 표현이 억제되고 답답함과 망설임이 유발됨",
+        "combiningIntoFire": "불성립"
+      },
+      "daewoonExpressionCorrection": {
+        "originalExpression": "丙午 대운 = 강력한 화국 (오류 표현 제거)",
+        "correctedExpression": "丙午 대운에서 화 관성이 강하게 유입됨 (천간 편관, 지지 정관의 순수 관성 간지)",
+        "fireFormationDistinction": "寅午戌 화국은 대운 자체의 고유 성격이 아니라, 원국(일지 寅)·대운(지지 午)·세운(지지 午)·월운(지지 戌)이 결합될 때 조건부로 형성되는 복합 상호작용임"
+      }
+    },
+    "prescriptionAdvice": {
+      "corePrescription": "지금은 원진(오해)과 양인(칼날)이 겹친 감정 과열기이므로 즉각적인 연락은 반작용을 부릅니다. 억지로 결과를 내기보다 충마의 에너지를 자기 일상으로 돌리고 냉각기를 확보하십시오.",
+      "actionGuidelines": [
+        "감정적 독대보다는 2~3주의 심리적 냉각기를 갖고 상호 오해의 뇌관을 가라앉히는 감정 환기를 우선하십시오.",
+        "인신충(충마)의 폭발적 활동 에너지를 관계에 쏟지 말고, 운동·업무 환경 전환·산책 등 생산적 물리적 이동으로 소화하십시오."
+      ],
+      "cautionGuidelines": [
+        "현재 원진살(인유 원진)이 활성화되어 있으므로 상대방의 침묵이나 짧은 답변을 자의적으로 확대해석하여 추궁하지 마십시오."
+      ],
+      "remedyPrinciple": "신살의 기운은 억누르는 것이 아니라 충(沖)은 운동/이동으로, 원진(怨嗔)은 거리두기로, 귀인(貴人)은 조언자 구하기로 물상대체(物象代替)하여 해소하는 것이 정통 명리의 지혜입니다."
+    }
+  },
+  "timeAxis": {
+    "candidate_period": {
+      "startYearMonth": "2026-06",
+      "endYearMonth": "2026-09",
+      "reason": "병오(丙午) 세운의 화기 팽창 및 정유(丁酉) 월운의 인유(寅酉) 원진·양인 활성화로 인한 감정 충돌 취약 후보 기간",
+      "ruleId": "RULE_EVENT_CANDIDATE_PERIOD_ONLY"
+    },
+    "currentPacingMonth": "丁酉",
+    "recommendedFutureMonth": "己亥"
+  },
+  "relations": [
+    {
+      "relationType": "원진",
+      "targetSinsal": "년살",
+      "pillarLocation": "월운-일지",
+      "timingPillar": "월운",
+      "effect": "월운 酉(도화)가 일지 寅과 인유(寅酉) 원진을 형성하여 애정사 오해 및 원망 증폭",
+      "scoreDelta": 25,
+      "ruleId": "REL_DOHWA_WONJIN_TIMING"
+    },
+    {
+      "relationType": "원진",
+      "targetSinsal": "년살",
+      "pillarLocation": "월지(묘)-년지(신)",
+      "effect": "월지 묘목 도화가 년지 신금과 묘신 원진·귀문관을 이루어 집착과 애증 심화",
+      "scoreDelta": 20,
+      "ruleId": "REL_DOHWA_MYOSHIN_WONJIN"
+    },
+    {
+      "relationType": "충",
+      "targetSinsal": "역마살",
+      "pillarLocation": "일지(인)-년지(신)",
+      "effect": "인신충으로 충마(沖馬) 발동: 이동, 환경 변화, 관계의 급변동성 극대화",
+      "scoreDelta": 20,
+      "ruleId": "REL_YEOKMA_CLASH_ACTIVATED"
+    },
+    {
+      "relationType": "충",
+      "targetSinsal": "역마살",
+      "pillarLocation": "일진",
+      "timingPillar": "일진",
+      "effect": "일진 지지(인)가 역마축과 맞물려 활동성 및 물리적/심리적 변동 촉발",
+      "scoreDelta": 15,
+      "ruleId": "REL_YEOKMA_TIMING_일진"
+    },
+    {
+      "relationType": "원진",
+      "targetSinsal": "도화",
+      "pillarLocation": "월운-일지",
+      "timingPillar": "월운",
+      "effect": "월운 酉(도화)가 일지 寅과 인유(寅酉) 원진을 형성하여 애정사 오해 및 원망 증폭",
+      "scoreDelta": 25,
+      "ruleId": "REL_DOHWA_WONJIN_TIMING"
+    },
+    {
+      "relationType": "원진",
+      "targetSinsal": "도화",
+      "pillarLocation": "월지(묘)-년지(신)",
+      "effect": "월지 묘목 도화가 년지 신금과 묘신 원진·귀문관을 이루어 집착과 애증 심화",
+      "scoreDelta": 20,
+      "ruleId": "REL_DOHWA_MYOSHIN_WONJIN"
+    },
+    {
+      "relationType": "원진",
+      "targetSinsal": "원진살",
+      "pillarLocation": "일지(인)-월운(유)",
+      "timingPillar": "월운",
+      "effect": "월운 지지(유)가 배우자궁(일지 인)과 원진을 일으켜 심리적 불신과 미련 가중",
+      "scoreDelta": 25,
+      "ruleId": "REL_WONJIN_TRIGGERED_BY_월운"
+    },
+    {
+      "relationType": "원진",
+      "targetSinsal": "귀문관살",
+      "pillarLocation": "월지-년지",
+      "effect": "묘신(卯申) 귀문관 형성으로 사소한 언행에 대한 과민 반응과 내적 반추 심화",
+      "scoreDelta": 15,
+      "ruleId": "REL_GWIMUN_MYOSHIN_DEEP"
+    },
+    {
+      "relationType": "충",
+      "targetSinsal": "공망",
+      "pillarLocation": "대운·세운(오)",
+      "timingPillar": "대운/세운",
+      "effect": "대운과 세운의 오화(午火)가 순중공망에 해당하여 노력과 기대 대비 공허감과 심리적 불안정 야기",
+      "scoreDelta": 20,
+      "ruleId": "REL_GONGMANG_FIRE_VOID"
+    }
+  ],
+  "maImpactSummary": {
+    "재물마": {
+      "domain": "재물마",
+      "rawScore": 0,
+      "weightedScore": 0,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 0,
+      "totalImpactScore": 0,
+      "ruleIds": [],
+      "contributingSinsals": []
+    },
+    "사업마": {
+      "domain": "사업마",
+      "rawScore": 34,
+      "weightedScore": 34,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 34,
+      "totalImpactScore": 34,
+      "ruleIds": [
+        "RULE_12SINSAL_JI",
+        "RULE_12SINSAL_YEOKMA",
+        "RULE_MAJOR_GOEGANG"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "지살",
+          "score": 10,
+          "ruleId": "RULE_12SINSAL_JI"
+        },
+        {
+          "name": "역마살",
+          "score": 12,
+          "ruleId": "RULE_12SINSAL_YEOKMA"
+        },
+        {
+          "name": "괴강",
+          "score": 12,
+          "ruleId": "RULE_MAJOR_GOEGANG"
+        }
+      ]
+    },
+    "직장마": {
+      "domain": "직장마",
+      "rawScore": 66,
+      "weightedScore": 57,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 57,
+      "totalImpactScore": 57,
+      "ruleIds": [
+        "RULE_12SINSAL_JI",
+        "RULE_12SINSAL_YEOKMA",
+        "RULE_12SINSAL_HWAGAE",
+        "RULE_MAJOR_CHEONDEOK",
+        "RULE_MAJOR_GOEGANG",
+        "RULE_MAJOR_HYEONCHIM"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "지살",
+          "score": 8,
+          "ruleId": "RULE_12SINSAL_JI"
+        },
+        {
+          "name": "역마살",
+          "score": 12,
+          "ruleId": "RULE_12SINSAL_YEOKMA"
+        },
+        {
+          "name": "화개살",
+          "score": 10,
+          "ruleId": "RULE_12SINSAL_HWAGAE"
+        },
+        {
+          "name": "천덕귀인",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_CHEONDEOK"
+        },
+        {
+          "name": "괴강",
+          "score": 12,
+          "ruleId": "RULE_MAJOR_GOEGANG"
+        },
+        {
+          "name": "현침",
+          "score": 16,
+          "ruleId": "RULE_MAJOR_HYEONCHIM"
+        }
+      ]
+    },
+    "인마": {
+      "domain": "인마",
+      "rawScore": 89,
+      "weightedScore": 68,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 68,
+      "totalImpactScore": 68,
+      "ruleIds": [
+        "RULE_12SINSAL_YUKHAE",
+        "RULE_12SINSAL_HWAGAE",
+        "RULE_MAJOR_DOHWA",
+        "RULE_MAJOR_WONJIN",
+        "RULE_MAJOR_GWIMUN",
+        "RULE_MAJOR_HYEONCHIM"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "육해살",
+          "score": 12,
+          "ruleId": "RULE_12SINSAL_YUKHAE"
+        },
+        {
+          "name": "화개살",
+          "score": 10,
+          "ruleId": "RULE_12SINSAL_HWAGAE"
+        },
+        {
+          "name": "도화",
+          "score": 25,
+          "ruleId": "RULE_MAJOR_DOHWA"
+        },
+        {
+          "name": "원진",
+          "score": 14,
+          "ruleId": "RULE_MAJOR_WONJIN"
+        },
+        {
+          "name": "귀문관",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_GWIMUN"
+        },
+        {
+          "name": "현침",
+          "score": 20,
+          "ruleId": "RULE_MAJOR_HYEONCHIM"
+        }
+      ]
+    },
+    "연애마": {
+      "domain": "연애마",
+      "rawScore": 126,
+      "weightedScore": 84,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 84,
+      "totalImpactScore": 84,
+      "ruleIds": [
+        "RULE_12SINSAL_YUKHAE",
+        "RULE_12SINSAL_HWAGAE",
+        "RULE_MAJOR_DOHWA",
+        "RULE_MAJOR_WONJIN",
+        "RULE_MAJOR_GWIMUN",
+        "RULE_MAJOR_HYEONCHIM"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "육해살",
+          "score": 6,
+          "ruleId": "RULE_12SINSAL_YUKHAE"
+        },
+        {
+          "name": "화개살",
+          "score": 8,
+          "ruleId": "RULE_12SINSAL_HWAGAE"
+        },
+        {
+          "name": "도화",
+          "score": 50,
+          "ruleId": "RULE_MAJOR_DOHWA"
+        },
+        {
+          "name": "원진",
+          "score": 32,
+          "ruleId": "RULE_MAJOR_WONJIN"
+        },
+        {
+          "name": "귀문관",
+          "score": 14,
+          "ruleId": "RULE_MAJOR_GWIMUN"
+        },
+        {
+          "name": "현침",
+          "score": 16,
+          "ruleId": "RULE_MAJOR_HYEONCHIM"
+        }
+      ]
+    },
+    "결혼마": {
+      "domain": "결혼마",
+      "rawScore": 41,
+      "weightedScore": 41,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 41,
+      "totalImpactScore": 41,
+      "ruleIds": [
+        "RULE_MAJOR_DOHWA",
+        "RULE_MAJOR_GOEGANG",
+        "RULE_MAJOR_WONJIN"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "도화",
+          "score": 15,
+          "ruleId": "RULE_MAJOR_DOHWA"
+        },
+        {
+          "name": "괴강",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_GOEGANG"
+        },
+        {
+          "name": "원진",
+          "score": 18,
+          "ruleId": "RULE_MAJOR_WONJIN"
+        }
+      ]
+    },
+    "가족마": {
+      "domain": "가족마",
+      "rawScore": 31,
+      "weightedScore": 31,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 31,
+      "totalImpactScore": 31,
+      "ruleIds": [
+        "RULE_12SINSAL_YUKHAE",
+        "RULE_MAJOR_CHEONDEOK",
+        "RULE_MAJOR_WONJIN"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "육해살",
+          "score": 14,
+          "ruleId": "RULE_12SINSAL_YUKHAE"
+        },
+        {
+          "name": "천덕귀인",
+          "score": 10,
+          "ruleId": "RULE_MAJOR_CHEONDEOK"
+        },
+        {
+          "name": "원진",
+          "score": 7,
+          "ruleId": "RULE_MAJOR_WONJIN"
+        }
+      ]
+    },
+    "이동마": {
+      "domain": "이동마",
+      "rawScore": 66,
+      "weightedScore": 57,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 57,
+      "totalImpactScore": 57,
+      "ruleIds": [
+        "RULE_12SINSAL_JI",
+        "RULE_12SINSAL_YEOKMA"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "지살",
+          "score": 18,
+          "ruleId": "RULE_12SINSAL_JI"
+        },
+        {
+          "name": "역마살",
+          "score": 48,
+          "ruleId": "RULE_12SINSAL_YEOKMA"
+        }
+      ]
+    },
+    "분쟁마": {
+      "domain": "분쟁마",
+      "rawScore": 66,
+      "weightedScore": 57,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 57,
+      "totalImpactScore": 57,
+      "ruleIds": [
+        "RULE_MAJOR_DOHWA",
+        "RULE_MAJOR_CHEONDEOK",
+        "RULE_MAJOR_GOEGANG",
+        "RULE_MAJOR_GWIMUN",
+        "RULE_MAJOR_HYEONCHIM"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "도화",
+          "score": 10,
+          "ruleId": "RULE_MAJOR_DOHWA"
+        },
+        {
+          "name": "천덕귀인",
+          "score": 14,
+          "ruleId": "RULE_MAJOR_CHEONDEOK"
+        },
+        {
+          "name": "괴강",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_GOEGANG"
+        },
+        {
+          "name": "귀문관",
+          "score": 6,
+          "ruleId": "RULE_MAJOR_GWIMUN"
+        },
+        {
+          "name": "현침",
+          "score": 28,
+          "ruleId": "RULE_MAJOR_HYEONCHIM"
+        }
+      ]
+    },
+    "생활마": {
+      "domain": "생활마",
+      "rawScore": 52,
+      "weightedScore": 51,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 51,
+      "totalImpactScore": 51,
+      "ruleIds": [
+        "RULE_12SINSAL_JI",
+        "RULE_12SINSAL_YEOKMA",
+        "RULE_12SINSAL_YUKHAE",
+        "RULE_12SINSAL_HWAGAE",
+        "RULE_MAJOR_CHEONDEOK",
+        "RULE_MAJOR_GWIMUN"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "지살",
+          "score": 4,
+          "ruleId": "RULE_12SINSAL_JI"
+        },
+        {
+          "name": "역마살",
+          "score": 8,
+          "ruleId": "RULE_12SINSAL_YEOKMA"
+        },
+        {
+          "name": "육해살",
+          "score": 8,
+          "ruleId": "RULE_12SINSAL_YUKHAE"
+        },
+        {
+          "name": "화개살",
+          "score": 12,
+          "ruleId": "RULE_12SINSAL_HWAGAE"
+        },
+        {
+          "name": "천덕귀인",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_CHEONDEOK"
+        },
+        {
+          "name": "귀문관",
+          "score": 12,
+          "ruleId": "RULE_MAJOR_GWIMUN"
+        }
+      ]
+    }
+  },
+  "candidate_period": {
+    "startYearMonth": "2026-06",
+    "endYearMonth": "2026-09",
+    "reason": "병오(丙午) 세운의 화기 팽창 및 정유(丁酉) 월운의 인유(寅酉) 원진·양인 활성화로 인한 감정 충돌 취약 후보 기간",
+    "ruleId": "RULE_EVENT_CANDIDATE_PERIOD_ONLY"
+  }
+}

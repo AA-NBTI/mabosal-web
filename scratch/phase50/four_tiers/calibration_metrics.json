@@ -1,0 +1,414 @@
+{
+  "tiers": {
+    "FREE": {
+      "chars": 2110,
+      "leaks": [],
+      "ruleIdCount": 1
+    },
+    "STANDARD": {
+      "chars": 4515,
+      "leaks": [],
+      "ruleIdCount": 4
+    },
+    "SAL": {
+      "chars": 6887,
+      "leaks": [],
+      "ruleIdCount": 57
+    },
+    "PREMIUM": {
+      "chars": 9247,
+      "leaks": [],
+      "ruleIdCount": 14
+    }
+  },
+  "internalMa": {
+    "재물마": {
+      "domain": "재물마",
+      "rawScore": 0,
+      "weightedScore": 0,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 0,
+      "totalImpactScore": 0,
+      "ruleIds": [],
+      "contributingSinsals": []
+    },
+    "사업마": {
+      "domain": "사업마",
+      "rawScore": 34,
+      "weightedScore": 34,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 34,
+      "totalImpactScore": 34,
+      "ruleIds": [
+        "RULE_12SINSAL_JI",
+        "RULE_12SINSAL_YEOKMA",
+        "RULE_MAJOR_GOEGANG"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "지살",
+          "score": 10,
+          "ruleId": "RULE_12SINSAL_JI"
+        },
+        {
+          "name": "역마살",
+          "score": 12,
+          "ruleId": "RULE_12SINSAL_YEOKMA"
+        },
+        {
+          "name": "괴강",
+          "score": 12,
+          "ruleId": "RULE_MAJOR_GOEGANG"
+        }
+      ]
+    },
+    "직장마": {
+      "domain": "직장마",
+      "rawScore": 66,
+      "weightedScore": 57,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 57,
+      "totalImpactScore": 57,
+      "ruleIds": [
+        "RULE_12SINSAL_JI",
+        "RULE_12SINSAL_YEOKMA",
+        "RULE_12SINSAL_HWAGAE",
+        "RULE_MAJOR_CHEONDEOK",
+        "RULE_MAJOR_GOEGANG",
+        "RULE_MAJOR_HYEONCHIM"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "지살",
+          "score": 8,
+          "ruleId": "RULE_12SINSAL_JI"
+        },
+        {
+          "name": "역마살",
+          "score": 12,
+          "ruleId": "RULE_12SINSAL_YEOKMA"
+        },
+        {
+          "name": "화개살",
+          "score": 10,
+          "ruleId": "RULE_12SINSAL_HWAGAE"
+        },
+        {
+          "name": "천덕귀인",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_CHEONDEOK"
+        },
+        {
+          "name": "괴강",
+          "score": 12,
+          "ruleId": "RULE_MAJOR_GOEGANG"
+        },
+        {
+          "name": "현침",
+          "score": 16,
+          "ruleId": "RULE_MAJOR_HYEONCHIM"
+        }
+      ]
+    },
+    "인마": {
+      "domain": "인마",
+      "rawScore": 89,
+      "weightedScore": 68,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 68,
+      "totalImpactScore": 68,
+      "ruleIds": [
+        "RULE_12SINSAL_YUKHAE",
+        "RULE_12SINSAL_HWAGAE",
+        "RULE_MAJOR_DOHWA",
+        "RULE_MAJOR_WONJIN",
+        "RULE_MAJOR_GWIMUN",
+        "RULE_MAJOR_HYEONCHIM"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "육해살",
+          "score": 12,
+          "ruleId": "RULE_12SINSAL_YUKHAE"
+        },
+        {
+          "name": "화개살",
+          "score": 10,
+          "ruleId": "RULE_12SINSAL_HWAGAE"
+        },
+        {
+          "name": "도화",
+          "score": 25,
+          "ruleId": "RULE_MAJOR_DOHWA"
+        },
+        {
+          "name": "원진",
+          "score": 14,
+          "ruleId": "RULE_MAJOR_WONJIN"
+        },
+        {
+          "name": "귀문관",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_GWIMUN"
+        },
+        {
+          "name": "현침",
+          "score": 20,
+          "ruleId": "RULE_MAJOR_HYEONCHIM"
+        }
+      ]
+    },
+    "연애마": {
+      "domain": "연애마",
+      "rawScore": 126,
+      "weightedScore": 84,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 84,
+      "totalImpactScore": 84,
+      "ruleIds": [
+        "RULE_12SINSAL_YUKHAE",
+        "RULE_12SINSAL_HWAGAE",
+        "RULE_MAJOR_DOHWA",
+        "RULE_MAJOR_WONJIN",
+        "RULE_MAJOR_GWIMUN",
+        "RULE_MAJOR_HYEONCHIM"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "육해살",
+          "score": 6,
+          "ruleId": "RULE_12SINSAL_YUKHAE"
+        },
+        {
+          "name": "화개살",
+          "score": 8,
+          "ruleId": "RULE_12SINSAL_HWAGAE"
+        },
+        {
+          "name": "도화",
+          "score": 50,
+          "ruleId": "RULE_MAJOR_DOHWA"
+        },
+        {
+          "name": "원진",
+          "score": 32,
+          "ruleId": "RULE_MAJOR_WONJIN"
+        },
+        {
+          "name": "귀문관",
+          "score": 14,
+          "ruleId": "RULE_MAJOR_GWIMUN"
+        },
+        {
+          "name": "현침",
+          "score": 16,
+          "ruleId": "RULE_MAJOR_HYEONCHIM"
+        }
+      ]
+    },
+    "결혼마": {
+      "domain": "결혼마",
+      "rawScore": 41,
+      "weightedScore": 41,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 41,
+      "totalImpactScore": 41,
+      "ruleIds": [
+        "RULE_MAJOR_DOHWA",
+        "RULE_MAJOR_GOEGANG",
+        "RULE_MAJOR_WONJIN"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "도화",
+          "score": 15,
+          "ruleId": "RULE_MAJOR_DOHWA"
+        },
+        {
+          "name": "괴강",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_GOEGANG"
+        },
+        {
+          "name": "원진",
+          "score": 18,
+          "ruleId": "RULE_MAJOR_WONJIN"
+        }
+      ]
+    },
+    "가족마": {
+      "domain": "가족마",
+      "rawScore": 31,
+      "weightedScore": 31,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 31,
+      "totalImpactScore": 31,
+      "ruleIds": [
+        "RULE_12SINSAL_YUKHAE",
+        "RULE_MAJOR_CHEONDEOK",
+        "RULE_MAJOR_WONJIN"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "육해살",
+          "score": 14,
+          "ruleId": "RULE_12SINSAL_YUKHAE"
+        },
+        {
+          "name": "천덕귀인",
+          "score": 10,
+          "ruleId": "RULE_MAJOR_CHEONDEOK"
+        },
+        {
+          "name": "원진",
+          "score": 7,
+          "ruleId": "RULE_MAJOR_WONJIN"
+        }
+      ]
+    },
+    "이동마": {
+      "domain": "이동마",
+      "rawScore": 66,
+      "weightedScore": 57,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 57,
+      "totalImpactScore": 57,
+      "ruleIds": [
+        "RULE_12SINSAL_JI",
+        "RULE_12SINSAL_YEOKMA"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "지살",
+          "score": 18,
+          "ruleId": "RULE_12SINSAL_JI"
+        },
+        {
+          "name": "역마살",
+          "score": 48,
+          "ruleId": "RULE_12SINSAL_YEOKMA"
+        }
+      ]
+    },
+    "분쟁마": {
+      "domain": "분쟁마",
+      "rawScore": 66,
+      "weightedScore": 57,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 57,
+      "totalImpactScore": 57,
+      "ruleIds": [
+        "RULE_MAJOR_DOHWA",
+        "RULE_MAJOR_CHEONDEOK",
+        "RULE_MAJOR_GOEGANG",
+        "RULE_MAJOR_GWIMUN",
+        "RULE_MAJOR_HYEONCHIM"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "도화",
+          "score": 10,
+          "ruleId": "RULE_MAJOR_DOHWA"
+        },
+        {
+          "name": "천덕귀인",
+          "score": 14,
+          "ruleId": "RULE_MAJOR_CHEONDEOK"
+        },
+        {
+          "name": "괴강",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_GOEGANG"
+        },
+        {
+          "name": "귀문관",
+          "score": 6,
+          "ruleId": "RULE_MAJOR_GWIMUN"
+        },
+        {
+          "name": "현침",
+          "score": 28,
+          "ruleId": "RULE_MAJOR_HYEONCHIM"
+        }
+      ]
+    },
+    "생활마": {
+      "domain": "생활마",
+      "rawScore": 52,
+      "weightedScore": 51,
+      "modifiers": [],
+      "cap": 100,
+      "floor": 0,
+      "normalization": "DOMAIN_WEIGHTED_DIMINISHING_RETURN",
+      "finalScore": 51,
+      "totalImpactScore": 51,
+      "ruleIds": [
+        "RULE_12SINSAL_JI",
+        "RULE_12SINSAL_YEOKMA",
+        "RULE_12SINSAL_YUKHAE",
+        "RULE_12SINSAL_HWAGAE",
+        "RULE_MAJOR_CHEONDEOK",
+        "RULE_MAJOR_GWIMUN"
+      ],
+      "contributingSinsals": [
+        {
+          "name": "지살",
+          "score": 4,
+          "ruleId": "RULE_12SINSAL_JI"
+        },
+        {
+          "name": "역마살",
+          "score": 8,
+          "ruleId": "RULE_12SINSAL_YEOKMA"
+        },
+        {
+          "name": "육해살",
+          "score": 8,
+          "ruleId": "RULE_12SINSAL_YUKHAE"
+        },
+        {
+          "name": "화개살",
+          "score": 12,
+          "ruleId": "RULE_12SINSAL_HWAGAE"
+        },
+        {
+          "name": "천덕귀인",
+          "score": 8,
+          "ruleId": "RULE_MAJOR_CHEONDEOK"
+        },
+        {
+          "name": "귀문관",
+          "score": 12,
+          "ruleId": "RULE_MAJOR_GWIMUN"
+        }
+      ]
+    }
+  }
+}

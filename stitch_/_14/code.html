@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&amp;family=Noto+Serif+KR:wght@500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#0f131d;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "inverse-on-surface": "#2c303b", "tertiary-fixed": "#acedff", "on-error": "#690005", "error": "#ffb4ab", "secondary-container": "#3e475a", "on-primary": "#3c2f00", "outline": "#99907c", "surface-container-low": "#171b26", "secondary-fixed": "#dae2fa", "secondary-fixed-dim": "#bec6dd", "error-container": "#93000a", "on-primary-container": "#554300", "inverse-surface": "#dfe2f1", "on-tertiary-fixed": "#001f26", "primary-container": "#d4af37", "surface-container-highest": "#313540", "primary-fixed": "#ffe088", "on-tertiary-fixed-variant": "#004e5c", "tertiary-fixed-dim": "#4cd7f6", "surface-container-lowest": "#0a0e18", "tertiary-container": "#2dc3e1", "on-secondary-fixed-variant": "#3e475a", "surface": "#0f131d", "on-surface": "#dfe2f1", "outline-variant": "#4d4635", "on-secondary-fixed": "#121c2c", "surface-container-high": "#262a35", "on-tertiary-container": "#004c5a", "inverse-primary": "#735c00", "surface-variant": "#313540", "surface-container": "#1c1f2a", "background": "#0f131d", "on-primary-fixed": "#241a00", "on-secondary-container": "#acb5cb", "on-primary-fixed-variant": "#574500", "on-surface-variant": "#d0c5af", "tertiary": "#56dffe", "secondary": "#bec6dd", "on-secondary": "#283042", "surface-tint": "#e9c349", "primary": "#f2ca50", "surface-bright": "#353944", "primary-fixed-dim": "#e9c349", "on-error-container": "#ffdad6", "surface-dim": "#0f131d", "on-tertiary": "#003640", "on-background": "#dfe2f1" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-md": "0.875rem", "space-xl": "1.75rem", "margin": "1.25rem", "space-xs": "0.25rem", "gutter": "1rem", "space-sm": "0.5rem", "space-lg": "1.25rem" }, fontFamily: { "title-lg": ["Noto Sans KR", "Noto Sans"], "title-md": ["Noto Sans KR", "Noto Sans"], "headline-xl": ["Noto Serif KR", "Noto Serif"], "body-md": ["Noto Sans KR", "Noto Sans"], "body-sm": ["Noto Sans KR", "Noto Sans"], "label-kr": ["Noto Sans KR", "Noto Sans"], "headline-md": ["Noto Serif KR", "Noto Serif"], "label-caps": ["Space Grotesk"], "caption": ["Noto Sans KR", "Noto Sans"], "headline-lg": ["Noto Serif KR", "Noto Serif"], "body-lg": ["Noto Sans KR", "Noto Sans"] }, fontSize: { "title-lg": ["18px", { "lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "title-md": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }], "headline-xl": ["32px", { "lineHeight": "42px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }], "body-sm": ["13px", { "lineHeight": "19px", "letterSpacing": "0.005em", "fontWeight": "400" }], "label-kr": ["12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "label-caps": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "600" }], "caption": ["11px", { "lineHeight": "15px", "letterSpacing": "0.01em", "fontWeight": "400" }], "headline-lg": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface flex flex-col min-h-screen selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.4)] pt-safe"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-primary text-[24px]">explore</span></div><div class="flex flex-col"><div class="flex items-baseline gap-1.5"><span class="font-headline-md text-headline-md font-semibold text-primary tracking-tight">천명원</span><span class="font-label-caps text-label-caps text-primary/60 tracking-widest uppercase">天命院</span></div><span class="font-caption text-caption text-on-surface-variant sr-only">Destiny Report</span></div></div><div class="flex items-center gap-space-sm"><div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high/90 text-primary shadow-[0_2px_8px_rgba(0,0,0,0.3)]"><span class="material-symbols-outlined text-[15px] text-primary">monetization_on</span><span class="font-label-caps text-label-caps tracking-tight font-semibold text-on-surface">3,200</span><span class="font-label-kr text-label-kr text-on-surface-variant">엽</span></div><button aria-label="알림" class="relative w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary transition-colors focus:outline-none"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-primary ring-2 ring-surface"></span></button><img alt="Profile" class="w-8 h-8 rounded-full object-cover shadow-[0_0_10px_rgba(242,202,80,0.25)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_y5dQKydphchpcTMO9__yOAFFEgeD_3sXWyVzYITbc9ScEMV9UusNnB8MrP3rRNehnDosDEmgGTWmCVZDuDxtUgZIJB-PI5DB6yJ6G0rP79YMm9UpRAvEvRMhKMFhz9CbgcrP7slqEw8CSSw12AWe1dRk4izXRXaXLcWpULWkj2U34H_Px7ilYcQFBYZV477Qm9WM2HxzSMgDd2hTe0zLYB3kYdOCEqFkhcxtyMqu"/></div></div></header><main class="flex flex-col relative w-full pt-16 pb-28 bg-surface min-h-screen"><div class="flex flex-col w-full px-margin space-y-space-lg">
+<!-- Interactive Category Chips -->
+<div class="w-full overflow-x-auto scrollbar-none -mx-margin px-margin pt-space-xs pb-space-xs">
+<div class="flex items-center gap-space-sm whitespace-nowrap" id="reportTabs">
+<button class="px-4 py-2 rounded-full font-label-kr text-label-kr bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-all flex items-center gap-1.5" data-tab="daeun">
+<span class="material-symbols-outlined text-[16px]">timeline</span>
+        전체 대운
+      </button>
+<button class="px-4 py-2 rounded-full font-label-kr text-label-kr bg-primary text-on-primary font-semibold shadow-md flex items-center gap-1.5 active-tab transition-all" data-tab="2025">
+<span class="material-symbols-outlined text-[16px]">auto_awesome</span>
+        2025 신년운세
+      </button>
+<button class="px-4 py-2 rounded-full font-label-kr text-label-kr bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-all flex items-center gap-1.5" data-tab="wealth">
+<span class="material-symbols-outlined text-[16px]">payments</span>
+        평생 재물운
+      </button>
+<button class="px-4 py-2 rounded-full font-label-kr text-label-kr bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-all flex items-center gap-1.5" data-tab="love">
+<span class="material-symbols-outlined text-[16px]">favorite</span>
+        연애 · 결혼
+      </button>
+<button class="px-4 py-2 rounded-full font-label-kr text-label-kr bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-all flex items-center gap-1.5" data-tab="career">
+<span class="material-symbols-outlined text-[16px]">work</span>
+        직업 · 적성
+      </button>
+</div>
+</div>
+<!-- 2025 Comprehensive Overall Score Card -->
+<section class="relative overflow-hidden rounded-xl bg-surface-container p-space-lg shadow-xl">
+<div class="absolute -right-8 -top-8 w-44 h-44 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>
+<div class="absolute -left-10 -bottom-10 w-44 h-44 rounded-full bg-tertiary-container/10 blur-3xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col space-y-space-md">
+<!-- Title & Celestial Tag -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-1 rounded bg-surface-container-highest text-primary font-label-caps text-label-caps tracking-widest uppercase">乙巳年 2025</span>
+<span class="font-label-kr text-label-kr text-on-surface-variant">푸른 뱀의 해 총평</span>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span class="font-label-kr text-label-kr">명리 심층분석</span>
+</div>
+</div>
+<!-- Main Headline & Gauge Flex -->
+<div class="flex items-center justify-between gap-4 pt-1">
+<div class="flex-1 space-y-1">
+<h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">도약과 결실의 시기</h2>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+            오랫동안 묻혀 있던 잠재력이 불꽃처럼 일어나는 형국입니다. 준비된 자에게 명예와 금전이 동시에 깃듭니다.
+          </p>
+</div>
+<!-- Gold Progress Ring -->
+<div class="relative flex-shrink-0 w-24 h-24 flex items-center justify-center">
+<svg class="w-24 h-24 transform -rotate-90" viewbox="0 0 100 100">
+<circle class="text-surface-container-highest" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-width="7"></circle>
+<circle class="text-primary transition-all duration-1000 ease-out" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="20.1" stroke-linecap="round" stroke-width="7"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-headline-md text-headline-md font-bold text-primary">92<span class="text-sm font-normal">%</span></span>
+<span class="font-caption text-caption text-on-surface-variant">성취 지수</span>
+</div>
+</div>
+</div>
+<!-- Key Fortune Keywords Pill Grid -->
+<div class="grid grid-cols-3 gap-2 pt-2">
+<div class="bg-surface-container-high/70 rounded-lg p-2.5 text-center flex flex-col items-center">
+<span class="font-caption text-caption text-on-surface-variant">천을귀인</span>
+<span class="font-title-md text-title-md text-on-surface font-semibold mt-0.5">상반기 조력</span>
+</div>
+<div class="bg-surface-container-high/70 rounded-lg p-2.5 text-center flex flex-col items-center">
+<span class="font-caption text-caption text-on-surface-variant">식신생재</span>
+<span class="font-title-md text-title-md text-primary font-semibold mt-0.5">재물 확장</span>
+</div>
+<div class="bg-surface-container-high/70 rounded-lg p-2.5 text-center flex flex-col items-center">
+<span class="font-caption text-caption text-on-surface-variant">문창귀인</span>
+<span class="font-title-md text-title-md text-tertiary-fixed font-semibold mt-0.5">합격·승진</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 10-Year Life Cycle Flow (대운 그래프) -->
+<section class="rounded-xl bg-surface-container p-space-lg shadow-lg space-y-space-md">
+<div class="flex items-center justify-between">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[20px]">show_chart</span>
+<h3 class="font-headline-md text-headline-md text-on-surface">대운(大運) 10년 주기 흐름</h3>
+</div>
+<p class="font-caption text-caption text-on-surface-variant mt-0.5">인생 전체의 운명적 상승곡선과 기회 구간</p>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-primary-container text-on-primary-container font-label-kr text-label-kr font-bold shadow-sm">현재 피크</span>
+</div>
+<!-- Active Stage Callout Card -->
+<div class="bg-surface-container-high/90 rounded-lg p-space-md flex items-start gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">whatshot</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2">
+<span class="font-title-md text-title-md font-semibold text-primary">병오(丙午) 대운</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">AGE 34 ~ 43</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface mt-1 leading-snug">
+          인생 최고의 태양과 같은 화기운(火)이 자리합니다. 명예와 사회적 입지가 가장 가파르게 치솟는 황금기입니다.
+        </p>
+</div>
+</div>
+<!-- Interactive Line Chart Visualization (SVG) -->
+<div class="w-full bg-surface-container-lowest/60 rounded-lg p-4 pt-6">
+<svg class="w-full h-36 overflow-visible" viewbox="0 0 320 120">
+<defs>
+<lineargradient id="chartGradient" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#f2ca50" stop-opacity="0.45"></stop>
+<stop offset="100%" stop-color="#f2ca50" stop-opacity="0.0"></stop>
+</lineargradient>
+</defs>
+<!-- Horizontal Guides -->
+<line stroke="#313540" stroke-dasharray="3,3" stroke-width="1" x1="20" x2="300" y1="20" y2="20"></line>
+<line stroke="#313540" stroke-dasharray="3,3" stroke-width="1" x1="20" x2="300" y1="65" y2="65"></line>
+<line stroke="#313540" stroke-width="1" x1="20" x2="300" y1="110" y2="110"></line>
+<!-- Filled Curve Area -->
+<path d="M 30,95 Q 85,85 110,70 T 190,25 T 270,55 L 270,110 L 30,110 Z" fill="url(#chartGradient)"></path>
+<!-- Line Chart Path -->
+<path d="M 30,95 Q 85,85 110,70 T 190,25 T 270,55" fill="none" stroke="#f2ca50" stroke-linecap="round" stroke-width="3"></path>
+<!-- Data Node: 14-23 -->
+<circle class="fill-surface-container stroke-outline" cx="30" cy="95" r="4.5" stroke-width="2"></circle>
+<text fill="#d0c5af" font-family="Space Grotesk" font-size="10" text-anchor="middle" x="30" y="118">14~23</text>
+<!-- Data Node: 24-33 -->
+<circle class="fill-surface-container stroke-outline" cx="110" cy="70" r="4.5" stroke-width="2"></circle>
+<text fill="#d0c5af" font-family="Space Grotesk" font-size="10" text-anchor="middle" x="110" y="118">24~33</text>
+<!-- Data Node (Active Peak): 34-43 -->
+<circle class="fill-primary stroke-surface-lowest" cx="190" cy="25" r="7" stroke-width="2"></circle>
+<circle class="fill-primary/20 animate-pulse" cx="190" cy="25" r="12"></circle>
+<text fill="#f2ca50" font-family="Space Grotesk" font-size="11" font-weight="bold" text-anchor="middle" x="190" y="14">현재 (98점)</text>
+<text fill="#f2ca50" font-family="Space Grotesk" font-size="11" font-weight="bold" text-anchor="middle" x="190" y="118">34~43</text>
+<!-- Data Node: 44-53 -->
+<circle class="fill-surface-container stroke-outline" cx="270" cy="55" r="4.5" stroke-width="2"></circle>
+<text fill="#d0c5af" font-family="Space Grotesk" font-size="10" text-anchor="middle" x="270" y="118">44~53</text>
+</svg>
+<div class="flex items-center justify-between text-on-surface-variant font-caption text-caption pt-1 px-1">
+<span>기반 형성기</span>
+<span class="text-primary font-medium">전성기 (현재)</span>
+<span>수확 및 안정기</span>
+</div>
+</div>
+</section>
+<!-- Deep 4-Pillar Life Aspect Accordions -->
+<section class="space-y-space-md">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">4대 핵심 영역별 심층 분석</h3>
+<p class="font-caption text-caption text-on-surface-variant">사주 원국과 세운의 상호작용 상세 풀이</p>
+</div>
+<button class="font-label-kr text-label-kr text-primary hover:underline" id="expandAllBtn">전체 펼치기</button>
+</div>
+<div class="space-y-space-sm" id="accordionGroup">
+<!-- 1. Wealth (재물운) - Default Open -->
+<div class="rounded-xl bg-surface-container overflow-hidden shadow-md transition-all">
+<button class="w-full p-space-md flex items-center justify-between text-left group accordion-trigger" data-target="content-wealth">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">savings</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-title-md text-title-md text-on-surface font-semibold">재물운</span>
+<div class="flex text-primary">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 0;">star_half</span>
+</div>
+</div>
+<p class="font-caption text-caption text-on-surface-variant mt-0.5">뜻밖의 횡재수와 투자 결실</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant transform transition-transform duration-300 rotate-180 accordion-icon">expand_more</span>
+</button>
+<div class="px-space-md pb-space-md pt-0 text-on-surface space-y-2.5" id="content-wealth">
+<div class="p-3 rounded bg-surface-container-high/60 font-body-sm text-body-sm leading-relaxed text-on-surface">
+            하반기 8월~11월 사이 현금 흐름이 가장 왕성하며 문서운과 결합되어 부동산 또는 장기 보유 자산에서 큰 반등이 예상됩니다. 
+            다만 <strong>음력 7월</strong>에는 충동적 지출이나 보증 요구가 발생할 수 있으니 자금 인출 창구를 엄격히 묶어두는 것이 현명합니다.
+          </div>
+<div class="flex items-center justify-between font-label-kr text-label-kr text-on-surface-variant bg-surface-container-lowest/60 px-3 py-2 rounded">
+<span>행운의 투자 방위</span>
+<span class="text-primary font-semibold">동남방 (木·火 기운 합치)</span>
+</div>
+</div>
+</div>
+<!-- 2. Career (직업/사업운) -->
+<div class="rounded-xl bg-surface-container overflow-hidden shadow-md transition-all">
+<button class="w-full p-space-md flex items-center justify-between text-left group accordion-trigger" data-target="content-career">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">domain</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-title-md text-title-md text-on-surface font-semibold">직업 · 사업운</span>
+<div class="flex text-primary">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<p class="font-caption text-caption text-on-surface-variant mt-0.5">이직 및 프로젝트 주도 길운</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant transform transition-transform duration-300 accordion-icon">expand_more</span>
+</button>
+<div class="px-space-md pb-space-md pt-0 text-on-surface space-y-2.5 hidden" id="content-career">
+<div class="p-3 rounded bg-surface-container-high/60 font-body-sm text-body-sm leading-relaxed text-on-surface">
+            새로운 환경으로 이동하거나 독자적 비즈니스를 론칭하기에 최적화된 기운입니다. 손윗사람이나 경력직 멘토와의 협업에서 돌파구가 열립니다. 본인의 전문성을 대외적으로 공표할 때 계약 성사율이 극대화됩니다.
+          </div>
+<div class="flex items-center justify-between font-label-kr text-label-kr text-on-surface-variant bg-surface-container-lowest/60 px-3 py-2 rounded">
+<span>승진 및 계약 길일</span>
+<span class="text-primary font-semibold">양력 5월 12일, 9월 21일</span>
+</div>
+</div>
+</div>
+<!-- 3. Love & Relationship (애정/인연운) -->
+<div class="rounded-xl bg-surface-container overflow-hidden shadow-md transition-all">
+<button class="w-full p-space-md flex items-center justify-between text-left group accordion-trigger" data-target="content-love">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">favorite</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-title-md text-title-md text-on-surface font-semibold">애정 · 인연운</span>
+<div class="flex text-primary">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 0;">star</span>
+</div>
+</div>
+<p class="font-caption text-caption text-on-surface-variant mt-0.5">기존 결속 심화 및 4월·10월 귀인</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant transform transition-transform duration-300 accordion-icon">expand_more</span>
+</button>
+<div class="px-space-md pb-space-md pt-0 text-on-surface space-y-2.5 hidden" id="content-love">
+<div class="p-3 rounded bg-surface-container-high/60 font-body-sm text-body-sm leading-relaxed text-on-surface">
+            기혼이거나 연인이 있는 경우 서로의 커리어를 지지해주며 신뢰의 축이 확고해집니다. 솔로인 경우 학업 모임이나 컨퍼런스 등 지적 교류가 활발한 장소에서 평생의 반려자가 될 수 있는 도화 인연을 마주하게 됩니다.
+          </div>
+<div class="flex items-center justify-between font-label-kr text-label-kr text-on-surface-variant bg-surface-container-lowest/60 px-3 py-2 rounded">
+<span>최상의 궁합 띠</span>
+<span class="text-primary font-semibold">소띠(丑) · 닭띠(酉)</span>
+</div>
+</div>
+</div>
+<!-- 4. Wellness (건강/마음운) -->
+<div class="rounded-xl bg-surface-container overflow-hidden shadow-md transition-all">
+<button class="w-full p-space-md flex items-center justify-between text-left group accordion-trigger" data-target="content-health">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">spa</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-title-md text-title-md text-on-surface font-semibold">건강 · 마음운</span>
+<div class="flex text-primary">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 0;">star_half</span>
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 0;">star</span>
+</div>
+</div>
+<p class="font-caption text-caption text-on-surface-variant mt-0.5">화기운 과열 방지 및 수면 조절</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant transform transition-transform duration-300 accordion-icon">expand_more</span>
+</button>
+<div class="px-space-md pb-space-md pt-0 text-on-surface space-y-2.5 hidden" id="content-health">
+<div class="p-3 rounded bg-surface-container-high/60 font-body-sm text-body-sm leading-relaxed text-on-surface">
+            추진력이 강해지는 반면 신체 내 열기(熱氣)가 축적되어 불면증이나 역류성 식도염 같은 스트레스성 소화기 증상이 동반될 수 있습니다. 찬 성질의 수기(水氣)를 보충하는 수영이나 명상 루틴을 적극 권장합니다.
+          </div>
+<div class="flex items-center justify-between font-label-kr text-label-kr text-on-surface-variant bg-surface-container-lowest/60 px-3 py-2 rounded">
+<span>보완 처방</span>
+<span class="text-tertiary font-semibold">블랙 컬러 소품 · 취침 전 반신욕</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Monthly Rhythm 1-12 Mini-Bar Rhythm -->
+<section class="rounded-xl bg-surface-container p-space-lg shadow-lg space-y-space-md">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">2025 월별 운세 흐름도</h3>
+<p class="font-caption text-caption text-on-surface-variant">월별 에너지 강도와 황금기(Golden Months)</p>
+</div>
+<div class="flex items-center gap-1.5 font-label-kr text-label-kr text-primary">
+<span class="w-2.5 h-2.5 rounded-full bg-primary inline-block"></span>
+<span>최상의 달</span>
+</div>
+</div>
+<!-- 12-Month Calendar Bar Grid -->
+<div class="grid grid-cols-6 gap-2 pt-1">
+<!-- M1 -->
+<div class="bg-surface-container-high/80 rounded-lg p-2 flex flex-col items-center justify-between h-20 text-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant">1월</span>
+<div class="w-1.5 h-6 rounded-full bg-surface-container-highest"></div>
+<span class="font-caption text-caption text-on-surface-variant">평탄</span>
+</div>
+<!-- M2 -->
+<div class="bg-surface-container-high/80 rounded-lg p-2 flex flex-col items-center justify-between h-20 text-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant">2월</span>
+<div class="w-1.5 h-8 rounded-full bg-surface-container-highest"></div>
+<span class="font-caption text-caption text-on-surface-variant">준비</span>
+</div>
+<!-- M3 (Highlight) -->
+<div class="bg-primary/15 rounded-lg p-2 flex flex-col items-center justify-between h-20 text-center shadow-sm">
+<span class="font-label-caps text-label-caps text-primary font-bold">3월</span>
+<div class="w-2 h-11 rounded-full bg-primary"></div>
+<span class="font-caption text-caption text-primary font-bold">대길</span>
+</div>
+<!-- M4 -->
+<div class="bg-surface-container-high/80 rounded-lg p-2 flex flex-col items-center justify-between h-20 text-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant">4월</span>
+<div class="w-1.5 h-9 rounded-full bg-secondary"></div>
+<span class="font-caption text-caption text-on-surface">인연</span>
+</div>
+<!-- M5 -->
+<div class="bg-surface-container-high/80 rounded-lg p-2 flex flex-col items-center justify-between h-20 text-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant">5월</span>
+<div class="w-1.5 h-8 rounded-full bg-surface-container-highest"></div>
+<span class="font-caption text-caption text-on-surface-variant">성취</span>
+</div>
+<!-- M6 -->
+<div class="bg-surface-container-high/80 rounded-lg p-2 flex flex-col items-center justify-between h-20 text-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant">6월</span>
+<div class="w-1.5 h-7 rounded-full bg-surface-container-highest"></div>
+<span class="font-caption text-caption text-on-surface-variant">보합</span>
+</div>
+<!-- M7 -->
+<div class="bg-surface-container-high/80 rounded-lg p-2 flex flex-col items-center justify-between h-20 text-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant">7월</span>
+<div class="w-1.5 h-5 rounded-full bg-surface-variant"></div>
+<span class="font-caption text-caption text-error">주의</span>
+</div>
+<!-- M8 (Highlight) -->
+<div class="bg-primary/15 rounded-lg p-2 flex flex-col items-center justify-between h-20 text-center shadow-sm">
+<span class="font-label-caps text-label-caps text-primary font-bold">8월</span>
+<div class="w-2 h-12 rounded-full bg-primary"></div>
+<span class="font-caption text-caption text-primary font-bold">재물</span>
+</div>
+<!-- M9 -->
+<div class="bg-surface-container-high/80 rounded-lg p-2 flex flex-col items-center justify-between h-20 text-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant">9월</span>
+<div class="w-1.5 h-8 rounded-full bg-secondary"></div>
+<span class="font-caption text-caption text-on-surface">확장</span>
+</div>
+<!-- M10 -->
+<div class="bg-surface-container-high/80 rounded-lg p-2 flex flex-col items-center justify-between h-20 text-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant">10월</span>
+<div class="w-1.5 h-9 rounded-full bg-secondary"></div>
+<span class="font-caption text-caption text-on-surface">조력</span>
+</div>
+<!-- M11 (Highlight) -->
+<div class="bg-primary/15 rounded-lg p-2 flex flex-col items-center justify-between h-20 text-center shadow-sm">
+<span class="font-label-caps text-label-caps text-primary font-bold">11월</span>
+<div class="w-2 h-11 rounded-full bg-primary"></div>
+<span class="font-caption text-caption text-primary font-bold">결실</span>
+</div>
+<!-- M12 -->
+<div class="bg-surface-container-high/80 rounded-lg p-2 flex flex-col items-center justify-between h-20 text-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant">12월</span>
+<div class="w-1.5 h-6 rounded-full bg-surface-container-highest"></div>
+<span class="font-caption text-caption text-on-surface-variant">정리</span>
+</div>
+</div>
+<!-- Monthly Context Highlight Box -->
+<div class="p-3 bg-surface-container-high/70 rounded-lg flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-[20px]">stars</span>
+<p class="font-body-sm text-body-sm text-on-surface">
+<strong class="text-primary font-semibold">3월 · 8월 · 11월</strong>에 새로운 결단(투자, 이직, 청약)을 실행하면 성공 확률이 평달 대비 40% 이상 높습니다.
+      </p>
+</div>
+</section>
+<!-- Astrological Consultant Notes Card with Illustration/Visual placeholder -->
+<section class="rounded-xl bg-surface-container p-space-lg shadow-lg relative overflow-hidden">
+<div class="flex items-center gap-3 mb-space-sm">
+<img class="w-12 h-12 rounded-full object-cover shadow-sm" data-alt="Close up photography of an elegant celestial astrolabe and astronomical chart crafted in warm brushed gold and dark slate obsidian stone with soft candlelight reflections, moody fine art studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCG4zC5OAFiEfAUZONLZ9MkDcjSasNDVT-H5-o7qd_C-aktGnbb-U5KMVbvgkWFDgf2EP8UAPMtCiaASa1qwbVbMdxw7RXczBKNA0Tcv7HMBkLHBwGSvgEndNEHhwgB0QDhAuyjM3I8D6sIpOYDOQ9nrxCNXfomGPW67IfPfNE8Ek8JjPc05QIGV2UPt6v3KqJl3bipkJ6t50CZh_gUVWKOH_g99iNHxDGGwjxHl1LE"/>
+<div>
+<h4 class="font-title-md text-title-md font-semibold text-on-surface">천명원 수석 명리학자의 조언</h4>
+<span class="font-caption text-caption text-primary">자문위원 도현(道玄) 선생</span>
+</div>
+</div>
+<blockquote class="font-body-md text-body-md text-on-surface-variant italic pl-3 border-l-0 bg-surface-container-high/50 p-3 rounded-lg leading-relaxed">
+      “사주는 고정된 족쇄가 아닌, 흐르는 바람의 방향입니다. 2025년의 강한 화기운을 등에 업고 당신만의 돛을 과감히 펼치십시오.”
+    </blockquote>
+</section>
+<!-- Report Download & Sharing Sticky Actions -->
+<section class="pt-2 pb-space-sm space-y-space-sm">
+<button class="w-full h-13 py-3.5 rounded-xl bg-primary text-on-primary font-title-md text-title-md font-semibold shadow-lg hover:brightness-105 active:scale-[0.99] transition-all flex items-center justify-center gap-2" id="downloadPdfBtn">
+<span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+<span>2025 심층 사주 리포트 (PDF 28P) 소장하기</span>
+</button>
+<div class="grid grid-cols-2 gap-space-sm">
+<button class="h-11 rounded-lg bg-surface-container-high text-on-surface font-label-kr text-label-kr flex items-center justify-center gap-1.5 hover:bg-surface-container-highest transition-colors" id="shareReportBtn">
+<span class="material-symbols-outlined text-[18px]">share</span>
+<span>운세 결과 공유하기</span>
+</button>
+<button class="h-11 rounded-lg bg-surface-container-high text-on-surface font-label-kr text-label-kr flex items-center justify-center gap-1.5 hover:bg-surface-container-highest transition-colors" id="requestDetailConsult">
+<span class="material-symbols-outlined text-[18px]">support_agent</span>
+<span>1:1 추가 해석 질의</span>
+</button>
+</div>
+</section>
+</div>
+<!-- Inline Micro-interactions Script -->
+<script>
+  (function() {
+    // Accordion Logic
+    const accordionTriggers = document.querySelectorAll('.accordion-trigger');
+    accordionTriggers.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-target');
+        const target = document.getElementById(targetId);
+        const icon = btn.querySelector('.accordion-icon');
+        
+        if (target.classList.contains('hidden')) {
+          target.classList.remove('hidden');
+          icon.classList.add('rotate-180');
+        } else {
+          target.classList.add('hidden');
+          icon.classList.remove('rotate-180');
+        }
+      });
+    });
+
+    // Expand All Button
+    const expandAllBtn = document.getElementById('expandAllBtn');
+    let allExpanded = false;
+    if (expandAllBtn) {
+      expandAllBtn.addEventListener('click', () => {
+        allExpanded = !allExpanded;
+        accordionTriggers.forEach(btn => {
+          const targetId = btn.getAttribute('data-target');
+          const target = document.getElementById(targetId);
+          const icon = btn.querySelector('.accordion-icon');
+          if (allExpanded) {
+            target.classList.remove('hidden');
+            icon.classList.add('rotate-180');
+          } else {
+            target.classList.add('hidden');
+            icon.classList.remove('rotate-180');
+          }
+        });
+        expandAllBtn.textContent = allExpanded ? '전체 접기' : '전체 펼치기';
+      });
+    }
+
+    // Category Tabs Switching Micro-interaction
+    const tabs = document.querySelectorAll('#reportTabs button');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => {
+          t.className = 'px-4 py-2 rounded-full font-label-kr text-label-kr bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-all flex items-center gap-1.5';
+        });
+        tab.className = 'px-4 py-2 rounded-full font-label-kr text-label-kr bg-primary text-on-primary font-semibold shadow-md flex items-center gap-1.5 transition-all';
+      });
+    });
+
+    // Simple feedback for download/share
+    const downloadBtn = document.getElementById('downloadPdfBtn');
+    if (downloadBtn) {
+      downloadBtn.addEventListener('click', () => {
+        const prevText = downloadBtn.innerHTML;
+        downloadBtn.innerHTML = '<span class="material-symbols-outlined text-[20px] animate-spin">refresh</span><span>고화질 리포트 생성 중...</span>';
+        setTimeout(() => {
+          downloadBtn.innerHTML = '<span class="material-symbols-outlined text-[20px]">check_circle</span><span>다운로드가 완료되었습니다</span>';
+          setTimeout(() => {
+            downloadBtn.innerHTML = prevText;
+          }, 2400);
+        }, 1200);
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface-container-lowest/90 backdrop-blur-2xl shadow-[0_-8px_32px_rgba(0,0,0,0.65)]" data-active-classes="text-primary font-semibold"><div class="flex justify-around items-center h-16 px-space-xs"><a class="flex flex-col items-center justify-center gap-1 w-20 h-14 text-on-surface-variant hover:text-on-surface transition-all group" data-path="home" href="#"><span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">explore</span><span class="font-label-kr text-label-kr tracking-tight">홈</span></a><a class="flex flex-col items-center justify-center gap-1 w-20 h-14 text-on-surface-variant hover:text-on-surface transition-all group" data-path="saju-calendar" href="#"><span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">auto_stories</span><span class="font-label-kr text-label-kr tracking-tight">만세력</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-1 w-20 h-14 transition-all group text-primary font-semibold" data-path="destiny-report" href="#"><span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">stars</span><span class="font-label-kr text-label-kr tracking-tight">운세리포트</span></a><a class="flex flex-col items-center justify-center gap-1 w-20 h-14 text-on-surface-variant hover:text-on-surface transition-all group" data-path="consultation" href="#"><span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">forum</span><span class="font-label-kr text-label-kr tracking-tight">1:1 상담</span></a></div></nav></body></html>

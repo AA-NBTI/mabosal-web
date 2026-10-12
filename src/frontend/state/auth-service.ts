@@ -1,0 +1,240 @@
+/**
+ * AuthService (정석 ID/비밀번호 기반 인증 및 회원가입 계정 저장소)
+ */
+
+export type UserRole = 'guest' | 'user' | 'partner' | 'admin';
+export type PartnerType = 'AFFILIATE' | 'EXPERT' | 'HYBRID';
+
+export interface UserAccount {
+  id: string;          // 고유 ID
+  username: string;    // 로그인 아이디
+  password: string;    // 비밀번호
+  name: string;        // 실명 / 활동명
+  email: string;
+  phone?: string;
+  role: UserRole;
+  partnerType?: PartnerType;
+  partnerCode?: string;
+  yeopBalance: number;
+  joinedAt: string;
+}
+
+const STORAGE_KEY_ACCOUNTS = 'mabosal_registered_accounts';
+const STORAGE_KEY_CURRENT_SESSION = 'mabosal_auth_session';
+
+export class AuthService {
+  // 기본 시드(Seed) 계정 데이터베이스
+  private static defaultAccounts: UserAccount[] = [
+    {
+      id: 'acc_admin_01',
+      username: 'admin',
+      password: 'admin1234',
+      name: '최고관리자 (Master)',
+      email: 'master@mabosal.com',
+      phone: '010-0000-0000',
+      role: 'admin',
+      yeopBalance: 999999,
+      joinedAt: '2026-01-01',
+    },
+    {
+      id: 'acc_partner_01',
+      username: 'partner1',
+      password: '1234',
+      name: '도선도사 (김도원)',
+      email: 'creator@partner.mabosal.com',
+      phone: '010-1234-5678',
+      role: 'partner',
+      partnerType: 'HYBRID',
+      partnerCode: 'vip_creator',
+      yeopBalance: 5000,
+      joinedAt: '2026-08-01',
+    },
+    {
+      id: 'acc_user_01',
+      username: 'user1',
+      password: '1234',
+      name: '홍길동',
+      email: 'seoyeon@mabosal.com',
+      phone: '010-9876-5432',
+      role: 'user',
+      yeopBalance: 3350,
+      joinedAt: '2026-09-15',
+    },
+  ];
+
+  private static currentSession: UserAccount | null = null;
+  private static initialized = false;
+
+  public static init(): void {
+    if (this.initialized) return;
+
+    if (typeof window !== 'undefined') {
+      try {
+        // 계정 DB 초기화 (없으면 기본 시드 삽입)
+        const storedAccounts = localStorage.getItem(STORAGE_KEY_ACCOUNTS);
+        if (!storedAccounts) {
+          localStorage.setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(this.defaultAccounts));
+        }
+
+        // 현재 로그인 세션 복원
+        const storedSession = localStorage.getItem(STORAGE_KEY_CURRENT_SESSION);
+        if (storedSession) {
+          this.currentSession = JSON.parse(storedSession);
+        }
+      } catch (e) {
+        console.warn('[AuthService] Init error', e);
+      }
+    }
+    this.initialized = true;
+  }
+
+  /** 등록된 모든 계정 조회 */
+  public static getAllAccounts(): UserAccount[] {
+    this.init();
+    if (typeof window === 'undefined') return this.defaultAccounts;
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_ACCOUNTS);
+      return stored ? JSON.parse(stored) : this.defaultAccounts;
+    } catch {
+      return this.defaultAccounts;
+    }
+  }
+
+  /** 현재 로그인 세션 사용자 (없으면 게스트) */
+  public static getCurrentUser(): UserAccount {
+    this.init();
+    if (this.currentSession) return this.currentSession;
+    return {
+      id: 'guest_0',
+      username: 'guest',
+      password: '',
+      name: '방문자',
+      email: '',
+      role: 'guest',
+      yeopBalance: 0,
+      joinedAt: new Date().toISOString(),
+    };
+  }
+
+  public static isAuthenticated(): boolean {
+    this.init();
+    return this.currentSession !== null && this.currentSession.role !== 'guest';
+  }
+
+  public static isAdmin(): boolean {
+    this.init();
+    return this.currentSession?.role === 'admin';
+  }
+
+  public static isPartner(): boolean {
+    this.init();
+    return this.currentSession?.role === 'partner';
+  }
+
+  /**
+   * 1. 정석 아이디 / 비밀번호 로그인
+   */
+  public static login(username: string, password: string): { success: boolean; message: string; user?: UserAccount } {
+    this.init();
+    const cleanUsername = username.trim();
+    const cleanPassword = password.trim();
+
+    if (!cleanUsername) {
+      return { success: false, message: '아이디를 입력해주세요.' };
+    }
+    if (!cleanPassword) {
+      return { success: false, message: '비밀번호를 입력해주세요.' };
+    }
+
+    const accounts = this.getAllAccounts();
+    const found = accounts.find(a => a.username.toLowerCase() === cleanUsername.toLowerCase());
+
+    if (!found) {
+      return { success: false, message: '존재하지 않는 아이디입니다. 회원가입을 먼저 진행해주세요.' };
+    }
+
+    if (found.password !== cleanPassword) {
+      return { success: false, message: '비밀번호가 일치하지 않습니다. 다시 확인해주세요.' };
+    }
+
+    // 로그인 성공 -> 세션 저장
+    this.currentSession = found;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(found));
+    }
+    return { success: true, message: `환영합니다, ${found.name} 님!`, user: found };
+  }
+
+  /**
+   * 2. 정석 신규 회원가입 (아이디, 비번, 비번확인, 이름, 역할)
+   */
+  public static register(params: {
+    username: string;
+    password: string;
+    passwordConfirm: string;
+    name: string;
+    phone?: string;
+    role: UserRole;
+    partnerType?: PartnerType;
+  }): { success: boolean; message: string; user?: UserAccount } {
+    this.init();
+    const username = params.username.trim();
+    const password = params.password.trim();
+    const name = params.name.trim();
+
+    if (!username || username.length < 3) {
+      return { success: false, message: '아이디는 3자 이상 입력해주세요.' };
+    }
+    if (!password || password.length < 4) {
+      return { success: false, message: '비밀번호는 4자 이상 입력해주세요.' };
+    }
+    if (password !== params.passwordConfirm.trim()) {
+      return { success: false, message: '비밀번호와 비밀번호 확인이 일치하지 않습니다.' };
+    }
+    if (!name) {
+      return { success: false, message: '이름을 입력해주세요.' };
+    }
+
+    const accounts = this.getAllAccounts();
+    if (accounts.some(a => a.username.toLowerCase() === username.toLowerCase())) {
+      return { success: false, message: '이미 사용 중인 아이디입니다. 다른 아이디를 입력해주세요.' };
+    }
+
+    const newAccount: UserAccount = {
+      id: `acc_${Date.now()}`,
+      username,
+      password,
+      name,
+      email: `${username}@mabosal.com`,
+      phone: params.phone?.trim() || '',
+      role: params.role,
+      partnerType: params.role === 'partner' ? (params.partnerType || 'HYBRID') : undefined,
+      partnerCode: params.role === 'partner' ? username : undefined,
+      yeopBalance: params.role === 'user' ? 3000 : 0, // 가입 축하 3,000엽
+      joinedAt: new Date().toISOString().slice(0, 10),
+    };
+
+    accounts.push(newAccount);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
+    }
+
+    // 가입 즉시 자동 로그인
+    this.currentSession = newAccount;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(newAccount));
+    }
+
+    return { success: true, message: `회원가입이 완료되었습니다! 환영합니다, ${name} 님!`, user: newAccount };
+  }
+
+  /**
+   * 3. 로그아웃
+   */
+  public static logout(): void {
+    this.currentSession = null;
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEY_CURRENT_SESSION);
+    }
+  }
+}

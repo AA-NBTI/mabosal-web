@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&amp;family=Noto+Serif+KR:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#0f131d;color:#dfe2f1;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-low":"#171b26","error":"#ffb4ab","primary":"#f2ca50","error-container":"#93000a","on-surface-variant":"#d0c5af","inverse-primary":"#735c00","on-primary":"#3c2f00","on-secondary-fixed":"#121c2c","tertiary-container":"#2dc3e1","inverse-surface":"#dfe2f1","surface-dim":"#0f131d","on-background":"#dfe2f1","inverse-on-surface":"#2c303b","on-primary-fixed":"#241a00","on-secondary-fixed-variant":"#3e475a","on-surface":"#dfe2f1","on-secondary-container":"#acb5cb","on-primary-container":"#554300","surface-container-high":"#262a35","surface":"#0f131d","on-tertiary-container":"#004c5a","secondary-container":"#3e475a","secondary-fixed-dim":"#bec6dd","on-tertiary-fixed":"#001f26","primary-fixed-dim":"#e9c349","surface-bright":"#353944","tertiary-fixed-dim":"#4cd7f6","surface-container":"#1c1f2a","on-secondary":"#283042","on-tertiary":"#003640","surface-container-lowest":"#0a0e18","tertiary-fixed":"#acedff","secondary":"#bec6dd","surface-variant":"#313540","tertiary":"#56dffe","surface-container-highest":"#313540","surface-tint":"#e9c349","on-error-container":"#ffdad6","on-error":"#690005","outline":"#99907c","on-primary-fixed-variant":"#574500","primary-fixed":"#ffe088","outline-variant":"#4d4635","secondary-fixed":"#dae2fa","primary-container":"#d4af37","background":"#0f131d","on-tertiary-fixed-variant":"#004e5c"},borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},spacing:{"space-lg":"1.25rem","space-md":"0.875rem","space-sm":"0.5rem","space-xs":"0.25rem",margin:"1.25rem","space-xl":"1.75rem",gutter:"1rem"},fontFamily:{"title-lg":["Noto Sans KR","Noto Sans"],"headline-md":["Noto Serif KR","Noto Serif"],"body-sm":["Noto Sans KR","Noto Sans"],"label-kr":["Noto Sans KR","Noto Sans"],caption:["Noto Sans KR","Noto Sans"],"headline-lg":["Noto Serif KR","Noto Serif"],"title-md":["Noto Sans KR","Noto Sans"],"headline-xl":["Noto Serif KR","Noto Serif"],"body-md":["Noto Sans KR","Noto Sans"],"label-caps":["Space Grotesk"],"body-lg":["Noto Sans KR","Noto Sans"]},fontSize:{"title-lg":["18px",{lineHeight:"26px",letterSpacing:"-0.01em",fontWeight:"600"}],"headline-md":["20px",{lineHeight:"28px",letterSpacing:"-0.01em",fontWeight:"500"}],"body-sm":["13px",{lineHeight:"19px",letterSpacing:"0.005em",fontWeight:"400"}],"label-kr":["12px",{lineHeight:"16px",letterSpacing:"0em",fontWeight:"500"}],caption:["11px",{lineHeight:"15px",letterSpacing:"0.01em",fontWeight:"400"}],"headline-lg":["26px",{lineHeight:"34px",letterSpacing:"-0.015em",fontWeight:"600"}],"title-md":["16px",{lineHeight:"24px",letterSpacing:"0em",fontWeight:"600"}],"headline-xl":["32px",{lineHeight:"42px",letterSpacing:"-0.02em",fontWeight:"600"}],"body-md":["14px",{lineHeight:"22px",letterSpacing:"0em",fontWeight:"400"}],"label-caps":["11px",{lineHeight:"14px",letterSpacing:"0.08em",fontWeight:"600"}],"body-lg":["16px",{lineHeight:"26px",letterSpacing:"-0.005em",fontWeight:"400"}]}}}};</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface flex flex-col min-h-screen selection:bg-primary selection:text-on-primary"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.45)]"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary"><span class="material-symbols-outlined text-[18px]">token</span></div><span class="font-headline-md text-headline-md text-primary font-bold tracking-tight">천명원</span><span class="hidden">Consultation Booking Sheet</span></div><div class="flex items-center gap-space-sm"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/80 backdrop-blur-sm"><span class="material-symbols-outlined text-primary text-[16px]">monetization_on</span><span class="font-label-caps text-label-caps text-primary tracking-wide">3,350</span><span class="font-label-kr text-label-kr text-on-surface-variant">엽</span></div><button aria-label="알림" class="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[22px]">notifications</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 bg-surface min-h-screen"><div class="flex flex-col w-full relative">
+<!-- Dimmed & Frosted Reservation Confirmation Backdrop (SCREEN_2 Context) -->
+<div class="w-full px-margin pb-24 opacity-35 select-none pointer-events-none filter blur-[1px]">
+<div class="w-full bg-surface-container-low rounded-xl p-space-md mb-space-md flex flex-col gap-space-xs shadow-md">
+<div class="flex items-center justify-between">
+<span class="font-label-kr text-label-kr text-tertiary">예약 완료 상세 번호 #CMW-8821</span>
+<span class="font-label-caps text-label-caps text-primary">CONFIRMED</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">1:1 심층 사주 명리 정밀 상담</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">2024년 10월 14일 (월) 20:00 - 20:30 (술시 戌時)</p>
+</div>
+<!-- Background Saju Matrix Preview Mini Card -->
+<div class="w-full bg-surface-container rounded-xl p-space-md flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">auto_awesome</span>
+</div>
+<div>
+<div class="font-title-md text-title-md text-on-surface">의뢰인 사주 원국</div>
+<div class="font-caption text-caption text-on-surface-variant">갑진년 병인월 갑진일 을해시</div>
+</div>
+</div>
+<span class="font-label-caps text-label-caps text-tertiary bg-surface-container-high px-2 py-1 rounded-full">분석 완료</span>
+</div>
+</div>
+<!-- Deep Celestial Overlay Tint -->
+<div class="fixed inset-0 z-40 bg-surface-dim/75 backdrop-blur-sm transition-opacity"></div>
+<!-- Bottom Sheet Modal Container -->
+<div class="fixed inset-x-0 bottom-0 z-50 max-w-lg mx-auto flex flex-col bg-surface-container-lowest rounded-t-3xl shadow-[0_-12px_40px_rgba(0,0,0,0.85)] max-h-[813px] overflow-hidden">
+<!-- Modal Drag Handle & Header Top Bar -->
+<div class="relative pt-3 pb-3 px-margin flex flex-col items-center bg-surface-container-low/95 shrink-0">
+<div class="w-12 h-1.5 rounded-full bg-surface-variant mb-3"></div>
+<div class="w-full flex items-center justify-between">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="font-label-caps text-label-caps tracking-wider">天命院 • 상담 집중도 극대화</span>
+</div>
+<button aria-label="닫기" class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<div class="w-full mt-2.5 text-left">
+<h2 class="font-headline-md text-headline-md text-on-surface tracking-tight">상담 사전 질문지 작성</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-snug">
+          상담 10분 전 도원 김학선 수석 역술가에게 안전하게 사전 전달되어, 30분 집중 상담의 깊이를 2배로 만듭니다.
+        </p>
+</div>
+</div>
+<!-- Scrollable Modal Body Form -->
+<div class="flex-1 overflow-y-auto px-margin py-space-md space-y-space-lg overscroll-contain">
+<!-- Teacher Briefing Card (Compact Summary) -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container-high p-space-md shadow-md">
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-primary/5 rounded-full blur-xl pointer-events-none"></div>
+<div class="flex items-center gap-space-md">
+<div class="relative shrink-0">
+<div class="w-14 h-14 rounded-full overflow-hidden bg-surface-container shadow-inner">
+<img class="w-full h-full object-cover" data-alt="A dignified middle-aged Korean master geomancer and Saju scholar named Dowon Kim Hak-seon, wearing a refined modern dark midnight hanbok robe, soft ambient warm gold study lighting, calm celestial observatory background, premium photorealistic portrait style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcQ7GWcszfblPmJPH84qIQTXerPrWfeyjEtJrLJ2K1tCZJXpB8N595LQH4T76ZoXh2Sg6u2m0CJGswQ5_AAv8uw5MdjJs39GNHzX8P5gWslgdu-A-rlNCPDfNDaxbweVNbavfo2cwOOoF8HXSX8PtbUnS1f2GWJxqoDtb6RgH3F8XntV72CkoN5tZmXpzBt8z3cS1sj6NCHBRrsFCtO21vty9kl9E2Hhi-JQXP_R2R"/>
+</div>
+<span class="absolute -bottom-1 -right-1 bg-primary text-on-primary font-label-caps text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-sm">수석</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md text-on-surface truncate">도원(道元) 김학선 수석 역술가</span>
+</div>
+<div class="font-caption text-caption text-primary flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[13px]">schedule</span>
+              오늘 20:00 전화 상담 (대길시 술시 戌時 배정)
+            </div>
+<div class="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface-container text-tertiary font-label-kr text-label-kr">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+              사주원국(갑진년 병인월 갑진일) 전송 완료
+            </div>
+</div>
+</div>
+</div>
+<!-- STEP 01: Core Topic Chips Selection -->
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="font-label-caps text-label-caps text-primary bg-primary/10 px-1.5 py-0.5 rounded">STEP 01</span>
+<span class="font-title-md text-title-md text-on-surface">가장 궁금한 핵심 고민 분야</span>
+</div>
+<span class="font-caption text-caption text-on-surface-variant">복수 선택 (최대 2개)</span>
+</div>
+<div class="flex flex-wrap gap-2 pt-1" id="topicChipContainer">
+<!-- Checked Chip 1 -->
+<button class="topic-chip active flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-on-primary font-label-kr text-label-kr shadow-[0_0_12px_rgba(242,202,80,0.35)] transition-all transform active:scale-95" data-val="wealth" type="button">
+<span class="text-base leading-none">💰</span>
+<span class="font-semibold">재물 · 투자운</span>
+<span class="text-[11px] opacity-90 font-normal">(진토 재고 개방 집중)</span>
+<span class="material-symbols-outlined text-[14px] ml-0.5">check_circle</span>
+</button>
+<!-- Checked Chip 2 -->
+<button class="topic-chip active flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-on-primary font-label-kr text-label-kr shadow-[0_0_12px_rgba(242,202,80,0.35)] transition-all transform active:scale-95" data-val="career" type="button">
+<span class="text-base leading-none">🏢</span>
+<span class="font-semibold">이직 · 사업 확장</span>
+<span class="text-[11px] opacity-90 font-normal">(하반기 변동수 점검)</span>
+<span class="material-symbols-outlined text-[14px] ml-0.5">check_circle</span>
+</button>
+<!-- Unchecked Chip 3 -->
+<button class="topic-chip flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-container-high text-on-surface-variant font-label-kr text-label-kr hover:bg-surface-variant transition-all transform active:scale-95" data-val="love" type="button">
+<span class="text-base leading-none">❤️</span>
+<span>인연 · 연애운</span>
+</button>
+<!-- Unchecked Chip 4 -->
+<button class="topic-chip flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-container-high text-on-surface-variant font-label-kr text-label-kr hover:bg-surface-variant transition-all transform active:scale-95" data-val="health" type="button">
+<span class="text-base leading-none">🩺</span>
+<span>건강 · 심신 안정</span>
+</button>
+<!-- Unchecked Chip 5 -->
+<button class="topic-chip flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-container-high text-on-surface-variant font-label-kr text-label-kr hover:bg-surface-variant transition-all transform active:scale-95" data-val="property" type="button">
+<span class="text-base leading-none">🏠</span>
+<span>문서 · 부동산 계약</span>
+</button>
+</div>
+</div>
+<!-- STEP 02: Core Questions -->
+<div class="space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="font-label-caps text-label-caps text-primary bg-primary/10 px-1.5 py-0.5 rounded">STEP 02</span>
+<span class="font-title-md text-title-md text-on-surface">역술가에게 묻고 싶은 핵심 질문</span>
+</div>
+<span class="font-caption text-caption text-on-surface-variant">정확한 사주 문답을 위한 핵심</span>
+</div>
+<!-- Question 1 (Filled State) -->
+<div class="bg-surface-container-low rounded-xl p-space-md space-y-2 shadow-sm">
+<div class="flex items-center justify-between">
+<label class="font-label-kr text-label-kr font-semibold text-primary flex items-center gap-1" for="q1">
+<span class="material-symbols-outlined text-[15px]">help</span>
+              질문 1 (필수)
+            </label>
+<span class="font-label-caps text-label-caps text-on-surface-variant" id="q1-count">68 / 200자</span>
+</div>
+<textarea class="w-full bg-surface-container-highest/60 text-on-surface font-body-sm text-body-sm rounded-lg p-3 outline-none resize-none focus:bg-surface-container-highest transition-colors leading-relaxed" id="q1" placeholder="상담 시 꼭 풀고 싶은 질문을 적어주세요." rows="3">올해 10월 대길월에 이직 제안을 수락하는 것이 좋을까요? 현 직장 잔류와 비교했을 때 재물운의 흐름이 궁금합니다.</textarea>
+</div>
+<!-- Question 2 (Filled/Active State) -->
+<div class="bg-surface-container-low rounded-xl p-space-md space-y-2 shadow-sm">
+<div class="flex items-center justify-between">
+<label class="font-label-kr text-label-kr font-semibold text-on-surface flex items-center gap-1" for="q2">
+<span class="material-symbols-outlined text-[15px]">edit_note</span>
+              질문 2 (선택)
+            </label>
+<span class="font-label-caps text-label-caps text-on-surface-variant" id="q2-count">59 / 200자</span>
+</div>
+<textarea class="w-full bg-surface-container-highest/60 text-on-surface font-body-sm text-body-sm rounded-lg p-3 outline-none resize-none focus:bg-surface-container-highest transition-colors leading-relaxed" id="q2" placeholder="보조 질문이 있다면 함께 적어주세요." rows="3">갑진일 비보로 추천받은 서남방 이동과 관련해 이번 달 계약 시 주의할 날짜가 있는지 알고 싶습니다.</textarea>
+</div>
+<!-- Quick Question Inspiration Section -->
+<div class="rounded-xl bg-surface-container p-space-md space-y-space-sm">
+<div class="flex items-center gap-1.5 text-primary">
+<span class="material-symbols-outlined text-[16px]">lightbulb</span>
+<span class="font-label-kr text-label-kr font-semibold">질문 작성이 어려우신가요? 추천 질문 템플릿</span>
+</div>
+<div class="space-y-2">
+<button class="w-full text-left p-2.5 rounded-lg bg-surface-container-high hover:bg-surface-bright transition-colors flex items-start gap-2 text-on-surface-variant hover:text-on-surface" onclick="insertPrompt('이직운이 가장 강하게 들어오는 정확한 월은 언제인가요?')" type="button">
+<span class="material-symbols-outlined text-[16px] text-tertiary mt-0.5 shrink-0">add_comment</span>
+<span class="font-body-sm text-body-sm leading-snug">“이직운이 가장 강하게 들어오는 정확한 월은 언제인가요?”</span>
+</button>
+<button class="w-full text-left p-2.5 rounded-lg bg-surface-container-high hover:bg-surface-bright transition-colors flex items-start gap-2 text-on-surface-variant hover:text-on-surface" onclick="insertPrompt('동업자와의 오행 궁합상 보완해야 할 점은 무엇인가요?')" type="button">
+<span class="material-symbols-outlined text-[16px] text-tertiary mt-0.5 shrink-0">add_comment</span>
+<span class="font-body-sm text-body-sm leading-snug">“동업자와의 오행 궁합상 보완해야 할 점은 무엇인가요?”</span>
+</button>
+</div>
+</div>
+</div>
+<!-- STEP 03: Additional Reference Checkboxes -->
+<div class="space-y-space-sm">
+<div class="flex items-center gap-1.5">
+<span class="font-label-caps text-label-caps text-primary bg-primary/10 px-1.5 py-0.5 rounded">STEP 03</span>
+<span class="font-title-md text-title-md text-on-surface">상담 시 추가 참고 정보</span>
+</div>
+<div class="space-y-2.5">
+<!-- Checkbox Option 1 -->
+<label class="flex items-start gap-3 p-3 rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input checked="" class="mt-1 w-4 h-4 rounded accent-primary bg-surface-container-highest cursor-pointer" type="checkbox"/>
+<div class="flex-1 text-left">
+<span class="font-label-kr text-label-kr text-primary font-semibold">[연동]</span>
+<span class="font-body-sm text-body-sm text-on-surface ml-1">오늘 생성된 10.14 갑진일 당일 비보 실천 기록(3,350엽 달성) 함께 전달</span>
+<p class="font-caption text-caption text-on-surface-variant mt-0.5">상담가가 오행 기운의 실시간 밸런스를 고려하여 해법을 제시합니다.</p>
+</div>
+</label>
+<!-- Checkbox Option 2 -->
+<label class="flex items-start gap-3 p-3 rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-colors">
+<input checked="" class="mt-1 w-4 h-4 rounded accent-primary bg-surface-container-highest cursor-pointer" type="checkbox"/>
+<div class="flex-1 text-left">
+<span class="font-label-kr text-label-kr text-tertiary font-semibold">[녹음]</span>
+<span class="font-body-sm text-body-sm text-on-surface ml-1">상담 종료 후 핵심 요약 브리핑 및 AI 통화 녹음본 암호화 보관 동의</span>
+<p class="font-caption text-caption text-on-surface-variant mt-0.5">상담 완료 직후 5분 내로 요약 리포트와 음성 다시듣기가 생성됩니다.</p>
+</div>
+</label>
+</div>
+</div>
+<!-- Celestial Privacy Assurance Banner -->
+<div class="rounded-xl bg-surface-container/60 p-3 flex items-center gap-2.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] text-primary shrink-0">lock</span>
+<span class="font-caption text-caption leading-tight">작성하신 질문은 천명원 보안 규정에 따라 담당 도원 김학선 역술가 외에는 열람되지 않으며 상담 종료 후 안전하게 보관됩니다.</span>
+</div>
+</div>
+<!-- Bottom Fixed CTA Section -->
+<div class="p-margin pt-3 bg-surface-container-low/95 shadow-[0_-8px_20px_rgba(0,0,0,0.6)] flex flex-col gap-2 shrink-0">
+<button class="w-full py-3.5 px-space-md rounded-xl bg-gradient-to-r from-primary to-primary-container text-on-primary font-title-md text-title-md flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(212,175,55,0.35)] hover:brightness-110 active:scale-[0.99] transition-all" type="button">
+<span>도원 선생에게 질문지 사전 전달하기</span>
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+<p class="font-caption text-caption text-center text-on-surface-variant">
+        상담 시작 30분 전까지는 언제든 질문을 수정하실 수 있습니다.
+      </p>
+<button class="w-full py-1.5 text-center font-label-kr text-label-kr text-on-surface-variant hover:text-primary transition-colors" type="button">
+        나중에 작성하기 (상담 시 직접 구두 전달)
+      </button>
+</div>
+</div>
+</div>
+<script>
+  // Simple micro-interaction for chips & inspiration prompt insertion
+  document.querySelectorAll('.topic-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const activeCount = document.querySelectorAll('.topic-chip.active').length;
+      const isAlreadyActive = btn.classList.contains('active');
+
+      if (isAlreadyActive) {
+        btn.classList.remove('active', 'bg-primary', 'text-on-primary', 'shadow-[0_0_12px_rgba(242,202,80,0.35)]');
+        btn.classList.add('bg-surface-container-high', 'text-on-surface-variant');
+        const checkIcon = btn.querySelector('.material-symbols-outlined');
+        if (checkIcon) checkIcon.remove();
+      } else {
+        if (activeCount >= 2) {
+          // Limit 2 chips
+          const firstActive = document.querySelector('.topic-chip.active');
+          if (firstActive) {
+            firstActive.classList.remove('active', 'bg-primary', 'text-on-primary', 'shadow-[0_0_12px_rgba(242,202,80,0.35)]');
+            firstActive.classList.add('bg-surface-container-high', 'text-on-surface-variant');
+            const check = firstActive.querySelector('.material-symbols-outlined');
+            if (check) check.remove();
+          }
+        }
+        btn.classList.add('active', 'bg-primary', 'text-on-primary', 'shadow-[0_0_12px_rgba(242,202,80,0.35)]');
+        btn.classList.remove('bg-surface-container-high', 'text-on-surface-variant');
+        if (!btn.querySelector('.material-symbols-outlined')) {
+          const icon = document.createElement('span');
+          icon.className = 'material-symbols-outlined text-[14px] ml-0.5';
+          icon.innerText = 'check_circle';
+          btn.appendChild(icon);
+        }
+      }
+    });
+  });
+
+  // Dynamic Character Counter helper
+  const updateCount = (textareaId, counterId) => {
+    const el = document.getElementById(textareaId);
+    const counter = document.getElementById(counterId);
+    if (el && counter) {
+      el.addEventListener('input', () => {
+        counter.textContent = `${el.value.length} / 200자`;
+      });
+    }
+  };
+  updateCount('q1', 'q1-count');
+  updateCount('q2', 'q2-count');
+
+  function insertPrompt(text) {
+    const q2 = document.getElementById('q2');
+    const q2Count = document.getElementById('q2-count');
+    if (q2) {
+      q2.value = text;
+      if (q2Count) q2Count.textContent = `${text.length} / 200자`;
+      q2.focus();
+    }
+  }
+</script></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-1px_12px_rgba(0,0,0,0.5)]" data-active-classes="text-primary"><div class="flex justify-around items-center h-20 px-space-xs"><a class="flex flex-col items-center justify-center gap-1 w-16 h-16 text-on-surface-variant hover:text-primary transition-all" data-path="home" href="#"><span class="material-symbols-outlined text-[22px]">explore</span><span class="font-label-kr text-label-kr">홈</span></a><a class="flex flex-col items-center justify-center gap-1 w-16 h-16 text-on-surface-variant hover:text-primary transition-all" data-path="saju-matrix" href="#"><span class="material-symbols-outlined text-[22px]">calendar_month</span><span class="font-label-kr text-label-kr">만세력</span></a><a class="flex flex-col items-center justify-center gap-1 w-16 h-16 text-on-surface-variant hover:text-primary transition-all" data-path="fortune-report" href="#"><span class="material-symbols-outlined text-[22px]">auto_stories</span><span class="font-label-kr text-label-kr">운세리포트</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-1 w-16 h-16 transition-all text-primary" data-path="consultation-booking-sheet" href="#"><span class="material-symbols-outlined text-[22px]">forum</span><span class="font-label-kr text-label-kr">1:1 상담</span></a></div></nav></body></html>
