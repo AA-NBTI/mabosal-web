@@ -5,6 +5,8 @@
 import { AuthService } from '../../state/auth-service.js';
 import { UserOrderService } from './user-order-service.js';
 import { OFFICIAL_BANK_ACCOUNT } from '../../extensions/commerce-store/store-service.js';
+import { UserSajuStore } from '../../state/user-saju-store.js';
+import { ProductReviewStore } from '../../state/product-review-store.js';
 
 export function renderUserOrderHistoryWidget(): string {
   const user = AuthService.getCurrentUser();
@@ -154,31 +156,106 @@ export function renderUserOrderHistoryWidget(): string {
           </a>
         </div>
       ` : `
-        <div style="display: flex; flex-direction: column; gap: 0.65rem;">
-          ${userOrders.map(o => `
-            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 0.9rem 1.1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.65rem;">
-              <div>
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-                  <span style="font-size: 0.72rem; padding: 0.1rem 0.45rem; border-radius: 4px; font-weight: 700; background: ${o.status === 'completed' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(242, 202, 80, 0.15)'}; color: ${o.status === 'completed' ? '#4ade80' : 'var(--primary)'}; border: 1px solid ${o.status === 'completed' ? 'rgba(34, 197, 94, 0.3)' : 'rgba(242, 202, 80, 0.3)'};">
-                    ${o.status === 'completed' ? '결제완료' : '입금대기'}
+        <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+          ${userOrders.map(o => {
+            const defaultProfile = UserSajuStore.getProfileOrDefault();
+            const rawTargetName = (o.sajuInput?.userName && o.sajuInput.userName !== '의뢰인')
+              ? o.sajuInput.userName
+              : (o.buyerName && o.buyerName !== '의뢰인' ? o.buyerName : (user.name || defaultProfile.userName || '김서연'));
+            
+            // 본인 사주 여부 판별 (이용자 본인의 주문인 경우 이름 반복 도배 방지)
+            const isSelf = !o.sajuInput?.userName || o.sajuInput.userName === '의뢰인' || o.sajuInput.userName === user.name;
+
+            // 개인정보 보호 성명 마스킹 (김서연 -> 김*연)
+            const cleanTargetName = rawTargetName.replace(/\s*\(.*\)/, '').trim();
+            let maskedName = cleanTargetName;
+            if (cleanTargetName.length === 2) {
+              maskedName = cleanTargetName[0] + '*';
+            } else if (cleanTargetName.length === 3) {
+              maskedName = cleanTargetName[0] + '*' + cleanTargetName[2];
+            } else if (cleanTargetName.length === 4) {
+              maskedName = cleanTargetName[0] + '**' + cleanTargetName[3];
+            } else if (cleanTargetName.length >= 5) {
+              maskedName = cleanTargetName.slice(0, 2) + '*'.repeat(Math.min(cleanTargetName.length - 3, 2)) + cleanTargetName.slice(-1);
+            }
+
+            // 개인정보 보호 생년월일 간소화 (1993.08.15 -> 1993년생)
+            const rawBirth = o.sajuInput?.solarBirthDate || defaultProfile.solarBirthDate || '1993.08.15';
+            const yearMatch = rawBirth.match(/(\d{4})/);
+            const birthYear = yearMatch ? `${yearMatch[1]}년생` : '';
+
+            return `
+            <div class="user-order-accordion-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; overflow: hidden; margin-bottom: 0.5rem; transition: all 0.15s ease;">
+              
+              <!-- 닫힘 기본 헤더 행: 클릭 시 토글 -->
+              <div class="btn-toggle-order-row" data-target="order-collapsible-${o.orderId}" style="padding: 0.8rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; cursor: pointer; user-select: none;">
+                <div style="display: flex; align-items: center; gap: 0.6rem; min-width: 0; flex: 1;">
+                  <span style="font-size: 0.7rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700; background: ${o.status === 'refunded' ? 'rgba(239, 68, 68, 0.15)' : (o.status === 'completed' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)')}; color: ${o.status === 'refunded' ? '#f87171' : '#fff'}; border: 1px solid rgba(255, 255, 255, 0.15); white-space: nowrap;">
+                    ${o.status === 'refunded' ? '환불완료' : (o.refundRequested ? '환불심사' : (o.status === 'completed' ? '결제완료' : '입금대기'))}
                   </span>
-                  <span style="font-size: 0.78rem; color: var(--text-muted);">주문번호: ${o.orderId}</span>
+                  <span style="font-size: 0.88rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    ${o.productTitle}
+                  </span>
+                  <span style="font-size: 0.76rem; color: #94a3b8; font-family: monospace; white-space: nowrap;">
+                    #${o.orderId.slice(-8)}
+                  </span>
                 </div>
-                <div style="font-size: 0.95rem; font-weight: 700; color: #fff;">${o.productTitle}</div>
-                <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
-                  결제수단: ${o.paymentMethod === 'bank_transfer' ? '무통장 입금' : '카드·간편결제'} | ₩ ${o.amount.toLocaleString()}
+                <div style="display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;">
+                  <span style="font-size: 0.85rem; font-weight: 800; color: #fff;">₩ ${o.amount.toLocaleString()}</span>
+                  <span style="font-size: 0.74rem; color: var(--text-muted);">${new Date(o.paidAt).toLocaleDateString()}</span>
+                  <span class="material-symbols-outlined order-chevron-${o.orderId}" style="font-size: 18px; color: var(--text-muted); transition: transform 0.2s ease;">expand_more</span>
                 </div>
               </div>
 
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                ${o.status === 'completed' && o.deliveryType === 'saju_report' ? `
-                  <a href="/?view=report" style="background: var(--primary); color: #000; font-weight: 800; font-size: 0.8rem; padding: 0.45rem 0.9rem; border-radius: 6px; text-decoration: none;">
-                    감정서 열람 →
-                  </a>
-                ` : ''}
+              <!-- 클릭 시 펼쳐지는 상세 내역 (기본 닫힘) -->
+              <div id="order-collapsible-${o.orderId}" class="order-collapsible-content" style="display: none; padding: 1rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.25);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.85rem;">
+                  <div style="font-size: 0.8rem; color: #cbd5e1; display: flex; flex-direction: column; gap: 0.3rem;">
+                    <div>• 주문번호: <strong style="color: #fff; font-family: monospace;">${o.orderId}</strong></div>
+                    <div>• 결제 수단: <strong style="color: #fff;">${o.paymentMethod === 'bank_transfer' ? '무통장 입금' : '카드 / 간편결제'}</strong></div>
+                    <div>• 결제 일시: <strong style="color: #fff;">${new Date(o.paidAt).toLocaleString()}</strong></div>
+                    ${o.deliveryType === 'saju_report' ? `
+                      <div>• 사주 대상: <strong style="color: #fff;">${isSelf ? '본인 사주 분석' : `${maskedName} 님` + (birthYear ? ` (${birthYear})` : '')}</strong></div>
+                    ` : ''}
+                    ${o.deliveryType === 'shipping' && o.shippingAddress ? `
+                      <div>• 배송지 주소: <strong style="color: #fff;">${o.shippingAddress}</strong></div>
+                    ` : ''}
+                  </div>
+
+                  <!-- 액션 버튼들 -->
+                  <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    ${o.status === 'completed' && !ProductReviewStore.hasUserReviewed(o.orderId) ? `
+                      <button type="button" class="btn-open-write-review" data-order-id="${o.orderId}" data-product-id="${o.productId}" data-product-title="${o.productTitle}" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; font-size: 0.78rem; font-weight: 700; padding: 0.45rem 0.8rem; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem;">
+                        <span class="material-symbols-outlined" style="font-size: 15px;">rate_review</span>
+                        <span>후기 작성</span>
+                      </button>
+                    ` : (o.status === 'completed' && ProductReviewStore.hasUserReviewed(o.orderId) ? `
+                      <span style="font-size: 0.74rem; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.35rem 0.6rem; border-radius: 6px; font-weight: 700;">후기 작성완료</span>
+                    ` : '')}
+
+                    ${o.status === 'completed' && o.deliveryType === 'saju_report' ? `
+                      <button type="button" class="btn-open-user-report" data-order-id="${o.orderId}" data-product-id="${o.productId}" style="background: #ffffff; color: #0f131d; font-weight: 800; font-size: 0.82rem; padding: 0.45rem 1rem; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
+                        <span>감정서 열람</span>
+                        <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+
+                <!-- 하단 환불 접수 지원 -->
+                <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.6rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.74rem; color: #94a3b8;">
+                  <span>취소/환불 관련 문의는 고객센터 접수를 이용해 주세요.</span>
+                  ${o.status === 'completed' && !o.refundRequested ? `
+                    <button type="button" class="btn-request-order-refund" data-order-id="${o.orderId}" style="background: none; border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; font-size: 0.72rem; padding: 0.25rem 0.55rem; border-radius: 4px; cursor: pointer;">
+                      ${o.deliveryType === 'shipping' ? '반품/환불' : '주문 취소'}
+                    </button>
+                  ` : (o.refundRequested ? '<span style="color: #f87171; font-weight: 700;">환불 심사중</span>' : '')}
+                </div>
               </div>
+
             </div>
-          `).join('')}
+          `;
+          }).join('')}
         </div>
       `}
 

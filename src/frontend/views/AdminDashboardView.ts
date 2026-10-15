@@ -1,18 +1,12 @@
-import { renderAdminVoucherPanel, bindAdminVoucherEvents } from '../modules/voucher/AdminVoucherPanel.js';
+import { renderAdminBankTransferPanel, renderAdminCouponPanel, renderAdminVoucherPanel, bindAdminVoucherEvents } from '../modules/voucher/AdminVoucherPanel.js';
+import { VoucherStore } from '../modules/voucher/voucher-store.js';
 import { renderAdminPaymentPanel } from '../modules/payment/AdminPaymentPanel.js';
 import { SiteContentStore } from '../state/site-content-store.js';
 import { PartnerTracker } from '../modules/partner-tracker.js';
-/**
- * 최고 관리자 대시보드 뷰 (WordPress-Style Admin Master Control Tower)
- * 
- * 워드프레스 관리자 아키텍처:
- * - PC: 좌측 250px 고정 카테고리 사이드바 + 우측 메인 워크스페이스
- * - 모바일: 상단 햄버거 메뉴 버튼 + 부드러운 오버레이 슬라이드 드로어 사이드바
- * - 실시간 명리 마스터 / 협력 상담사 / 엽전 지갑 기능의 화면 노출 원클릭 ON/OFF 통제
- */
-
 import { CatalogStore } from '../state/catalog-store.js';
 import { ModuleRegistry } from '../state/module-registry.js';
+import { CustomerInquiryStore } from '../state/customer-inquiry-store.js';
+import { ProductReviewStore } from '../state/product-review-store.js';
 import {
   VERTICALS,
   getAllSolutions,
@@ -20,7 +14,9 @@ import {
   getSolutionStats,
   getPartnerApplications,
 } from '../extensions/solution-hub/index.js';
-import { renderAdminStorePanel } from '../extensions/commerce-store/index.js';
+import { renderAdminStorePanel, getAllStoreOrders } from '../extensions/commerce-store/index.js';
+import { renderAdminInquiriesPanel, expandSpecificInquiry } from './AdminInquiriesPanel.js';
+import { renderAdminReviewsPanel } from './AdminReviewsPanel.js';
 
 let activeEditingStoreProductId: string | null = null;
 export function setEditingStoreProductId(id: string | null): void {
@@ -30,212 +26,237 @@ export function getEditingStoreProductId(): string | null {
   return activeEditingStoreProductId;
 }
 
-let activeAdminTabId = 'tab-features';
+let activeAdminTabId = 'tab-overview';
 
 export function setAdminActiveTab(tabId: string): void {
- activeAdminTabId = tabId;
+  activeAdminTabId = tabId;
 }
 
 export function getAdminActiveTab(): string {
- return activeAdminTabId;
+  return activeAdminTabId;
+}
+
+// 상위 카테고리 아코디언(펼침/닫힘) 상태 관리
+const expandedAdminGroupIds = new Set<string>([
+  'group-overview',
+  'group-commerce',
+  'group-support'
+]);
+
+export function toggleAdminGroup(groupId: string): void {
+  if (expandedAdminGroupIds.has(groupId)) {
+    expandedAdminGroupIds.delete(groupId);
+  } else {
+    expandedAdminGroupIds.add(groupId);
+  }
+}
+
+export function isGroupExpanded(groupId: string): boolean {
+  return expandedAdminGroupIds.has(groupId);
 }
 
 export function renderAdminDashboardView(): string {
- const products = CatalogStore.getProducts();
- const vendors = CatalogStore.getVendors();
- const allModules = ModuleRegistry.getAllModules();
- const masterToggles = ModuleRegistry.getAllMasterToggles();
+  const products = CatalogStore.getProducts();
+  const vendors = CatalogStore.getVendors();
+  const allModules = ModuleRegistry.getAllModules();
+  const masterToggles = ModuleRegistry.getAllMasterToggles();
+  const allOrders = getAllStoreOrders();
 
- const activeProductsCount = products.filter(p => p.enabled).length;
- const activeVendorsCount = vendors.filter(v => v.enabled).length;
- const activeModulesCount = allModules.filter(m => m.enabled).length;
- const activeMasterCount = masterToggles.filter(m => m.enabled).length;
+  const activeProductsCount = products.filter(p => p.enabled).length;
+  const activeVendorsCount = vendors.filter(v => v.enabled).length;
+  const activeModulesCount = allModules.filter(m => m.enabled).length;
+  const activeMasterCount = masterToggles.filter(m => m.enabled).length;
 
- const currentTab = activeAdminTabId;
+  const currentTab = activeAdminTabId;
+  const pendingInquiriesCount = CustomerInquiryStore.getPendingCount();
 
- // 탭별 브레드크럼 타이틀 매핑
- const tabTitles: Record<string, string> = {
-    'tab-payments': 'PG 결제 연동 설정 (토스페이먼츠 · 무통장)',
-    'tab-vouchers': '쿠폰 발행 & 무통장 입금 원클릭 승인 센터',
-    'tab-store': '스토어 상품 & 실시간 주문 관리',
-    'tab-study': '스터디 블로그 & 지식 허브 CMS 관리',
-    'tab-features': '서비스 기능 제어 (ON/OFF)',
-    'tab-site-content': '사이트 문구 및 브랜딩 설정 (CMS)',
-    'tab-solutions': '솔루션 허브 & 6대 버티컬 통제탑',
-    'tab-products': '사주 감정서 티어 가격 설정',
-    'tab-vendors': '협력업체 & 전문 상담사 관리',
-    'tab-orders': '사주 결제 주문 장부',
-    'tab-affiliate': '제휴 파트너스 정산 및 출금 승인',
-  };
- const activeTitle = tabTitles[currentTab] || '관리자 통제탑';
+  // [상위 대주제 카테고리 및 서브 카테고리 정의 - 요구사항 1번 고객센터/고객문의 반영]
+  const adminGroups = [
+    {
+      id: 'group-overview',
+      label: '대시보드',
+      defaultTab: 'tab-overview',
+      subTabs: []
+    },
+    {
+      id: 'group-commerce',
+      label: '커머스',
+      defaultTab: 'tab-store',
+      subTabs: [
+        { id: 'tab-store', label: '상품 관리' },
+        { id: 'tab-orders', label: '주문 장부' },
+        { id: 'tab-reviews', label: '리뷰 관리' },
+        { id: 'tab-transfers', label: '무통장 승인' },
+        { id: 'tab-coupons', label: '쿠폰' },
+        { id: 'tab-payments', label: '결제 설정' },
+      ]
+    },
+    {
+      id: 'group-content',
+      label: '컨텐츠',
+      defaultTab: 'tab-study',
+      subTabs: [
+        { id: 'tab-study', label: '스터디' },
+      ]
+    },
+    {
+      id: 'group-partners',
+      label: '파트너스',
+      defaultTab: 'tab-vendors',
+      subTabs: [
+        { id: 'tab-vendors', label: '협력사' },
+        { id: 'tab-affiliate', label: '제휴 정산' },
+      ]
+    },
+    {
+      id: 'group-support',
+      label: '고객센터',
+      defaultTab: 'tab-inquiries',
+      subTabs: [
+        { id: 'tab-inquiries', label: pendingInquiriesCount > 0 ? `고객문의 (${pendingInquiriesCount})` : '고객문의' },
+      ]
+    },
+    {
+      id: 'group-system',
+      label: '시스템',
+      defaultTab: 'tab-solutions',
+      subTabs: [
+        { id: 'tab-solutions', label: '사주 엔진' },
+        { id: 'tab-features', label: '기능 제어' },
+        { id: 'tab-site-content', label: '사이트 설정' },
+      ]
+    }
+  ];
 
- return `
- <div class="admin-dashboard-container" style="max-width: 1360px; width: 100%; margin: 0 auto; padding: 1rem 0.75rem 5rem; font-family: var(--font-body); box-sizing: border-box;">
- 
- <!-- 워드프레스 스타일 2컬럼 레이아웃 래퍼 -->
- <div class="wp-admin-wrapper">
- 
- <!-- 모바일 드로어용 백드롭 오버레이 -->
- <div class="wp-admin-backdrop" id="wp-admin-backdrop"></div>
+  // 현재 활성 대주제 그룹 찾기
+  let activeGroup = adminGroups.find(g => g.subTabs.some(st => st.id === currentTab) || g.defaultTab === currentTab);
+  if (!activeGroup) {
+    if (currentTab === 'tab-vouchers') activeGroup = adminGroups[1];
+    else if (currentTab === 'tab-products') activeGroup = adminGroups[5];
+    else activeGroup = adminGroups[0];
+  }
 
- <!-- [좌측 카테고리 사이드바] -->
- <aside class="wp-admin-sidebar" id="wp-admin-sidebar">
- <!-- 사이드바 상단 브랜딩 -->
- <div class="wp-admin-sidebar-header">
- <div style="display: flex; align-items: center; gap: 0.65rem;">
- <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.4); display: flex; align-items: center; justify-content: center; color: var(--primary);">
- <span class="material-symbols-outlined" style="font-size: 20px;">admin_panel_settings</span>
- </div>
- <div>
-            <div style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 800; color: #dfe2f1; line-height: 1.15; display: flex; align-items: center; gap: 0.45rem;">
-              마보살 관리자
-              <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(242, 202, 80, 0.15); color: #f2ca50; border: 1px solid rgba(242, 202, 80, 0.35); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v1.0.0</span>
+  const currentSubTab = activeGroup.subTabs.find(st => st.id === currentTab) || (activeGroup.subTabs.length > 0 ? activeGroup.subTabs[0] : null);
+
+  return `
+  <div class="admin-dashboard-container" style="max-width: 1360px; width: 100%; margin: 0 auto; padding: 1rem 0.75rem 5rem; font-family: var(--font-body); box-sizing: border-box;">
+  
+  <!-- 워드프레스 스타일 2컬럼 레이아웃 래퍼 -->
+  <div class="wp-admin-wrapper">
+  
+  <!-- 모바일 드로어용 백드롭 오버레이 -->
+  <div class="wp-admin-backdrop" id="wp-admin-backdrop"></div>
+
+  <!-- [좌측 1차 대주제 사이드바] -->
+  <aside class="wp-admin-sidebar" id="wp-admin-sidebar">
+    <!-- 사이드바 상단 브랜딩 (유일하게 아이콘 유지) -->
+    <div class="wp-admin-sidebar-header">
+      <div style="display: flex; align-items: center; gap: 0.65rem; cursor: pointer;" class="btn-admin-header-home">
+        <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); display: flex; align-items: center; justify-content: center; color: #fff;">
+          <span class="material-symbols-outlined" style="font-size: 20px;">admin_panel_settings</span>
+        </div>
+        <div>
+          <div style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 800; color: #dfe2f1; line-height: 1.15; display: flex; align-items: center; gap: 0.45rem;">
+            마보살 관리자
+            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v1.1.0</span>
+          </div>
+          <div style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.05em;">ADMIN CONTROL TOWER</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 좌측 상위 대주제 및 서브 카테고리 아코디언 메뉴 리스트 (클릭 시 펼침/닫힘) -->
+    <ul class="wp-admin-menu-list" style="margin: 0; padding: 0.5rem; list-style: none; display: flex; flex-direction: column; gap: 0.4rem;">
+      ${adminGroups.map(group => {
+        const isGroupActive = activeGroup.id === group.id;
+        const isExpanded = expandedAdminGroupIds.has(group.id);
+
+        return `
+        <li class="admin-menu-group" style="display: flex; flex-direction: column; gap: 0.15rem;">
+          <!-- 1차 대주제 버튼 (서브메뉴 없으면 즉시 이동, 있으면 아코디언 토글) -->
+          <div class="wp-admin-menu-btn ${group.subTabs.length === 0 ? 'admin-tab-btn' : 'btn-toggle-admin-group'} ${isGroupActive ? 'active' : ''}" ${group.subTabs.length === 0 ? `data-tab="${group.defaultTab}"` : `data-group-id="${group.id}" data-default-tab="${group.defaultTab}"`} style="border-left: 3px solid ${isGroupActive ? '#ffffff' : 'transparent'}; background: ${isGroupActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent'}; display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0.85rem; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; user-select: none;">
+            <div style="display: flex; align-items: center; gap: 0.45rem;">
+              <span style="font-weight: ${isGroupActive ? '800' : '700'}; font-size: 0.95rem; color: ${isGroupActive ? '#fff' : '#cbd5e1'}; letter-spacing: -0.01em;">${group.label}</span>
+              ${group.id === 'group-support' && pendingInquiriesCount > 0 ? `
+                <span style="background: #ef4444; color: #fff; font-size: 0.65rem; font-weight: 800; padding: 0.1rem 0.4rem; border-radius: 9999px;">
+                  ${pendingInquiriesCount}
+                </span>
+              ` : ''}
             </div>
- <div style="font-size: 0.68rem; color: var(--primary); font-family: var(--font-display); letter-spacing: 0.05em;">WP-CONTROL TOWER</div>
- </div>
- </div>
- </div>
+            ${group.subTabs.length > 0 ? `
+              <span style="font-size: 0.72rem; color: ${isExpanded ? '#ffffff' : 'rgba(255,255,255,0.35)'}; font-family: monospace;">
+                ${isExpanded ? '▼' : '▶'}
+              </span>
+            ` : ''}
+          </div>
 
- <!-- 좌측 카테고리 네비게이션 메뉴 목록 -->
- <ul class="wp-admin-menu-list" style="margin: 0; padding: 0.5rem; list-style: none; display: flex; flex-direction: column; gap: 0.35rem;">
-              <!-- 1. 솔루션 허브 (최우선) -->
-              <li>
-                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-solutions' ? 'active' : ''}" data-tab="tab-solutions" style="border-left: 3px solid ${currentTab === 'tab-solutions' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-solutions' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
-                  <span class="material-symbols-outlined" style="font-size: 19px; color: ${currentTab === 'tab-solutions' ? 'var(--primary)' : 'inherit'};">hub</span>
-                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-solutions' ? '800' : '600'};">솔루션 허브</span>
-                  <span class="menu-badge" style="background: rgba(242,202,80,0.18); color: #f2ca50; font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;">6대</span>
-                </button>
-              </li>
-
-              <!-- 2.4 PG 결제 연동 -->
-              <li>
-                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-payments' ? 'active' : ''}" data-tab="tab-payments" style="border-left: 3px solid ${currentTab === 'tab-payments' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-payments' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
-                  <span class="material-symbols-outlined" style="font-size: 20px; color: ${currentTab === 'tab-payments' ? 'var(--primary)' : 'inherit'};">credit_card</span>
-                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-payments' ? '800' : '600'};">결제 연동 설정</span>
-                  <span class="menu-badge" style="background: rgba(96,165,250,0.2); color: #93c5fd; font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700;">PG</span>
-                </button>
-              </li>
-
-              <!-- 2.5 쿠폰 & 무통장 승인 -->
-              <li>
-                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-vouchers' ? 'active' : ''}" data-tab="tab-vouchers" style="border-left: 3px solid ${currentTab === 'tab-vouchers' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-vouchers' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
-                  <span class="material-symbols-outlined" style="font-size: 20px; color: ${currentTab === 'tab-vouchers' ? 'var(--primary)' : 'inherit'};">confirmation_number</span>
-                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-vouchers' ? '800' : '600'};">쿠폰·무통장 승인</span>
-                  <span class="menu-badge" style="background: rgba(255,107,107,0.22); color: #ff8585; font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700;">원클릭승인</span>
-                </button>
-              </li>
-
-              <!-- 2. 스토어 관리 -->
-              <li>
-                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-store' ? 'active' : ''}" data-tab="tab-store" style="border-left: 3px solid ${currentTab === 'tab-store' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-store' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
-                  <span class="material-symbols-outlined" style="font-size: 20px; color: ${currentTab === 'tab-store' ? 'var(--primary)' : 'inherit'};">storefront</span>
-                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-store' ? '800' : '600'};">스토어 관리</span>
-                  <span class="menu-badge" style="background: var(--primary); color: #1c1500; font-weight: 800; font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;">쇼핑몰</span>
-                </button>
-              </li>
-
-              <!-- 3. 스터디 관리 -->
-              <li>
-                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-study' ? 'active' : ''}" data-tab="tab-study" style="border-left: 3px solid ${currentTab === 'tab-study' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-study' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
-                  <span class="material-symbols-outlined" style="font-size: 20px; color: ${currentTab === 'tab-study' ? 'var(--primary)' : 'inherit'};">menu_book</span>
-                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-study' ? '800' : '600'};">스터디 관리</span>
-                  <span class="menu-badge" style="background: rgba(242, 202, 80, 0.15); color: #f2ca50; padding: 0.15rem 0.5rem; border-radius: 9999px; font-size: 0.72rem; font-weight: 600;">블로그/지식</span>
-                </button>
-              </li>
-
-              <!-- 4. 서비스 기능 제어 -->
-              <li>
-                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-features' ? 'active' : ''}" data-tab="tab-features" style="border-left: 3px solid ${currentTab === 'tab-features' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-features' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
-                  <span class="material-symbols-outlined" style="font-size: 19px; color: ${currentTab === 'tab-features' ? 'var(--primary)' : 'inherit'};">toggle_on</span>
-                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-features' ? '800' : '600'};">서비스 기능 제어</span>
-                  <span class="menu-badge" style="font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;">${activeModulesCount}/${allModules.length}</span>
-                </button>
-              </li>
-
-              <!-- 5. 문구·브랜딩 설정 (CMS) -->
-              <li>
-                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-site-content' ? 'active' : ''}" data-tab="tab-site-content" style="border-left: 3px solid ${currentTab === 'tab-site-content' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-site-content' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
-                  <span class="material-symbols-outlined" style="font-size: 19px; color: ${currentTab === 'tab-site-content' ? 'var(--primary)' : 'inherit'};">edit_note</span>
-                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-site-content' ? '800' : '600'};">문구·브랜딩 설정</span>
-                  <span class="menu-badge" style="font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;">CMS</span>
-                </button>
-              </li>
-
-              <!-- 6. 사주 가격 설정 -->
-              <li>
-                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-products' ? 'active' : ''}" data-tab="tab-products" style="border-left: 3px solid ${currentTab === 'tab-products' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-products' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
-                  <span class="material-symbols-outlined" style="font-size: 19px; color: ${currentTab === 'tab-products' ? 'var(--primary)' : 'inherit'};">price_change</span>
-                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-products' ? '800' : '600'};">사주 가격 설정</span>
-                  <span class="menu-badge" style="font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;">${products.length}종</span>
-                </button>
-              </li>
-
-              <!-- 7. 협력사 & 상담사 -->
-              <li>
-                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-vendors' ? 'active' : ''}" data-tab="tab-vendors" style="border-left: 3px solid ${currentTab === 'tab-vendors' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-vendors' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
-                  <span class="material-symbols-outlined" style="font-size: 19px; color: ${currentTab === 'tab-vendors' ? 'var(--primary)' : 'inherit'};">handshake</span>
-                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-vendors' ? '800' : '600'};">협력사 &amp; 상담사</span>
-                  <span class="menu-badge" style="font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;">${vendors.length}</span>
-                </button>
-              </li>
-
-              <!-- 8. 사주 결제 장부 -->
-              <li>
-                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-orders' ? 'active' : ''}" data-tab="tab-orders" style="border-left: 3px solid ${currentTab === 'tab-orders' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-orders' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
-                  <span class="material-symbols-outlined" style="font-size: 19px; color: ${currentTab === 'tab-orders' ? 'var(--primary)' : 'inherit'};">receipt_long</span>
-                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-orders' ? '800' : '600'};">사주 결제 장부</span>
-                  <span class="menu-badge" style="font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;">3건</span>
-                </button>
-              </li>
-
-              <!-- 9. 제휴 정산 & 출금 -->
-              <li>
-                <button type="button" class="wp-admin-menu-btn admin-tab-btn ${currentTab === 'tab-affiliate' ? 'active' : ''}" data-tab="tab-affiliate" style="border-left: 3px solid ${currentTab === 'tab-affiliate' ? 'var(--primary)' : 'transparent'}; background: ${currentTab === 'tab-affiliate' ? 'rgba(242, 202, 80, 0.16)' : 'transparent'};">
-                  <span class="material-symbols-outlined" style="font-size: 19px; color: ${currentTab === 'tab-affiliate' ? 'var(--primary)' : 'inherit'};">payments</span>
-                  <span style="flex: 1; text-align: left; font-weight: ${currentTab === 'tab-affiliate' ? '800' : '600'};">제휴 정산 &amp; 출금</span>
-                  <span class="menu-badge" style="font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px;">2건</span>
-                </button>
-              </li>
+          <!-- 2차 서브 카테고리 목록 (아코디언 펼쳐졌을 때만 노출) -->
+          ${isExpanded ? `
+            <ul class="admin-sub-menu-list" style="margin: 0.15rem 0 0.35rem 0; padding: 0 0 0 0.85rem; list-style: none; display: flex; flex-direction: column; gap: 0.15rem; border-left: 1px dashed rgba(255, 255, 255, 0.15); margin-left: 1rem;">
+              ${group.subTabs.map(st => {
+                const isSubActive = currentTab === st.id;
+                return `
+                <li>
+                  <button type="button" class="admin-tab-btn sub-nav-btn ${isSubActive ? 'active' : ''}" data-tab="${st.id}" style="width: 100%; text-align: left; display: block; padding: 0.42rem 0.75rem; border-radius: 6px; font-size: 0.84rem; font-weight: ${isSubActive ? '800' : '500'}; border: 1px solid ${isSubActive ? 'rgba(255, 255, 255, 0.2)' : 'transparent'}; background: ${isSubActive ? 'rgba(255, 255, 255, 0.1)' : 'transparent'}; color: ${isSubActive ? '#ffffff' : '#94a3b8'}; cursor: pointer; transition: all 0.15s ease;">
+                    ${st.label}
+                  </button>
+                </li>
+                `;
+              }).join('')}
             </ul>
+          ` : ''}
+        </li>
+        `;
+      }).join('')}
+    </ul>
 
- <!-- 사이드바 하단 바로가기 -->
- <div style="padding: 1rem 1.15rem; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.2);">
- <button type="button" id="btn-admin-to-service" class="btn-cta-primary" style="width: 100%; padding: 0.6rem 0.8rem; font-size: 0.82rem; font-weight: 700; border-radius: 8px; justify-content: center; gap: 0.35rem;">
- <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
- 사용자 화면 보기
- </button>
- <div style="font-size: 0.68rem; color: var(--text-muted); text-align: center; margin-top: 0.65rem;">
- Core Engine v2.4 <span style="color: #f2ca50;">● Online</span>
- </div>
- </div>
- </aside>
+    <!-- 사이드바 하단 바로가기 -->
+    <div style="padding: 1rem 1.15rem; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.2); margin-top: auto;">
+      <button type="button" id="btn-admin-to-service" class="btn-cta-primary" style="width: 100%; padding: 0.6rem 0.8rem; font-size: 0.82rem; font-weight: 700; border-radius: 8px; justify-content: center; gap: 0.35rem;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
+        사용자 화면
+      </button>
+      <div style="font-size: 0.68rem; color: var(--text-muted); text-align: center; margin-top: 0.65rem;">
+        Core Engine v2.4 <span style="color: #f2ca50;">● Online</span>
+      </div>
+    </div>
+  </aside>
 
- <!-- [우측 메인 워크스페이스] -->
- <main class="wp-admin-workspace">
- <!-- 상단 툴바 (모바일 햄버거 토글 + 브레드크럼 + 퀵 액션) -->
- <div class="wp-admin-topbar">
- <div style="display: flex; align-items: center; gap: 0.75rem;">
- <!-- 모바일 전용 햄버거 버튼 -->
- <button type="button" class="wp-admin-hamburger" id="btn-admin-hamburger" aria-label="메뉴 열기">
- <span class="material-symbols-outlined" style="font-size: 22px;">menu</span>
- </button>
- <div>
- <div style="font-size: 0.72rem; color: var(--text-muted);">마보살 통제탑 &gt; 카테고리</div>
- <div style="font-size: 1rem; font-weight: 700; color: #dfe2f1;">${activeTitle}</div>
- </div>
- </div>
+  <!-- [우측 메인 워크스페이스] -->
+  <main class="wp-admin-workspace">
+    <!-- 상단 툴바 (모바일 햄버거 토글 + 깔끔한 단일 브레드크럼) -->
+    <div class="wp-admin-topbar" style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 1.25rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <!-- 모바일 전용 햄버거 버튼 -->
+        <button type="button" class="wp-admin-hamburger" id="btn-admin-hamburger" aria-label="메뉴 열기">
+          <span class="material-symbols-outlined" style="font-size: 22px;">menu</span>
+        </button>
+        <div>
+          <div style="font-size: 0.72rem; color: var(--text-muted);">
+            관리자 &gt; <span style="color: #cbd5e1;">${activeGroup.label}</span> ${currentSubTab ? `&gt; <strong style="color: #ffffff;">${currentSubTab.label}</strong>` : ''}
+          </div>
+          <div style="font-size: 1.05rem; font-weight: 800; color: #dfe2f1; margin-top: 0.15rem;">
+            ${currentSubTab ? currentSubTab.label : activeGroup.label}
+          </div>
+        </div>
+      </div>
 
- <div style="display: flex; align-items: center; gap: 0.5rem;">
- <button type="button" id="btn-admin-reset-defaults" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); color: #dfe2f1; border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
- <span class="material-symbols-outlined" style="font-size: 14px;">refresh</span>
- 초기화
- </button>
- </div>
- </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <button type="button" id="btn-admin-reset-defaults" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); color: #dfe2f1; border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
+          <span class="material-symbols-outlined" style="font-size: 14px;">refresh</span>
+          초기화
+        </button>
+      </div>
+    </div>
 
  <!-- 내부 콘텐츠 영역 (스크롤 가능) -->
  <div style="padding: 1.5rem; flex: 1; overflow-y: auto;">
  
+        <!-- [패널 -1] 마보살관리자 기본 대시보드 (종합 관제 및 실시간 고객 문의 즉시 대응 센터) -->
+        <div id="tab-overview" class="admin-tab-panel" style="display: ${currentTab === 'tab-overview' ? 'block' : 'none'};">
+          ${renderAdminOverviewPanel()}
+        </div>
+
  <!-- [패널 0] 사이트 문구 및 브랜딩 설정 (CMS) -->
         <div id="tab-site-content" class="admin-tab-panel" style="display: ${currentTab === 'tab-site-content' ? 'block' : 'none'};">
           <div style="background: var(--surface-container); border: 1.5px solid rgba(242,202,80,0.35); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;">
@@ -321,6 +342,10 @@ export function renderAdminDashboardView(): string {
                     <div>
                       <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">통신판매업신고번호</label>
                       <input type="text" id="input-cms-footer-mail" value="${cms.footer.mailOrderNumber}" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem;" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">사업장 소재지 (주소)</label>
+                      <input type="text" id="input-cms-footer-address" value="${cms.footer.address || '부산광역시 사하구 하신번영로 328, 302호 (하단동)'}" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem;" />
                     </div>
                     <div>
                       <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">고객센터 연락처 및 운영시간</label>
@@ -501,9 +526,9 @@ export function renderAdminDashboardView(): string {
  <!-- [패널 2] ️ 판매 상품 관리 -->
  <div id="tab-products" class="admin-tab-panel" style="display: ${currentTab === 'tab-products' ? 'block' : 'none'};">
  <!-- 신규 상품 등록 폼 -->
- <div style="background: var(--surface-container); border: 1px solid rgba(242,202,80,0.3); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;">
+ <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
  <h2 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: #dfe2f1; margin: 0 0 1rem; display: flex; align-items: center; gap: 0.4rem;">
- <span class="material-symbols-outlined" style="color: var(--primary);">add_circle</span>
+ <span class="material-symbols-outlined" style="color: #fff;">add_circle</span>
  신규 판매 상품 추가하기
  </h2>
  <form id="form-add-product" onsubmit="return false;" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
@@ -540,7 +565,7 @@ export function renderAdminDashboardView(): string {
  <input type="text" id="new-prod-desc" placeholder="상품에 대한 핵심 해설 및 포함 섹션 요약" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem 0.7rem; color: #dfe2f1; font-size: 0.85rem;" required />
  </div>
  <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end;">
- <button type="submit" id="btn-submit-add-product" class="btn-cta-primary" style="padding: 0.6rem 1.4rem; font-weight: 700; font-size: 0.85rem; border-radius: 8px;">
+ <button type="submit" id="btn-submit-add-product" style="background: #ffffff; color: #000; font-weight: 800; border: none; padding: 0.5rem 1.25rem; border-radius: 6px; cursor: pointer;" style="padding: 0.6rem 1.4rem; font-weight: 700; font-size: 0.85rem; border-radius: 8px;">
  + 상품 신규 등록 완료
  </button>
  </div>
@@ -552,53 +577,57 @@ export function renderAdminDashboardView(): string {
  <h2 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: #dfe2f1; margin: 0 0 1rem;">
  등록된 판매 상품 목록
  </h2>
- <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 0.85rem;">
- ${products.map(p => `
- <div style="background: var(--surface-container-low); border: 1px solid ${p.enabled ? 'rgba(242,202,80,0.3)' : 'rgba(255,255,255,0.06)'}; border-radius: 12px; padding: 1.15rem; display: flex; flex-direction: column; justify-content: space-between; position: relative;">
- <div>
- <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.45rem;">
- <div>
- ${p.badge ? `<span style="font-size: 0.68rem; background: rgba(242,202,80,0.15); color: var(--primary); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700; border: 1px solid rgba(242,202,80,0.3); margin-bottom: 0.25rem; display: inline-block;">${p.badge}</span>` : ''}
- <h3 style="font-size: 1.05rem; font-weight: 700; color: #dfe2f1; margin: 0;">${p.title}</h3>
- <span style="font-size: 0.72rem; color: var(--text-muted); font-family: monospace;">티어: ${p.tierId}</span>
- </div>
- <span style="font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700; background: ${p.enabled ? 'rgba(242, 202, 80, 0.15)' : 'rgba(248,113,113,0.15)'}; color: ${p.enabled ? '#f2ca50' : '#e2e8f0'};">
- ${p.enabled ? '판매 중' : '판매 중단'}
- </span>
- </div>
- <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.45; margin: 0.4rem 0 0.85rem;">
- ${p.description}
- </p>
- </div>
+ <div style="display: flex; flex-direction: column; gap: 0.45rem;">
+        ${products.map(p => `
+          <div class="admin-product-accordion-item" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; overflow: hidden; transition: all 0.15s ease;">
+            
+            <!-- 닫힘 기본 행 (클릭 시 토글) -->
+            <div class="btn-toggle-admin-product" data-target="admin-product-detail-${p.id}" style="padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; cursor: pointer; user-select: none;">
+              <div style="display: flex; align-items: center; gap: 0.65rem; min-width: 0; flex: 1;">
+                <span style="font-size: 0.7rem; padding: 0.12rem 0.45rem; border-radius: 4px; font-weight: 700; background: ${p.enabled ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)'}; color: #fff; border: 1px solid rgba(255, 255, 255, 0.15); white-space: nowrap;">
+                  ${p.enabled ? '판매중' : '중단'}
+                </span>
+                ${p.badge ? `<span style="font-size: 0.68rem; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); color: #cbd5e1; padding: 0.1rem 0.35rem; border-radius: 4px;">${p.badge}</span>` : ''}
+                <span style="font-size: 0.88rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  ${p.title}
+                </span>
+                <span style="font-size: 0.74rem; color: #94a3b8; font-family: monospace; white-space: nowrap;">
+                  (${p.tierId})
+                </span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;">
+                <span style="font-size: 0.88rem; font-weight: 800; color: #fff;">₩ ${p.price.toLocaleString()}</span>
+                <span class="material-symbols-outlined" style="font-size: 18px; color: var(--text-muted); transition: transform 0.2s ease;">expand_more</span>
+              </div>
+            </div>
 
- <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
- <div>
- <div style="font-size: 0.7rem; color: var(--text-muted); text-decoration: line-through;">정가 ₩ ${p.originalPrice.toLocaleString()}</div>
- <div style="font-family: var(--font-display); font-size: 1.2rem; font-weight: 800; color: var(--primary);">₩ ${p.price.toLocaleString()}</div>
- </div>
+            <!-- 클릭 시 펼쳐지는 상세 내역 및 제어 스위치 (기본 닫힘) -->
+            <div id="admin-product-detail-${p.id}" class="admin-product-detail-content" style="display: none; padding: 1rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.25); font-size: 0.82rem; color: #cbd5e1;">
+              <p style="margin: 0 0 0.75rem; line-height: 1.5; color: #dfe2f1;">${p.description}</p>
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.65rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="font-size: 0.75rem; color: var(--text-muted);">
+                  정가: ₩ ${p.originalPrice.toLocaleString()} | 판매가: ₩ ${p.price.toLocaleString()}
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                  <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: #cbd5e1; cursor: pointer;">
+                    <span>판매 노출</span>
+                    <input type="checkbox" class="product-toggle-btn" data-product-id="${p.id}" ${p.enabled ? 'checked' : ''} style="cursor: pointer;" />
+                  </label>
+                  <button type="button" class="btn-delete-product" data-product-id="${p.id}" style="background: none; border: 1px solid rgba(255,255,255,0.2); color: #e2e8f0; border-radius: 6px; padding: 0.25rem 0.55rem; font-size: 0.75rem; cursor: pointer;">
+                    삭제
+                  </button>
+                </div>
+              </div>
+            </div>
 
- <div style="display: flex; align-items: center; gap: 0.65rem;">
- <!-- 토글 스위치 -->
- <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer;" title="스토어 노출 ON / OFF">
- <input type="checkbox" class="product-toggle-btn" data-product-id="${p.id}" ${p.enabled ? 'checked' : ''} style="opacity: 0; width: 0; height: 0;">
- <span style="position: absolute; cursor: pointer; inset: 0; background-color: ${p.enabled ? 'var(--primary)' : 'rgba(255,255,255,0.2)'}; border-radius: 24px; transition: .3s; display: flex; align-items: center;">
- <span style="position: absolute; content: ''; height: 18px; width: 18px; left: ${p.enabled ? '23px' : '3px'}; bottom: 3px; background-color: #0f131d; border-radius: 50%; transition: .3s;"></span>
- </span>
- </label>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  </div>
 
- <button type="button" class="btn-delete-product" data-product-id="${p.id}" style="background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: #e2e8f0; border-radius: 8px; padding: 0.35rem 0.6rem; font-size: 0.75rem; cursor: pointer;" title="상품 삭제">
- <span class="material-symbols-outlined" style="font-size: 15px; vertical-align: middle;">delete</span>
- 삭제
- </button>
- </div>
- </div>
- </div>
- `).join('')}
- </div>
- </div>
- </div>
-
- <!-- [패널 3] 협력업체 & 전문 상담사 관리 -->
+  <!-- [패널 3] 협력업체 & 전문 상담사 관리 -->
  <div id="tab-vendors" class="admin-tab-panel" style="display: ${currentTab === 'tab-vendors' ? 'block' : 'none'};">
  <!-- 신규 협력사 등록 폼 -->
  <div style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;">
@@ -695,56 +724,66 @@ export function renderAdminDashboardView(): string {
  </div>
  </div>
 
- <!-- [패널 4] 실시간 주문 장부 -->
- <div id="tab-orders" class="admin-tab-panel" style="display: ${currentTab === 'tab-orders' ? 'block' : 'none'};">
- <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.5rem;">
- <h2 style="font-size: 1.15rem; font-weight: 700; color: #dfe2f1; margin: 0 0 1rem;">
- 실시간 결제 주문 장부 (최근 24시간)
- </h2>
- <div style="overflow-x: auto;">
- <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.82rem; color: #dfe2f1;">
- <thead>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);">
- <th style="padding: 0.6rem;">주문번호</th>
- <th style="padding: 0.6rem;">고객명</th>
- <th style="padding: 0.6rem;">구매 상품</th>
- <th style="padding: 0.6rem;">결제 금액</th>
- <th style="padding: 0.6rem;">유입 파트너</th>
- <th style="padding: 0.6rem;">상태</th>
- </tr>
- </thead>
- <tbody>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
- <td style="padding: 0.6rem; font-family: monospace;">ORD-20261008-089</td>
- <td style="padding: 0.6rem; font-weight: 700;">홍길동</td>
- <td style="padding: 0.6rem;">프리미엄 정밀 사주 감정서 (VIP)</td>
- <td style="padding: 0.6rem; color: var(--primary); font-weight: 700;">₩ 149,900</td>
- <td style="padding: 0.6rem; color: #f2ca50;">vip_creator</td>
- <td style="padding: 0.6rem; color: #f2ca50; font-weight: 700;">결제완료</td>
- </tr>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
- <td style="padding: 0.6rem; font-family: monospace;">ORD-20261008-088</td>
- <td style="padding: 0.6rem; font-weight: 700;">박지훈</td>
- <td style="padding: 0.6rem;">유료 심층 사주풀이 (완결본)</td>
- <td style="padding: 0.6rem; color: var(--primary); font-weight: 700;">₩ 39,900</td>
- <td style="padding: 0.6rem; color: #f2ca50;">vip_creator</td>
- <td style="padding: 0.6rem; color: #f2ca50; font-weight: 700;">결제완료</td>
- </tr>
- <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
- <td style="padding: 0.6rem; font-family: monospace;">ORD-20261008-085</td>
- <td style="padding: 0.6rem; font-weight: 700;">이수진</td>
- <td style="padding: 0.6rem;">2027 정미년 신년운세 &amp; 월운</td>
- <td style="padding: 0.6rem; color: var(--primary); font-weight: 700;">₩ 19,900</td>
- <td style="padding: 0.6rem; color: #f2ca50;">saju_master</td>
- <td style="padding: 0.6rem; color: #f2ca50; font-weight: 700;">결제완료</td>
- </tr>
- </tbody>
- </table>
- </div>
- </div>
- </div>
+ <!-- [패널 4] 실시간 주문 장부 (클릭 시 상세 펼침 아코디언) -->
+  <div id="tab-orders" class="admin-tab-panel" style="display: ${currentTab === 'tab-orders' ? 'block' : 'none'};">
+    <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.25rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+          <h2 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0;">
+            주문 장부
+          </h2>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0.2rem 0 0;">
+            주문 목록을 클릭하여 상세 내역 및 고객 정보를 확인합니다.
+          </p>
+        </div>
+        <span style="font-size: 0.75rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 0.2rem 0.6rem; border-radius: 9999px; color: #cbd5e1;">
+          총 ${allOrders.length}건
+        </span>
+      </div>
 
- <!-- [패널 5] 제휴 정산 & 출금 승인 -->
+      <div style="display: flex; flex-direction: column; gap: 0.45rem;">
+        ${allOrders.map((o, idx) => `
+          <div class="admin-order-accordion-item" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; overflow: hidden; transition: all 0.15s ease;">
+            
+            <!-- 닫힘 기본 행 (클릭 시 토글) -->
+            <div class="btn-toggle-admin-order" data-target="admin-order-detail-${idx}" style="padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; cursor: pointer; user-select: none;">
+              <div style="display: flex; align-items: center; gap: 0.65rem; min-width: 0; flex: 1;">
+                <span style="font-size: 0.7rem; padding: 0.12rem 0.45rem; border-radius: 4px; font-weight: 700; background: ${o.status === 'refunded' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 255, 255, 0.08)'}; color: ${o.status === 'refunded' ? '#f87171' : '#fff'}; border: 1px solid rgba(255, 255, 255, 0.15); white-space: nowrap;">
+                  ${o.status === 'refunded' ? '환불' : (o.status === 'completed' ? '결제완료' : '입금대기')}
+                </span>
+                <span style="font-size: 0.86rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  ${o.productTitle}
+                </span>
+                <span style="font-size: 0.74rem; color: #94a3b8; font-family: monospace; white-space: nowrap;">
+                  #${o.orderId.slice(-8)}
+                </span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;">
+                <span style="font-size: 0.78rem; color: #cbd5e1;">${o.buyerName || '회원'}</span>
+                <span style="font-size: 0.85rem; font-weight: 800; color: #fff;">₩ ${o.amount.toLocaleString()}</span>
+                <span style="font-size: 0.74rem; color: var(--text-muted);">${new Date(o.paidAt).toLocaleDateString()}</span>
+                <span class="material-symbols-outlined" style="font-size: 18px; color: var(--text-muted); transition: transform 0.2s ease;">expand_more</span>
+              </div>
+            </div>
+
+            <!-- 클릭 시 펼쳐지는 상세 내역 (기본 닫힘) -->
+            <div id="admin-order-detail-${idx}" class="admin-order-detail-content" style="display: none; padding: 1rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.25); font-size: 0.8rem; color: #cbd5e1;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.5rem; margin-bottom: 0.65rem;">
+                <div>• 전체 주문번호: <strong style="color: #fff; font-family: monospace;">${o.orderId}</strong></div>
+                <div>• 결제 수단: <strong style="color: #fff;">${o.paymentMethod === 'bank_transfer' ? '무통장 입금' : '카드 / 간편결제'}</strong></div>
+                <div>• 결제 일시: <strong style="color: #fff;">${new Date(o.paidAt).toLocaleString()}</strong></div>
+                <div>• 배송/수령 구분: <strong style="color: #fff;">${o.deliveryType === 'shipping' ? '실물 배송 상품' : '디지털 감정서 리포트'}</strong></div>
+                ${o.shippingAddress ? `<div style="grid-column: 1 / -1;">• 배송지 주소: <strong style="color: #fff;">${o.shippingAddress}</strong></div>` : ''}
+              </div>
+            </div>
+
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- [패널 5] 제휴 정산 & 출금 승인 -->
  <div id="tab-affiliate" class="admin-tab-panel" style="display: ${currentTab === 'tab-affiliate' ? 'block' : 'none'};">
 
                 <!-- 제휴 정산 및 실시간 매출 집중 지표 -->
@@ -1081,7 +1120,17 @@ export function renderAdminDashboardView(): string {
             ${renderAdminPaymentPanel()}
           </div>
 
-          <!-- [쿠폰 & 무통장 입금 승인 센터 패널] -->
+          <!-- [무통장 입금 승인 독립 패널] -->
+          <div id="tab-transfers" class="admin-tab-panel" style="display: ${currentTab === 'tab-transfers' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+            ${renderAdminBankTransferPanel()}
+          </div>
+
+          <!-- [쿠폰 관리 독립 패널] -->
+          <div id="tab-coupons" class="admin-tab-panel" style="display: ${currentTab === 'tab-coupons' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+            ${renderAdminCouponPanel()}
+          </div>
+
+          <!-- [쿠폰 & 무통장 입금 승인 센터 패널 (하위 호환)] -->
           <div id="tab-vouchers" class="admin-tab-panel" style="display: ${currentTab === 'tab-vouchers' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
             ${renderAdminVoucherPanel()}
           </div>
@@ -1287,10 +1336,166 @@ export function renderAdminDashboardView(): string {
             })()}
           </div>
 
+        <!-- [패널 10] 1:1 고객 문의 관리 센터 -->
+        <div id="tab-inquiries" class="admin-tab-panel" style="display: ${currentTab === 'tab-inquiries' ? 'block' : 'none'};">
+          ${renderAdminInquiriesPanel()}
+        </div>
 
-</main>
+        <!-- [패널 11] 스토어 상품 구매 후기(리뷰) 관리 센터 -->
+        <div id="tab-reviews" class="admin-tab-panel" style="display: ${currentTab === 'tab-reviews' ? 'block' : 'none'};">
+          ${renderAdminReviewsPanel()}
+        </div>
+
+      </div>
+    </main>
  </div>
 
  </div>
  `;
+}
+
+/**
+ * [마보살관리자 기본 대시보드 - 종합 관제 및 실시간 고객 문의 즉시 대응 센터]
+ * - 요구사항 2번: 접속 시 바로 반응을 확인하고 긴급 답변할 수 있는 관제 센터 설계
+ */
+function renderAdminOverviewPanel(): string {
+  const allInquiries = CustomerInquiryStore.getInquiries();
+  const pendingInquiries = allInquiries.filter(i => i.status === 'pending');
+  const allOrders = getAllStoreOrders();
+  const pendingTransfers = VoucherStore.getBankTransfers().filter(t => t.status === 'pending');
+  const reviews = ProductReviewStore.getReviews();
+
+  return `
+    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+      
+      <!-- 실시간 고객 문의 즉시 대응 센터 (미답변 긴급 건만 적색 알림) -->
+      <div style="background: #12151e; border: 1px solid ${pendingInquiries.length > 0 ? '#ef4444' : 'rgba(255, 255, 255, 0.12)'}; border-radius: 12px; padding: 1.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.65rem;">
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; color: #fff;">
+              <span class="material-symbols-outlined" style="font-size: 20px;">support_agent</span>
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.45rem;">
+                <h2 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0;">고객 문의 대응 센터</h2>
+                ${pendingInquiries.length > 0 ? `
+                  <span style="background: #ef4444; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.55rem; border-radius: 9999px;">
+                    대기 ${pendingInquiries.length}건
+                  </span>
+                ` : `
+                  <span style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.55rem; border-radius: 9999px;">
+                    답변 완료
+                  </span>
+                `}
+              </div>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0.15rem 0 0 0;">
+                신규 접수 문의 빠른 응대
+              </p>
+            </div>
+          </div>
+
+          <button type="button" class="btn-goto-inquiries" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; font-weight: 700; padding: 0.45rem 0.9rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
+            <span>문의 게시판 이동</span>
+            <span class="material-symbols-outlined" style="font-size: 15px;">arrow_forward</span>
+          </button>
+        </div>
+
+        ${pendingInquiries.length === 0 ? `
+          <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 1rem; text-align: center; color: #94a3b8; font-size: 0.82rem;">
+            대기 중인 신규 문의가 없습니다.
+          </div>
+        ` : `
+          <!-- 미답변 문의 빠른 응대 리스트 -->
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            ${pendingInquiries.slice(0, 5).map(inq => `
+              <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.6rem;">
+                <div style="display: flex; align-items: center; gap: 0.65rem; flex: 1; min-width: 250px;">
+                  <span style="font-size: 0.7rem; background: #ef4444; color: #fff; padding: 0.12rem 0.45rem; border-radius: 4px; font-weight: 800; white-space: nowrap;">
+                    답변대기
+                  </span>
+                  <span style="font-size: 0.72rem; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); color: #cbd5e1; padding: 0.12rem 0.45rem; border-radius: 4px; font-weight: 600; white-space: nowrap;">
+                    ${inq.category}
+                  </span>
+                  <div style="font-size: 0.86rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    ${inq.title}
+                  </div>
+                  <span style="font-size: 0.74rem; color: #94a3b8; white-space: nowrap;">
+                    ${inq.userName} (${new Date(inq.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
+                  </span>
+                </div>
+                <button type="button" class="btn-quick-answer-inquiry" data-inquiry-id="${inq.id}" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; font-size: 0.76rem; font-weight: 700; padding: 0.3rem 0.65rem; border-radius: 6px; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.25rem;">
+                  <span>답변</span>
+                  <span class="material-symbols-outlined" style="font-size: 13px;">edit</span>
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        `}
+      </div>
+
+      <!-- 핵심 KPI 요약 카드 4종 (클릭 시 해당 화면 연결, 긴급 건 적색 알림) -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem;">
+        
+        <!-- 1. 미답변 문의 (클릭 시 고객문의 탭 이동) -->
+        <div class="btn-admin-kpi-card" data-goto-tab="tab-inquiries" style="background: var(--surface-container); border: 1px solid ${pendingInquiries.length > 0 ? '#ef4444' : 'rgba(255,255,255,0.08)'}; border-radius: 10px; padding: 1.15rem; cursor: pointer; transition: all 0.15s ease;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+            <span style="font-size: 0.74rem; color: var(--text-muted);">미답변 문의</span>
+            ${pendingInquiries.length > 0 ? `
+              <span style="background: #ef4444; color: #fff; font-size: 0.65rem; font-weight: 800; padding: 0.1rem 0.45rem; border-radius: 9999px;">
+                긴급
+              </span>
+            ` : ''}
+          </div>
+          <div style="font-size: 1.5rem; font-weight: 900; color: ${pendingInquiries.length > 0 ? '#ef4444' : '#fff'};">
+            ${pendingInquiries.length}건
+          </div>
+          <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">
+            전체 접수 ${allInquiries.length}건 (클릭 시 이동)
+          </div>
+        </div>
+
+        <!-- 2. 무통장 입금 대기 (클릭 시 무통장 승인 탭 이동) -->
+        <div class="btn-admin-kpi-card" data-goto-tab="tab-transfers" style="background: var(--surface-container); border: 1px solid ${pendingTransfers.length > 0 ? '#ef4444' : 'rgba(255,255,255,0.08)'}; border-radius: 10px; padding: 1.15rem; cursor: pointer; transition: all 0.15s ease;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+            <span style="font-size: 0.74rem; color: var(--text-muted);">무통장 입금 대기</span>
+            ${pendingTransfers.length > 0 ? `
+              <span style="background: #ef4444; color: #fff; font-size: 0.65rem; font-weight: 800; padding: 0.1rem 0.45rem; border-radius: 9999px;">
+                긴급
+              </span>
+            ` : ''}
+          </div>
+          <div style="font-size: 1.5rem; font-weight: 900; color: ${pendingTransfers.length > 0 ? '#ef4444' : '#fff'};">
+            ${pendingTransfers.length}건
+          </div>
+          <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">
+            승인 대기 건 (클릭 시 이동)
+          </div>
+        </div>
+
+        <!-- 3. 총 주문 건수 (클릭 시 주문 장부 탭 이동) -->
+        <div class="btn-admin-kpi-card" data-goto-tab="tab-orders" style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1.15rem; cursor: pointer; transition: all 0.15s ease;">
+          <div style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 0.25rem;">총 주문 건수</div>
+          <div style="font-size: 1.5rem; font-weight: 900; color: #fff;">
+            ${allOrders.length}건
+          </div>
+          <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">
+            결제 완료 건 (클릭 시 이동)
+          </div>
+        </div>
+
+        <!-- 4. 고객 리뷰 평점 (클릭 시 리뷰 관리 탭 이동) -->
+        <div class="btn-admin-kpi-card" data-goto-tab="tab-reviews" style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1.15rem; cursor: pointer; transition: all 0.15s ease;">
+          <div style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 0.25rem;">고객 리뷰 평점</div>
+          <div style="font-size: 1.5rem; font-weight: 900; color: #fff;">
+            5.0 <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: normal;">(${reviews.length}개)</span>
+          </div>
+          <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">
+            누적 평점 관리 (클릭 시 이동)
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  `;
 }

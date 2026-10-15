@@ -12,10 +12,14 @@ import {
   createStoreOrder,
   getStoreProductById,
   getStoreProductsByCategory,
+  isProductAlreadyPurchased,
   STORE_CATEGORIES,
 } from './store-service.js';
 import type { StoreCategoryType, StoreOrder, StoreProduct } from './types.js';
 import { renderPaymentMethodSelector } from '../../modules/payment/PaymentMethodSelector.js';
+import { CartStore } from '../../state/cart-store.js';
+import { UserSajuStore } from '../../state/user-saju-store.js';
+import { ProductReviewStore } from '../../state/product-review-store.js';
 
 let currentCategory: StoreCategoryType = 'all';
 let currentSelectedProductId: string | null = null;
@@ -165,11 +169,25 @@ export function renderCommerceStoreView(state: AppStateData): string {
               <p style="font-size: 0.78rem; color: #94a3b8; margin: 0.5rem 0 0 0;">위 코드를 복사하여 다른 사주 상품 결제 시 쿠폰 코드에 입력하거나 지인에게 선물하세요.</p>
             </div>
           ` : ''}
-          ${order.accessUrl && order.status !== 'pending' ? `
-            <a href="${esc(order.accessUrl)}" target="_blank" rel="noopener noreferrer" style="display: block; width: 100%; box-sizing: border-box; background: var(--primary); color: #1c1500; font-weight: 800; padding: 0.9rem; border-radius: 10px; text-decoration: none; font-size: 1rem; box-shadow: 0 4px 16px rgba(242,202,80,0.3);">
-              콘텐츠 열람 / 다운로드 바로가기 →
+          ${order.status !== 'pending' && order.deliveryType === 'saju_report' ? `
+            <button type="button" id="btn-store-goto-report" data-order-id="${order.orderId}" data-product-id="${order.productId}" style="display: block; width: 100%; box-sizing: border-box; background: var(--primary); color: #1c1500; font-weight: 800; padding: 0.95rem; border-radius: 10px; border: none; cursor: pointer; font-size: 1.05rem; box-shadow: 0 4px 16px rgba(242,202,80,0.3); text-align: center; transition: opacity 0.2s ease;">
+              ${esc(order.buyerName)} 님 감정서 즉시 열람하기 →
+            </button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; margin-top: 0.25rem;">
+              <button type="button" class="btn-cta-secondary btn-download-txt" style="padding: 0.75rem 0.5rem; font-size: 0.85rem; font-weight: 700; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                <span class="material-symbols-outlined" style="font-size: 18px;">description</span>
+                TXT 파일 소장본
+              </button>
+              <button type="button" class="btn-cta-secondary btn-download-pdf" style="padding: 0.75rem 0.5rem; font-size: 0.85rem; font-weight: 700; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                <span class="material-symbols-outlined" style="font-size: 18px;">print</span>
+                PDF 정본 인쇄/저장
+              </button>
+            </div>
+          ` : (order.accessUrl && order.status !== 'pending' ? `
+            <a href="${esc(order.accessUrl)}" target="_blank" rel="noopener noreferrer" style="display: block; width: 100%; box-sizing: border-box; background: var(--primary); color: #1c1500; font-weight: 800; padding: 0.9rem; border-radius: 10px; text-decoration: none; font-size: 1rem; box-shadow: 0 4px 16px rgba(242,202,80,0.3); text-align: center;">
+              컨텐츠 열람 / 다운로드 바로가기 →
             </a>
-          ` : ''}
+          ` : '')}
           <button type="button" id="btn-store-back-to-list" style="background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 0.75rem; border-radius: 10px; font-size: 0.88rem; cursor: pointer;">
             스토어 상품 목록으로 돌아가기
           </button>
@@ -183,6 +201,8 @@ export function renderCommerceStoreView(state: AppStateData): string {
       ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100)
       : 0;
     const isRecommended = p.targetSignals.some(sig => userSignals.includes(sig));
+    const productReviews = ProductReviewStore.getReviewsByProduct(p.id);
+    const reviewStats = ProductReviewStore.getReviewStats(p.id);
 
     rightContentHtml = `
       <div style="display: flex; flex-direction: column; gap: 1.5rem;">
@@ -225,10 +245,16 @@ export function renderCommerceStoreView(state: AppStateData): string {
             </div>
 
             <div>
-              <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px;">
-                ${STORE_CATEGORIES.find(c => c.id === p.category)?.label || p.category}
-              </span>
-              <h1 style="font-size: 1.45rem; font-weight: 800; color: #fff; margin: 0.6rem 0 0.4rem 0; line-height: 1.35;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
+                <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px;">
+                  ${STORE_CATEGORIES.find(c => c.id === p.category)?.label || p.category}
+                </span>
+                <span style="color: #fbbf24; font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.2rem;">
+                  <span class="material-symbols-outlined" style="font-size: 15px;">star</span>
+                  ${reviewStats.average.toFixed(1)} (${productReviews.length}개 후기)
+                </span>
+              </div>
+              <h1 style="font-size: 1.45rem; font-weight: 800; color: #fff; margin: 0 0 0.4rem 0; line-height: 1.35;">
                 ${esc(p.title)}
               </h1>
               <p style="font-size: 0.92rem; color: #94a3b8; line-height: 1.5; margin: 0;">
@@ -260,27 +286,104 @@ export function renderCommerceStoreView(state: AppStateData): string {
               </h3>
 
               <form id="store-checkout-form" data-product-id="${p.id}">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0;">
+                ${(() => {
+                  const savedProf = UserSajuStore.getProfile();
+                  if (p.deliveryType === 'saju_report') {
+                    const already = savedProf ? isProductAlreadyPurchased(p.id, savedProf.userName) : { purchased: false };
+                    return `
+                      ${already.purchased ? `
+                        <div style="background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.35); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 0.85rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
+                          <div>
+                            <div style="color: #4ade80; font-weight: 800; font-size: 0.88rem; display: flex; align-items: center; gap: 0.3rem;">
+                              <span class="material-symbols-outlined" style="font-size: 16px;">verified</span>
+                              이미 소장 중인 감정서입니다
+                            </div>
+                            <div style="color: #cbd5e1; font-size: 0.76rem; margin-top: 0.15rem;">
+                              ${esc(savedProf!.userName)} 님의 사주로 이미 결제되어 언제든 다시 열람하실 수 있습니다.
+                            </div>
+                          </div>
+                          <button type="button" class="btn-view-purchased-direct" data-order-id="${already.order?.orderId || ''}" style="background: #4ade80; color: #000; border: none; border-radius: 8px; padding: 0.45rem 0.85rem; font-size: 0.8rem; font-weight: 800; cursor: pointer; white-space: nowrap;">
+                            감정서 열람 📖
+                          </button>
+                        </div>
+                      ` : ''}
+
+                      <div style="background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 10px; padding: 0.85rem; margin-bottom: 0.75rem;">
+                        <div style="font-size: 0.78rem; font-weight: 800; color: var(--primary); margin-bottom: 0.45rem; display: flex; align-items: center; gap: 0.3rem;">
+                          <span class="material-symbols-outlined" style="font-size: 16px;">psychology</span>
+                          사주 분석 대상자 (1:1 감정서 생성)
+                        </div>
+                        ${savedProf ? `
+                          <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; color: #fff; cursor: pointer; margin-bottom: 0.4rem;">
+                            <input type="radio" name="saju-target-choice" value="saved" ${already.purchased ? '' : 'checked'} style="margin-top: 0.2rem;" />
+                            <div>
+                              <strong>등록된 내 사주로 즉시 분석 ${already.purchased ? '<span style="color: #4ade80; font-size: 0.75rem; margin-left: 0.3rem;">[구매완료]</span>' : '(추천)'}</strong>
+                              <div style="font-size: 0.76rem; color: var(--primary); margin-top: 0.1rem; font-weight: 700;">
+                                ${esc(savedProf.userName)} 님 (${esc(savedProf.solarBirthDate)} ${esc(savedProf.birthTime || '')} · ${savedProf.gender === 'female' ? '坤命' : '乾命'})
+                              </div>
+                            </div>
+                          </label>
+                          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: #94a3b8; cursor: pointer;">
+                            <input type="radio" name="saju-target-choice" value="custom" ${already.purchased ? 'checked' : ''} />
+                            다른 사람 사주로 분석하기 (가족/지인 선물)
+                          </label>
+                          <div id="custom-saju-input-fields" style="display: none; margin-top: 0.65rem; padding-top: 0.65rem; border-top: 1px dashed rgba(255,255,255,0.15);">
+                            <input type="text" id="custom-saju-name" placeholder="대상자 성명" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.45rem; border-radius: 6px; font-size: 0.8rem; margin-bottom: 0.4rem;" />
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
+                              <input type="text" id="custom-saju-birth" placeholder="생년월일(예: 19950412)" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.45rem; border-radius: 6px; font-size: 0.8rem;" />
+                              <input type="text" id="custom-saju-time" placeholder="출생시간(예: 0830)" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.45rem; border-radius: 6px; font-size: 0.8rem;" />
+                            </div>
+                          </div>
+                        ` : `
+                          <div style="font-size: 0.78rem; color: #cbd5e1; margin-bottom: 0.4rem;">분석 대상자 정보를 입력해 주세요:</div>
+                          <input type="text" id="custom-saju-name" required placeholder="대상자 성명" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.45rem; border-radius: 6px; font-size: 0.8rem; margin-bottom: 0.4rem;" />
+                          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
+                            <input type="text" id="custom-saju-birth" required placeholder="생년월일(예: 19950412)" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.45rem; border-radius: 6px; font-size: 0.8rem;" />
+                            <input type="text" id="custom-saju-time" placeholder="출생시간(예: 0830)" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.45rem; border-radius: 6px; font-size: 0.8rem;" />
+                          </div>
+                        `}
+                      </div>
+                    `;
+                  }
+                  return '';
+                })()}
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.65rem;">
                   <div>
-                    <label style="font-size: 0.76rem; color: var(--text-muted); display: block; margin-bottom: 0;">주문자 성명 *</label>
-                    <input type="text" id="order-buyer-name" required value="${esc(AuthService.getCurrentUser().role !== 'guest' ? AuthService.getCurrentUser().name : '')}" placeholder="홍길동" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.82rem;" />
+                    <label style="font-size: 0.76rem; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">주문자 성명 *</label>
+                    <input type="text" id="order-buyer-name" required value="${esc(AuthService.getCurrentUser().role !== 'guest' ? AuthService.getCurrentUser().name : (UserSajuStore.getProfile()?.userName || ''))}" placeholder="홍길동" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.82rem;" />
                   </div>
                   <div>
-                    <label style="font-size: 0.76rem; color: var(--text-muted); display: block; margin-bottom: 0;">휴대폰 연락처 *</label>
+                    <label style="font-size: 0.76rem; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">휴대폰 연락처 *</label>
                     <input type="tel" id="order-buyer-phone" required value="${esc(AuthService.getCurrentUser().role !== 'guest' && AuthService.getCurrentUser().phone ? AuthService.getCurrentUser().phone! : '')}" placeholder="010-0000-0000" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.82rem;" />
                   </div>
                 </div>
 
-                <div style="margin-bottom: 0;">
-                  <label style="font-size: 0.76rem; color: var(--text-muted); display: block; margin-bottom: 0;">수신 이메일 (디지털 링크 발송) *</label>
+                <div style="margin-bottom: 0.65rem;">
+                  <label style="font-size: 0.76rem; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">수신 이메일 (디지털 링크 발송) *</label>
                   <input type="email" id="order-buyer-email" required placeholder="name@domain.com" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.82rem;" />
                 </div>
 
+                ${p.deliveryType === 'shipping' ? `
+                  <div style="margin-bottom: 0.65rem;">
+                    <label style="font-size: 0.76rem; color: #fbbf24; display: block; margin-bottom: 0.2rem; font-weight: 700;">
+                      <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">local_shipping</span> 실물 상품 배송지 주소 *
+                    </label>
+                    <input type="text" id="order-shipping-address" required placeholder="상세 수령지 주소를 입력해 주세요" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.82rem;" />
+                  </div>
+                ` : ''}
+
                 ${renderPaymentMethodSelector(p.price)}
 
-                <button type="submit" style="width: 100%; background: var(--primary); color: #1c1500; font-size: 1rem; font-weight: 800; border: none; border-radius: 10px; padding: 0.85rem; cursor: pointer; box-shadow: 0 4px 16px rgba(242,202,80,0.3); transition: transform 0.15s ease;">
-                  주문하기
-                </button>
+                <div style="display: grid; grid-template-columns: 1fr 1.35fr; gap: 0.65rem; margin-top: 0.75rem;">
+                  <button type="button" class="btn-add-to-cart-from-detail" data-product-id="${p.id}" style="background: rgba(242, 202, 80, 0.12); color: var(--primary); border: 1px solid rgba(242, 202, 80, 0.35); font-size: 0.88rem; font-weight: 800; border-radius: 10px; padding: 0.85rem 0.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem; transition: all 0.15s ease;">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">add_shopping_cart</span>
+                    장바구니 담기
+                  </button>
+                  <button type="submit" style="width: 100%; background: var(--primary); color: #1c1500; font-size: 0.95rem; font-weight: 800; border: none; border-radius: 10px; padding: 0.85rem; cursor: pointer; box-shadow: 0 4px 16px rgba(242,202,80,0.35); transition: transform 0.15s ease;">
+                    주문서 확인 및 결제 →
+                  </button>
+                </div>
               </form>
             </div>
             
@@ -291,7 +394,7 @@ export function renderCommerceStoreView(state: AppStateData): string {
 
         </div>
 
-        <!-- 하단: 상품 상세 설명 본문 (목차, 추천 대상, 특징) -->
+        <!-- 하단 1: 상품 상세 설명 본문 (목차, 추천 대상, 특징) -->
         <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 2rem;">
           <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">
             상품 상세 안내 &amp; 제공 방식
@@ -302,7 +405,38 @@ export function renderCommerceStoreView(state: AppStateData): string {
           ${p.detailsHtml || ''}
         </div>
 
-      </div>
+        <!-- 하단 2: 구매자 리얼 후기 & 별점 평가 -->
+        <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1.25rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                <h3 style="font-size: 1.2rem; font-weight: 800; color: #fff; margin: 0;">
+                  구매자 실시간 이용 후기
+                </h3>
+                <span style="background: rgba(242, 202, 80, 0.15); color: var(--primary); font-size: 0.8rem; font-weight: 800; padding: 0.15rem 0.55rem; border-radius: 9999px;">
+                  ${productReviews.length}건
+                </span>
+              </div>
+              <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">
+                실제 구매를 완료한 회원님들의 진솔하고 검증된 이용 후기입니다.
+              </p>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 1.25rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); padding: 0.75rem 1.25rem; border-radius: 12px;">
+              <div style="text-align: center;">
+                <div style="font-size: 1.6rem; font-weight: 900; color: #fbbf24; line-height: 1;">
+                  ${reviewStats.average.toFixed(1)}
+                </div>
+                <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 0.2rem;">5.0 만점</div>
+              </div>
+              <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.25rem; font-size: 0.8rem; color: #cbd5e1; line-height: 1.5;">
+                <div style="color: #fbbf24; letter-spacing: 2px;">★★★★★</div>
+                <div>만족도 <strong>99.4%</strong></div>
+              </div>
+            </div>
+          </div>
+
+          
     `;
   } else {
     // 3. 상품 목록 그리드 모드
@@ -320,6 +454,7 @@ export function renderCommerceStoreView(state: AppStateData): string {
           const discountRate = p.originalPrice && p.originalPrice > p.price
             ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100)
             : 0;
+          const reviewStats = ProductReviewStore.getReviewStats(p.id);
 
           return `
             <div class="store-product-card" data-product-id="${p.id}" style="background: var(--surface-container); border: 1px solid ${isRecommended ? 'rgba(242, 202, 80, 0.45)' : 'rgba(255,255,255,0.08)'}; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; box-shadow: ${isRecommended ? '0 4px 20px rgba(242,202,80,0.12)' : 'var(--shadow-sm)'}; transition: transform 0.2s ease, border-color 0.2s ease; cursor: pointer;">
@@ -350,8 +485,13 @@ export function renderCommerceStoreView(state: AppStateData): string {
               <!-- 내용 -->
               <div style="padding: 1.15rem; display: flex; flex-direction: column; flex: 1; justify-content: flex-start; gap: 0.75rem;">
                 <div>
-                  <div style="font-size: 0.72rem; color: var(--primary); font-weight: 700; margin-bottom: 0;">
-                    ${STORE_CATEGORIES.find(c => c.id === p.category)?.label || p.category}
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                    <span style="font-size: 0.72rem; color: var(--primary); font-weight: 700;">
+                      ${STORE_CATEGORIES.find(c => c.id === p.category)?.label || p.category}
+                    </span>
+                    <span style="color: #fbbf24; font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.15rem;">
+                      ★ ${reviewStats.average.toFixed(1)} (${reviewStats.count})
+                    </span>
                   </div>
                   <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin: 0 0 0.4rem 0; line-height: 1.4;">
                     ${esc(p.title)}
@@ -525,9 +665,15 @@ export function renderCommerceStoreView(state: AppStateData): string {
         </div>
       </div>
 
-      <!-- [깔끔한 순수 텍스트 카테고리 메뉴 바 (설명/아이콘/박스 제거)] -->
-      <nav class="store-text-category-bar" style="display: flex; align-items: center; justify-content: flex-start; gap: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 0.25rem; margin-bottom: 2.5rem; overflow-x: auto; scrollbar-width: none;">
-        ${categoryNavHtml}
+      <!-- [깔끔한 순수 텍스트 카테고리 메뉴 바 + 우측 장바구니 버튼] -->
+      <nav class="store-text-category-bar" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 0.25rem; margin-bottom: 2.5rem; overflow-x: auto; scrollbar-width: none; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: nowrap;">
+          ${categoryNavHtml}
+        </div>
+        <button type="button" id="btn-open-cart-modal" style="background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); font-weight: 800; font-size: 0.85rem; padding: 0.5rem 0.95rem; border-radius: 9999px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap; transition: all 0.2s ease;">
+          <span class="material-symbols-outlined" style="font-size: 19px;">shopping_bag</span>
+          장바구니 <span style="background: var(--primary); color: #000; font-size: 0.72rem; padding: 0.1rem 0.45rem; border-radius: 9999px; font-weight: 900;">${CartStore.getCount()}</span>
+        </button>
       </nav>
 
       <!-- [하단 풀-위드 메인 콘텐츠 영역 (PC 4열 시원한 상품 그리드)] -->

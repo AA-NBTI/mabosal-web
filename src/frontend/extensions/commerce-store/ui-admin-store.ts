@@ -47,12 +47,12 @@ const CATEGORY_ORDER: StoreCategoryType[] = ['report', 'ebook', 'lecture', 'cons
 
 const CATEGORY_META: Record<StoreCategoryType, { title: string; badgeColor: string; icon: string }> = {
   all: { title: '전체 상품', badgeColor: '#f2ca50', icon: 'apps' },
-  report: { title: '특화 운세 리포트', badgeColor: '#f2ca50', icon: 'auto_awesome' },
+  report: { title: '4대 정밀 감정 리포트', badgeColor: '#f2ca50', icon: 'auto_awesome' },
   voucher: { title: '상품권 · 바우처', badgeColor: '#38bdf8', icon: 'confirmation_number' },
-  ebook: { title: '전자책 · 실천 가이드', badgeColor: '#f2ca50', icon: 'menu_book' },
-  lecture: { title: '강의 · 핵심 VOD', badgeColor: '#f2ca50', icon: 'smart_display' },
-  consulting: { title: '1:1 심층 상담권', badgeColor: '#dfe2f1', icon: 'support_agent' },
-  goods: { title: '부적 · 수호 굿즈', badgeColor: '#dfe2f1', icon: 'token' },
+  ebook: { title: '전자책 · 가이드', badgeColor: '#f2ca50', icon: 'menu_book' },
+  lecture: { title: '강의 · VOD', badgeColor: '#f2ca50', icon: 'smart_display' },
+  consulting: { title: '1:1 상담권', badgeColor: '#dfe2f1', icon: 'support_agent' },
+  goods: { title: '부적 · 굿즈', badgeColor: '#dfe2f1', icon: 'token' },
 };
 
 export function renderAdminStorePanel(editingProductId?: string | null): string {
@@ -105,17 +105,16 @@ export function renderAdminStorePanel(editingProductId?: string | null): string 
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">
         <div>
           <h2 style="font-size: 1.3rem; font-weight: 800; color: #dfe2f1; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-            <span class="material-symbols-outlined" style="color: var(--primary); font-size: 26px;">storefront</span>
-            스토어 상품 &amp; 결제 집중 관리 센터
+            상품 관리
           </h2>
           <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.35rem 0 0 0;">
-            5대 특화 운세 리포트, 전자책, VOD 특강, 1:1 상담권, 부적 굿즈를 하부 서브 메뉴별로 집중 관리합니다.
+            스토어에 등록된 4대 정밀 감정 리포트, 전자책, 강의 VOD, 상담권, 굿즈를 관리합니다.
           </p>
         </div>
         <div style="display: flex; gap: 0.5rem;">
           <a href="/?view=store" target="_blank" style="background: rgba(242,202,80,0.15); border: 1px solid var(--primary); color: var(--primary); padding: 0.45rem 0.85rem; border-radius: 8px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 0.35rem;">
             <span class="material-symbols-outlined" style="font-size: 16px;">launch</span>
-            실제 고객 상점 바로가기
+            스토어 보기
           </a>
         </div>
       </div>
@@ -145,16 +144,13 @@ export function renderAdminStorePanel(editingProductId?: string | null): string 
       <!-- [하부 카테고리 3대 서브 탭 네비게이션] -->
       <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;">
         <button type="button" class="btn-store-subtab ${activeTab === 'products' ? 'active' : ''}" data-subtab="products" style="background: ${activeTab === 'products' ? 'var(--primary)' : 'rgba(255,255,255,0.05)'}; color: ${activeTab === 'products' ? '#1c1500' : '#cbd5e1'}; font-weight: 800; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-          <span class="material-symbols-outlined" style="font-size: 18px;">inventory_2</span>
-          상품 목록 &amp; 카테고리 관리 (${allProducts.length})
+          상품 목록 (${allProducts.length})
         </button>
         <button type="button" class="btn-store-subtab ${activeTab === 'register' ? 'active' : ''}" data-subtab="register" style="background: ${activeTab === 'register' ? 'var(--primary)' : 'rgba(255,255,255,0.05)'}; color: ${activeTab === 'register' ? '#1c1500' : '#cbd5e1'}; font-weight: 800; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-          <span class="material-symbols-outlined" style="font-size: 18px;">${editItem ? 'edit' : 'add_circle'}</span>
-          ${editItem ? '상품 정보 수정 중' : '+ 신규 상품 등록 (CMS)'}
+          ${editItem ? '상품 수정' : '상품 등록'}
         </button>
         <button type="button" class="btn-store-subtab ${activeTab === 'orders' ? 'active' : ''}" data-subtab="orders" style="background: ${activeTab === 'orders' ? 'var(--primary)' : 'rgba(255,255,255,0.05)'}; color: ${activeTab === 'orders' ? '#1c1500' : '#cbd5e1'}; font-weight: 800; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-          <span class="material-symbols-outlined" style="font-size: 18px;">receipt_long</span>
-          실시간 결제 장부 (${orders.length})
+          결제 장부 (${orders.length})
         </button>
       </div>
 
@@ -275,11 +271,12 @@ export function renderAdminStorePanel(editingProductId?: string | null): string 
               <div>
                 <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">카테고리 분류 *</label>
                 <select id="cms-category" style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.85rem;">
-                  <option value="report" ${editItem?.category === 'report' ? 'selected' : ''}> 특화 운세 리포트</option>
-                  <option value="ebook" ${editItem?.category === 'ebook' ? 'selected' : ''}> 전자책 · 실천 가이드</option>
-                  <option value="lecture" ${editItem?.category === 'lecture' ? 'selected' : ''}> 강의 · 핵심 VOD</option>
-                  <option value="consulting" ${editItem?.category === 'consulting' ? 'selected' : ''}> 1:1 심층 상담권</option>
-                  <option value="goods" ${editItem?.category === 'goods' ? 'selected' : ''}> 부적 · 수호 굿즈</option>
+                  <option value="report" ${editItem?.category === 'report' ? 'selected' : ''}>4대 정밀 감정 리포트</option>
+                  <option value="voucher" ${editItem?.category === 'voucher' ? 'selected' : ''}>상품권 · 바우처</option>
+                  <option value="ebook" ${editItem?.category === 'ebook' ? 'selected' : ''}>전자책 · 가이드</option>
+                  <option value="lecture" ${editItem?.category === 'lecture' ? 'selected' : ''}>강의 · VOD</option>
+                  <option value="consulting" ${editItem?.category === 'consulting' ? 'selected' : ''}>1:1 상담권</option>
+                  <option value="goods" ${editItem?.category === 'goods' ? 'selected' : ''}>부적 · 굿즈</option>
                 </select>
               </div>
             </div>
@@ -369,7 +366,7 @@ export function renderAdminStorePanel(editingProductId?: string | null): string 
                   <th style="padding: 0.6rem;">결제 금액</th>
                   <th style="padding: 0.6rem;">결제 수단</th>
                   <th style="padding: 0.6rem;">결제 일시</th>
-                  <th style="padding: 0.6rem;">상태</th>
+                  <th style="padding: 0.6rem;">상태 / 환불 관리</th>
                 </tr>
               </thead>
               <tbody>
@@ -385,7 +382,15 @@ export function renderAdminStorePanel(editingProductId?: string | null): string 
                       <td style="padding: 0.6rem;"><span style="text-transform: uppercase;">${o.paymentMethod}</span></td>
                       <td style="padding: 0.6rem; color: var(--text-muted); font-size: 0.75rem;">${new Date(o.paidAt).toLocaleString()}</td>
                       <td style="padding: 0.6rem;">
-                        <span style="background: rgba(52,211,153,0.15); color: #dfe2f1; font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 4px;">결제완료</span>
+                        ${o.status === 'refunded' ? `
+                          <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700;">환불완료</span>
+                        ` : (o.refundRequested ? `
+                          <button type="button" class="btn-admin-approve-refund" data-order-id="${o.orderId}" style="background: #ef4444; color: #fff; font-size: 0.74rem; font-weight: 800; border: none; border-radius: 6px; padding: 0.35rem 0.65rem; cursor: pointer;" title="사유: ${esc(o.refundReason || '')}">
+                            환불 승인 (${esc(o.refundReason || '요청')})
+                          </button>
+                        ` : `
+                          <span style="background: rgba(52,211,153,0.15); color: #4ade80; font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700;">결제완료</span>
+                        `)}
                       </td>
                     </tr>
                   `;

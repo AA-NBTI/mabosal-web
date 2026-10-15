@@ -181,7 +181,7 @@ export function renderSolutionHub(state: AppStateData): string {
             </div>
             <div>
               <label style="font-size: 0.78rem; color: #d1d5db; display: block; margin-bottom: 0.25rem;">솔루션 소개 및 제휴 제안 내용</label>
-              <textarea id="apply-desc" rows="3" placeholder="콘텐츠 또는 서비스의 핵심 특장점과 제공 방식을 적어주세요." style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.5rem; border-radius: 6px; font-size: 0.82rem; resize: none;"></textarea>
+              <textarea id="apply-desc" rows="3" placeholder="컨텐츠 또는 서비스의 핵심 특장점과 제공 방식을 적어주세요." style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.5rem; border-radius: 6px; font-size: 0.82rem; resize: none;"></textarea>
             </div>
             <div style="margin-top: 0.5rem; display: flex; justify-content: flex-end; gap: 0.5rem;">
               <button type="button" id="btn-cancel-partner-apply" style="background: rgba(255,255,255,0.1); color: #fff; border: none; border-radius: 6px; padding: 0.45rem 0.9rem; font-size: 0.82rem; cursor: pointer;">취소</button>

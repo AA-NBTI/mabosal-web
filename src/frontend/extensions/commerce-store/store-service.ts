@@ -10,6 +10,7 @@ export const OFFICIAL_BANK_ACCOUNT = {
  */
 
 import type { StoreCategory, StoreCategoryType, StoreOrder, StoreProduct } from './types.js';
+import { UserSajuStore } from '../../state/user-saju-store.js';
 
 const STORAGE_PRODUCTS_KEY = 'mabosal_store_products_v4';
 const STORAGE_ORDERS_KEY = 'mabosal_store_orders';
@@ -576,7 +577,7 @@ export function createStoreOrder(orderData: {
     category: (prod?.category || 'report') as any,
     amount: prod ? prod.price : 39900,
     deliveryType: (prod?.deliveryType || 'saju_report') as any,
-    accessUrl: '/?view=report',
+    accessUrl: (prod?.deliveryType === 'digital_url' || prod?.deliveryType === 'digital_download') ? (prod.contentPayload || '/?view=result') : '/?view=result',
     buyerName: orderData.buyerName,
     buyerPhone: orderData.buyerPhone,
     buyerEmail: orderData.buyerEmail,
@@ -586,6 +587,8 @@ export function createStoreOrder(orderData: {
     paidAt: new Date().toISOString(),
     status: orderData.status || 'completed',
     ...(orderData.paymentKey ? { paymentKey: orderData.paymentKey } : {}),
+    sajuInput: UserSajuStore.getProfileOrDefault(),
+    reportTier: prod?.reportTier || 'COMPREHENSIVE',
   };
   orders.unshift(newOrder);
   if (typeof localStorage !== 'undefined') {
@@ -679,3 +682,89 @@ export function updateStoreOrder(orderId: string, patch: Partial<StoreOrder>): S
   }
   return next;
 }
+
+/**
+ * 특정 사주 대상자에 대해 이미 결제 완료된 디지털 리포트인지 중복 여부 검사
+ */
+export function isProductAlreadyPurchased(productId: string, sajuName?: string): { purchased: boolean; order?: StoreOrder } {
+  const orders = getAllStoreOrders().filter(o => o.status === 'completed');
+  const targetName = (sajuName || '').trim();
+
+  for (const o of orders) {
+    const isMatchingProd = o.productId === productId || (o.items && o.items.some(it => it.productId === productId));
+    if (!isMatchingProd) continue;
+
+    // 사주 대상자명 매칭 (디지털 리포트인 경우)
+    const orderSajuName = (o.sajuInput?.userName || o.buyerName || '').trim();
+    if (!targetName || orderSajuName === targetName) {
+      return { purchased: true, order: o };
+    }
+  }
+
+  return { purchased: false };
+}
+
+/**
+ * 디지털 감정서 열람 시점 기록 (전자상거래법 환불 제한 근거 확보)
+ */
+export function markOrderAsViewed(orderId: string): void {
+  const orders = getAllStoreOrders();
+  const target = orders.find(o => o.orderId === orderId);
+  if (target && !target.viewedAt) {
+    updateStoreOrder(orderId, { viewedAt: new Date().toISOString() });
+  }
+}
+
+/**
+ * 고객의 주문 취소 및 환불 신청 접수
+ */
+export function requestStoreOrderRefund(orderId: string, reason: string): { success: boolean; message: string } {
+  const orders = getAllStoreOrders();
+  const target = orders.find(o => o.orderId === orderId);
+  if (!target) {
+    return { success: false, message: '주문 정보를 찾을 수 없습니다.' };
+  }
+
+  if (target.status === 'refunded') {
+    return { success: false, message: '이미 환불 처리가 완료된 주문입니다.' };
+  }
+
+  // 디지털 리포트이고 이미 열람/다운로드한 경우 전자상거래법에 의거 제한
+  if (target.category === 'report' && target.viewedAt) {
+    return {
+      success: false,
+      message: '해당 감정서는 이미 열람/다운로드가 개시되어 전자상거래법 제17조에 따라 청약철회(환불)가 제한됩니다.',
+    };
+  }
+
+  updateStoreOrder(orderId, {
+    refundRequested: true,
+    refundReason: reason,
+  });
+
+  return {
+    success: true,
+    message: '환불/반품 신청이 정상 접수되었습니다. 관리자 검토 후 신속히 처리됩니다.',
+  };
+}
+
+/**
+ * 최고 관리자의 환불 승인 처리
+ */
+export function approveStoreOrderRefund(orderId: string): { success: boolean; message: string } {
+  const target = updateStoreOrder(orderId, {
+    status: 'refunded',
+    refundedAt: new Date().toISOString(),
+    refundRequested: false,
+  });
+
+  if (!target) {
+    return { success: false, message: '주문 정보를 찾을 수 없습니다.' };
+  }
+
+  return {
+    success: true,
+    message: `[주문번호: ${orderId}] 환불 처리가 최종 승인되어 결제 취소되었습니다.`,
+  };
+}
+

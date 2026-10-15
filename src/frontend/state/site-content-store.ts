@@ -24,10 +24,11 @@ export interface SiteContentConfig {
     mailOrderNumber: string;
     contactInfo: string;
     copyright: string;
+    address?: string;
   };
 }
 
-const STORAGE_KEY = 'mabosal_site_content_config_v2';
+const STORAGE_KEY = 'mabosal_site_content_config_v5';
 
 export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   header: {
@@ -41,11 +42,12 @@ export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   },
   footer: {
     companyName: '템바보드 주식회사',
-    ceoName: '홍길동',
-    bizNumber: '123-45-67890',
-    mailOrderNumber: '제 2026-서울강남-01234호',
-    contactInfo: '고객센터: contact@mabosal.com | 평일 10:00~18:00',
-    copyright: '© 2026 Mabosal Inc. All rights reserved.',
+    ceoName: '박경민',
+    bizNumber: '107-88-44796',
+    mailOrderNumber: '제 2026-부산사하-0589호',
+    address: '부산광역시 사하구 하신번영로 328',
+    contactInfo: '고객센터: 1:1 온라인 문의 | 평일 10:00 ~ 18:00 (주말·공휴일 휴무)',
+    copyright: '© 2026 mabosal.com. All rights reserved.',
   },
 };
 

@@ -35,6 +35,18 @@ export interface StoreProduct {
   reportTier?: string; // e.g. 'YEAR_2027', 'CAREER', 'WEALTH', 'CONFLICT_MALSAL'
 }
 
+export interface StoreOrderItem {
+  productId: string;
+  title: string;
+  price: number;
+  quantity: number;
+  deliveryType: DeliveryType;
+  thumbnailUrl?: string;
+  sajuSnapshot?: any;
+  reportTier?: string;
+  contentPayload?: string;
+}
+
 export interface StoreOrder {
   userId?: string;
   orderId: string;
@@ -53,4 +65,22 @@ export interface StoreOrder {
   contentPayload?: string;
   /** PG 결제키 (카드/간편결제 승인 시) */
   paymentKey?: string;
+  sajuInput?: any;
+  reportTier?: string;
+  /** 묶음 주문 품목 리스트 */
+  items?: StoreOrderItem[];
+  /** 실물 배송 정보 */
+  shippingAddress?: string;
+  shippingMemo?: string;
+  shippingFee?: number;
+  /** 쿠폰 및 할인 정보 */
+  appliedCouponCode?: string;
+  discountAmount?: number;
+  usedYeop?: number;
+  /** 디지털 감정서 열람 추적 (전자상거래법 환불 제한 근거) */
+  viewedAt?: string;
+  /** 반품 및 환불 관리 */
+  refundRequested?: boolean;
+  refundReason?: string;
+  refundedAt?: string;
 }

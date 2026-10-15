@@ -1,6 +1,7 @@
 import { renderUserOrderHistoryWidget } from '../modules/order/UserOrderHistoryWidget.js';
 import { renderMemberVoucherWidget } from '../modules/voucher/MemberVoucherWidget.js';
 import { SiteContentStore } from '../state/site-content-store.js';
+import { CartStore } from '../state/cart-store.js';
 /**
  * Phase 29~37: Frontend View Components (프로덕션 프리미엄 명리 상담 서비스 UI)
  * 
@@ -162,8 +163,14 @@ export function renderHeader(state: AppStateData): string {
         </button>
         </nav>
 
- <!-- 우측: 엽전 지갑, 파트너스, 관리자, 로그인/로그아웃 버튼 -->
+ <!-- 우측: 장바구니, 엽전 지갑, 파트너스, 관리자, 로그인/로그아웃 버튼 -->
  <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
+        <!-- 장바구니 버튼: 사용한 경우(1개 이상)에만 노출, 아이콘만 표기 -->
+        <button type="button" class="btn-open-cart" id="header-btn-cart" style="background: rgba(38, 42, 53, 0.85); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 0.35rem 0.5rem; color: #ffffff; font-size: 0.76rem; font-weight: 700; cursor: pointer; display: ${CartStore.getCount() > 0 ? 'inline-flex' : 'none'}; align-items: center; justify-content: center; position: relative; transition: all 0.2s ease;" title="장바구니 열기">
+          <span class="material-symbols-outlined" style="font-size: 18px; color: #ffffff;">shopping_cart</span>
+          <span class="cart-badge-count" style="position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 9999px; padding: 1px 5px; font-size: 0.65rem; font-weight: 800; display: ${CartStore.getCount() > 0 ? 'inline-block' : 'none'};">${CartStore.getCount()}</span>
+        </button>
+
         <!-- 모바일 카테고리 햄버거 버튼 (화면폭 768px 미만 노출) -->
         <button type="button" id="btn-mobile-hamburger" class="mobile-hamburger-btn" aria-label="전체 메뉴 열기" style=" background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.35); color: var(--primary); border-radius: 8px; width: 36px; height: 36px; align-items: center; justify-content: center; cursor: pointer;">
           <span class="material-symbols-outlined" style="font-size: 22px;">menu</span>
@@ -172,13 +179,7 @@ export function renderHeader(state: AppStateData): string {
  const user = AuthService.getCurrentUser();
  const isGuest = user.role === 'guest';
  return `
- ${showWallet ? `
- <button type="button" id="btn-yeop-wallet" class="btn-yeop-badge" style="background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.4); border-radius: 9999px; padding: 0.35rem 0.7rem; color: var(--primary); font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.3rem; box-shadow: 0 0 12px rgba(242, 202, 80, 0.2);">
- <span class="material-symbols-outlined" style="font-size: 15px; color: var(--primary);">monetization_on</span>
- <span style="font-family: var(--font-display); font-size: 0.85rem; font-weight: 700; color: #dfe2f1;">${user.yeopBalance.toLocaleString()}</span>
- <span style="font-size: 0.7rem; color: var(--text-secondary);">엽</span>
- </button>
- ` : ''}
+ 
 
  ${isGuest ? `
  <button type="button" id="btn-header-login" style="background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 8px; padding: 0.35rem 0.65rem; color: var(--primary); font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
@@ -188,7 +189,7 @@ export function renderHeader(state: AppStateData): string {
  ` : `
  <button type="button" id="btn-header-profile" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 8px; padding: 0.35rem 0.6rem; color: #dfe2f1; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;" title="마이페이지 이동">
  <span class="material-symbols-outlined" style="font-size: 14px; color: var(--primary);">account_circle</span>
- ${user.name}
+ ${user.username || 'user'}
  </button>
  <button type="button" id="btn-header-logout" style="background: none; border: none; color: var(--text-muted); font-size: 0.72rem; cursor: pointer; padding: 0.2rem;" title="로그아웃">
  <span class="material-symbols-outlined" style="font-size: 16px;">logout</span>
@@ -1299,7 +1300,23 @@ export function renderResultView(state: AppStateData): string {
  return renderPhase83ProductView(state);
  }
 
- if (!product && !session) return `<div class="app-container"><p>분석 정보가 없습니다. 사주 정보를 먼저 입력해 주세요.</p></div>`;
+ if (!product && !session) {
+  return `
+   <div class="app-container" style="max-width: 580px; margin: 3rem auto; padding: 2rem 1.5rem; text-align: center;">
+    <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 16px; padding: 2.5rem 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+     <span class="material-symbols-outlined" style="font-size: 52px; color: var(--primary); margin-bottom: 1rem;">auto_stories</span>
+     <h2 style="font-size: 1.35rem; font-weight: 800; color: #fff; margin: 0 0 0.5rem 0;">사주 분석 정보가 필요합니다</h2>
+     <p style="font-size: 0.9rem; color: #94a3b8; line-height: 1.6; margin: 0 0 1.75rem 0;">
+      결제하신 감정서 열람을 위해 분석할 사주 정보(생년월일시)가 필요합니다.<br/>
+      생년월일시를 입력하시면 맞춤 사주 감정서가 즉시 생성되어 열람할 수 있습니다.
+     </p>
+     <button type="button" id="btn-goto-start-saju" class="btn-cta-primary" style="padding: 0.8rem 1.8rem; font-size: 0.95rem; font-weight: 800; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 16px rgba(242, 202, 80, 0.35);">
+      사주 정보 입력하고 감정서 열람하기 →
+     </button>
+    </div>
+   </div>
+  `;
+ }
 
  // ========================================================
  // Phase 82: 15대 전문 섹션 무결성 산출물 메인 렌더링 (session이 없을 때)
@@ -2058,8 +2075,24 @@ export function renderConsultationView(state: AppStateData): string {
 // 7. 상세 리포트 뷰 (Report View)
 // ==========================================
 export function renderReportView(state: AppStateData): string {
+ if (!state.sessionState) {
+  return `
+   <div class="app-container" style="max-width: 580px; margin: 3rem auto; padding: 2rem 1.5rem; text-align: center;">
+    <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 16px; padding: 2.5rem 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+     <span class="material-symbols-outlined" style="font-size: 52px; color: var(--primary); margin-bottom: 1rem;">fact_check</span>
+     <h2 style="font-size: 1.35rem; font-weight: 800; color: #fff; margin: 0 0 0.5rem 0;">사주 분석 정보가 필요합니다</h2>
+     <p style="font-size: 0.9rem; color: #94a3b8; line-height: 1.6; margin: 0 0 1.75rem 0;">
+      결제하신 맞춤 감정서를 생성하고 열람하려면 생년월일시 정보가 필요합니다.<br/>
+      생년월일시를 입력하시면 결제 완료된 정밀 리포트가 즉시 잠금 해제되어 발급됩니다.
+     </p>
+     <button type="button" id="btn-goto-start-saju" class="btn-cta-primary" style="padding: 0.8rem 1.8rem; font-size: 0.95rem; font-weight: 800; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 16px rgba(242, 202, 80, 0.35);">
+      사주 정보 입력하고 감정서 받기 →
+     </button>
+    </div>
+   </div>
+  `;
+ }
  const session = state.sessionState;
- if (!session) return `<div class="app-container"><p>사주 분석 정보가 없습니다.</p></div>`;
 
  const report = session.userReport;
 
@@ -2168,43 +2201,45 @@ export { renderMemberDashboardView, setMemberActiveTab, getMemberActiveTab } fro
 // ==========================================
 export function renderFooter(): string {
   const cms = SiteContentStore.getConfig();
+  const address = cms.footer.address || '부산광역시 사하구 하신번영로 328';
   return `
   <footer class="mabosal-site-footer" id="mabosal-site-footer" style="width: 100%; background: #0c0f17; border-top: 1px solid var(--border-subtle); padding: 2rem 1rem 2.5rem; margin-top: 0.5rem; color: var(--text-muted); font-size: 0.78rem; line-height: 1.6; box-sizing: border-box; text-align: center;">
-    <div style="max-width: 1440px; margin: 0 auto; padding: 0 1.25rem; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; text-align: center;">
-      <!-- 마보살 정통 명리학 포털 푸터 안내 -->
-      <!-- 상단 링크 목록 (중앙 정렬) -->
+    <div style="max-width: 1440px; margin: 0 auto; padding: 0 1.25rem; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem; text-align: center;">
+      
+      <!-- 상단 규정 및 고객센터 바로가기 링크 (중앙 정렬) -->
       <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 1rem; width: 100%;">
-        <a href="#" style="color: #dfe2f1; text-decoration: none; font-weight: 600;" onclick="event.preventDefault(); alert('이용약관: 준비 중입니다.');">이용약관</a>
+        <button type="button" id="btn-footer-terms" style="background: none; border: none; color: #dfe2f1; font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 4px; transition: color 0.15s ease;">이용약관</button>
         <span style="color: rgba(255,255,255,0.2);">|</span>
-        <a href="#" style="color: #dfe2f1; text-decoration: none; font-weight: 600;" onclick="event.preventDefault(); alert('개인정보처리방침: 당사는 고객님의 개인정보를 소중히 보호합니다.');">개인정보처리방침</a>
+        <button type="button" id="btn-footer-privacy" style="background: none; border: none; color: #dfe2f1; font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 4px; transition: color 0.15s ease;">개인정보처리방침</button>
         <span style="color: rgba(255,255,255,0.2);">|</span>
-        <a href="#" style="color: #dfe2f1; text-decoration: none; font-weight: 600;" onclick="event.preventDefault(); alert('고객센터 안내: ' + '${cms.footer.contactInfo}');">고객센터</a>
-        <span style="color: rgba(255,255,255,0.2);">|</span>
-        <span style="color: var(--primary); font-weight: 600;">${cms.header.brandName} (${cms.header.domainText})</span>
+        <button type="button" id="btn-footer-support" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0.25rem 0.75rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.15s ease;">
+          <span class="material-symbols-outlined" style="font-size: 15px; color: #ffffff;">support_agent</span>
+          고객센터
+        </button>
       </div>
 
-      <!-- 사업자 기본 정보 (중앙 정렬) -->
+      <!-- 정식 사업자 법정 정보 (전자상거래 표준 규격) -->
       <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.75rem; color: var(--text-muted); align-items: center; text-align: center;">
         <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center;">
-          <span>상호: ${cms.footer.companyName}</span>
+          <span>상호: <strong>${cms.footer.companyName}</strong></span>
           <span style="color: rgba(255,255,255,0.15);">|</span>
-          <span>대표자: ${cms.footer.ceoName}</span>
+          <span>사업자등록번호: <strong>${cms.footer.bizNumber}</strong></span>
           <span style="color: rgba(255,255,255,0.15);">|</span>
-          <span>사업자등록번호: ${cms.footer.bizNumber}</span>
+          <span>통신판매업신고: <strong>${cms.footer.mailOrderNumber}</strong></span>
         </div>
         <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center;">
-          <span>통신판매업신고: ${cms.footer.mailOrderNumber}</span>
+          <span>사업장 소재지: ${address}</span>
           <span style="color: rgba(255,255,255,0.15);">|</span>
-          <span>${cms.footer.contactInfo}</span>
+          <span>운영시간: 평일 10:00 ~ 18:00 (주말 및 공휴일 휴무)</span>
         </div>
-        <div style="color: rgba(168, 172, 193, 0.65); font-size: 0.72rem; margin-top: 0.25rem; line-height: 1.45; max-width: 800px; text-align: center;">
+        <div style="color: rgba(168, 172, 193, 0.6); font-size: 0.72rem; margin-top: 0.25rem; line-height: 1.45; max-width: 820px; text-align: center;">
           ※ 본 서비스의 명리 해석 및 운세 감정 결과는 전통 통계 명리학 데이터를 기반으로 한 참고 정보이며, 개인의 최종 결정과 행위에 대한 법적 책임을 지지 않습니다.
         </div>
       </div>
 
       <!-- 카피라이트 (중앙 정렬) -->
-      <div style="font-size: 0.72rem; color: rgba(168, 172, 193, 0.45); padding-top: 0.25rem; text-align: center;">
-        ${cms.footer.copyright}
+      <div style="font-size: 0.72rem; color: rgba(168, 172, 193, 0.45); padding-top: 0.15rem; text-align: center;">
+        © 2026 mabosal.com. All rights reserved.
       </div>
     </div>
   </footer>

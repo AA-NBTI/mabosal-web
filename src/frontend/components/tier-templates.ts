@@ -6,6 +6,7 @@
  */
 
 import { AppStateData } from '../state/app-state.js';
+import { UserSajuStore } from '../state/user-saju-store.js';
 
 export interface ReportMetaContext {
   birthText: string;
@@ -31,9 +32,10 @@ export function extractReportContext(state: AppStateData): ReportMetaContext {
   const session = state.sessionState;
   const common = set?.common;
 
-  const solarDate = common?.input?.solarBirthDate || session?.request?.birthDate || '1998-04-12';
-  const birthTime = common?.input?.birthTime || session?.request?.birthTime || '09:20';
-  const genderKo = (common?.input?.gender || state.gender || 'female') === 'female' ? '여성' : '남성';
+  const savedProfile = UserSajuStore.getProfile();
+  const solarDate = common?.input?.solarBirthDate || session?.request?.birthDate || savedProfile?.solarBirthDate || '1998-04-12';
+  const birthTime = common?.input?.birthTime || session?.request?.birthTime || savedProfile?.birthTime || '09:20';
+  const genderKo = (common?.input?.gender || state.gender || savedProfile?.gender || 'female') === 'female' ? '여성' : '남성';
 
   const [y, m, d] = solarDate.split('-');
   const birthText = `${y}년 ${parseInt(m, 10)}월 ${parseInt(d, 10)}일 ${birthTime || '시간 미상'} / ${genderKo}`;
@@ -1424,11 +1426,14 @@ function renderTableBlock(lines: string[]): string {
 // 6. 소장용 TXT 텍스트 파일 생성기 (정돈된 목차 및 제 01 장 ~ 제 13 장/18 장 체계)
 // ============================================================================
 export function generateDownloadableReportText(state: AppStateData): string {
-  const userName = state.userName || (state.userTroubleText ? '의뢰인' : '홍길동');
-  const genderTag = state.gender === 'female' ? '곤명(坤命 · 陰)' : '건명(乾命 · 陽)';
-  const birthSummary = state.sessionState?.request?.birthDate
-    ? `${state.sessionState.request.birthDate} ${state.sessionState.request.birthTime || '14:30'} (${state.calendarType === 'lunar' ? '음력' : '양력'})`
-    : '1993년 8월 15일 14:30 (양력 31세)';
+  const savedProfile = UserSajuStore.getProfile();
+  const userName = state.userName || savedProfile?.userName || (state.userTroubleText ? '의뢰인' : '김서연');
+  const currentGender = state.gender || savedProfile?.gender || 'female';
+  const genderTag = currentGender === 'female' ? '곤명(坤命 · 陰)' : '건명(乾命 · 陽)';
+  const birthDateStr = state.sessionState?.request?.birthDate || savedProfile?.solarBirthDate || '1995-04-12';
+  const birthTimeStr = state.sessionState?.request?.birthTime || savedProfile?.birthTime || '09:20';
+  const calTypeStr = state.calendarType || savedProfile?.calendarType || 'solar';
+  const birthSummary = `${birthDateStr} ${birthTimeStr} (${calTypeStr === 'lunar' ? '음력' : '양력'})`;
 
   const session = state.sessionState;
   const pillars = session?.fact?.four_pillars || state.productOutputSet?.common?.pillars || {

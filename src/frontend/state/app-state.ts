@@ -14,7 +14,7 @@ import { ReportDepthMode } from '../../modules/phase10/phase10-types.js';
 import { IntegratedAnalysisResult, ProductTier, CalendarType } from '../../modules/phase17_25/index.js';
 import { GunghapAnalysisResult } from '../../modules/chemistry/gunghap-engine.js';
 
-export type AppViewType = 'landing' | 'analyze' | 'loading' | 'result' | 'consult' | 'report' | 'partner' | 'admin' | 'member-dashboard' | 'magi-calendar' | 'lucky-calendar' | 'store' | 'study';
+export type AppViewType = 'landing' | 'analyze' | 'loading' | 'result' | 'consult' | 'report' | 'partner' | 'admin' | 'member-dashboard' | 'magi-calendar' | 'lucky-calendar' | 'store' | 'study' | 'cart' | 'checkout';
 
 export interface ChatMessage {
   id: string;
@@ -251,6 +251,10 @@ class AppStateManager {
   public setActiveTierTab(tab: ProductTierTab) {
     this.state.activeTierTab = tab;
     this.notify();
+  }
+
+  public getActiveTierTab(): ProductTierTab | undefined {
+    return this.state.activeTierTab;
   }
 
   public setError(error: string | null) {

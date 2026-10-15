@@ -7,6 +7,7 @@
 
 import { AppStateData } from '../state/app-state.js';
 import { ModuleRegistry } from '../state/module-registry.js';
+import { UserSajuStore } from '../state/user-saju-store.js';
 import { extractReportContext, getPaidReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
 import { renderMiniSajuPillarsCard } from '../components/common-components.js';
 import {
@@ -34,11 +35,14 @@ export function renderPaidResultView(state: AppStateData): string {
  const narrativeMarkdown = getPaidReportMarkdown(reportCtx);
  const narrativeHtml = renderNarrativeReport(narrativeMarkdown);
 
- const userName = state.userName || (state.userTroubleText ? '의뢰인' : '홍길동');
- const genderTag = state.gender === 'female' ? '坤命 · 陰' : '乾命 · 陽';
- const birthSummary = state.sessionState?.request?.birthDate
- ? `${state.sessionState.request.birthDate} ${state.sessionState.request.birthTime || '14:30'} · ${state.calendarType === 'lunar' ? '음력' : '양력'}`
- : '1993.08.15 14:30 · 양력 (31세)';
+ const savedProf = UserSajuStore.getProfile();
+ const userName = state.userName || savedProf?.userName || (state.userTroubleText ? '의뢰인' : '김서연');
+ const curGender = state.gender || savedProf?.gender || 'female';
+ const genderTag = curGender === 'female' ? '坤命 · 陰' : '乾命 · 陽';
+ const bDate = state.sessionState?.request?.birthDate || savedProf?.solarBirthDate || '1995.04.12';
+ const bTime = state.sessionState?.request?.birthTime || savedProf?.birthTime || '09:20';
+ const calType = state.calendarType || savedProf?.calendarType || 'solar';
+ const birthSummary = `${bDate} ${bTime} · ${calType === 'lunar' ? '음력' : '양력'}`;
 
  return `
  <div class="result-view-container paid-result-view" style="max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem;">

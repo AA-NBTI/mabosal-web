@@ -12,6 +12,10 @@ export interface UserAccount {
   name: string;        // 실명 / 활동명
   email: string;
   phone?: string;
+  birthDate?: string;
+  birthTime?: string;
+  calendarType?: 'solar' | 'lunar';
+  gender?: 'male' | 'female';
   role: UserRole;
   partnerType?: PartnerType;
   partnerCode?: string;
@@ -236,5 +240,113 @@ export class AuthService {
     if (typeof window !== 'undefined') {
       localStorage.removeItem(STORAGE_KEY_CURRENT_SESSION);
     }
+  }
+
+  /**
+   * 4. 엽전(보너스 포인트) 적립 및 지급
+   */
+  public static awardYeop(amount: number, username?: string): number {
+    this.init();
+    const accounts = this.getAllAccounts();
+    const targetUsername = username || this.currentSession?.username;
+    if (!targetUsername) return 0;
+
+    const acc = accounts.find(a => a.username.toLowerCase() === targetUsername.toLowerCase());
+    if (acc) {
+      acc.yeopBalance = (acc.yeopBalance || 0) + amount;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
+      }
+      if (this.currentSession && this.currentSession.username.toLowerCase() === targetUsername.toLowerCase()) {
+        this.currentSession.yeopBalance = acc.yeopBalance;
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(this.currentSession));
+        }
+      }
+      return acc.yeopBalance;
+    }
+    return 0;
+  }
+  /**
+   * 5. 회원 계정 정보 (아이디, 비밀번호, 이용자 프로필) 수정
+   */
+  public static updateAccount(id: string, updates: {
+    username?: string;
+    password?: string;
+    name?: string;
+    phone?: string;
+    birthDate?: string;
+    birthTime?: string;
+    calendarType?: 'solar' | 'lunar';
+    gender?: 'male' | 'female';
+  }): { success: boolean; message: string; user?: UserAccount } {
+    this.init();
+    const accounts = this.getAllAccounts();
+    const acc = accounts.find(a => a.id === id || a.username.toLowerCase() === id.toLowerCase());
+    if (!acc) {
+      return { success: false, message: '계정 정보를 찾을 수 없습니다.' };
+    }
+
+    // 아이디 변경 시 중복 검사
+    if (updates.username && updates.username.trim() && updates.username.trim() !== acc.username) {
+      const newUsername = updates.username.trim();
+      if (newUsername.length < 3) {
+        return { success: false, message: '아이디는 최소 3자 이상이어야 합니다.' };
+      }
+      if (accounts.some(a => a.id !== acc.id && a.username.toLowerCase() === newUsername.toLowerCase())) {
+        return { success: false, message: '이미 사용 중인 아이디입니다. 다른 아이디를 입력해주세요.' };
+      }
+      acc.username = newUsername;
+    }
+
+    // 비밀번호 변경
+    if (updates.password && updates.password.trim()) {
+      if (updates.password.trim().length < 4) {
+        return { success: false, message: '비밀번호는 최소 4자 이상이어야 합니다.' };
+      }
+      acc.password = updates.password.trim();
+    }
+
+    // 이용자 정보 변경
+    if (updates.name && updates.name.trim()) acc.name = updates.name.trim();
+    if (updates.phone !== undefined) acc.phone = updates.phone.trim();
+    if (updates.birthDate !== undefined) acc.birthDate = updates.birthDate;
+    if (updates.birthTime !== undefined) acc.birthTime = updates.birthTime;
+    if (updates.calendarType !== undefined) acc.calendarType = updates.calendarType;
+    if (updates.gender !== undefined) acc.gender = updates.gender;
+
+    // 저장 및 세션 갱신
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
+    }
+    if (this.currentSession && this.currentSession.id === acc.id) {
+      this.currentSession = { ...acc };
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(this.currentSession));
+      }
+    }
+
+    return { success: true, message: '회원 정보가 성공적으로 수정되었습니다.', user: acc };
+  }
+
+  /**
+   * 6. 회원 탈퇴 (계정 영구 삭제 및 세션 로그아웃)
+   */
+  public static deleteAccount(id: string): { success: boolean; message: string } {
+    this.init();
+    let accounts = this.getAllAccounts();
+    const target = accounts.find(a => a.id === id || a.username.toLowerCase() === id.toLowerCase());
+    if (!target) {
+      return { success: false, message: '탈퇴할 계정을 찾을 수 없습니다.' };
+    }
+
+    accounts = accounts.filter(a => a.id !== target.id);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
+    }
+
+    // 현재 세션 로그아웃
+    this.logout();
+    return { success: true, message: '회원 탈퇴가 완료되었습니다.' };
   }
 }
