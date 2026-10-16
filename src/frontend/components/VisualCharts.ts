@@ -832,20 +832,8 @@ export function renderCheonmyeongwonDailyDashboard(options?: CheonmyeongwonDaily
  <div style="position: absolute; top: -3rem; right: -3rem; width: 11rem; height: 11rem; border-radius: 50%; background: rgba(242, 202, 80, 0.1); filter: blur(40px); pointer-events: none;"></div>
  <div style="position: absolute; bottom: -2.5rem; left: -2.5rem; width: 9rem; height: 9rem; border-radius: 50%; background: rgba(242, 202, 80, 0.05); filter: blur(30px); pointer-events: none;"></div>
 
- <div style="display: flex; align-items: center; gap: 1.15rem; position: relative; z-index: 1;">
- <!-- SVG Circle Gauge -->
- <div style="position: relative; width: 88px; height: 88px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
- <svg viewBox="0 0 100 100" style="width: 100%; height: 100%; transform: rotate(-90deg);">
- <circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface-container-highest)" stroke-width="7" />
- <circle cx="50" cy="50" r="42" fill="none" stroke="var(--primary)" stroke-width="7.5" stroke-linecap="round" stroke-dasharray="263.89" stroke-dashoffset="${strokeOffset.toFixed(1)}" style="transition: stroke-dashoffset 1s ease-out;" />
- </svg>
- <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
- <span style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; color: var(--primary); line-height: 1;">${score}</span>
- <span style="font-family: var(--font-display); font-size: 0.62rem; color: var(--text-muted); letter-spacing: 0.05em; margin-top: 2px;">행운지수</span>
- </div>
- </div>
-
- <div style="display: flex; flex-direction: column; min-width: 0;">
+ <div style="display: flex; align-items: center; justify-content: space-between; gap: 1.15rem; position: relative; z-index: 1;">
+ <div style="display: flex; flex-direction: column; min-width: 0; flex: 1;">
  <div style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.5rem; border-radius: 6px; background: rgba(242, 202, 80, 0.15); color: var(--primary); font-size: 0.72rem; font-weight: 700; width: fit-content; margin-bottom: 0.35rem;">
  <span class="material-symbols-outlined" style="font-size: 13px;">auto_awesome</span>
  <span>${gradeBadge}</span>
@@ -856,6 +844,18 @@ export function renderCheonmyeongwonDailyDashboard(options?: CheonmyeongwonDaily
  <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0.25rem 0 0 0; line-height: 1.4;">
  ${summaryDesc}
  </p>
+ </div>
+
+ <!-- SVG Circle Gauge (우측 배치) -->
+ <div style="position: relative; width: 88px; height: 88px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+ <svg viewBox="0 0 100 100" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+ <circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface-container-highest)" stroke-width="7" />
+ <circle cx="50" cy="50" r="42" fill="none" stroke="var(--primary)" stroke-width="7.5" stroke-linecap="round" stroke-dasharray="263.89" stroke-dashoffset="${strokeOffset.toFixed(1)}" style="transition: stroke-dashoffset 1s ease-out;" />
+ </svg>
+ <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+ <span style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; color: var(--primary); line-height: 1;">${score}</span>
+ <span style="font-family: var(--font-display); font-size: 0.62rem; color: var(--text-muted); letter-spacing: 0.05em; margin-top: 2px;">행운지수</span>
+ </div>
  </div>
  </div>
 
@@ -898,28 +898,28 @@ export function renderCheonmyeongwonDailyDashboard(options?: CheonmyeongwonDaily
  <span style="font-size: 0.7rem; color: var(--text-muted);">4대 천명 분석</span>
  </div>
  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
- <button type="button" class="btn-quick-nav" data-target="sajuFormCard" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;">
+ <button type="button" class="btn-quick-nav" data-action="goto-saju" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;">
  <div style="width: 42px; height: 42px; border-radius: 10px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: var(--primary); margin-bottom: 0.35rem;">
  <span class="material-symbols-outlined" style="font-size: 22px;">grid_view</span>
  </div>
  <span style="font-size: 0.75rem; font-weight: 600; color: #dfe2f1;">정통 사주</span>
  <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 1px;">원국 풀이</span>
  </button>
- <button type="button" class="btn-quick-nav" data-target="sajuFormCard" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;">
+ <button type="button" class="btn-quick-nav" data-action="goto-chemistry" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;">
  <div style="width: 42px; height: 42px; border-radius: 10px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: var(--tertiary); margin-bottom: 0.35rem;">
  <span class="material-symbols-outlined" style="font-size: 22px;">diversity_1</span>
  </div>
  <span style="font-size: 0.75rem; font-weight: 600; color: #dfe2f1;">인연 궁합</span>
  <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 1px;">연인·동업</span>
  </button>
- <button type="button" class="btn-quick-nav" data-target="sajuFormCard" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;">
+ <button type="button" class="btn-quick-nav" data-action="goto-tarot" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;">
  <div style="width: 42px; height: 42px; border-radius: 10px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: #bec6dd; margin-bottom: 0.35rem;">
  <span class="material-symbols-outlined" style="font-size: 22px;">style</span>
  </div>
  <span style="font-size: 0.75rem; font-weight: 600; color: #dfe2f1;">심층 타로</span>
  <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 1px;">3카드 점</span>
  </button>
- <button type="button" class="btn-quick-nav" data-target="sajuFormCard" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;">
+ <button type="button" class="btn-quick-nav" data-action="goto-daeun" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;">
  <div style="width: 42px; height: 42px; border-radius: 10px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: var(--primary); margin-bottom: 0.35rem;">
  <span class="material-symbols-outlined" style="font-size: 22px;">cyclone</span>
  </div>
@@ -942,7 +942,7 @@ export function renderCheonmyeongwonDailyDashboard(options?: CheonmyeongwonDaily
  <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0.25rem 0 0.65rem 0; line-height: 1.4;">
  ${specialSubDesc}
  </p>
- <div class="btn-quick-nav" data-target="sajuFormCard" style="display: flex; align-items: center; gap: 0.25rem; color: var(--primary); font-size: 0.78rem; font-weight: 700; cursor: pointer;">
+ <div class="btn-goto-newyear-2027" data-action="goto-newyear" style="display: flex; align-items: center; gap: 0.25rem; color: var(--primary); font-size: 0.78rem; font-weight: 700; cursor: pointer;">
  <span>신년 심층 대운 풀이 열람</span>
  <span class="material-symbols-outlined" style="font-size: 15px;">arrow_forward</span>
  </div>

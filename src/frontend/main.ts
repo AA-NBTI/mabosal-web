@@ -232,6 +232,8 @@ class MabosalApp {
         appState.setView('checkout');
       } else if (viewParam === 'analyze') {
         appState.setView('analyze');
+      } else if (viewParam === 'loading') {
+        appState.setView('loading');
       } else {
         // [3번 요구사항 완벽 해결] 새로고침 시 스터디 등으로 잘못 튕기지 않고 메인 홈(landing) 우선 로드
         appState.setView('landing');
@@ -248,6 +250,11 @@ class MabosalApp {
  const targetView = event.state?.view;
  const currentView = appState.getState().currentView;
 
+ if (targetView === 'loading') {
+   appState.setView('analyze');
+   return;
+ }
+
  if (targetView && targetView !== currentView) {
  appState.setView(targetView);
  } else if (!targetView || currentView === 'landing') {
@@ -262,6 +269,11 @@ class MabosalApp {
 
  let prevNavView = appState.getState().currentView;
  appState.subscribe(state => {
+ if (state.currentView === 'loading') {
+   this.render(state);
+   return;
+ }
+
  if (typeof window !== 'undefined' && state.currentView !== prevNavView) {
    let targetUrl = state.currentView === 'landing' 
      ? window.location.pathname 
@@ -814,11 +826,32 @@ ${content}
  return;
  }
 
- // 0-3. 천명원 10번 비전 바로가기 퀵 네비게이션
- if (target.closest('.btn-quick-nav')) {
- appState.setView('analyze');
- window.scrollTo({ top: 0, behavior: 'smooth' });
- return;
+ // 0-3. 신년 심층 대운 배너 바로가기
+ if (target.closest('.btn-goto-newyear-2027, [data-action="goto-newyear"]')) {
+   appState.setView('analyze-2027');
+   window.scrollTo({ top: 0, behavior: 'smooth' });
+   return;
+ }
+
+ // 0-4. 천명원 10번 비전 바로가기 4대 퀵 네비게이션
+ const quickNavBtn = target.closest('.btn-quick-nav') as HTMLElement;
+ if (quickNavBtn) {
+   const action = quickNavBtn.dataset?.action;
+   if (action === 'goto-chemistry') {
+     appState.setView('analyze-chemistry');
+   } else if (action === 'goto-tarot') {
+     alert('심층 타로 3카드 리딩 서비스는 현재 오픈 준비 중입니다. 먼저 정통 사주와 신년운세를 이용해 보세요!');
+   } else if (action === 'goto-daeun') {
+     if (appState.getState().calcResult) {
+       appState.setView('result');
+     } else {
+       appState.setView('analyze');
+     }
+   } else {
+     appState.setView('analyze');
+   }
+   window.scrollTo({ top: 0, behavior: 'smooth' });
+   return;
  }
 
     // [비로그인 회원 보호]: 로그인하지 않은 상태에서 마기나 방비 클릭 시 로그인 모달 오픈

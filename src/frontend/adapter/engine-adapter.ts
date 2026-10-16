@@ -124,11 +124,11 @@ export class FrontendEngineAdapter {
    */
   public async analyzeIntegrated(req: IntegratedAnalysisRequest): Promise<IntegratedAnalysisResult> {
     const steps = [
-      '원천 사주 4주와 십신·강약·격국을 정밀하게 연산하고 있습니다...',
-      '대운과 세운 및 12개월 타이밍 기운을 추적하고 있습니다...',
-      '입력하신 현실 문제와 사주 원국의 연결 고리를 분석하고 있습니다...',
-      '행동·심리·환경 15대 맞춤 처방을 합성하고 있습니다...',
-      '출력 무결성 규칙(Output Integrity Validator) 감사 및 최종 리포트를 완성하고 있습니다...',
+      '사주 원국 4주 8자와 오행의 기운을 읽고 있습니다...',
+      '대운과 세운 및 12개월 타이밍 흐름을 추적하고 있습니다...',
+      '입력하신 현실 고민과 명리적 기운의 연결 고리를 분석하고 있습니다...',
+      '행동·심리·환경 맞춤 처방을 정밀하게 합성하고 있습니다...',
+      '당신만을 위한 최종 맞춤 리포트를 완성하고 있습니다...',
     ];
 
     appState.setLoading(true, steps[0]);

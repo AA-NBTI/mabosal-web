@@ -1045,6 +1045,45 @@ html, body {
   }
 }
 
+/* ==========================================================================
+   CELESTIAL LOADING GRAPHICS ANIMATIONS
+   ========================================================================== */
+@keyframes spinClockwise {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spinCounterClockwise {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(242, 202, 80, 0.25);
+  }
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 0 35px rgba(242, 202, 80, 0.55);
+  }
+}
+
+@keyframes indeterminateProgress {
+  0% {
+    left: -40%;
+    width: 35%;
+  }
+  50% {
+    left: 30%;
+    width: 55%;
+  }
+  100% {
+    left: 100%;
+    width: 35%;
+  }
+}
+
 
 /* ==========================================================================
    PRINT MEDIA QUERIES & PDF PRINT OPTIMIZATION

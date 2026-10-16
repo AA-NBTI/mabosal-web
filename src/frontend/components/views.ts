@@ -866,13 +866,39 @@ export function renderBirthInputView(state: AppStateData): string {
 // 4. 분석 중 로딩 뷰
 // ==========================================
 export function renderLoadingView(state: AppStateData): string {
- return `
- <div class="loading-container">
- <div class="loading-spinner-ring"></div>
- <div class="loading-step-text">${state.loadingStepText || '사주 원국과 현실 고민을 조율하고 있습니다...'}</div>
- <div class="loading-subtext">태어난 날의 Fact와 21개 Ma 신호를 교차 검증 중이며, 원천 사주 원국과 15대 맞춤 처방의 출력 무결성을 정밀 검증 중입니다.</div>
- </div>
- `;
+  return `
+  <div class="loading-container" style="min-height: 65vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem 1.5rem; max-width: 600px; margin: 0 auto;">
+    
+    <!-- 천체 오행 궤도 그래픽 애니메이션 -->
+    <div class="celestial-orbit-wrapper" style="position: relative; width: 140px; height: 140px; margin-bottom: 2rem; display: flex; align-items: center; justify-content: center;">
+      <!-- 외곽 펄스 링 -->
+      <div style="position: absolute; inset: 0; border-radius: 50%; border: 1.5px dashed rgba(242, 202, 80, 0.4); animation: spinClockwise 12s linear infinite;"></div>
+      <!-- 중간 회전 링 -->
+      <div style="position: absolute; inset: 12px; border-radius: 50%; border: 2px solid transparent; border-top-color: var(--primary); border-bottom-color: var(--tertiary); animation: spinCounterClockwise 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;"></div>
+      <!-- 오행 궤도 입자 링 -->
+      <div style="position: absolute; inset: 24px; border-radius: 50%; border: 1px dotted rgba(255, 255, 255, 0.25); animation: spinClockwise 6s linear infinite;"></div>
+      <!-- 중심 코어 앰블럼 -->
+      <div style="position: relative; width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle, rgba(242, 202, 80, 0.2) 0%, rgba(15, 20, 34, 0.95) 75%); border: 1.5px solid var(--primary); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(242, 202, 80, 0.35); animation: pulseGlow 2.5s ease-in-out infinite;">
+        <span class="material-symbols-outlined" style="font-size: 30px; color: var(--primary);">auto_awesome</span>
+      </div>
+    </div>
+
+    <!-- 로딩 타이틀 & 실시간 단계 안내 (완전 중앙 정렬) -->
+    <h3 class="loading-step-text" style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin: 0 0 0.65rem 0; letter-spacing: -0.01em; text-align: center;">
+      ${state.loadingStepText || '사주 원국과 2026/2027 운의 흐름을 읽고 있습니다...'}
+    </h3>
+
+    <p class="loading-subtext" style="font-size: 0.88rem; color: #94a3b8; line-height: 1.6; margin: 0 0 1.5rem 0; text-align: center; max-width: 440px;">
+      입력하신 생년월일시의 음양오행과 십신을 조율하여<br>당신만을 위한 맞춤형 정밀 처방 리포트를 완성하고 있습니다.
+    </p>
+
+    <!-- 우아한 골드 프로그레스 바 -->
+    <div style="width: 220px; height: 4px; background: rgba(255, 255, 255, 0.08); border-radius: 9999px; overflow: hidden; position: relative;">
+      <div class="loading-progress-indeterminate" style="position: absolute; top: 0; left: 0; height: 100%; width: 50%; background: linear-gradient(90deg, transparent, var(--primary), transparent); border-radius: 9999px; animation: indeterminateProgress 1.8s ease-in-out infinite;"></div>
+    </div>
+
+  </div>
+  `;
 }
 
 // ----------------------------------------------------

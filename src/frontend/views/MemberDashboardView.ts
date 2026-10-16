@@ -219,16 +219,23 @@ export function renderMemberDashboardView(state: AppStateData): string {
 function renderMemberTabContent(tabId: string, state: AppStateData, summary: any, user: any, myInquiries: any[]): string {
   switch (tabId) {
     // 1. 행운처방 (기본 홈화면)
-    case 'tab-daily':
+    case 'tab-daily': {
+      const sajuCore = state?.calcResult?.saju_core || (state?.sessionState as any)?.sajuCore || (state?.calcResult as any)?.sajuCore;
+      const signal = state?.calcResult?.signal;
+      const relationship = state?.calcResult?.relationships;
       return `
         <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
           ${renderCheonmyeongwonDailyDashboard({
             userName: state?.userName || user.name || '의뢰인',
             gender: state?.gender,
             calcResult: state?.calcResult,
+            sajuCore: sajuCore,
+            signal: signal,
+            relationship: relationship,
           })}
         </div>
       `;
+    }
 
     // 2. 주문 내역
     case 'tab-orders':
