@@ -1836,22 +1836,40 @@ ${content}
       return;
     }
 
-    // [대시보드 내부 달력 탭 상단 전환 버튼]
+    // [달력 탭 상단 전환 버튼 & 홈 이동 (메인 뷰 vs 대시보드 뷰 분기)]
     if (target.closest('#tab-goto-lucky-cal')) {
       e.preventDefault();
-      setMemberActiveTab('tab-lucky-calendar');
+      if (appState.getState().currentView === 'member-dashboard') {
+        setMemberActiveTab('tab-lucky-calendar');
+      } else {
+        appState.setView('lucky-calendar');
+      }
       this.render(appState.getState());
       return;
     }
     if (target.closest('#tab-goto-magi-cal')) {
       e.preventDefault();
-      setMemberActiveTab('tab-magi-calendar');
+      if (appState.getState().currentView === 'member-dashboard') {
+        setMemberActiveTab('tab-magi-calendar');
+      } else {
+        appState.setView('magi-calendar');
+      }
       this.render(appState.getState());
       return;
     }
     if (target.closest('#btn-cal-back-home')) {
       e.preventDefault();
-      setMemberActiveTab('tab-daily');
+      if (appState.getState().currentView === 'member-dashboard') {
+        setMemberActiveTab('tab-daily');
+      } else {
+        appState.setView('landing');
+      }
+      this.render(appState.getState());
+      return;
+    }
+    if (target.closest('#btn-goto-analyze-from-cal')) {
+      e.preventDefault();
+      appState.setView('analyze');
       this.render(appState.getState());
       return;
     }

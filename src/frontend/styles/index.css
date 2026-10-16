@@ -928,3 +928,148 @@ html, body {
     z-index: 9999990 !important;
   }
 }
+
+/* ==========================================================================
+   LANDING PRODUCT SHOWCASE & CENTERED MAIN CONTAINER
+   ========================================================================== */
+.landing-content-container {
+  width: 100% !important;
+  max-width: 720px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.landing-product-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.95rem !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* 상품 쇼케이스 카드 통일 규격 */
+.product-showcase-card,
+.advisor-card {
+  position: relative !important;
+  width: 100% !important;
+  background: var(--surface-container) !important;
+  border: 1px solid rgba(242, 202, 80, 0.25) !important;
+  border-radius: 14px !important;
+  padding: 1.15rem 1.35rem !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  box-sizing: border-box !important;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease, border-color 0.22s ease !important;
+}
+
+.product-showcase-card:hover,
+.advisor-card:hover {
+  transform: translateY(-2.5px) !important;
+  border-color: rgba(242, 202, 80, 0.55) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4), 0 0 18px rgba(242, 202, 80, 0.12) !important;
+}
+
+/* 우측 액션 박스 (가격 + 버튼 완전 통일) */
+.product-action-box {
+  width: 105px !important;
+  min-width: 105px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  text-align: right !important;
+}
+
+.product-action-box .product-price-label {
+  width: 100% !important;
+  text-align: right !important;
+  font-family: var(--font-display) !important;
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  color: var(--primary) !important;
+  margin-bottom: 0.35rem !important;
+  line-height: 1.2 !important;
+}
+
+/* 상품 선택 CTA 버튼 통일 규격 (크기 및 우측 정렬 완벽 통일) */
+.btn-select-product {
+  width: 100px !important;
+  min-width: 100px !important;
+  height: 38px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.86rem !important;
+  font-weight: 800 !important;
+  border-radius: 8px !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+.btn-select-product:hover {
+  filter: brightness(1.1) !important;
+  transform: scale(1.02) !important;
+  box-shadow: 0 2px 10px rgba(242, 202, 80, 0.25) !important;
+}
+
+/* 소형 모바일 (480px 이하) 최적화 */
+@media (max-width: 480px) {
+  .product-showcase-card,
+  .advisor-card {
+    padding: 1rem 0.95rem !important;
+    gap: 0.75rem !important;
+  }
+
+  .product-action-box {
+    width: 90px !important;
+    min-width: 90px !important;
+  }
+
+  .product-action-box .product-price-label {
+    font-size: 1.05rem !important;
+  }
+
+  .btn-select-product {
+    width: 88px !important;
+    min-width: 88px !important;
+    height: 36px !important;
+    font-size: 0.82rem !important;
+  }
+}
+
+
+/* ==========================================================================
+   PRINT MEDIA QUERIES & PDF PRINT OPTIMIZATION
+   ========================================================================== */
+@media print {
+  @page {
+    margin: 15mm 10mm;
+    size: auto;
+  }
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .mabosal-header,
+  .mabosal-site-footer,
+  .floating-bottom-dock,
+  #btn-download-pdf {
+    display: none !important;
+  }
+  .product-showcase-card,
+  .result-section-box,
+  .advisor-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+

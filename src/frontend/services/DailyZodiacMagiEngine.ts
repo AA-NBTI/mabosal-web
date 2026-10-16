@@ -353,12 +353,12 @@ export const dailyZodiacMagiEngine = {
         } else if (luckyRate >= 60) {
           pType = '행운 극대화 처방';
           cKeyword = (branchRelation.includes('합') ? '선제협력' : '기회선점');
-          cBasis = `오늘 ${branchRelation.split(':')[0]} 및 천간 ${stemTheme}의 조력으로 행운 지수 ${luckyRate}%의 강력한 천기가 유입되었습니다. ${stemOpportunity}`;
+          cBasis = `오늘 ${branchRelation.split(':')[0]} 및 천간 ${stemTheme}의 조력으로 행운 지수 ${luckyRate}%의 강력한 호운이 유입되었습니다. ${stemOpportunity}`;
           cStrategy = `[${cKeyword} 실천] 오늘의 호운을 온전히 수렴하기 위해 망설이지 말고 적극적으로 기회를 선점하고 소통을 확대하십시오.`;
         } else {
           pType = '내실 안정 처방';
           cKeyword = '루틴준수';
-          cBasis = `천기(${luckyRate}%)와 마기(${magiRate}%)가 대등하게 균형을 이루어 무리한 변동보다는 일상의 안정이 유리한 날입니다.`;
+          cBasis = `행운지수(${luckyRate}%)와 마기(${magiRate}%)가 대등하게 균형을 이루어 무리한 변동보다는 일상의 안정이 유리한 날입니다.`;
           cStrategy = `[${cKeyword} 실천] 새로운 일을 벌이기보다 기존 업무의 완성도를 높이고 정해진 시간표를 지키십시오.`;
         }
 
@@ -428,7 +428,7 @@ export const dailyZodiacMagiEngine = {
         years: subYears,
       },
       message: `오늘 ${todayGanjiLabel} 일진은 ${target.reason}의 길한 기운이 충만합니다. 특히 ${target.luckyAnimal}띠와 ${target.subAnimal}띠 분들에게 성과와 귀인의 기회가 열려 있습니다.`,
-      actionGuide: '아래에서 [12간지 띠]와 [출생연도]를 선택하시면 1:1 개인 맞춤 천기지수와 제1·제2 길시를 확인하실 수 있습니다.'
+      actionGuide: '아래에서 [12간지 띠]와 [출생연도]를 선택하시면 1:1 개인 맞춤 행운지수와 제1·제2 길시를 확인하실 수 있습니다.'
     };
   },
 
@@ -635,11 +635,11 @@ export const dailyZodiacMagiEngine = {
       if (isClash) {
         magiRate = 88;
         isWarningDay = true;
-        avoidTag = '도장날인·이동 금기';
+        avoidTag = '날인·이동 주의 필요';
       } else if (isPenalty) {
         magiRate = 78;
         isWarningDay = true;
-        avoidTag = '언쟁·계약 보류';
+        avoidTag = '언쟁·계약 신중 권고';
       } else {
         magiRate = 15 + ((day * 3) % 25);
         avoidTag = '방어 양호';
@@ -652,6 +652,8 @@ export const dailyZodiacMagiEngine = {
         magiRate,
         isWarningDay,
         avoidTag,
+        isClash,
+        isPenalty,
       });
     }
 
@@ -665,4 +667,191 @@ export const dailyZodiacMagiEngine = {
     };
   },
 
+  /**
+   * [1:1 개인 사주 원국 맞춤 월간 행운달력 데이터 생성]
+   * 사용자의 일간, 일지, 용신/희신, 십신, 5대 축 신호를 당월 1~말일 일진과 대조하여
+   * 개인 맞춤형 대길일(골든데이)과 일일 천기지수 산출
+   */
+  getPersonalizedMonthlyLuckyCalendarData(
+    year: number,
+    month: number,
+    sajuContext: {
+      sajuCore: any;
+      signal?: any;
+      relationship?: any;
+      userName?: string;
+      gender?: 'male' | 'female';
+    }
+  ) {
+    const { sajuCore, signal, relationship, userName = '의뢰인', gender = 'male' } = sajuContext;
+    const coreAny = sajuCore as any;
+    const dayPillar = (sajuCore?.four_pillars?.day || coreAny?.pillars?.day) as any;
+    const stemAny = dayPillar?.stem;
+    const branchAny = dayPillar?.branch;
+    const dayStem: string = typeof stemAny === 'object' ? stemAny.char : (stemAny || coreAny?.day_stem || '갑');
+    const dayBranch: string = typeof branchAny === 'object' ? branchAny.char : (branchAny || '자');
+    const dayElement: string = coreAny?.day_element || (typeof stemAny === 'object' ? stemAny.element : '목');
+    const strengthAny = (sajuCore?.day_master_strength || coreAny?.dayMasterStrength) as any;
+    const yongshin = strengthAny?.yongshin || '화';
+    const heeshin = strengthAny?.heeshin || '토';
+
+    const totalDays = new Date(year, month, 0).getDate();
+    const daysData = [];
+
+    for (let day = 1; day <= totalDays; day++) {
+      const targetDate = new Date(year, month - 1, day);
+      const scores = DailyFortuneEngine.calculate({
+        sajuCore,
+        signal,
+        relationship,
+        userName,
+        gender,
+        targetDate,
+      });
+
+      const pillar = DailyFortuneEngine.getDailyPillar(targetDate);
+      const luckyRate = scores.celestialScore;
+      const isGoldenDay = luckyRate >= 80 || scores.gradeBadge.includes('대길');
+
+      let actionTag = '계획 추진';
+      if (isGoldenDay) {
+        if (scores.moneyScore >= 80) actionTag = '재물·계약 대길';
+        else if (scores.loveScore >= 80) actionTag = '인연·협상 대길';
+        else actionTag = '성취·도약 대길';
+      } else if (luckyRate >= 65) {
+        actionTag = '순조로운 진행';
+      } else if (luckyRate < 55) {
+        actionTag = '신중·내실 점검';
+      }
+
+      daysData.push({
+        date: day,
+        dayOfWeek: targetDate.getDay(),
+        pillarName: pillar.pillarName,
+        luckyRate,
+        isGoldenDay,
+        actionTag,
+        gradeBadge: scores.gradeBadge,
+        moneyScore: scores.moneyScore,
+        loveScore: scores.loveScore,
+        vitalityScore: scores.vitalityScore,
+      });
+    }
+
+    return {
+      year,
+      month,
+      isPersonalized: true,
+      userName,
+      dayStem,
+      dayBranch,
+      dayElement,
+      yongshin,
+      heeshin,
+      days: daysData,
+      bestDays: daysData.filter(d => d.isGoldenDay).map(d => `${month}월 ${d.date}일(${['일','월','화','수','목','금','토'][d.dayOfWeek]})`),
+    };
+  },
+
+  /**
+   * [1:1 개인 사주 원국 맞춤 월간 마기달력 데이터 생성]
+   * 사용자의 일지(본원궁) 충돌, 삼형, 기신 극을 당월 1~말일 일진과 대조하여
+   * 개인 맞춤형 피결정일/마기 경보일 산출
+   */
+  getPersonalizedMonthlyMagiCalendarData(
+    year: number,
+    month: number,
+    sajuContext: {
+      sajuCore: any;
+      signal?: any;
+      relationship?: any;
+      userName?: string;
+      gender?: 'male' | 'female';
+    }
+  ) {
+    const { sajuCore, signal, relationship, userName = '의뢰인', gender = 'male' } = sajuContext;
+    const coreAny = sajuCore as any;
+    const dayPillar = (sajuCore?.four_pillars?.day || coreAny?.pillars?.day) as any;
+    const stemAny = dayPillar?.stem;
+    const branchAny = dayPillar?.branch;
+    const dayStem: string = typeof stemAny === 'object' ? stemAny.char : (stemAny || coreAny?.day_stem || '갑');
+    const dayBranch: string = typeof branchAny === 'object' ? branchAny.char : (branchAny || '자');
+    const dayElement: string = coreAny?.day_element || (typeof stemAny === 'object' ? stemAny.element : '목');
+    const strengthAny = (sajuCore?.day_master_strength || coreAny?.dayMasterStrength) as any;
+    const yongshin = strengthAny?.yongshin || '화';
+
+    const totalDays = new Date(year, month, 0).getDate();
+    const daysData = [];
+
+    for (let day = 1; day <= totalDays; day++) {
+      const targetDate = new Date(year, month - 1, day);
+      const pillar = DailyFortuneEngine.getDailyPillar(targetDate);
+      const tBr = pillar.branch;
+
+      const isClash = (dayBranch === '자' && tBr === '오') || (dayBranch === '오' && tBr === '자') ||
+                      (dayBranch === '축' && tBr === '미') || (dayBranch === '미' && tBr === '축') ||
+                      (dayBranch === '인' && tBr === '신') || (dayBranch === '신' && tBr === '인') ||
+                      (dayBranch === '묘' && tBr === '유') || (dayBranch === '유' && tBr === '묘') ||
+                      (dayBranch === '진' && tBr === '술') || (dayBranch === '술' && tBr === '진') ||
+                      (dayBranch === '사' && tBr === '해') || (dayBranch === '해' && tBr === '사');
+
+      const isPenalty = (['인', '사', '신'].includes(dayBranch) && ['인', '사', '신'].includes(tBr) && dayBranch !== tBr) ||
+                        (['축', '술', '미'].includes(dayBranch) && ['축', '술', '미'].includes(tBr) && dayBranch !== tBr);
+
+      const scores = DailyFortuneEngine.calculate({
+        sajuCore,
+        signal,
+        relationship,
+        userName,
+        gender,
+        targetDate,
+      });
+
+      let magiRate = Math.max(12, Math.min(94, 100 - scores.celestialScore));
+      let isWarningDay = false;
+      let avoidTag = '방어 양호';
+
+      if (isClash) {
+        magiRate = Math.max(magiRate, 88);
+        isWarningDay = true;
+        avoidTag = '일지충·날인 주의 필요';
+      } else if (isPenalty) {
+        magiRate = Math.max(magiRate, 78);
+        isWarningDay = true;
+        avoidTag = '삼형·언쟁 신중 권고';
+      } else if (scores.celestialScore < 56 || scores.gradeBadge.includes('주의')) {
+        magiRate = Math.max(magiRate, 68);
+        isWarningDay = true;
+        avoidTag = '기운상극·결정 신중 권고';
+      } else {
+        avoidTag = '평온·무탈';
+      }
+
+      daysData.push({
+        date: day,
+        dayOfWeek: targetDate.getDay(),
+        pillarName: pillar.pillarName,
+        magiRate,
+        isWarningDay,
+        avoidTag,
+        isClash,
+        isPenalty,
+      });
+    }
+
+    return {
+      year,
+      month,
+      isPersonalized: true,
+      userName,
+      dayStem,
+      dayBranch,
+      dayElement,
+      yongshin,
+      days: daysData,
+      worstDays: daysData.filter(d => d.isWarningDay).map(d => `${month}월 ${d.date}일(${['일','월','화','수','목','금','토'][d.dayOfWeek]})`),
+    };
+  },
+
 };
+

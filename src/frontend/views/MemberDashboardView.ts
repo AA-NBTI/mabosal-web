@@ -16,8 +16,7 @@ import { renderUserOrderHistoryWidget } from '../modules/order/UserOrderHistoryW
 import { renderMemberVoucherWidget } from '../modules/voucher/MemberVoucherWidget.js';
 import { renderCheonmyeongwonDailyDashboard, renderDailyAuspiciousHoursWidget } from '../components/VisualCharts.js';
 import { CustomerInquiryStore } from '../state/customer-inquiry-store.js';
-import { renderLuckyCalendarView } from './LuckyCalendarView.js';
-import { renderMagiCalendarView } from './MagiCalendarView.js';
+import { renderMemberLuckyCalendarWidget, renderMemberMagiCalendarWidget } from './MemberCalendarWidgets.js';
 
 let activeMemberTabId = 'tab-daily';
 
@@ -43,14 +42,14 @@ export function renderMemberDashboardView(state: AppStateData): string {
     (i.userName === userName)
   );
 
-  // 카테고리 탭 목록 (홈화면 제거 -> 오늘의 운세를 홈화면으로 설정)
+  // 카테고리 탭 목록 (홈화면 제거 -> 행운처방을 홈화면으로 설정)
   const tabs = [
-    { id: 'tab-daily', icon: 'calendar_month', label: '오늘의 운세', badge: '' },
+    { id: 'tab-daily', icon: 'auto_fix_high', label: '행운처방', badge: '' },
     { id: 'tab-lucky-calendar', icon: 'event_available', label: '행운달력', badge: '' },
     { id: 'tab-magi-calendar', icon: 'event_busy', label: '마기달력', badge: '' },
-    { id: 'tab-orders', icon: 'receipt_long', label: '주문 내역', badge: summary.pendingTransfers.length > 0 ? `${summary.pendingTransfers.length}건 대기` : '' },
-    { id: 'tab-vouchers', icon: 'confirmation_number', label: '쿠폰', badge: summary.issuedVouchers.length > 0 ? `${summary.issuedVouchers.length}개` : '' },
     { id: 'tab-fortune', icon: 'auto_stories', label: '감정서', badge: state.calcResult ? '열람가능' : '' },
+    { id: 'tab-vouchers', icon: 'confirmation_number', label: '쿠폰', badge: summary.issuedVouchers.length > 0 ? `${summary.issuedVouchers.length}개` : '' },
+    { id: 'tab-orders', icon: 'receipt_long', label: '주문 내역', badge: summary.pendingTransfers.length > 0 ? `${summary.pendingTransfers.length}건 대기` : '' },
     { id: 'tab-account', icon: 'manage_accounts', label: '내 정보', badge: '' },
     { id: 'tab-inquiries', icon: 'support_agent', label: '고객센터', badge: myInquiries.some(i => i.status === 'pending') ? '답변대기' : '' },
   ];
@@ -219,24 +218,15 @@ export function renderMemberDashboardView(state: AppStateData): string {
 
 function renderMemberTabContent(tabId: string, state: AppStateData, summary: any, user: any, myInquiries: any[]): string {
   switch (tabId) {
-    // 1. 오늘의 운세 (기본 홈화면)
+    // 1. 행운처방 (기본 홈화면)
     case 'tab-daily':
       return `
-        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-          <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
-            
-            ${renderCheonmyeongwonDailyDashboard({
-              userName: state?.userName || user.name || '의뢰인',
-              gender: state?.gender,
-              calcResult: state?.calcResult,
-            })}
-          </div>
-
-          <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
-            <h3 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: #fff; margin: 0 0 0.25rem 0;">오늘의 2대 황금 길시(吉時) 타임라인</h3>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0 0 1rem 0;">계약, 미팅, 중요한 결정을 내리기 가장 좋은 황금 시간대입니다.</p>
-            ${renderDailyAuspiciousHoursWidget()}
-          </div>
+        <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
+          ${renderCheonmyeongwonDailyDashboard({
+            userName: state?.userName || user.name || '의뢰인',
+            gender: state?.gender,
+            calcResult: state?.calcResult,
+          })}
         </div>
       `;
 
@@ -394,19 +384,19 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
       `;
 
     // 6. 내 정보 (엽전 제거)
-    // 2. 행운달력 (이달의 대길·골든데이)
+    // 2. 행운달력 (이달의 대길·골든데이 - 1:1 개인화 전용)
     case 'tab-lucky-calendar':
       return `
-        <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.25rem;">
-          ${renderLuckyCalendarView(state)}
+        <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
+          ${renderMemberLuckyCalendarWidget(state)}
         </div>
       `;
 
-    // 3. 마기달력 (이달의 피흉·결정보류)
+    // 3. 마기달력 (이달의 피흉·결정보류 - 1:1 개인화 전용)
     case 'tab-magi-calendar':
       return `
-        <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.25rem;">
-          ${renderMagiCalendarView(state)}
+        <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
+          ${renderMemberMagiCalendarWidget(state)}
         </div>
       `;
 

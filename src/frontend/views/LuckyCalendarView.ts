@@ -1,6 +1,11 @@
 import { dailyZodiacMagiEngine, ZODIAC_INFOS } from '../services/DailyZodiacMagiEngine.js';
 import { getSelectedZodiac, getSelectedYear, setSelectedZodiac, setSelectedYear } from './TodayFortuneAndMagiWidget.js';
 
+/**
+ * [메인 홈페이지 전용] 월간 행운 달력 뷰 (LuckyCalendarView)
+ * - 일반 방문자 및 회원이 12간지 띠와 출생연도를 자유롭게 선택하여 탐색하는 공개형 캘린더
+ * - '천기' 대신 '행운 / 행운지수' 표현 적용
+ */
 export function renderLuckyCalendarView(state: any): string {
   const currentZodiac = getSelectedZodiac();
   const currentYear = getSelectedYear();
@@ -26,11 +31,11 @@ export function renderLuckyCalendarView(state: any): string {
       <div style="display: flex; gap: 0.5rem;">
         <button type="button" id="tab-goto-lucky-cal" class="cal-tab-btn active" style="background: rgba(242, 202, 80, 0.2); border: 1.5px solid var(--primary); color: #ffffff; padding: 0.5rem 1.1rem; border-radius: 8px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
           <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">event_available</span>
-          <span>행운 달력 (대길·골든데이)</span>
+          <span>행운 달력</span>
         </button>
         <button type="button" id="tab-goto-magi-cal" class="cal-tab-btn" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.15); color: var(--text-muted); padding: 0.5rem 1.1rem; border-radius: 8px; font-weight: 700; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
           <span class="material-symbols-outlined" style="font-size: 18px;">event_busy</span>
-          <span>마기 달력 (피흉·결정보류)</span>
+          <span>마기 달력</span>
         </button>
       </div>
       <div>
@@ -41,26 +46,15 @@ export function renderLuckyCalendarView(state: any): string {
       </div>
     </div>
 
-    <!-- 첨부 상품 상단 포맷 일치 헤더 구조 -->
-    <div class="calendar-section-header" style="margin-bottom: 1.5rem;">
-      <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 0.45rem;">
-        <div style="font-size: 0.78rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.06em;">
-          MONTHLY CELESTIAL RADAR
-        </div>
-        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">
-          월간 천기 대길 나침반
-        </div>
-      </div>
-      <h2 style="font-size: 1.65rem; font-weight: 900; color: #ffffff; margin: 0; letter-spacing: -0.02em;">
-        ${year}년 ${month}월 행운 달력 — 이달의 대길일 & 황금 기회
+    <!-- 타이틀 (보조 설명 제거) -->
+    <div style="margin-bottom: 1.25rem;">
+      <h2 style="font-size: 1.45rem; font-weight: 900; color: #ffffff; margin: 0; letter-spacing: -0.02em;">
+        ${year}년 ${month}월 행운 달력
       </h2>
-      <p style="font-size: 0.85rem; color: #dfe2f1; margin: 0.45rem 0 0 0; line-height: 1.5;">
-        당월 30일간의 육합(六合)과 삼합(三合) 길신을 분석하여 계약 체결, 사업 추진, 중요 미팅, 투자를 진행하기 가장 유리한 대길일을 엄선합니다.
-      </p>
     </div>
 
-    <!-- 12간지 띠 & 출생연도 선택 필터 -->
-    <div style="background: rgba(20, 24, 35, 0.75); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem;">
+    <!-- [1. 상단 배치] 12간지 띠 & 출생연도 선택 필터 -->
+    <div style="background: rgba(20, 24, 35, 0.75); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
       <div style="font-size: 0.76rem; color: var(--primary); font-weight: 800; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
         <span style="display: flex; align-items: center; gap: 0.35rem;">
           <span class="material-symbols-outlined" style="font-size: 16px;">pets</span>
@@ -112,8 +106,8 @@ export function renderLuckyCalendarView(state: any): string {
       </div>
     </div>
 
-    <!-- 이달의 황금 길일 요약 박스 -->
-    <div style="background: rgba(242, 202, 80, 0.08); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 0.9rem 1.15rem; margin-bottom: 1.25rem;">
+    <!-- [2. 달력 위쪽으로 이동] 이달의 황금 길일 포인트 설명 박스 -->
+    <div style="background: rgba(242, 202, 80, 0.08); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 0.85rem 1.15rem; margin-bottom: 1.25rem;">
       <div style="font-size: 0.88rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem;">
         <span class="material-symbols-outlined" style="color: var(--primary); font-size: 20px;">stars</span>
         <span>${calData.zodiacAnimal}띠 이달의 황금 길일 (골든 데이)</span>
@@ -124,8 +118,8 @@ export function renderLuckyCalendarView(state: any): string {
       </div>
     </div>
 
-    <!-- 7열 월간 캘린더 그리드 -->
-    <div style="background: rgba(15, 19, 28, 0.95); border: 1.5px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
+    <!-- [3. 7열 월간 캘린더 그리드] -->
+    <div style="background: rgba(15, 19, 28, 0.95); border: 1.5px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 24px rgba(0,0,0,0.4); margin-bottom: 1.25rem;">
       <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.45rem; text-align: center;">
         ${['일','월','화','수','목','금','토'].map((w, idx) => `
           <div style="padding: 0.5rem 0; color: ${idx === 0 ? '#ff6b6b' : idx === 6 ? '#4dabf7' : 'var(--text-muted)'}; font-weight: 800; font-size: 0.82rem; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 0.25rem;">
@@ -144,7 +138,7 @@ export function renderLuckyCalendarView(state: any): string {
               ${d.isGoldenDay ? '<span style="font-size: 0.65rem; color: var(--primary); font-weight: 800; background: rgba(0,0,0,0.5); padding: 1px 4px; border-radius: 3px;">대길</span>' : ''}
             </div>
             <div style="font-size: 0.72rem; color: #dfe2f1; font-weight: 700; margin: 2px 0;">
-              천기 ${d.luckyRate}%
+              행운지수 ${d.luckyRate}%
             </div>
             <div style="font-size: 0.65rem; color: ${d.isGoldenDay ? 'var(--primary)' : 'var(--text-muted)'}; font-weight: 600; line-height: 1.2; text-align: center;">
               ${d.actionTag}

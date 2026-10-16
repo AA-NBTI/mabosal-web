@@ -174,7 +174,7 @@ function renderLuckyRecommendationBriefing(): string {
     <div style="background: rgba(0, 0, 0, 0.4); border-radius: 8px; padding: 0.75rem 0.9rem; text-align: center; border: 1px dashed rgba(242, 202, 80, 0.25);">
       <p style="font-size: 0.82rem; color: #ffffff; margin: 0; line-height: 1.55;">
         위의 <strong>[1. 12간지 띠]</strong>와 <strong>[2. 출생연도]</strong>를 선택하시면<br>
-        <span style="color: var(--primary); font-weight: 700;">귀하의 1:1 맞춤형 천기지수와 성과 비결, 제1·제2 길시</span>를 즉시 확인하실 수 있습니다.
+        <span style="color: var(--primary); font-weight: 700;">귀하의 1:1 맞춤형 행운지수와 성과 비결, 제1·제2 길시</span>를 즉시 확인하실 수 있습니다.
       </p>
     </div>
   </div>
@@ -394,7 +394,7 @@ export function renderTodayFortuneWidget(zodiacKey?: string, birthYear?: number)
         </div>
 
         <div style="display: flex; align-items: center; justify-content: center;">
-          ${renderCircularGauge(reading.fortune.luckyRate, '천기지수', '#f2ca50')}
+          ${renderCircularGauge(reading.fortune.luckyRate, '행운지수', '#f2ca50')}
         </div>
       </div>
 

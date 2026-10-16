@@ -436,7 +436,58 @@ export function renderCommerceStoreView(state: AppStateData): string {
             </div>
           </div>
 
-          
+          <!-- 후기 목록 카드 리스트 -->
+          ${productReviews.length === 0 ? `
+            <div style="text-align: center; padding: 3rem 1rem; background: rgba(255, 255, 255, 0.02); border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.12);">
+              <span class="material-symbols-outlined" style="font-size: 36px; color: var(--text-muted); margin-bottom: 0.5rem;">rate_review</span>
+              <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">아직 등록된 후기가 없습니다. 첫 번째 검증 후기를 남겨보세요!</p>
+            </div>
+          ` : `
+            <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+              ${productReviews.map(rev => `
+                <div style="background: rgba(255, 255, 255, 0.025); border: 1px solid ${rev.isBest ? 'rgba(242, 202, 80, 0.3)' : 'rgba(255, 255, 255, 0.07)'}; border-radius: 14px; padding: 1.35rem; transition: border-color 0.2s ease;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                      ${rev.isBest ? `
+                        <span style="background: rgba(242, 202, 80, 0.15); color: var(--primary); font-size: 0.72rem; font-weight: 800; padding: 0.18rem 0.55rem; border-radius: 4px; border: 1px solid rgba(242, 202, 80, 0.4);">
+                          BEST 리뷰
+                        </span>
+                      ` : ''}
+                      <span style="color: #fbbf24; font-size: 0.92rem; letter-spacing: 1px;">
+                        ${'★'.repeat(Math.max(1, Math.min(5, rev.rating)))}${'☆'.repeat(5 - Math.max(1, Math.min(5, rev.rating)))}
+                      </span>
+                      <span style="font-size: 0.88rem; font-weight: 700; color: #fff;">
+                        ${esc(rev.authorName || '구매회원')}
+                      </span>
+                      <span style="font-size: 0.72rem; color: #4ade80; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.25); padding: 0.12rem 0.45rem; border-radius: 4px; font-weight: 700;">
+                        실제 구매 인증
+                      </span>
+                    </div>
+                    <span style="font-size: 0.78rem; color: #94a3b8;">
+                      ${rev.createdAt ? new Date(rev.createdAt).toISOString().slice(0, 10).replace(/-/g, '.') : ''}
+                    </span>
+                  </div>
+
+                  ${rev.tags && rev.tags.length > 0 ? `
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem;">
+                      ${rev.tags.map(t => `
+                        <span style="font-size: 0.74rem; background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.15rem 0.5rem; border-radius: 9999px;">
+                          # ${esc(t)}
+                        </span>
+                      `).join('')}
+                    </div>
+                  ` : ''}
+
+                  <p style="font-size: 0.92rem; color: #e2e8f0; line-height: 1.65; margin: 0; white-space: pre-line;">
+                    ${esc(rev.content)}
+                  </p>
+                </div>
+              `).join('')}
+            </div>
+          `}
+        </div>
+
+      </div>
     `;
   } else {
     // 3. 상품 목록 그리드 모드

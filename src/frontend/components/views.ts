@@ -290,10 +290,12 @@ ${(() => {
  </button>
  </div>
 
- <!-- [데일리 리텐션] 오늘의 운세 × 오늘의 마기 × 오늘의 방비 3단 클릭 열람 위젯 -->
- <div style="width: 100%; margin-bottom: 1.5rem; text-align: left;">
- ${renderTodayFortuneAndMagiWidget()}
- </div>
+  <!-- 중앙 정렬 메인 콘텐츠 컨테이너 (모바일보다 넓고 쾌적한 max-width: 720px 통일 레이아웃) -->
+  <div class="landing-content-container">
+    <!-- [데일리 리텐션] 오늘의 운세 × 오늘의 마기 × 오늘의 방비 3단 클릭 열람 위젯 -->
+    <div style="width: 100%; margin-bottom: 2rem; text-align: left;">
+      ${renderTodayFortuneAndMagiWidget()}
+    </div>
 
  <!-- ④ [기본 4대 상품군 전면 배치] 마보살 4대 정밀 감정 리포트 -->
     <div style="width: 100%; margin-bottom: 2.25rem; text-align: left;">
@@ -307,98 +309,98 @@ ${(() => {
         <span style="font-size: 0.75rem; color: var(--text-muted);">종합 정밀 감정</span>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+      <div class="landing-product-list">
         <!-- 상품 1: 무료 사주 진단 -->
-        <div class="product-showcase-card" style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 12px; padding: 1.15rem 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; box-shadow: var(--shadow-sm);">
-          <div style="display: flex; align-items: center; gap: 0.85rem; flex: 1; min-width: 0;">
-            <div style="width: 36px; height: 36px; border-radius: 9px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-              <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">verified_user</span>
+        <div class="product-showcase-card">
+          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">verified_user</span>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 0.2rem; min-width: 0;">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
               <div style="display: flex; align-items: center; gap: 0.45rem;">
-                <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.68rem; padding: 0.12rem 0.45rem; border-radius: 4px; font-weight: 700;">체험 진단</span>
-                <h3 style="font-size: 1.05rem; font-weight: 700; color: #ffffff; margin: 0;">무료 사주 진단</h3>
+                <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">체험 진단</span>
+                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">무료 사주 진단</h3>
               </div>
-              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
                 4주 8자, 일간 본질, 오행 분포, 감지된 마(Ma) 징후 (13개 섹션)
               </p>
             </div>
           </div>
-          <div style="text-align: right; min-width: 90px; flex-shrink: 0;">
-            <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 800; color: var(--primary); margin-bottom: 0.35rem;">0원</div>
-            <button type="button" class="btn-cta-secondary btn-select-product" data-tier="FREE" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); cursor: pointer;">
+          <div class="product-action-box">
+            <div class="product-price-label">0원</div>
+            <button type="button" class="btn-cta-secondary btn-select-product" data-tier="FREE" style="background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary);">
               무료 시작 →
             </button>
           </div>
         </div>
 
         <!-- 상품 2: 유료 사주풀이 (39,900원) -->
-        <div class="product-showcase-card" style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 12px; padding: 1.15rem 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; box-shadow: var(--shadow-sm);">
-          <div style="display: flex; align-items: center; gap: 0.85rem; flex: 1; min-width: 0;">
-            <div style="width: 36px; height: 36px; border-radius: 9px; background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.45); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-              <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">diamond</span>
+        <div class="product-showcase-card">
+          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.45); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">diamond</span>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 0.2rem; min-width: 0;">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
               <div style="display: flex; align-items: center; gap: 0.45rem;">
-                <span style="background: rgba(242, 202, 80, 0.15); color: var(--primary); font-size: 0.68rem; padding: 0.12rem 0.45rem; border-radius: 4px; font-weight: 700;">정밀 사주</span>
-                <h3 style="font-size: 1.05rem; font-weight: 700; color: #ffffff; margin: 0;">유료 사주풀이</h3>
+                <span style="background: rgba(242, 202, 80, 0.15); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">정밀 사주</span>
+                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">유료 사주풀이</h3>
               </div>
-              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
                 격국·강약·용신 심층 해석, 12개월 월운 전체 해설 (18개 섹션)
               </p>
             </div>
           </div>
-          <div style="text-align: right; min-width: 90px; flex-shrink: 0;">
-            <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 800; color: var(--primary); margin-bottom: 0.35rem;">39,900원</div>
-            <button type="button" class="btn-cta-primary btn-select-product" data-tier="PAID" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px; background: var(--primary); color: #241a00; border: none; cursor: pointer;">
+          <div class="product-action-box">
+            <div class="product-price-label">39,900원</div>
+            <button type="button" class="btn-cta-primary btn-select-product" data-tier="PAID" style="background: var(--primary); color: #241a00; border: none;">
               신청 →
             </button>
           </div>
         </div>
 
         <!-- 상품 3: 상충·마·살 특화 (79,900원) -->
-        <div class="product-showcase-card" style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 12px; padding: 1.15rem 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; box-shadow: var(--shadow-sm);">
-          <div style="display: flex; align-items: center; gap: 0.85rem; flex: 1; min-width: 0;">
-            <div style="width: 36px; height: 36px; border-radius: 9px; background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.45); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-              <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">bolt</span>
+        <div class="product-showcase-card">
+          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.45); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">bolt</span>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 0.2rem; min-width: 0;">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
               <div style="display: flex; align-items: center; gap: 0.45rem;">
-                <span style="background: rgba(242, 202, 80, 0.15); color: var(--primary); font-size: 0.68rem; padding: 0.12rem 0.45rem; border-radius: 4px; font-weight: 700;">갈등 특화</span>
-                <h3 style="font-size: 1.05rem; font-weight: 700; color: #ffffff; margin: 0;">상충·마·살 특화</h3>
+                <span style="background: rgba(242, 202, 80, 0.15); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">갈등 특화</span>
+                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">상충·마·살 특화</h3>
               </div>
-              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
                 인간관계 충돌(축진파/인사해), 퇴사 vs 잔류 4주 점검 (20개 섹션)
               </p>
             </div>
           </div>
-          <div style="text-align: right; min-width: 90px; flex-shrink: 0;">
-            <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 800; color: var(--primary); margin-bottom: 0.35rem;">79,900원</div>
-            <button type="button" class="btn-cta-primary btn-select-product" data-tier="CONFLICT_MALSAL" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px; background: var(--primary); color: #241a00; border: none; cursor: pointer;">
+          <div class="product-action-box">
+            <div class="product-price-label">79,900원</div>
+            <button type="button" class="btn-cta-primary btn-select-product" data-tier="CONFLICT_MALSAL" style="background: var(--primary); color: #241a00; border: none;">
               신청 →
             </button>
           </div>
         </div>
 
         <!-- 상품 4: 프리미엄 통합 (149,900원) -->
-        <div class="product-showcase-card" style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.45); border-radius: 12px; padding: 1.15rem 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; box-shadow: var(--shadow-sm);">
-          <div style="display: flex; align-items: center; gap: 0.85rem; flex: 1; min-width: 0;">
-            <div style="width: 36px; height: 36px; border-radius: 9px; background: rgba(242, 202, 80, 0.18); border: 1px solid var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-              <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">workspace_premium</span>
+        <div class="product-showcase-card">
+          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(242, 202, 80, 0.18); border: 1px solid var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">workspace_premium</span>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 0.2rem; min-width: 0;">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
               <div style="display: flex; align-items: center; gap: 0.45rem;">
-                <span style="background: rgba(242, 202, 80, 0.2); color: var(--primary); font-size: 0.68rem; padding: 0.12rem 0.45rem; border-radius: 4px; font-weight: 800;">VIP 완결판</span>
-                <h3 style="font-size: 1.05rem; font-weight: 700; color: #ffffff; margin: 0;">프리미엄 통합</h3>
+                <span style="background: rgba(242, 202, 80, 0.2); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 800;">VIP 완결판</span>
+                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">프리미엄 통합</h3>
               </div>
-              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
                 29개 전수 섹션 100% 완전 충족, 1:1 심층 복합 처방 로드맵
               </p>
             </div>
           </div>
-          <div style="text-align: right; min-width: 90px; flex-shrink: 0;">
-            <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 800; color: var(--primary); margin-bottom: 0.35rem;">149,900원</div>
-            <button type="button" class="btn-cta-primary btn-select-product" data-tier="PREMIUM" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px; background: var(--primary); color: #241a00; border: none; cursor: pointer;">
+          <div class="product-action-box">
+            <div class="product-price-label">149,900원</div>
+            <button type="button" class="btn-cta-primary btn-select-product" data-tier="PREMIUM" style="background: var(--primary); color: #241a00; border: none;">
               신청 →
             </button>
           </div>
@@ -416,107 +418,122 @@ ${(() => {
         <span style="font-size: 0.75rem; color: var(--text-muted);">원포인트 정밀 처방</span>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+      <div class="landing-product-list">
         <!-- 1. 신년운세 (19,900원) -->
-        <div class="product-showcase-card" style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 12px; padding: 1.15rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; box-shadow: var(--shadow-sm);">
-          <div>
-            <div style="display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.25rem;">
-              <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.2rem;">
-                <span class="material-symbols-outlined" style="font-size: 13px;">calendar_today</span> 신년 특화
-              </span>
-              <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0;">신년운세</h3>
+        <div class="product-showcase-card">
+          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">calendar_today</span>
             </div>
-            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">
-              2027 정묘년(丁卯年) 상반기 대운과 월별 기회·위험 총정리.
-            </p>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 0.45rem;">
+                <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">신년 특화</span>
+                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">신년운세</h3>
+              </div>
+              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
+                2027 정묘년(丁卯年) 상반기 대운과 월별 기회·위험 총정리.
+              </p>
+            </div>
           </div>
-          <div style="text-align: right; min-width: 90px; flex-shrink: 0;">
-            <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 800; color: var(--primary); margin-bottom: 0.35rem;">19,900원</div>
-            <button type="button" class="btn-cta-primary btn-select-product" data-tier="YEAR_2027" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; background: var(--primary); color: #241a00; border: none; cursor: pointer;">
+          <div class="product-action-box">
+            <div class="product-price-label">19,900원</div>
+            <button type="button" class="btn-cta-primary btn-select-product" data-tier="YEAR_2027" style="background: var(--primary); color: #241a00; border: none;">
               신청 →
             </button>
           </div>
         </div>
 
         <!-- 2. 직장운세 (19,900원) -->
-        <div class="product-showcase-card" style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 12px; padding: 1.15rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; box-shadow: var(--shadow-sm);">
-          <div>
-            <div style="display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.25rem;">
-              <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.2rem;">
-                <span class="material-symbols-outlined" style="font-size: 13px;">work</span> 직장·이직
-              </span>
-              <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0;">직장운세</h3>
+        <div class="product-showcase-card">
+          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">work</span>
             </div>
-            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">
-              부서 이동·이직 타이밍과 퇴사 vs 잔류 판단 명리 가이드.
-            </p>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 0.45rem;">
+                <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">직장·이직</span>
+                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">직장운세</h3>
+              </div>
+              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
+                부서 이동·이직 타이밍과 퇴사 vs 잔류 판단 명리 가이드.
+              </p>
+            </div>
           </div>
-          <div style="text-align: right; min-width: 90px; flex-shrink: 0;">
-            <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 800; color: var(--primary); margin-bottom: 0.35rem;">19,900원</div>
-            <button type="button" class="btn-cta-primary btn-select-product" data-tier="CAREER" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; background: var(--primary); color: #241a00; border: none; cursor: pointer;">
+          <div class="product-action-box">
+            <div class="product-price-label">19,900원</div>
+            <button type="button" class="btn-cta-primary btn-select-product" data-tier="CAREER" style="background: var(--primary); color: #241a00; border: none;">
               신청 →
             </button>
           </div>
         </div>
 
         <!-- 3. 재물운세 (19,900원) -->
-        <div class="product-showcase-card" style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 12px; padding: 1.15rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; box-shadow: var(--shadow-sm);">
-          <div>
-            <div style="display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.25rem;">
-              <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.2rem;">
-                <span class="material-symbols-outlined" style="font-size: 13px;">payments</span> 재물·투자
-              </span>
-              <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0;">재물운세</h3>
+        <div class="product-showcase-card">
+          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">payments</span>
             </div>
-            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">
-              현금 보유 최적기 vs 공격 투자 타이밍과 손재마 방어.
-            </p>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 0.45rem;">
+                <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">재물·투자</span>
+                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">재물운세</h3>
+              </div>
+              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
+                현금 보유 최적기 vs 공격 투자 타이밍과 손재마 방어.
+              </p>
+            </div>
           </div>
-          <div style="text-align: right; min-width: 90px; flex-shrink: 0;">
-            <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 800; color: var(--primary); margin-bottom: 0.35rem;">19,900원</div>
-            <button type="button" class="btn-cta-primary btn-select-product" data-tier="WEALTH" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; background: var(--primary); color: #241a00; border: none; cursor: pointer;">
+          <div class="product-action-box">
+            <div class="product-price-label">19,900원</div>
+            <button type="button" class="btn-cta-primary btn-select-product" data-tier="WEALTH" style="background: var(--primary); color: #241a00; border: none;">
               신청 →
             </button>
           </div>
         </div>
 
         <!-- 4. 재회운세 (19,900원) -->
-        <div class="product-showcase-card" style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 12px; padding: 1.15rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; box-shadow: var(--shadow-sm);">
-          <div>
-            <div style="display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.25rem;">
-              <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.2rem;">
-                <span class="material-symbols-outlined" style="font-size: 13px;">favorite</span> 연애·재회
-              </span>
-              <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0;">재회운세</h3>
+        <div class="product-showcase-card">
+          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">favorite</span>
             </div>
-            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">
-              상대방 연락 가능성 월별 지수와 재회 골든타임 처방.
-            </p>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 0.45rem;">
+                <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">연애·재회</span>
+                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">재회운세</h3>
+              </div>
+              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
+                상대방 연락 가능성 월별 지수와 재회 골든타임 처방.
+              </p>
+            </div>
           </div>
-          <div style="text-align: right; min-width: 90px; flex-shrink: 0;">
-            <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 800; color: var(--primary); margin-bottom: 0.35rem;">19,900원</div>
-            <button type="button" class="btn-cta-primary btn-select-product" data-tier="REUNION" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; background: var(--primary); color: #241a00; border: none; cursor: pointer;">
+          <div class="product-action-box">
+            <div class="product-price-label">19,900원</div>
+            <button type="button" class="btn-cta-primary btn-select-product" data-tier="REUNION" style="background: var(--primary); color: #241a00; border: none;">
               신청 →
             </button>
           </div>
         </div>
 
-        <!-- 5. 궁합운세 (29,900원 - 연핑크 rgba(251, 207, 232, 0.4) 고유 스타일 복원, "2인" 제거) -->
-        <div class="product-showcase-card" style="background: var(--surface-container); border: 1px solid rgba(251, 207, 232, 0.4); border-radius: 12px; padding: 1.15rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; box-shadow: var(--shadow-sm);">
-          <div>
-            <div style="display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.25rem;">
-              <span style="background: rgba(251, 207, 232, 0.15); color: #f472b6; font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.2rem;">
-                <span class="material-symbols-outlined" style="font-size: 13px;">favorite</span> 정밀 역학
-              </span>
-              <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0;">궁합운세</h3>
+        <!-- 5. 궁합운세 (29,900원) -->
+        <div class="product-showcase-card">
+          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(251, 207, 232, 0.12); border: 1px solid rgba(251, 207, 232, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-symbols-outlined" style="font-size: 22px; color: #f472b6;">favorite</span>
             </div>
-            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">
-              반복 싸움 유발 요인 3가지와 즉시 화해 대화 스크립트.
-            </p>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 0.45rem;">
+                <span style="background: rgba(251, 207, 232, 0.15); color: #f472b6; font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">정밀 역학</span>
+                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">궁합운세</h3>
+              </div>
+              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
+                반복 싸움 유발 요인 3가지와 즉시 화해 대화 스크립트.
+              </p>
+            </div>
           </div>
-          <div style="text-align: right; min-width: 90px; flex-shrink: 0;">
-            <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 800; color: var(--primary); margin-bottom: 0.35rem;">29,900원</div>
-            <button type="button" class="btn-cta-primary btn-select-product" data-tier="CHEMISTRY" style="padding: 0.45rem 0.85rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; background: var(--primary); color: #241a00; border: none; cursor: pointer;">
+          <div class="product-action-box">
+            <div class="product-price-label">29,900원</div>
+            <button type="button" class="btn-cta-primary btn-select-product" data-tier="CHEMISTRY" style="background: var(--primary); color: #241a00; border: none;">
               신청 →
             </button>
           </div>
@@ -525,77 +542,82 @@ ${(() => {
     </div>
     
     <!-- ④ [천명원 핵심] 공인 1:1 수석 명리 상담사 입점 마켓플레이스 그리드 -->
- ${ModuleRegistry.isEnabled('feature_vendor_marketplace') ? `
- <div style="width: 100%; margin-bottom: 2rem; text-align: left;">
- <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.85rem;">
- <div>
- <span style="font-size: 0.72rem; color: var(--primary); font-weight: 700; letter-spacing: 0.05em;">CERTIFIED MASTERS</span>
- <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0.15rem 0 0 0;">
- 천명원 공인 수석 상담사
- </h2>
- </div>
- <span style="font-size: 0.75rem; color: #50c878; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
- <span style="width: 6px; height: 6px; border-radius: 50%; background: #50c878; display: inline-block;"></span>
- 실시간 상담 대기
- </span>
- </div>
+    ${ModuleRegistry.isEnabled('feature_vendor_marketplace') ? `
+    <div style="width: 100%; margin-bottom: 2rem; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.85rem;">
+        <div>
+          <span style="font-size: 0.72rem; color: var(--primary); font-weight: 700; letter-spacing: 0.05em;">CERTIFIED MASTERS</span>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0.15rem 0 0 0;">
+            천명원 공인 수석 상담사
+          </h2>
+        </div>
+        <span style="font-size: 0.75rem; color: #50c878; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+          <span style="width: 6px; height: 6px; border-radius: 50%; background: #50c878; display: inline-block;"></span>
+          실시간 상담 대기
+        </span>
+      </div>
 
- <div style="display: flex; flex-direction: column; gap: 0.85rem;">
- <!-- 상담사 1: 청암 도사 -->
- <div class="advisor-card" style="background: var(--surface-container); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1rem 1.15rem; display: flex; justify-content: space-between; align-items: center; gap: 0.85rem; box-shadow: var(--shadow-sm);">
- <div style="display: flex; align-items: center; gap: 0.75rem;">
- <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--surface-container-high); border: 1.5px solid var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 10px rgba(242, 202, 80, 0.2);">
- <span class="material-symbols-outlined" style="font-size: 24px; color: var(--primary);">person</span>
- </div>
- <div>
- <div style="display: flex; align-items: center; gap: 0.35rem;">
- <span style="font-weight: 800; font-size: 0.98rem; color: #fff;">청암(靑巖) 도사</span>
- <span style="font-size: 0.65rem; color: var(--primary); background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.3); padding: 0.08rem 0.35rem; border-radius: 4px; font-weight: 700;">수석 상담관</span>
- </div>
- <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.15rem;">자평명리 24년 · 사업·재물·부동산 전문</div>
- <div style="font-size: 0.75rem; color: var(--primary); font-weight: 700; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.25rem;">
- <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">star</span>
- 4.99 <span style="color: var(--text-muted); font-weight: normal;">(후기 1,840건)</span>
- </div>
- </div>
- </div>
- <button type="button" class="btn-cta-primary btn-select-product" data-tier="PAID" style="padding: 0.5rem 0.9rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px; white-space: nowrap; background: var(--primary); color: #241a00;">
- 상담 신청
- </button>
- </div>
+      <div class="landing-product-list">
+        <!-- 상담사 1: 청암 도사 -->
+        <div class="advisor-card">
+          <div style="display: flex; align-items: center; gap: 0.85rem; flex: 1; min-width: 0;">
+            <div style="width: 46px; height: 46px; border-radius: 50%; background: var(--surface-container-high); border: 1.5px solid var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 10px rgba(242, 202, 80, 0.2);">
+              <span class="material-symbols-outlined" style="font-size: 26px; color: var(--primary);">person</span>
+            </div>
+            <div style="min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 0.35rem;">
+                <span style="font-weight: 800; font-size: 1.05rem; color: #fff;">청암(靑巖) 도사</span>
+                <span style="font-size: 0.68rem; color: var(--primary); background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.3); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700;">수석 상담관</span>
+              </div>
+              <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.2rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">자평명리 24년 · 사업·재물·부동산 전문</div>
+              <div style="font-size: 0.78rem; color: var(--primary); font-weight: 700; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.25rem;">
+                <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">star</span>
+                4.99 <span style="color: var(--text-muted); font-weight: normal;">(후기 1,840건)</span>
+              </div>
+            </div>
+          </div>
+          <div class="product-action-box">
+            <button type="button" class="btn-cta-primary btn-select-product" data-tier="PAID" style="background: var(--primary); color: #241a00; border: none;">
+              상담 신청
+            </button>
+          </div>
+        </div>
 
- <!-- 상담사 2: 혜원 법사 -->
- <div class="advisor-card" style="background: var(--surface-container); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1rem 1.15rem; display: flex; justify-content: space-between; align-items: center; gap: 0.85rem; box-shadow: var(--shadow-sm);">
- <div style="display: flex; align-items: center; gap: 0.75rem;">
- <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--surface-container-high); border: 1.5px solid var(--tertiary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 10px rgba(242, 202, 80, 0.2);">
- <span class="material-symbols-outlined" style="font-size: 24px; color: var(--tertiary);">spa</span>
- </div>
- <div>
- <div style="display: flex; align-items: center; gap: 0.35rem;">
- <span style="font-weight: 800; font-size: 0.98rem; color: #fff;">혜원(慧園) 법사</span>
- <span style="font-size: 0.65rem; color: var(--tertiary); background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.3); padding: 0.08rem 0.35rem; border-radius: 4px; font-weight: 700;">심리명리</span>
- </div>
- <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.15rem;">궁합·이별 재회·인간관계 갈등 치유</div>
- <div style="font-size: 0.75rem; color: var(--primary); font-weight: 700; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.25rem;">
- <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">star</span>
- 4.98 <span style="color: var(--text-muted); font-weight: normal;">(후기 2,130건)</span>
- </div>
- </div>
- </div>
- <button type="button" class="btn-cta-primary btn-select-product" data-tier="CONFLICT_MALSAL" style="padding: 0.5rem 0.9rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px; background: var(--tertiary); color: #003640; white-space: nowrap;">
- 상담 신청
- </button>
- </div>
- </div>
- </div>
- ` : ''}
+        <!-- 상담사 2: 혜원 법사 -->
+        <div class="advisor-card">
+          <div style="display: flex; align-items: center; gap: 0.85rem; flex: 1; min-width: 0;">
+            <div style="width: 46px; height: 46px; border-radius: 50%; background: var(--surface-container-high); border: 1.5px solid var(--tertiary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 10px rgba(242, 202, 80, 0.2);">
+              <span class="material-symbols-outlined" style="font-size: 26px; color: var(--tertiary);">spa</span>
+            </div>
+            <div style="min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 0.35rem;">
+                <span style="font-weight: 800; font-size: 1.05rem; color: #fff;">혜원(慧園) 법사</span>
+                <span style="font-size: 0.68rem; color: var(--tertiary); background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.3); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700;">심리명리</span>
+              </div>
+              <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.2rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">궁합·이별 재회·인간관계 갈등 치유</div>
+              <div style="font-size: 0.78rem; color: var(--primary); font-weight: 700; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.25rem;">
+                <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">star</span>
+                4.98 <span style="color: var(--text-muted); font-weight: normal;">(후기 2,130건)</span>
+              </div>
+            </div>
+          </div>
+          <div class="product-action-box">
+            <button type="button" class="btn-cta-primary btn-select-product" data-tier="CONFLICT_MALSAL" style="background: var(--tertiary); color: #003640; border: none;">
+              상담 신청
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    ` : ''}
 
- <!-- ⑤ 마보살 파트너스 30% 제휴 & 독립점 분양 프로모션 배너 -->
- ${ModuleRegistry.isEnabled('feature_affiliate_banner') ? `
- <div style="width: 100%; margin-bottom: 2rem; text-align: left;">
- ${renderAffiliatePromoBanner()}
- </div>
- ` : ''}
+    <!-- ⑤ 마보살 파트너스 30% 제휴 & 독립점 분양 프로모션 배너 -->
+    ${ModuleRegistry.isEnabled('feature_affiliate_banner') ? `
+    <div style="width: 100%; margin-bottom: 2rem; text-align: left;">
+      ${renderAffiliatePromoBanner()}
+    </div>
+    ` : ''}
+  </div> <!-- /landing-content-container -->
 
  <!-- [테스트 호환성 레이어: 기존 3대 안내 카드 및 데스크톱 셀렉터 보존 (화면 노출 X)] -->
  <div class="engine-test-compat-layer" style="display: none !important;" aria-hidden="true">
@@ -627,10 +649,11 @@ ${(() => {
 export function renderBirthInputView(state: AppStateData): string {
  return `
  <div class="input-view-container">
- <div class="form-header">
- <h2>${state.activeTierTab === 'CHEMISTRY' ? '천명원 정밀 궁합 & 사주 정보 입력' : '사주 및 현실 고민 입력'}</h2>
- <p>정확한 명리 분석과 문제 진단을 위해 아래 순서대로 입력해 주세요.</p>
- </div>
+  ${state.activeTierTab === 'CHEMISTRY' ? `
+  <div class="form-header">
+  <h2>천명원 정밀 궁합 & 사주 정보 입력</h2>
+  </div>
+  ` : ''}
 
  ${state.errorMessage ? `
  <div class="form-error-alert">
@@ -722,14 +745,11 @@ export function renderBirthInputView(state: AppStateData): string {
 
  <!-- 5. 성별 (내부 명리 계산을 변경하지 않으나 원천 데이터로 보존) -->
  <div class="form-group">
- <label class="form-label">5. 성별 (원천 데이터 보존용)</label>
+ <label class="form-label">5. 성별</label>
  <div class="gender-toggle-group">
  <button type="button" class="gender-btn ${state.gender === 'male' ? 'active' : ''}" id="btn-gender-male" data-gender="male">남성</button>
  <button type="button" class="gender-btn ${state.gender === 'female' ? 'active' : ''}" id="btn-gender-female" data-gender="female">여성</button>
  </div>
- <span style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem; display: block;">
- ※ 명리 계산 자체는 성별에 영향받지 않으며, 향후 고도화 및 보존용 데이터로 안전하게 관리됩니다.
- </span>
  </div>
 
  <!-- ======================================================== -->
@@ -836,9 +856,6 @@ export function renderBirthInputView(state: AppStateData): string {
           <span class="material-symbols-outlined" style="font-size: 22px;">${state.activeTierTab === 'CHEMISTRY' ? 'favorite' : 'auto_awesome'}</span>
           <span>${state.activeTierTab === 'CHEMISTRY' ? '궁합 심층 분석' : '사주 분석'}</span>
         </button>
-        <div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-top: 0.75rem;">
-          ※ 입력하신 명리 정보는 암호화되어 안전하게 연산 후 자동 파기됩니다.
-        </div>
       </div>
  </form>
  </div>

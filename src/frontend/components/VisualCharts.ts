@@ -310,30 +310,29 @@ export function renderGoldProgressRing(score: number = 92, title: string = '성�
  */
 export function renderDailyAuspiciousHoursWidget(): string {
  return `
- <div class="auspicious-hours-card" style="background: rgba(15, 20, 34, 0.9); border: 1px solid rgba(80, 200, 120, 0.25); border-radius: 14px; padding: 1.1rem; margin-bottom: 1.5rem; text-align: left;">
+ <div class="auspicious-hours-card" style="background: rgba(15, 20, 34, 0.9); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 14px; padding: 1.1rem; margin-bottom: 1.5rem; text-align: left;">
  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
  <div style="display: flex; align-items: center; gap: 0.45rem;">
- <span style="font-size: 1.1rem; color: #50c878;"></span>
- <h3 style="font-size: 1.02rem; font-weight: 800; color: #fff; margin: 0;">오늘의 2대 황금 길시(吉時)</h3>
+ <span class="material-symbols-outlined" style="font-size: 19px; color: var(--primary);">schedule</span>
+ <h3 style="font-size: 1.02rem; font-weight: 800; color: #fff; margin: 0;">오늘의 황금 길시(吉時)</h3>
  </div>
- <span style="background: rgba(80, 200, 120, 0.15); color: #50c878; font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700;">
+ <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.68rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700; border: 1px solid rgba(242, 202, 80, 0.2);">
  실시간 기운 추적
  </span>
  </div>
 
  <div style="display: flex; flex-direction: column; gap: 0.65rem;">
  <!-- 제1 길시: 사시 -->
- <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 10px; padding: 0.75rem 0.9rem; display: flex; justify-content: space-between; align-items: center;">
+ <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 0.75rem 0.9rem; display: flex; justify-content: space-between; align-items: center;">
  <div>
  <div style="display: flex; align-items: center; gap: 0.4rem;">
  <span style="font-weight: 800; font-size: 0.88rem; color: #fff;">사시(巳時 · 09:30 ~ 11:30)</span>
- <span style="font-size: 0.65rem; color: #ff3385; background: rgba(255, 51, 133, 0.15); padding: 0.1rem 0.35rem; border-radius: 4px; font-weight: 700;">계약·문서 길시</span>
+ <span style="font-size: 0.65rem; color: var(--primary); background: rgba(242, 202, 80, 0.15); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700;">계약·문서 길시</span>
  </div>
  <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
  중요 미팅 및 협상 타결 확률이 가장 높은 시간대
  </div>
  </div>
- <span style="font-size: 0.72rem; color: var(--text-gold); font-weight: 700; background: rgba(212, 175, 55, 0.15); padding: 0.2rem 0.5rem; border-radius: 6px;">+50엽</span>
  </div>
 
  <!-- 제2 길시: 미시 (현재 활성 하이라이트) -->
@@ -341,13 +340,12 @@ export function renderDailyAuspiciousHoursWidget(): string {
  <div>
  <div style="display: flex; align-items: center; gap: 0.4rem;">
  <span style="font-weight: 800; font-size: 0.88rem; color: var(--primary);">미시(未時 · 13:30 ~ 15:30)</span>
- <span style="font-size: 0.65rem; color: #241a00; background: var(--primary); padding: 0.1rem 0.35rem; border-radius: 4px; font-weight: 800;">NOW ACTIVE</span>
+ <span style="font-size: 0.65rem; color: #241a00; background: var(--primary); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 800;">진행 중</span>
  </div>
  <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem;">
  황금 재물 결실 타임 — 투자 판단 및 송금에 최적
  </div>
  </div>
- <span style="font-size: 0.72rem; color: #50c878; font-weight: 700; background: rgba(80, 200, 120, 0.15); padding: 0.2rem 0.5rem; border-radius: 6px;">+100엽</span>
  </div>
  </div>
  </div>
@@ -788,28 +786,51 @@ export function renderCheonmyeongwonDailyDashboard(options?: CheonmyeongwonDaily
  return `
  <!-- 천명원 10번 규격: Celestial Reading 메인 홈 일진 대시보드 -->
  <div class="cheonmyeongwon-daily-dashboard" style="margin-bottom: 2rem;">
- <!-- Celestial Reading Header -->
- <div style="display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 1rem;">
- <div style="display: flex; align-items: center; justify-content: space-between;">
+
+ <!-- [1. 최상단 배치] 오늘의 행운 처방 (LUCKY CODEX 제거하고 날짜 배치) -->
+ <div style="border-radius: 14px; background: var(--surface-container-low); padding: 1rem 1.15rem; box-shadow: 0 4px 16px rgba(0,0,0,0.3); border: 1px solid rgba(242, 202, 80, 0.25); margin-bottom: 1.25rem;">
+ <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
  <div style="display: flex; align-items: center; gap: 0.45rem;">
- <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 10px rgba(242,202,80,0.8); display: inline-block;"></span>
- <span style="font-family: var(--font-serif); font-size: 0.76rem; color: var(--primary); letter-spacing: 0.05em; font-weight: 700;">오늘의 천기(天氣) 일진</span>
- ${isPersonalized ? '<span style="font-size: 0.65rem; color: #34d399; background: rgba(52,211,153,0.12); padding: 0.1rem 0.45rem; border-radius: 9999px; font-weight: 600;">사주 연동</span>' : ''}
+ <span class="material-symbols-outlined" style="font-size: 19px; color: var(--primary);">verified</span>
+ <h3 style="font-size: 1rem; font-weight: 800; color: #dfe2f1; margin: 0;">오늘의 행운 처방</h3>
  </div>
- <span style="font-size: 0.72rem; color: var(--primary); background: rgba(242, 202, 80, 0.1); border: 1px solid rgba(242, 202, 80, 0.25); padding: 0.18rem 0.65rem; border-radius: 9999px; font-weight: 600;">${combinedDateBadge}</span>
+ <span style="font-size: 0.75rem; color: var(--primary); background: rgba(242, 202, 80, 0.1); border: 1px solid rgba(242, 202, 80, 0.25); padding: 0.2rem 0.65rem; border-radius: 9999px; font-weight: 600;">${combinedDateBadge}</span>
  </div>
- <div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.15rem;">
- <h2 style="font-family: var(--font-serif); font-size: 1.45rem; font-weight: 700; color: #dfe2f1; margin: 0;">
- <span style="color: var(--primary);">${userName}</span> 님의 일진
- </h2>
- <span style="font-size: 0.75rem; color: var(--text-muted);">${ganjiDate}</span>
+ <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 0.75rem;">
+ <div style="display: flex; flex-direction: column; padding: 0.6rem; border-radius: 8px; background: var(--surface-container);">
+ <span style="font-size: 0.68rem; color: var(--text-muted);">행운의 색</span>
+ <div style="display: flex; align-items: center; gap: 0.35rem; margin-top: 0.25rem;">
+ <span style="width: 10px; height: 10px; border-radius: 50%; background: ${luckyColorHex}; box-shadow: 0 0 6px ${luckyColorHex}; display: inline-block;"></span>
+ <span style="font-size: 0.78rem; font-weight: 600; color: #dfe2f1;">${luckyColor}</span>
+ </div>
+ </div>
+ <div style="display: flex; flex-direction: column; padding: 0.6rem; border-radius: 8px; background: var(--surface-container);">
+ <span style="font-size: 0.68rem; color: var(--text-muted);">행운의 방위</span>
+ <div style="display: flex; align-items: center; gap: 0.35rem; margin-top: 0.25rem;">
+ <span class="material-symbols-outlined" style="font-size: 13px; color: var(--primary);">explore</span>
+ <span style="font-size: 0.78rem; font-weight: 600; color: #dfe2f1;">${luckyDirection}</span>
+ </div>
+ </div>
+ <div style="display: flex; flex-direction: column; padding: 0.6rem; border-radius: 8px; background: var(--surface-container);">
+ <span style="font-size: 0.68rem; color: var(--text-muted);">행운의 수</span>
+ <div style="display: flex; align-items: center; gap: 0.35rem; margin-top: 0.25rem;">
+ <span class="material-symbols-outlined" style="font-size: 13px; color: var(--primary);">pin</span>
+ <span style="font-size: 0.78rem; font-weight: 600; color: #dfe2f1;">${luckyNumber}</span>
+ </div>
+ </div>
+ </div>
+ <div style="display: flex; align-items: flex-start; gap: 0.65rem; padding: 0.75rem 0.85rem; border-radius: 8px; background: rgba(38, 42, 53, 0.7); color: #dfe2f1;">
+ <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary); flex-shrink: 0; margin-top: 1px;">tips_and_updates</span>
+ <p style="font-size: 0.78rem; line-height: 1.5; margin: 0; color: rgba(223,226,241,0.92);">
+ <strong style="color: var(--primary);">지혜의 한 줄:</strong> ${wiseQuote}
+ </p>
  </div>
  </div>
 
- <!-- Celestial Score Circle Gauge Card -->
- <div style="position: relative; overflow: hidden; border-radius: 16px; background: rgba(28, 31, 42, 0.85); backdrop-filter: blur(16px); padding: 1.25rem; box-shadow: 0 12px 36px rgba(0,0,0,0.5); border: 1px solid rgba(242, 202, 80, 0.25); margin-bottom: 1rem;">
+ <!-- [2. 중간 배치] 행운지수 게이지 카드 -->
+ <div style="position: relative; overflow: hidden; border-radius: 16px; background: rgba(28, 31, 42, 0.85); backdrop-filter: blur(16px); padding: 1.25rem; box-shadow: 0 12px 36px rgba(0,0,0,0.5); border: 1px solid rgba(242, 202, 80, 0.25); margin-bottom: 1.25rem;">
  <div style="position: absolute; top: -3rem; right: -3rem; width: 11rem; height: 11rem; border-radius: 50%; background: rgba(242, 202, 80, 0.1); filter: blur(40px); pointer-events: none;"></div>
- <div style="position: absolute; bottom: -2.5rem; left: -2.5rem; width: 9rem; height: 9rem; border-radius: 50%; background: rgba(255, 51, 133, 0.08); filter: blur(30px); pointer-events: none;"></div>
+ <div style="position: absolute; bottom: -2.5rem; left: -2.5rem; width: 9rem; height: 9rem; border-radius: 50%; background: rgba(242, 202, 80, 0.05); filter: blur(30px); pointer-events: none;"></div>
 
  <div style="display: flex; align-items: center; gap: 1.15rem; position: relative; z-index: 1;">
  <!-- SVG Circle Gauge -->
@@ -820,7 +841,7 @@ export function renderCheonmyeongwonDailyDashboard(options?: CheonmyeongwonDaily
  </svg>
  <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
  <span style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; color: var(--primary); line-height: 1;">${score}</span>
- <span style="font-family: var(--font-display); font-size: 0.62rem; color: var(--text-muted); letter-spacing: 0.05em; margin-top: 2px;">천기지수</span>
+ <span style="font-family: var(--font-display); font-size: 0.62rem; color: var(--text-muted); letter-spacing: 0.05em; margin-top: 2px;">행운지수</span>
  </div>
  </div>
 
@@ -867,47 +888,10 @@ export function renderCheonmyeongwonDailyDashboard(options?: CheonmyeongwonDaily
  </div>
  </div>
 
- <!-- 오늘의 행운 처방 (LUCKY CODEX) -->
- <div style="border-radius: 14px; background: var(--surface-container-low); padding: 1rem 1.15rem; box-shadow: 0 4px 16px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); margin-bottom: 1.25rem;">
- <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
- <div style="display: flex; align-items: center; gap: 0.45rem;">
- <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">verified</span>
- <h3 style="font-size: 0.95rem; font-weight: 700; color: #dfe2f1; margin: 0;">오늘의 행운 처방</h3>
- </div>
- <span style="font-family: var(--font-display); font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.08em;">LUCKY CODEX</span>
- </div>
- <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 0.75rem;">
- <div style="display: flex; flex-direction: column; padding: 0.6rem; border-radius: 8px; background: var(--surface-container);">
- <span style="font-size: 0.68rem; color: var(--text-muted);">행운의 색</span>
- <div style="display: flex; align-items: center; gap: 0.35rem; margin-top: 0.25rem;">
- <span style="width: 10px; height: 10px; border-radius: 50%; background: ${luckyColorHex}; box-shadow: 0 0 6px ${luckyColorHex}; display: inline-block;"></span>
- <span style="font-size: 0.78rem; font-weight: 600; color: #dfe2f1;">${luckyColor}</span>
- </div>
- </div>
- <div style="display: flex; flex-direction: column; padding: 0.6rem; border-radius: 8px; background: var(--surface-container);">
- <span style="font-size: 0.68rem; color: var(--text-muted);">행운의 방위</span>
- <div style="display: flex; align-items: center; gap: 0.35rem; margin-top: 0.25rem;">
- <span class="material-symbols-outlined" style="font-size: 13px; color: var(--tertiary);">explore</span>
- <span style="font-size: 0.78rem; font-weight: 600; color: #dfe2f1;">${luckyDirection}</span>
- </div>
- </div>
- <div style="display: flex; flex-direction: column; padding: 0.6rem; border-radius: 8px; background: var(--surface-container);">
- <span style="font-size: 0.68rem; color: var(--text-muted);">행운의 수</span>
- <div style="display: flex; align-items: center; gap: 0.35rem; margin-top: 0.25rem;">
- <span class="material-symbols-outlined" style="font-size: 13px; color: var(--primary);">pin</span>
- <span style="font-size: 0.78rem; font-weight: 600; color: #dfe2f1;">${luckyNumber}</span>
- </div>
- </div>
- </div>
- <div style="display: flex; align-items: flex-start; gap: 0.65rem; padding: 0.75rem 0.85rem; border-radius: 8px; background: rgba(38, 42, 53, 0.7); color: #dfe2f1;">
- <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary); flex-shrink: 0; margin-top: 1px;">tips_and_updates</span>
- <p style="font-size: 0.78rem; line-height: 1.5; margin: 0; color: rgba(223,226,241,0.92);">
- <strong style="color: var(--primary);">지혜의 한 줄:</strong> ${wiseQuote}
- </p>
- </div>
- </div>
+ <!-- [3. 비전 바로가기 위쪽 배치] 오늘의 황금 길시(吉時) -->
+ ${renderDailyAuspiciousHoursWidget()}
 
- <!-- 비전(秘傳) 바로가기 4대 퀵 액션 그리드 -->
+ <!-- [4. 비전(秘傳) 바로가기 4대 퀵 액션 그리드] -->
  <div style="margin-bottom: 1.5rem;">
  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
  <h3 style="font-size: 0.95rem; font-weight: 700; color: #dfe2f1; margin: 0;">비전(秘傳) 바로가기</h3>
@@ -1035,7 +1019,6 @@ export function renderCheonmyeongwonDailyDashboard(options?: CheonmyeongwonDaily
  <div style="display: flex; flex-direction: column;">
  <div style="display: flex; align-items: center; gap: 0.4rem;">
  <span style="font-size: 0.92rem; font-weight: 700; color: #dfe2f1;">오늘 자정 마감 운세 퀴즈</span>
- <span style="font-family: var(--font-display); font-size: 0.68rem; color: var(--primary); background: rgba(242,202,80,0.15); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700;">+50엽</span>
  </div>
  <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0.15rem 0 0 0;">
  내 사주 원국에서 가장 왕성한 오행과 결핍된 오행은?
