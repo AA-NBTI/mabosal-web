@@ -1111,4 +1111,43 @@ html, body {
   }
 }
 
+/* ==========================================================================
+   INTERACTIVE CARDS (행운처방, 행운지수, 황금 길시, 신년 대운 배너)
+   ========================================================================== */
+.interactive-prescription-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(242, 202, 80, 0.45) !important;
+  box-shadow: 0 4px 16px rgba(242, 202, 80, 0.12) !important;
+  background: var(--surface-container-high) !important;
+}
+
+.interactive-fortune-score-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(242, 202, 80, 0.5) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(242, 202, 80, 0.15) !important;
+}
+
+.interactive-metric-item:hover {
+  background: rgba(242, 202, 80, 0.1) !important;
+  border-radius: 8px;
+}
+
+.interactive-auspicious-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(242, 202, 80, 0.5) !important;
+  box-shadow: 0 4px 16px rgba(242, 202, 80, 0.15) !important;
+}
+
+.special-newyear-banner-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(242, 202, 80, 0.6) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), 0 0 24px rgba(242, 202, 80, 0.2) !important;
+}
+
+.btn-quick-nav:hover {
+  transform: translateY(-3px);
+  border-color: rgba(242, 202, 80, 0.4) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4) !important;
+}
+
 

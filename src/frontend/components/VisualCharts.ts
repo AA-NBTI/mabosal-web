@@ -309,47 +309,55 @@ export function renderGoldProgressRing(score: number = 92, title: string = '성�
  * 사시(巳時 09:30~11:30) & 미시(未時 13:30~15:30) 실시간 타임라인 & 엽전 퀘스트
  */
 export function renderDailyAuspiciousHoursWidget(): string {
- return `
- <div class="auspicious-hours-card" style="background: rgba(15, 20, 34, 0.9); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 14px; padding: 1.1rem; margin-bottom: 1.5rem; text-align: left;">
- <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
- <div style="display: flex; align-items: center; gap: 0.45rem;">
- <span class="material-symbols-outlined" style="font-size: 19px; color: var(--primary);">schedule</span>
- <h3 style="font-size: 1.02rem; font-weight: 800; color: #fff; margin: 0;">오늘의 황금 길시(吉時)</h3>
- </div>
- <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.68rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700; border: 1px solid rgba(242, 202, 80, 0.2);">
- 실시간 기운 추적
- </span>
- </div>
+  return `
+  <div class="auspicious-hours-card" style="background: rgba(15, 20, 34, 0.9); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 14px; padding: 1.1rem; margin-bottom: 1.5rem; text-align: left;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+      <div style="display: flex; align-items: center; gap: 0.45rem;">
+        <span class="material-symbols-outlined" style="font-size: 19px; color: var(--primary);">schedule</span>
+        <h3 style="font-size: 1.02rem; font-weight: 800; color: #fff; margin: 0;">오늘의 황금 길시(吉時)</h3>
+      </div>
+      <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.68rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700; border: 1px solid rgba(242, 202, 80, 0.2);">
+        실시간 기운 추적
+      </span>
+    </div>
 
- <div style="display: flex; flex-direction: column; gap: 0.65rem;">
- <!-- 제1 길시: 사시 -->
- <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 0.75rem 0.9rem; display: flex; justify-content: space-between; align-items: center;">
- <div>
- <div style="display: flex; align-items: center; gap: 0.4rem;">
- <span style="font-weight: 800; font-size: 0.88rem; color: #fff;">사시(巳時 · 09:30 ~ 11:30)</span>
- <span style="font-size: 0.65rem; color: var(--primary); background: rgba(242, 202, 80, 0.15); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700;">계약·문서 길시</span>
- </div>
- <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
- 중요 미팅 및 협상 타결 확률이 가장 높은 시간대
- </div>
- </div>
- </div>
+    <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+      <!-- 제1 길시: 사시 (클릭 시 상세 가이드 모달) -->
+      <div class="interactive-auspicious-item" data-auspicious-hour="sashi" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 0.75rem 0.9rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s ease;" title="클릭하여 상세 행동 가이드 보기">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <span style="font-weight: 800; font-size: 0.88rem; color: #fff;">사시(巳時 · 09:30 ~ 11:30)</span>
+            <span style="font-size: 0.65rem; color: var(--primary); background: rgba(242, 202, 80, 0.15); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700;">계약·문서 길시</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
+            중요 미팅 및 협상 타결 확률이 가장 높은 시간대
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.2rem; color: var(--primary); font-size: 0.72rem; font-weight: 700; flex-shrink: 0; padding-left: 0.5rem;">
+          <span>가이드</span>
+          <span class="material-symbols-outlined" style="font-size: 15px;">chevron_right</span>
+        </div>
+      </div>
 
- <!-- 제2 길시: 미시 (현재 활성 하이라이트) -->
- <div style="background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.4); border-radius: 10px; padding: 0.75rem 0.9rem; display: flex; justify-content: space-between; align-items: center;">
- <div>
- <div style="display: flex; align-items: center; gap: 0.4rem;">
- <span style="font-weight: 800; font-size: 0.88rem; color: var(--primary);">미시(未時 · 13:30 ~ 15:30)</span>
- <span style="font-size: 0.65rem; color: #241a00; background: var(--primary); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 800;">진행 중</span>
- </div>
- <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem;">
- 황금 재물 결실 타임 — 투자 판단 및 송금에 최적
- </div>
- </div>
- </div>
- </div>
- </div>
- `;
+      <!-- 제2 길시: 미시 (현재 활성 하이라이트 + 클릭 시 상세 가이드 모달) -->
+      <div class="interactive-auspicious-item" data-auspicious-hour="mishi" style="background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.4); border-radius: 10px; padding: 0.75rem 0.9rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s ease;" title="클릭하여 상세 행동 가이드 보기">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <span style="font-weight: 800; font-size: 0.88rem; color: var(--primary);">미시(未時 · 13:30 ~ 15:30)</span>
+            <span style="font-size: 0.65rem; color: #241a00; background: var(--primary); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 800;">진행 중</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem;">
+            황금 재물 결실 타임 — 투자 판단 및 송금에 최적
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.2rem; color: var(--primary); font-size: 0.72rem; font-weight: 700; flex-shrink: 0; padding-left: 0.5rem;">
+          <span>가이드</span>
+          <span class="material-symbols-outlined" style="font-size: 15px;">chevron_right</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  `;
 }
 
 /**
@@ -789,170 +797,200 @@ export function renderCheonmyeongwonDailyDashboard(options?: CheonmyeongwonDaily
 
  <!-- [1. 최상단 배치] 오늘의 행운 처방 (LUCKY CODEX 제거하고 날짜 배치) -->
  <div style="border-radius: 14px; background: var(--surface-container-low); padding: 1rem 1.15rem; box-shadow: 0 4px 16px rgba(0,0,0,0.3); border: 1px solid rgba(242, 202, 80, 0.25); margin-bottom: 1.25rem;">
- <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
- <div style="display: flex; align-items: center; gap: 0.45rem;">
- <span class="material-symbols-outlined" style="font-size: 19px; color: var(--primary);">verified</span>
- <h3 style="font-size: 1rem; font-weight: 800; color: #dfe2f1; margin: 0;">오늘의 행운 처방</h3>
- </div>
- <span style="font-size: 0.75rem; color: var(--primary); background: rgba(242, 202, 80, 0.1); border: 1px solid rgba(242, 202, 80, 0.25); padding: 0.2rem 0.65rem; border-radius: 9999px; font-weight: 600;">${combinedDateBadge}</span>
- </div>
- <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 0.75rem;">
- <div style="display: flex; flex-direction: column; padding: 0.6rem; border-radius: 8px; background: var(--surface-container);">
- <span style="font-size: 0.68rem; color: var(--text-muted);">행운의 색</span>
- <div style="display: flex; align-items: center; gap: 0.35rem; margin-top: 0.25rem;">
- <span style="width: 10px; height: 10px; border-radius: 50%; background: ${luckyColorHex}; box-shadow: 0 0 6px ${luckyColorHex}; display: inline-block;"></span>
- <span style="font-size: 0.78rem; font-weight: 600; color: #dfe2f1;">${luckyColor}</span>
- </div>
- </div>
- <div style="display: flex; flex-direction: column; padding: 0.6rem; border-radius: 8px; background: var(--surface-container);">
- <span style="font-size: 0.68rem; color: var(--text-muted);">행운의 방위</span>
- <div style="display: flex; align-items: center; gap: 0.35rem; margin-top: 0.25rem;">
- <span class="material-symbols-outlined" style="font-size: 13px; color: var(--primary);">explore</span>
- <span style="font-size: 0.78rem; font-weight: 600; color: #dfe2f1;">${luckyDirection}</span>
- </div>
- </div>
- <div style="display: flex; flex-direction: column; padding: 0.6rem; border-radius: 8px; background: var(--surface-container);">
- <span style="font-size: 0.68rem; color: var(--text-muted);">행운의 수</span>
- <div style="display: flex; align-items: center; gap: 0.35rem; margin-top: 0.25rem;">
- <span class="material-symbols-outlined" style="font-size: 13px; color: var(--primary);">pin</span>
- <span style="font-size: 0.78rem; font-weight: 600; color: #dfe2f1;">${luckyNumber}</span>
- </div>
- </div>
- </div>
- <div style="display: flex; align-items: flex-start; gap: 0.65rem; padding: 0.75rem 0.85rem; border-radius: 8px; background: rgba(38, 42, 53, 0.7); color: #dfe2f1;">
- <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary); flex-shrink: 0; margin-top: 1px;">tips_and_updates</span>
- <p style="font-size: 0.78rem; line-height: 1.5; margin: 0; color: rgba(223,226,241,0.92);">
- <strong style="color: var(--primary);">지혜의 한 줄:</strong> ${wiseQuote}
- </p>
- </div>
- </div>
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+      <div style="display: flex; align-items: center; gap: 0.45rem;">
+        <span class="material-symbols-outlined" style="font-size: 19px; color: var(--primary);">verified</span>
+        <h3 style="font-size: 1rem; font-weight: 800; color: #dfe2f1; margin: 0;">오늘의 행운 처방</h3>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="font-size: 0.75rem; color: var(--primary); background: rgba(242, 202, 80, 0.1); border: 1px solid rgba(242, 202, 80, 0.25); padding: 0.2rem 0.65rem; border-radius: 9999px; font-weight: 600;">${combinedDateBadge}</span>
+      </div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 0.75rem;">
+      <!-- 행운의 색 -->
+      <div class="interactive-prescription-card" data-prescription-card="color" data-val="${luckyColor}" data-hex="${luckyColorHex}" style="display: flex; flex-direction: column; padding: 0.6rem; border-radius: 8px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease; position: relative;" title="클릭하여 행운의 색 코디 &amp; 풍수 비책 보기">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.68rem; color: var(--text-muted);">행운의 색</span>
+          <span class="material-symbols-outlined" style="font-size: 13px; color: var(--primary); opacity: 0.7;">touch_app</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.35rem; margin-top: 0.25rem;">
+          <span style="width: 10px; height: 10px; border-radius: 50%; background: ${luckyColorHex}; box-shadow: 0 0 6px ${luckyColorHex}; display: inline-block;"></span>
+          <span style="font-size: 0.78rem; font-weight: 700; color: #dfe2f1;">${luckyColor}</span>
+        </div>
+      </div>
+      
+      <!-- 행운의 방위 -->
+      <div class="interactive-prescription-card" data-prescription-card="direction" data-val="${luckyDirection}" style="display: flex; flex-direction: column; padding: 0.6rem; border-radius: 8px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease; position: relative;" title="클릭하여 행운의 방위 개운법 보기">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.68rem; color: var(--text-muted);">행운의 방위</span>
+          <span class="material-symbols-outlined" style="font-size: 13px; color: var(--primary); opacity: 0.7;">touch_app</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.35rem; margin-top: 0.25rem;">
+          <span class="material-symbols-outlined" style="font-size: 13px; color: var(--primary);">explore</span>
+          <span style="font-size: 0.78rem; font-weight: 700; color: #dfe2f1;">${luckyDirection}</span>
+        </div>
+      </div>
+      
+      <!-- 행운의 수 -->
+      <div class="interactive-prescription-card" data-prescription-card="number" data-val="${luckyNumber}" style="display: flex; flex-direction: column; padding: 0.6rem; border-radius: 8px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease; position: relative;" title="클릭하여 행운의 수 활용 가이드 보기">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.68rem; color: var(--text-muted);">행운의 수</span>
+          <span class="material-symbols-outlined" style="font-size: 13px; color: var(--primary); opacity: 0.7;">touch_app</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.35rem; margin-top: 0.25rem;">
+          <span class="material-symbols-outlined" style="font-size: 13px; color: var(--primary);">pin</span>
+          <span style="font-size: 0.78rem; font-weight: 700; color: #dfe2f1;">${luckyNumber}</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 지혜의 한 줄 (클릭 시 마인드셋 모달) -->
+    <div class="interactive-prescription-card" data-prescription-card="quote" data-val="${wiseQuote}" style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.65rem; padding: 0.75rem 0.85rem; border-radius: 8px; background: rgba(38, 42, 53, 0.7); border: 1px solid rgba(255,255,255,0.06); color: #dfe2f1; cursor: pointer; transition: all 0.2s ease;" title="클릭하여 지혜의 한 줄 상세 해설 보기">
+      <div style="display: flex; align-items: flex-start; gap: 0.5rem; flex: 1;">
+        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary); flex-shrink: 0; margin-top: 1px;">tips_and_updates</span>
+        <p style="font-size: 0.78rem; line-height: 1.5; margin: 0; color: rgba(223,226,241,0.92);">
+          <strong style="color: var(--primary);">지혜의 한 줄:</strong> ${wiseQuote}
+        </p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.15rem; color: var(--primary); font-size: 0.7rem; font-weight: 700; flex-shrink: 0;">
+        <span>해설</span>
+        <span class="material-symbols-outlined" style="font-size: 14px;">chevron_right</span>
+      </div>
+    </div>
+  </div>
 
- <!-- [2. 중간 배치] 행운지수 게이지 카드 -->
- <div style="position: relative; overflow: hidden; border-radius: 16px; background: rgba(28, 31, 42, 0.85); backdrop-filter: blur(16px); padding: 1.25rem; box-shadow: 0 12px 36px rgba(0,0,0,0.5); border: 1px solid rgba(242, 202, 80, 0.25); margin-bottom: 1.25rem;">
- <div style="position: absolute; top: -3rem; right: -3rem; width: 11rem; height: 11rem; border-radius: 50%; background: rgba(242, 202, 80, 0.1); filter: blur(40px); pointer-events: none;"></div>
- <div style="position: absolute; bottom: -2.5rem; left: -2.5rem; width: 9rem; height: 9rem; border-radius: 50%; background: rgba(242, 202, 80, 0.05); filter: blur(30px); pointer-events: none;"></div>
+  <!-- [2. 중간 배치] 행운지수 게이지 카드 (클릭 시 심층 분석 모달 오픈) -->
+  <div class="interactive-fortune-score-card" data-open-score-modal="true" style="position: relative; overflow: hidden; border-radius: 16px; background: rgba(28, 31, 42, 0.85); backdrop-filter: blur(16px); padding: 1.25rem; box-shadow: 0 12px 36px rgba(0,0,0,0.5); border: 1px solid rgba(242, 202, 80, 0.25); margin-bottom: 1.25rem; cursor: pointer; transition: all 0.2s ease;" title="클릭하여 오늘의 천기지수 심층 분석 보기">
+    <div style="position: absolute; top: -3rem; right: -3rem; width: 11rem; height: 11rem; border-radius: 50%; background: rgba(242, 202, 80, 0.1); filter: blur(40px); pointer-events: none;"></div>
+    <div style="position: absolute; bottom: -2.5rem; left: -2.5rem; width: 9rem; height: 9rem; border-radius: 50%; background: rgba(242, 202, 80, 0.05); filter: blur(30px); pointer-events: none;"></div>
 
- <div style="display: flex; align-items: center; justify-content: space-between; gap: 1.15rem; position: relative; z-index: 1;">
- <div style="display: flex; flex-direction: column; min-width: 0; flex: 1;">
- <div style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.5rem; border-radius: 6px; background: rgba(242, 202, 80, 0.15); color: var(--primary); font-size: 0.72rem; font-weight: 700; width: fit-content; margin-bottom: 0.35rem;">
- <span class="material-symbols-outlined" style="font-size: 13px;">auto_awesome</span>
- <span>${gradeBadge}</span>
- </div>
- <p style="font-size: 0.98rem; font-weight: 700; color: #dfe2f1; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
- ${summaryTitle}
- </p>
- <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0.25rem 0 0 0; line-height: 1.4;">
- ${summaryDesc}
- </p>
- </div>
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 1.15rem; position: relative; z-index: 1;">
+      <div style="display: flex; flex-direction: column; min-width: 0; flex: 1;">
+        <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.35rem;">
+          <div style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.5rem; border-radius: 6px; background: rgba(242, 202, 80, 0.15); color: var(--primary); font-size: 0.72rem; font-weight: 700; width: fit-content;">
+            <span class="material-symbols-outlined" style="font-size: 13px;">auto_awesome</span>
+            <span>${gradeBadge}</span>
+          </div>
+          <span style="font-size: 0.7rem; color: var(--primary); font-weight: 700; display: inline-flex; align-items: center; gap: 0.1rem;">
+            상세 보기 <span class="material-symbols-outlined" style="font-size: 13px;">chevron_right</span>
+          </span>
+        </div>
+        <p style="font-size: 0.98rem; font-weight: 700; color: #dfe2f1; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+          ${summaryTitle}
+        </p>
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0.25rem 0 0 0; line-height: 1.4;">
+          ${summaryDesc}
+        </p>
+      </div>
 
- <!-- SVG Circle Gauge (우측 배치) -->
- <div style="position: relative; width: 88px; height: 88px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
- <svg viewBox="0 0 100 100" style="width: 100%; height: 100%; transform: rotate(-90deg);">
- <circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface-container-highest)" stroke-width="7" />
- <circle cx="50" cy="50" r="42" fill="none" stroke="var(--primary)" stroke-width="7.5" stroke-linecap="round" stroke-dasharray="263.89" stroke-dashoffset="${strokeOffset.toFixed(1)}" style="transition: stroke-dashoffset 1s ease-out;" />
- </svg>
- <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
- <span style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; color: var(--primary); line-height: 1;">${score}</span>
- <span style="font-family: var(--font-display); font-size: 0.62rem; color: var(--text-muted); letter-spacing: 0.05em; margin-top: 2px;">행운지수</span>
- </div>
- </div>
- </div>
+      <!-- SVG Circle Gauge (우측 배치) -->
+      <div style="position: relative; width: 88px; height: 88px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+        <svg viewBox="0 0 100 100" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+          <circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface-container-highest)" stroke-width="7" />
+          <circle cx="50" cy="50" r="42" fill="none" stroke="var(--primary)" stroke-width="7.5" stroke-linecap="round" stroke-dasharray="263.89" stroke-dashoffset="${strokeOffset.toFixed(1)}" style="transition: stroke-dashoffset 1s ease-out;" />
+        </svg>
+        <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+          <span style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; color: var(--primary); line-height: 1;">${score}</span>
+          <span style="font-family: var(--font-display); font-size: 0.62rem; color: var(--text-muted); letter-spacing: 0.05em; margin-top: 2px;">행운지수</span>
+        </div>
+      </div>
+    </div>
 
- <!-- 3대 세부 메트릭 (금전 / 애정 / 활력) - 마보살 명리 엔진 동적 연동 -->
- <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid rgba(255,255,255,0.08); position: relative; z-index: 1;">
- <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 8px; background: rgba(38, 42, 53, 0.6); text-align: center;">
- <span style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.15rem;">금전운</span>
- <div style="display: flex; align-items: center; gap: 0.2rem; color: var(--primary);">
- <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">payments</span>
- <span style="font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;">${moneyScore}점</span>
- </div>
- <span style="font-size: 0.6rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">${moneyDesc}</span>
- </div>
- <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 8px; background: rgba(38, 42, 53, 0.6); text-align: center;">
- <span style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.15rem;">애정운</span>
- <div style="display: flex; align-items: center; gap: 0.2rem; color: var(--tertiary);">
- <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">favorite</span>
- <span style="font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;">${loveScore}점</span>
- </div>
- <span style="font-size: 0.6rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">${loveDesc}</span>
- </div>
- <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 8px; background: rgba(38, 42, 53, 0.6); text-align: center;">
- <span style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.15rem;">활력도</span>
- <div style="display: flex; align-items: center; gap: 0.2rem; color: #bec6dd;">
- <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">bolt</span>
- <span style="font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;">${vitalityScore}점</span>
- </div>
- <span style="font-size: 0.6rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">${vitalityDesc}</span>
- </div>
- </div>
- </div>
+    <!-- 3대 세부 메트릭 (금전 / 애정 / 활력) - 마보살 명리 엔진 동적 연동 -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid rgba(255,255,255,0.08); position: relative; z-index: 1;">
+      <div class="interactive-metric-item" data-open-score-modal="true" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 8px; background: rgba(38, 42, 53, 0.6); text-align: center; cursor: pointer; transition: all 0.2s ease;">
+        <span style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.15rem;">금전운</span>
+        <div style="display: flex; align-items: center; gap: 0.2rem; color: var(--primary);">
+          <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">payments</span>
+          <span style="font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;">${moneyScore}점</span>
+        </div>
+        <span style="font-size: 0.6rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">${moneyDesc}</span>
+      </div>
+      <div class="interactive-metric-item" data-open-score-modal="true" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 8px; background: rgba(38, 42, 53, 0.6); text-align: center; cursor: pointer; transition: all 0.2s ease;">
+        <span style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.15rem;">애정운</span>
+        <div style="display: flex; align-items: center; gap: 0.2rem; color: var(--tertiary);">
+          <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">favorite</span>
+          <span style="font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;">${loveScore}점</span>
+        </div>
+        <span style="font-size: 0.6rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">${loveDesc}</span>
+      </div>
+      <div class="interactive-metric-item" data-open-score-modal="true" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 8px; background: rgba(38, 42, 53, 0.6); text-align: center; cursor: pointer; transition: all 0.2s ease;">
+        <span style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.15rem;">활력도</span>
+        <div style="display: flex; align-items: center; gap: 0.2rem; color: #bec6dd;">
+          <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">bolt</span>
+          <span style="font-family: var(--font-display); font-size: 0.85rem; font-weight: 700;">${vitalityScore}점</span>
+        </div>
+        <span style="font-size: 0.6rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">${vitalityDesc}</span>
+      </div>
+    </div>
+  </div>
 
- <!-- [3. 비전 바로가기 위쪽 배치] 오늘의 황금 길시(吉時) -->
- ${renderDailyAuspiciousHoursWidget()}
+  <!-- [3. 비전 바로가기 위쪽 배치] 오늘의 황금 길시(吉時) -->
+  ${renderDailyAuspiciousHoursWidget()}
 
- <!-- [4. 비전(秘傳) 바로가기 4대 퀵 액션 그리드] -->
- <div style="margin-bottom: 1.5rem;">
- <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
- <h3 style="font-size: 0.95rem; font-weight: 700; color: #dfe2f1; margin: 0;">비전(秘傳) 바로가기</h3>
- <span style="font-size: 0.7rem; color: var(--text-muted);">4대 천명 분석</span>
- </div>
- <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
- <button type="button" class="btn-quick-nav" data-action="goto-saju" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;">
- <div style="width: 42px; height: 42px; border-radius: 10px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: var(--primary); margin-bottom: 0.35rem;">
- <span class="material-symbols-outlined" style="font-size: 22px;">grid_view</span>
- </div>
- <span style="font-size: 0.75rem; font-weight: 600; color: #dfe2f1;">정통 사주</span>
- <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 1px;">원국 풀이</span>
- </button>
- <button type="button" class="btn-quick-nav" data-action="goto-chemistry" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;">
- <div style="width: 42px; height: 42px; border-radius: 10px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: var(--tertiary); margin-bottom: 0.35rem;">
- <span class="material-symbols-outlined" style="font-size: 22px;">diversity_1</span>
- </div>
- <span style="font-size: 0.75rem; font-weight: 600; color: #dfe2f1;">인연 궁합</span>
- <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 1px;">연인·동업</span>
- </button>
- <button type="button" class="btn-quick-nav" data-action="goto-tarot" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;">
- <div style="width: 42px; height: 42px; border-radius: 10px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: #bec6dd; margin-bottom: 0.35rem;">
- <span class="material-symbols-outlined" style="font-size: 22px;">style</span>
- </div>
- <span style="font-size: 0.75rem; font-weight: 600; color: #dfe2f1;">심층 타로</span>
- <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 1px;">3카드 점</span>
- </button>
- <button type="button" class="btn-quick-nav" data-action="goto-daeun" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;">
- <div style="width: 42px; height: 42px; border-radius: 10px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: var(--primary); margin-bottom: 0.35rem;">
- <span class="material-symbols-outlined" style="font-size: 22px;">cyclone</span>
- </div>
- <span style="font-size: 0.75rem; font-weight: 600; color: #dfe2f1;">대운 흐름</span>
- <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 1px;">10년 주기</span>
- </button>
- </div>
- </div>
+  <!-- [4. 비전(秘傳) 바로가기 4대 퀵 액션 그리드] -->
+  <div style="margin-bottom: 1.5rem;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+      <h3 style="font-size: 0.95rem; font-weight: 700; color: #dfe2f1; margin: 0;">비전(秘傳) 바로가기</h3>
+      <span style="font-size: 0.7rem; color: var(--text-muted);">4대 천명 분석 바로가기</span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
+      <button type="button" class="btn-quick-nav" data-action="goto-saju" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;" title="정통 사주 원국 분석 열기">
+        <div style="width: 42px; height: 42px; border-radius: 10px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: var(--primary); margin-bottom: 0.35rem;">
+          <span class="material-symbols-outlined" style="font-size: 22px;">grid_view</span>
+        </div>
+        <span style="font-size: 0.75rem; font-weight: 600; color: #dfe2f1;">정통 사주</span>
+        <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 1px;">원국 풀이</span>
+      </button>
+      <button type="button" class="btn-quick-nav" data-action="goto-chemistry" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;" title="인연 궁합 분석 열기">
+        <div style="width: 42px; height: 42px; border-radius: 10px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: var(--tertiary); margin-bottom: 0.35rem;">
+          <span class="material-symbols-outlined" style="font-size: 22px;">diversity_1</span>
+        </div>
+        <span style="font-size: 0.75rem; font-weight: 600; color: #dfe2f1;">인연 궁합</span>
+        <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 1px;">연인·동업</span>
+      </button>
+      <button type="button" class="btn-quick-nav" data-action="goto-tarot" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;" title="심층 타로 3카드 리딩 열기">
+        <div style="width: 42px; height: 42px; border-radius: 10px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: #bec6dd; margin-bottom: 0.35rem;">
+          <span class="material-symbols-outlined" style="font-size: 22px;">style</span>
+        </div>
+        <span style="font-size: 0.75rem; font-weight: 600; color: #dfe2f1;">심층 타로</span>
+        <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 1px;">3카드 점</span>
+      </button>
+      <button type="button" class="btn-quick-nav" data-action="goto-daeun" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;" title="10년 주기 대운 흐름 분석 열기">
+        <div style="width: 42px; height: 42px; border-radius: 10px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: var(--primary); margin-bottom: 0.35rem;">
+          <span class="material-symbols-outlined" style="font-size: 22px;">cyclone</span>
+        </div>
+        <span style="font-size: 0.75rem; font-weight: 600; color: #dfe2f1;">대운 흐름</span>
+        <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 1px;">10년 주기</span>
+      </button>
+    </div>
+  </div>
 
- <!-- [천명원 10번 복원 요소 1] Special 신년 심층 대운 배너 (개별 사주 맞춤 연동) -->
- <div style="position: relative; overflow: hidden; border-radius: 16px; background: linear-gradient(135deg, rgba(62,71,90,0.6) 0%, rgba(28,31,42,0.95) 50%, rgba(38,42,53,0.8) 100%); padding: 1.15rem 1.25rem; box-shadow: 0 8px 24px rgba(0,0,0,0.4); border: 1px solid rgba(242,202,80,0.25); margin-bottom: 1.5rem;">
- <div style="display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1;">
- <div style="display: flex; flex-direction: column; max-width: 68%;">
- <div style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.15rem 0.5rem; border-radius: 9999px; background: rgba(242,202,80,0.2); color: var(--primary); font-family: var(--font-display); font-size: 0.68rem; font-weight: 700; width: fit-content; margin-bottom: 0.35rem;">
- ${specialBadgeText}
- </div>
- <h3 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: #dfe2f1; margin: 0;">
- ${specialTitle}
- </h3>
- <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0.25rem 0 0.65rem 0; line-height: 1.4;">
- ${specialSubDesc}
- </p>
- <div class="btn-goto-newyear-2027" data-action="goto-newyear" style="display: flex; align-items: center; gap: 0.25rem; color: var(--primary); font-size: 0.78rem; font-weight: 700; cursor: pointer;">
- <span>신년 심층 대운 풀이 열람</span>
- <span class="material-symbols-outlined" style="font-size: 15px;">arrow_forward</span>
- </div>
- </div>
- <div style="position: relative; width: 72px; height: 72px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
- <div style="position: absolute; inset: 0; border-radius: 50%; background: rgba(242,202,80,0.15); filter: blur(10px);"></div>
- <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXCUSPiOryMj_SxhWUc8IdjmjcPSitkxidRX35fm1KAfrQVczqvUIh1X7sT9SP6LZqW1S73Xb3uzk0MQq6O6sLhNZTzOhQOHCsp81c0p6TarG9CC7H-jOOPdKymubI0IoQABhNzLERO5J6I00HaokVPkcbNRwqfKJ7-E4aKipYZBcYIh2DWYcUex8EeivOqJv8yijuwImpYgjSeD7iQZVX101gqByM46705NqgPJwR" alt="Celestial Emblem" style="width: 64px; height: 64px; object-fit: contain; position: relative; z-index: 1; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.5);" />
- </div>
- </div>
- </div>
+  <!-- [천명원 10번 복원 요소 1] Special 신년 심층 대운 배너 (개별 사주 맞춤 연동 + 전체 클릭 가능) -->
+  <div class="btn-goto-newyear-2027 special-newyear-banner-card" data-action="goto-newyear" style="position: relative; overflow: hidden; border-radius: 16px; background: linear-gradient(135deg, rgba(62,71,90,0.6) 0%, rgba(28,31,42,0.95) 50%, rgba(38,42,53,0.8) 100%); padding: 1.15rem 1.25rem; box-shadow: 0 8px 24px rgba(0,0,0,0.4); border: 1px solid rgba(242,202,80,0.3); margin-bottom: 1.5rem; cursor: pointer; transition: all 0.25s ease;" title="클릭하여 신년 심층 대운 풀이 열람하기">
+    <div style="display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1;">
+      <div style="display: flex; flex-direction: column; max-width: 68%;">
+        <div style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.15rem 0.5rem; border-radius: 9999px; background: rgba(242,202,80,0.2); color: var(--primary); font-family: var(--font-display); font-size: 0.68rem; font-weight: 700; width: fit-content; margin-bottom: 0.35rem;">
+          ${specialBadgeText}
+        </div>
+        <h3 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: #dfe2f1; margin: 0;">
+          ${specialTitle}
+        </h3>
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0.25rem 0 0.65rem 0; line-height: 1.4;">
+          ${specialSubDesc}
+        </p>
+        <div style="display: flex; align-items: center; gap: 0.25rem; color: var(--primary); font-size: 0.78rem; font-weight: 700;">
+          <span>신년 심층 대운 풀이 열람하기</span>
+          <span class="material-symbols-outlined" style="font-size: 15px;">arrow_forward</span>
+        </div>
+      </div>
+      <div style="position: relative; width: 72px; height: 72px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+        <div style="position: absolute; inset: 0; border-radius: 50%; background: rgba(242,202,80,0.15); filter: blur(10px);"></div>
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXCUSPiOryMj_SxhWUc8IdjmjcPSitkxidRX35fm1KAfrQVczqvUIh1X7sT9SP6LZqW1S73Xb3uzk0MQq6O6sLhNZTzOhQOHCsp81c0p6TarG9CC7H-jOOPdKymubI0IoQABhNzLERO5J6I00HaokVPkcbNRwqfKJ7-E4aKipYZBcYIh2DWYcUex8EeivOqJv8yijuwImpYgjSeD7iQZVX101gqByM46705NqgPJwR" alt="Celestial Emblem" style="width: 64px; height: 64px; object-fit: contain; position: relative; z-index: 1; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.5);" />
+      </div>
+    </div>
+  </div>
 
  <!-- [천명원 10번 복원 요소 2] 실시간 명리 마스터 가로 스크롤 캐러셀 (관리자 제어) -->
  ${ModuleRegistry.isEnabled('feature_realtime_masters') ? `

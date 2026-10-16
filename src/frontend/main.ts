@@ -44,6 +44,7 @@ import {
   renderMobileNavDrawer,
 } from './components/views.js';
 import { renderLegalAndSupportModals } from './components/LegalAndSupportModals.js';
+import { renderFortuneDetailModals } from './components/FortuneDetailModals.js';
 import { appState, AppStateData } from './state/app-state.js';
 import { ReportDepthMode } from '../modules/phase10/phase10-types.js';
 import { ProductTier } from '../modules/phase17_25/index.js';
@@ -574,6 +575,7 @@ ${content}
  </main>
       ${renderFooter()}
       ${renderLegalAndSupportModals()}
+      ${renderFortuneDetailModals()}
  ${renderFloatingBottomDock(state.currentView)}
       ${renderMobileNavDrawer(state)}
  ${modalHtml}
@@ -826,33 +828,117 @@ ${content}
  return;
  }
 
- // 0-3. 신년 심층 대운 배너 바로가기
- if (target.closest('.btn-goto-newyear-2027, [data-action="goto-newyear"]')) {
-   appState.setView('analyze-2027');
-   window.scrollTo({ top: 0, behavior: 'smooth' });
-   return;
- }
+  // 0-3. 신년 심층 대운 배너 바로가기 (2026/2027 신년 대운 연동)
+  if (target.closest('.btn-goto-newyear-2027, [data-action="goto-newyear"]')) {
+    appState.setActiveTierTab('YEAR_2027');
+    if (appState.getState().calcResult) {
+      appState.setView('result');
+    } else {
+      appState.setView('analyze');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
 
- // 0-4. 천명원 10번 비전 바로가기 4대 퀵 네비게이션
- const quickNavBtn = target.closest('.btn-quick-nav') as HTMLElement;
- if (quickNavBtn) {
-   const action = quickNavBtn.dataset?.action;
-   if (action === 'goto-chemistry') {
-     appState.setView('analyze-chemistry');
-   } else if (action === 'goto-tarot') {
-     alert('심층 타로 3카드 리딩 서비스는 현재 오픈 준비 중입니다. 먼저 정통 사주와 신년운세를 이용해 보세요!');
-   } else if (action === 'goto-daeun') {
-     if (appState.getState().calcResult) {
-       appState.setView('result');
-     } else {
-       appState.setView('analyze');
-     }
-   } else {
-     appState.setView('analyze');
-   }
-   window.scrollTo({ top: 0, behavior: 'smooth' });
-   return;
- }
+  // 0-4. 천명원 10번 비전 바로가기 4대 퀵 네비게이션
+  const quickNavBtn = target.closest('.btn-quick-nav') as HTMLElement;
+  if (quickNavBtn) {
+    const action = quickNavBtn.dataset?.action;
+    if (action === 'goto-chemistry') {
+      appState.setActiveTierTab('CHEMISTRY');
+      if (appState.getState().calcResult) {
+        appState.setView('result');
+      } else {
+        appState.setView('analyze');
+      }
+    } else if (action === 'goto-tarot') {
+      const tarotModal = document.getElementById('modal-tarot-preview');
+      if (tarotModal) tarotModal.style.display = 'flex';
+      return;
+    } else if (action === 'goto-daeun') {
+      appState.setActiveTierTab('PAID');
+      if (appState.getState().calcResult) {
+        appState.setView('result');
+        setTimeout(() => {
+          const chartEl = document.querySelector('.daeun-chart-card, #daeun-lifecycle-chart, .spline-chart-card') as HTMLElement;
+          if (chartEl) chartEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+      } else {
+        appState.setView('analyze');
+      }
+    } else { // goto-saju
+      appState.setActiveTierTab('FREE');
+      if (appState.getState().calcResult) {
+        appState.setView('result');
+      } else {
+        appState.setView('analyze');
+      }
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  // 0-5. 오늘의 행운 처방 상세 모달 열기 (색상, 방위, 숫자, 지혜)
+  const presCard = target.closest('[data-prescription-card]') as HTMLElement;
+  if (presCard) {
+    const type = presCard.dataset.prescriptionCard;
+    const val = presCard.dataset.val || '';
+    const hex = presCard.dataset.hex || '#d4af37';
+    (this as any).openPrescriptionModal(type, val, hex);
+    return;
+  }
+
+  // 0-6. 행운지수 (천기지수) 심층 분석 모달 열기
+  if (target.closest('.interactive-fortune-score-card, [data-open-score-modal]')) {
+    const scoreModal = document.getElementById('modal-fortune-score-detail');
+    if (scoreModal) scoreModal.style.display = 'flex';
+    return;
+  }
+
+  // 0-7. 황금 길시 행동 가이드 모달 열기 (사시, 미시)
+  const hourItem = target.closest('[data-auspicious-hour]') as HTMLElement;
+  if (hourItem) {
+    const hourType = hourItem.dataset.auspiciousHour || 'sashi';
+    (this as any).openAuspiciousHourModal(hourType);
+    return;
+  }
+
+  // 0-8. 마보살 인터랙티브 모달 닫기
+  const closeFortuneBtn = target.closest('.btn-close-fortune-modal') as HTMLElement;
+  if (closeFortuneBtn) {
+    const modalId = closeFortuneBtn.dataset.modalId;
+    if (modalId) {
+      const modalEl = document.getElementById(modalId);
+      if (modalEl) modalEl.style.display = 'none';
+    } else {
+      const parentModal = closeFortuneBtn.closest('.mabosal-interactive-modal') as HTMLElement;
+      if (parentModal) parentModal.style.display = 'none';
+    }
+    return;
+  }
+
+  // 0-9. 타로 프리뷰 모달 내 '정통 사주 보기' 버튼
+  if (target.closest('#btn-goto-saju-from-tarot')) {
+    const tarotModal = document.getElementById('modal-tarot-preview');
+    if (tarotModal) tarotModal.style.display = 'none';
+    appState.setActiveTierTab('FREE');
+    if (appState.getState().calcResult) {
+      appState.setView('result');
+    } else {
+      appState.setView('analyze');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  // 0-10. 길시 모달 내 '길일 달력 보기' 버튼
+  if (target.closest('#btn-goto-lucky-cal-from-modal')) {
+    const hourModal = document.getElementById('modal-auspicious-hour-detail');
+    if (hourModal) hourModal.style.display = 'none';
+    appState.setView('lucky-calendar');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
 
     // [비로그인 회원 보호]: 로그인하지 않은 상태에서 마기나 방비 클릭 시 로그인 모달 오픈
     if (target.closest('[data-locked-auth]')) {
@@ -3341,8 +3427,158 @@ ${content}
  });
  }
  }
+  public openPrescriptionModal(type?: string, val?: string, hex?: string): void {
+    const modal = document.getElementById('modal-prescription-detail');
+    const titleEl = document.getElementById('prescription-modal-title');
+    const bodyEl = document.getElementById('prescription-modal-body');
+    if (!modal || !titleEl || !bodyEl) return;
+
+    if (type === 'color') {
+      titleEl.innerHTML = `오늘의 행운의 색 · <span style="color: ${hex};">${val}</span>`;
+      bodyEl.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 0.85rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem 1.15rem; margin-bottom: 1.25rem;">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: ${hex}; box-shadow: 0 0 16px ${hex}; flex-shrink: 0;"></div>
+          <div>
+            <div style="font-size: 1rem; font-weight: 800; color: #fff;">${val} 컬러의 오행 개운 파동</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;">오늘 하루 나를 돕는 기운을 활성화하는 시각적 주파수</div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.84rem; line-height: 1.65;">
+          <div style="background: rgba(242,202,80,0.06); border-left: 3px solid var(--primary); padding: 0.8rem 1rem; border-radius: 0 8px 8px 0;">
+            <strong style="color: var(--primary);">👔 의상 및 패션 코디법</strong><br/>
+            오늘 출근룩, 미팅룩의 메인 의상 또는 넥타이, 스카프, 양말 등 포인트 액세서리에 <strong>${val}</strong> 계열을 매치해 보세요. 대인 관계에서 신뢰감과 호감도가 크게 상승합니다.
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 0.8rem 1rem; border-radius: 8px;">
+            <strong style="color: #93c5fd;">👜 소품 및 일상 풍수</strong><br/>
+            지갑, 휴대폰 케이스, 텀블러, 키링 등 손이 자주 닿는 소지품에 ${val} 색상을 활용하면 뜻밖의 재물운과 기분 전환에 도움을 줍니다.
+          </div>
+        </div>
+      `;
+    } else if (type === 'direction') {
+      titleEl.innerHTML = `오늘의 행운의 방위 · <span style="color: var(--primary);">${val}</span>`;
+      bodyEl.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 0.85rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem 1.15rem; margin-bottom: 1.25rem;">
+          <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(242,202,80,0.15); border: 1px solid rgba(242,202,80,0.3); display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0;">
+            <span class="material-symbols-outlined" style="font-size: 26px;">explore</span>
+          </div>
+          <div>
+            <div style="font-size: 1rem; font-weight: 800; color: #fff;">${val} 방향의 기운 유입</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;">사주 원국과 오늘의 일진이 길신을 마주하는 각도</div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.84rem; line-height: 1.65;">
+          <div style="background: rgba(242,202,80,0.06); border-left: 3px solid var(--primary); padding: 0.8rem 1rem; border-radius: 0 8px 8px 0;">
+            <strong style="color: var(--primary);">🧭 외출 및 미팅 장소 선택</strong><br/>
+            오늘 중요한 비즈니스 미팅, 식사 약속, 혹은 은행 업무가 있다면 현재 머무는 곳 기준으로 <strong>${val}</strong>에 위치한 장소를 선정하면 협상 주도권을 잡기 유리합니다.
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 0.8rem 1rem; border-radius: 8px;">
+            <strong style="color: #93c5fd;">🪑 좌석 및 업무 공간 풍수</strong><br/>
+            카페나 회의실에서 좌석을 고를 때 ${val}을 바라보거나 등지는 방향에 앉으시면 심리적 안정감과 집중력이 극대화됩니다.
+          </div>
+        </div>
+      `;
+    } else if (type === 'number') {
+      titleEl.innerHTML = `오늘의 행운의 수 · <span style="color: var(--primary);">${val}</span>`;
+      bodyEl.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 0.85rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem 1.15rem; margin-bottom: 1.25rem;">
+          <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(242,202,80,0.15); border: 1px solid rgba(242,202,80,0.3); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.3rem; font-weight: 900; flex-shrink: 0;">
+            ${val}
+          </div>
+          <div>
+            <div style="font-size: 1rem; font-weight: 800; color: #fff;">수비학(數秘學) &amp; 주역(周易) 행운 코드</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;">하도낙서(河圖洛書) 원리에 따른 최적의 에너지 수치</div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.84rem; line-height: 1.65;">
+          <div style="background: rgba(242,202,80,0.06); border-left: 3px solid var(--primary); padding: 0.8rem 1rem; border-radius: 0 8px 8px 0;">
+            <strong style="color: var(--primary);">🔢 일상 속 숫자 활용법</strong><br/>
+            오늘 중요한 전화나 결재 시간(예: ${val}분), 주차 층수, 엘리베이터 층수, 로또 번호 조합, 또는 계좌 이체 금액 단위에 숫자 <strong>${val}</strong>을 의식적으로 조합해 보세요.
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 0.8rem 1rem; border-radius: 8px;">
+            <strong style="color: #93c5fd;">✨ 에너지 정렬 조언</strong><br/>
+            숫자 ${val}은 흩어져 있는 생각과 결단을 하나의 구심점으로 묶어주는 길수(吉數)의 파동을 발휘합니다.
+          </div>
+        </div>
+      `;
+    } else {
+      titleEl.innerHTML = `오늘의 지혜의 한 줄 · 심층 해설`;
+      bodyEl.innerHTML = `
+        <div style="background: rgba(242,202,80,0.08); border: 1px solid rgba(242,202,80,0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
+          <div style="font-size: 1.05rem; font-weight: 800; color: #fff; line-height: 1.6; margin-bottom: 0.5rem;">
+            "${val}"
+          </div>
+          <div style="font-size: 0.78rem; color: var(--primary); font-weight: 700;">마보살 명리 지침서 발췌</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.84rem; line-height: 1.65;">
+          <div style="background: rgba(255,255,255,0.03); border-left: 3px solid var(--primary); padding: 0.8rem 1rem; border-radius: 0 8px 8px 0;">
+            <strong style="color: var(--primary);">🧘 오늘 하루 마음가짐</strong><br/>
+            상황에 급하게 반응하기보다 호흡을 가다듬고 한 걸음 물러서서 관찰할 때 최선의 해결책이 떠오릅니다. 작은 배려가 큰 귀인을 불러옵니다.
+          </div>
+        </div>
+      `;
+    }
+
+    modal.style.display = 'flex';
+  }
+
+  public openAuspiciousHourModal(hourType: string): void {
+    const modal = document.getElementById('modal-auspicious-hour-detail');
+    const titleEl = document.getElementById('auspicious-modal-title');
+    const bodyEl = document.getElementById('auspicious-modal-body');
+    if (!modal || !titleEl || !bodyEl) return;
+
+    if (hourType === 'sashi') {
+      titleEl.innerHTML = `제1 길시: 사시(巳時 · 09:30 ~ 11:30)`;
+      bodyEl.innerHTML = `
+        <div style="background: rgba(242,202,80,0.08); border: 1px solid rgba(242,202,80,0.3); border-radius: 12px; padding: 1.15rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+            <span style="font-size: 0.75rem; color: var(--primary); font-weight: 700;">계약 · 문서 · 제안 대길</span>
+            <span style="font-size: 0.7rem; color: #241a00; background: var(--primary); padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 800;">오전 황금 타임</span>
+          </div>
+          <div style="font-size: 1.05rem; font-weight: 800; color: #fff;">중요 미팅 및 협상 타결 최적기</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.84rem; line-height: 1.65;">
+          <div style="background: rgba(255,255,255,0.03); border-left: 3px solid #50c878; padding: 0.8rem 1rem; border-radius: 0 8px 8px 0;">
+            <strong style="color: #50c878;">✅ 추천 행동</strong><br/>
+            • 중요한 계약서 날인, 결재 서류 제출<br/>
+            • 새로운 프로젝트 기획안 공유 및 투자 제안<br/>
+            • 윗사람이나 협력사 주요 담당자와의 통화 및 미팅
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border-left: 3px solid #ff8a80; padding: 0.8rem 1rem; border-radius: 0 8px 8px 0;">
+            <strong style="color: #ff8a80;">⚠️ 주의할 점</strong><br/>
+            사소한 감정 대립에 시간을 낭비하지 마시고, 객관적인 데이터와 실리 위주로 논의를 이끌어가세요.
+          </div>
+        </div>
+      `;
+    } else {
+      titleEl.innerHTML = `제2 길시: 미시(未時 · 13:30 ~ 15:30)`;
+      bodyEl.innerHTML = `
+        <div style="background: rgba(242,202,80,0.12); border: 1px solid rgba(242,202,80,0.4); border-radius: 12px; padding: 1.15rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+            <span style="font-size: 0.75rem; color: var(--primary); font-weight: 700;">재물 결실 · 투자 대길</span>
+            <span style="font-size: 0.7rem; color: #241a00; background: var(--primary); padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 800;">진행 중</span>
+          </div>
+          <div style="font-size: 1.05rem; font-weight: 800; color: #fff;">황금 재물 결실 타임 — 투자 판단 및 정산 최적</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.84rem; line-height: 1.65;">
+          <div style="background: rgba(255,255,255,0.03); border-left: 3px solid #50c878; padding: 0.8rem 1rem; border-radius: 0 8px 8px 0;">
+            <strong style="color: #50c878;">✅ 추천 행동</strong><br/>
+            • 은행 송금, 정산 집행, 주식/자산 매매 판단<br/>
+            • 상품 런칭 및 구매 결정<br/>
+            • 회복을 위한 10분간의 햇살 산책
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border-left: 3px solid #ff8a80; padding: 0.8rem 1rem; border-radius: 0 8px 8px 0;">
+            <strong style="color: #ff8a80;">⚠️ 주의할 점</strong><br/>
+            무리한 과소비나 충동구매를 경계하고 꼭 필요한 곳에만 자금을 집중하세요.
+          </div>
+        </div>
+      `;
+    }
+
+    modal.style.display = 'flex';
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
- new MabosalApp('app');
+  new MabosalApp('app');
 });
