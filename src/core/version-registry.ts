@@ -82,14 +82,6 @@ function pureSha256(ascii: string): string {
 }
 
 function safeHashString(str: string): string {
-  try {
-    if (typeof process !== 'undefined' && process.versions && process.versions.node) {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const crypto = require('crypto');
-      return crypto.createHash('sha256').update(str, 'utf8').digest('hex');
-    }
-  } catch {}
-
   const utf8 = unescape(encodeURIComponent(str));
   return pureSha256(utf8);
 }
