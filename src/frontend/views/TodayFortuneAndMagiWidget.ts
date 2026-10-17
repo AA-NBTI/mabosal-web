@@ -603,7 +603,8 @@ export function renderTodayFortuneAndMagiWidget(
         <div style="font-size: 0.78rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.06em;">
           DAILY CELESTIAL & MAGI
         </div>
-        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">
+        <div style="font-size: 0.84rem; color: var(--primary); font-weight: 700; background: rgba(242, 202, 80, 0.1); border: 1px solid rgba(242, 202, 80, 0.3); padding: 0.2rem 0.65rem; border-radius: 9999px; display: inline-flex; align-items: center; gap: 0.35rem;">
+          <span class="material-symbols-outlined" style="font-size: 15px; color: var(--primary);">calendar_today</span>
           ${solarDateStr} · ${lunarDateStr}
         </div>
       </div>

@@ -1372,7 +1372,7 @@ function renderAdminOverviewPanel(): string {
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
             <span style="font-size: 0.74rem; color: var(--text-muted);">미답변 문의</span>
           </div>
-          <div style="font-size: 1.5rem; font-weight: 900; color: #fff;">
+          <div style="font-size: 1.5rem; font-weight: 900; color: #ef4444;">
             ${pendingInquiries.length}건
           </div>
           <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">
@@ -1385,7 +1385,7 @@ function renderAdminOverviewPanel(): string {
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
             <span style="font-size: 0.74rem; color: var(--text-muted);">무통장 입금 대기</span>
           </div>
-          <div style="font-size: 1.5rem; font-weight: 900; color: #fff;">
+          <div style="font-size: 1.5rem; font-weight: 900; color: #ef4444;">
             ${pendingTransfers.length}건
           </div>
           <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">
