@@ -36,12 +36,8 @@ export function getAdminActiveTab(): string {
   return activeAdminTabId;
 }
 
-// 상위 카테고리 아코디언(펼침/닫힘) 상태 관리
-const expandedAdminGroupIds = new Set<string>([
-  'group-overview',
-  'group-commerce',
-  'group-support'
-]);
+// 상위 카테고리 아코디언(펼침/닫힘) 상태 관리: 기본 모두 닫힘 세팅
+const expandedAdminGroupIds = new Set<string>();
 
 export function toggleAdminGroup(groupId: string): void {
   if (expandedAdminGroupIds.has(groupId)) {
@@ -1368,85 +1364,15 @@ function renderAdminOverviewPanel(): string {
   return `
     <div style="display: flex; flex-direction: column; gap: 1.25rem;">
       
-      <!-- 실시간 고객 문의 즉시 대응 센터 (미답변 긴급 건만 적색 알림) -->
-      <div style="background: #12151e; border: 1px solid ${pendingInquiries.length > 0 ? '#ef4444' : 'rgba(255, 255, 255, 0.12)'}; border-radius: 12px; padding: 1.25rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
-          <div style="display: flex; align-items: center; gap: 0.65rem;">
-            <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; color: #fff;">
-              <span class="material-symbols-outlined" style="font-size: 20px;">support_agent</span>
-            </div>
-            <div>
-              <div style="display: flex; align-items: center; gap: 0.45rem;">
-                <h2 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0;">고객 문의 대응 센터</h2>
-                ${pendingInquiries.length > 0 ? `
-                  <span style="background: #ef4444; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.55rem; border-radius: 9999px;">
-                    대기 ${pendingInquiries.length}건
-                  </span>
-                ` : `
-                  <span style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.55rem; border-radius: 9999px;">
-                    답변 완료
-                  </span>
-                `}
-              </div>
-              <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0.15rem 0 0 0;">
-                신규 접수 문의 빠른 응대
-              </p>
-            </div>
-          </div>
-
-          <button type="button" class="btn-goto-inquiries" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; font-weight: 700; padding: 0.45rem 0.9rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
-            <span>문의 게시판 이동</span>
-            <span class="material-symbols-outlined" style="font-size: 15px;">arrow_forward</span>
-          </button>
-        </div>
-
-        ${pendingInquiries.length === 0 ? `
-          <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 1rem; text-align: center; color: #94a3b8; font-size: 0.82rem;">
-            대기 중인 신규 문의가 없습니다.
-          </div>
-        ` : `
-          <!-- 미답변 문의 빠른 응대 리스트 -->
-          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-            ${pendingInquiries.slice(0, 5).map(inq => `
-              <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.6rem;">
-                <div style="display: flex; align-items: center; gap: 0.65rem; flex: 1; min-width: 250px;">
-                  <span style="font-size: 0.7rem; background: #ef4444; color: #fff; padding: 0.12rem 0.45rem; border-radius: 4px; font-weight: 800; white-space: nowrap;">
-                    답변대기
-                  </span>
-                  <span style="font-size: 0.72rem; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); color: #cbd5e1; padding: 0.12rem 0.45rem; border-radius: 4px; font-weight: 600; white-space: nowrap;">
-                    ${inq.category}
-                  </span>
-                  <div style="font-size: 0.86rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                    ${inq.title}
-                  </div>
-                  <span style="font-size: 0.74rem; color: #94a3b8; white-space: nowrap;">
-                    ${inq.userName} (${new Date(inq.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
-                  </span>
-                </div>
-                <button type="button" class="btn-quick-answer-inquiry" data-inquiry-id="${inq.id}" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; font-size: 0.76rem; font-weight: 700; padding: 0.3rem 0.65rem; border-radius: 6px; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.25rem;">
-                  <span>답변</span>
-                  <span class="material-symbols-outlined" style="font-size: 13px;">edit</span>
-                </button>
-              </div>
-            `).join('')}
-          </div>
-        `}
-      </div>
-
-      <!-- 핵심 KPI 요약 카드 4종 (클릭 시 해당 화면 연결, 긴급 건 적색 알림) -->
+      <!-- 핵심 KPI 요약 카드 4종 (클릭 시 해당 화면 연결) -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem;">
         
         <!-- 1. 미답변 문의 (클릭 시 고객문의 탭 이동) -->
-        <div class="btn-admin-kpi-card" data-goto-tab="tab-inquiries" style="background: var(--surface-container); border: 1px solid ${pendingInquiries.length > 0 ? '#ef4444' : 'rgba(255,255,255,0.08)'}; border-radius: 10px; padding: 1.15rem; cursor: pointer; transition: all 0.15s ease;">
+        <div class="btn-admin-kpi-card" data-goto-tab="tab-inquiries" style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1.15rem; cursor: pointer; transition: all 0.15s ease;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
             <span style="font-size: 0.74rem; color: var(--text-muted);">미답변 문의</span>
-            ${pendingInquiries.length > 0 ? `
-              <span style="background: #ef4444; color: #fff; font-size: 0.65rem; font-weight: 800; padding: 0.1rem 0.45rem; border-radius: 9999px;">
-                긴급
-              </span>
-            ` : ''}
           </div>
-          <div style="font-size: 1.5rem; font-weight: 900; color: ${pendingInquiries.length > 0 ? '#ef4444' : '#fff'};">
+          <div style="font-size: 1.5rem; font-weight: 900; color: #fff;">
             ${pendingInquiries.length}건
           </div>
           <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">
@@ -1455,16 +1381,11 @@ function renderAdminOverviewPanel(): string {
         </div>
 
         <!-- 2. 무통장 입금 대기 (클릭 시 무통장 승인 탭 이동) -->
-        <div class="btn-admin-kpi-card" data-goto-tab="tab-transfers" style="background: var(--surface-container); border: 1px solid ${pendingTransfers.length > 0 ? '#ef4444' : 'rgba(255,255,255,0.08)'}; border-radius: 10px; padding: 1.15rem; cursor: pointer; transition: all 0.15s ease;">
+        <div class="btn-admin-kpi-card" data-goto-tab="tab-transfers" style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1.15rem; cursor: pointer; transition: all 0.15s ease;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
             <span style="font-size: 0.74rem; color: var(--text-muted);">무통장 입금 대기</span>
-            ${pendingTransfers.length > 0 ? `
-              <span style="background: #ef4444; color: #fff; font-size: 0.65rem; font-weight: 800; padding: 0.1rem 0.45rem; border-radius: 9999px;">
-                긴급
-              </span>
-            ` : ''}
           </div>
-          <div style="font-size: 1.5rem; font-weight: 900; color: ${pendingTransfers.length > 0 ? '#ef4444' : '#fff'};">
+          <div style="font-size: 1.5rem; font-weight: 900; color: #fff;">
             ${pendingTransfers.length}건
           </div>
           <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">

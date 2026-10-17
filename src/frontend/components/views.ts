@@ -143,41 +143,21 @@ export function renderHeader(state: AppStateData): string {
  </div>
  </div>
 
- <!-- PC 모드 글로벌 카테고리 네비게이션 (SEO 친화적 링크 + 테마 라우트 연동) -->
+ <!-- PC 모드 글로벌 카테고리 네비게이션 (종합사주, 스터디, 스토어) -->
  <nav class="pc-header-nav" aria-label="메인 카테고리">
         <a href="/saju" class="pc-nav-item ${currentView === 'page-saju' ? 'active' : ''}" data-nav="/saju" id="pc-nav-saju" style="text-decoration: none;">
           <span class="material-symbols-outlined" style="font-size: 16px;">explore</span>
-          종합 사주
-        </a>
-        <a href="/fortune" class="pc-nav-item ${currentView === 'page-fortune' ? 'active' : ''}" data-nav="/fortune" id="pc-nav-fortune" style="text-decoration: none;">
-          <span class="material-symbols-outlined" style="font-size: 16px;">calendar_today</span>
-          2027 신년운
-        </a>
-        <a href="/career" class="pc-nav-item ${currentView === 'page-career' ? 'active' : ''}" data-nav="/career" id="pc-nav-career" style="text-decoration: none;">
-          <span class="material-symbols-outlined" style="font-size: 16px;">work</span>
-          직장·이직
-        </a>
-        <a href="/wealth" class="pc-nav-item ${currentView === 'page-wealth' ? 'active' : ''}" data-nav="/wealth" id="pc-nav-wealth" style="text-decoration: none;">
-          <span class="material-symbols-outlined" style="font-size: 16px;">payments</span>
-          재물·투자
-        </a>
-        <a href="/love" class="pc-nav-item ${currentView === 'page-love' ? 'active' : ''}" data-nav="/love" id="pc-nav-love" style="text-decoration: none;">
-          <span class="material-symbols-outlined" style="font-size: 16px;">favorite</span>
-          연애·궁합
-        </a>
-        <a href="/calendar" class="pc-nav-item ${(currentView === 'page-calendar' || currentView === 'magi-calendar' || currentView === 'lucky-calendar') ? 'active' : ''}" data-nav="/calendar" id="pc-nav-magi-cal" style="text-decoration: none;">
-          <span class="material-symbols-outlined" style="font-size: 16px;">event_busy</span>
-          마기달력
-        </a>
-        <a href="/store" class="pc-nav-item ${currentView === 'store' ? 'active' : ''}" data-nav="/store" id="pc-nav-store" style="color: var(--primary); font-weight: 700; text-decoration: none;">
-          <span class="material-symbols-outlined" style="font-size: 16px;">storefront</span>
-          스토어
+          종합사주
         </a>
         <a href="/study" class="pc-nav-item ${currentView === 'study' ? 'active' : ''}" data-nav="/study" id="pc-nav-study" style="color: var(--primary); font-weight: 700; text-decoration: none;">
           <span class="material-symbols-outlined" style="font-size: 16px;">menu_book</span>
           스터디
         </a>
-        </nav>
+        <a href="/store" class="pc-nav-item ${currentView === 'store' ? 'active' : ''}" data-nav="/store" id="pc-nav-store" style="color: var(--primary); font-weight: 700; text-decoration: none;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">storefront</span>
+          스토어
+        </a>
+ </nav>
 
  <!-- 우측: 장바구니, 엽전 지갑, 파트너스, 관리자, 로그인/로그아웃 버튼 -->
  <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
@@ -2381,35 +2361,15 @@ export function renderMobileNavDrawer(state: AppStateData): string {
     <nav style="display: flex; flex-direction: column; width: 100%;">
       <a href="/saju" class="mobile-drawer-item ${currentView === 'page-saju' ? 'active' : ''}" data-nav="/saju" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'page-saju' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
         <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">explore</span>
-        종합 사주
+        종합사주
       </a>
-      <a href="/fortune" class="mobile-drawer-item ${currentView === 'page-fortune' ? 'active' : ''}" data-nav="/fortune" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'page-fortune' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
-        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">calendar_today</span>
-        2027 신년운세
-      </a>
-      <a href="/career" class="mobile-drawer-item ${currentView === 'page-career' ? 'active' : ''}" data-nav="/career" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'page-career' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
-        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">work</span>
-        직장·이직운
-      </a>
-      <a href="/wealth" class="mobile-drawer-item ${currentView === 'page-wealth' ? 'active' : ''}" data-nav="/wealth" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'page-wealth' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
-        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">payments</span>
-        재물·투자운
-      </a>
-      <a href="/love" class="mobile-drawer-item ${currentView === 'page-love' ? 'active' : ''}" data-nav="/love" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'page-love' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
-        <span class="material-symbols-outlined" style="font-size: 18px; color: #f472b6;">favorite</span>
-        연애·궁합
-      </a>
-      <a href="/calendar" class="mobile-drawer-item ${(currentView === 'page-calendar' || currentView === 'magi-calendar' || currentView === 'lucky-calendar') ? 'active' : ''}" data-nav="/calendar" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${(currentView === 'page-calendar' || currentView === 'magi-calendar' || currentView === 'lucky-calendar') ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
-        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">event_busy</span>
-        마기·길일 달력
+      <a href="/study" class="mobile-drawer-item ${currentView === 'study' ? 'active' : ''}" data-nav="/study" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'study' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
+        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">menu_book</span>
+        스터디
       </a>
       <a href="/store" class="mobile-drawer-item ${currentView === 'store' ? 'active' : ''}" data-nav="/store" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'store' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
         <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">storefront</span>
         스토어
-      </a>
-      <a href="/study" class="mobile-drawer-item ${currentView === 'study' ? 'active' : ''}" data-nav="/study" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'study' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
-        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">menu_book</span>
-        스터디 허브
       </a>
     </nav>
   </div>

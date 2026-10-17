@@ -76,7 +76,7 @@ export function renderAdminInquiriesPanel(): string {
           <div style="font-size: 1.35rem; font-weight: 800; color: #fff; margin-top: 0.15rem;">${allInquiries.length}건</div>
         </div>
         <div style="background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 8px; padding: 0.75rem 1rem;">
-          <div style="font-size: 0.74rem; color: var(--primary); font-weight: 700;">🚨 답변 대기중 (긴급)</div>
+          <div style="font-size: 0.74rem; color: var(--primary); font-weight: 700;">답변 대기중</div>
           <div style="font-size: 1.35rem; font-weight: 800; color: var(--primary); margin-top: 0.15rem;">${pendingCount}건</div>
         </div>
         <div style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 0.75rem 1rem;">
