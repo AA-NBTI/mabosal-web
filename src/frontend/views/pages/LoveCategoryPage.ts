@@ -11,9 +11,6 @@ export function renderLoveCategoryPage(state?: AppStateData): string {
     <!-- 브레드크럼 -->
     ${renderBreadcrumbs([{ label: '연애·재회·궁합' }])}
 
-    <!-- 상단 카테고리 퀵 탭 -->
-    ${renderCategoryNavTabs('love')}
-
     <!-- 헤더 -->
     ${renderCategoryHeader({
       tag: 'RELATIONSHIP & CHEMISTRY',

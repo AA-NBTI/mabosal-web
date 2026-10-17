@@ -11,9 +11,6 @@ export function renderFortuneCategoryPage(state?: AppStateData): string {
     <!-- 브레드크럼 -->
     ${renderBreadcrumbs([{ label: '2027 신년운세' }])}
 
-    <!-- 상단 카테고리 퀵 탭 -->
-    ${renderCategoryNavTabs('fortune')}
-
     <!-- 헤더 -->
     ${renderCategoryHeader({
       tag: '2027 NEW YEAR FORECAST',

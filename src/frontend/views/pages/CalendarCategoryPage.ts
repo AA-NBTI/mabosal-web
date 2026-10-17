@@ -16,9 +16,6 @@ export function renderCalendarCategoryPage(state: AppStateData): string {
     <!-- 브레드크럼 -->
     ${renderBreadcrumbs([{ label: '마기·길일 달력' }])}
 
-    <!-- 상단 카테고리 퀵 탭 -->
-    ${renderCategoryNavTabs('calendar')}
-
     <!-- 헤더 -->
     ${renderCategoryHeader({
       tag: 'MAGI & AUSPICIOUS CALENDAR',

@@ -11,9 +11,6 @@ export function renderCareerCategoryPage(state?: AppStateData): string {
     <!-- 브레드크럼 -->
     ${renderBreadcrumbs([{ label: '직장·이직운' }])}
 
-    <!-- 상단 카테고리 퀵 탭 -->
-    ${renderCategoryNavTabs('career')}
-
     <!-- 헤더 -->
     ${renderCategoryHeader({
       tag: 'CAREER & TRANSITION',

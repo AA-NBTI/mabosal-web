@@ -11,9 +11,6 @@ export function renderWealthCategoryPage(state?: AppStateData): string {
     <!-- 브레드크럼 -->
     ${renderBreadcrumbs([{ label: '재물·투자운' }])}
 
-    <!-- 상단 카테고리 퀵 탭 -->
-    ${renderCategoryNavTabs('wealth')}
-
     <!-- 헤더 -->
     ${renderCategoryHeader({
       tag: 'WEALTH & ASSET TIMING',
