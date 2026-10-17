@@ -39,11 +39,22 @@ export function getAdminActiveTab(): string {
 // 상위 카테고리 아코디언(펼침/닫힘) 상태 관리: 기본 모두 닫힘 세팅
 const expandedAdminGroupIds = new Set<string>();
 
+// 2차 서브 카테고리(3단 아코디언) 상태 관리: 상품관리는 기본 펼침
+const expandedAdminSubMenuIds = new Set<string>(['subgroup-store']);
+
 export function toggleAdminGroup(groupId: string): void {
   if (expandedAdminGroupIds.has(groupId)) {
     expandedAdminGroupIds.delete(groupId);
   } else {
     expandedAdminGroupIds.add(groupId);
+  }
+}
+
+export function toggleAdminSubGroup(subGroupId: string): void {
+  if (expandedAdminSubMenuIds.has(subGroupId)) {
+    expandedAdminSubMenuIds.delete(subGroupId);
+  } else {
+    expandedAdminSubMenuIds.add(subGroupId);
   }
 }
 
@@ -79,8 +90,16 @@ export function renderAdminDashboardView(): string {
       label: '커머스',
       defaultTab: 'tab-store',
       subTabs: [
-        { id: 'tab-store', label: '상품 관리' },
-        { id: 'tab-orders', label: '주문 장부' },
+        {
+          id: 'subgroup-store',
+          label: '상품관리',
+          defaultTab: 'tab-store',
+          children: [
+            { id: 'tab-store', label: '상품목록' },
+            { id: 'tab-store-register', label: '상품등록' },
+            { id: 'tab-store-orders', label: '결제장부' },
+          ]
+        },
         { id: 'tab-reviews', label: '리뷰 관리' },
         { id: 'tab-transfers', label: '무통장 승인' },
         { id: 'tab-coupons', label: '쿠폰' },
@@ -125,14 +144,36 @@ export function renderAdminDashboardView(): string {
   ];
 
   // 현재 활성 대주제 그룹 찾기
-  let activeGroup = adminGroups.find(g => g.subTabs.some(st => st.id === currentTab) || g.defaultTab === currentTab);
+  let activeGroup = adminGroups.find(g => 
+    g.defaultTab === currentTab || 
+    g.subTabs.some(st => st.id === currentTab || (st.children && st.children.some(c => c.id === currentTab)))
+  );
   if (!activeGroup) {
-    if (currentTab === 'tab-vouchers') activeGroup = adminGroups[1];
+    if (['tab-store', 'tab-store-register', 'tab-store-orders', 'tab-orders', 'tab-vouchers'].includes(currentTab)) activeGroup = adminGroups[1];
     else if (currentTab === 'tab-products') activeGroup = adminGroups[5];
     else activeGroup = adminGroups[0];
   }
 
-  const currentSubTab = activeGroup.subTabs.find(st => st.id === currentTab) || (activeGroup.subTabs.length > 0 ? activeGroup.subTabs[0] : null);
+  // 3단계 자식 탭 및 2단계 서브탭 찾기
+  let matchedSubGroup: any = null;
+  let matchedLeafTab: any = null;
+
+  for (const st of activeGroup.subTabs) {
+    if (st.id === currentTab) {
+      matchedLeafTab = st;
+      break;
+    }
+    if ((st as any).children) {
+      const child = (st as any).children.find((c: any) => c.id === currentTab || (c.id === 'tab-store-orders' && currentTab === 'tab-orders'));
+      if (child) {
+        matchedSubGroup = st;
+        matchedLeafTab = child;
+        break;
+      }
+    }
+  }
+
+  const currentTabLabel = matchedLeafTab ? matchedLeafTab.label : (matchedSubGroup ? matchedSubGroup.label : activeGroup.label);
 
   return `
   <div class="admin-dashboard-container" style="max-width: 1360px; width: 100%; margin: 0 auto; padding: 1rem 0.75rem 5rem; font-family: var(--font-body); box-sizing: border-box;">
@@ -154,7 +195,7 @@ export function renderAdminDashboardView(): string {
         <div>
           <div style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 800; color: #dfe2f1; line-height: 1.15; display: flex; align-items: center; gap: 0.45rem;">
             마보살 관리자
-            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v1.2.1</span>
+            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v1.2.3</span>
           </div>
           <div style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.05em;">ADMIN CONTROL TOWER</div>
         </div>
@@ -165,7 +206,7 @@ export function renderAdminDashboardView(): string {
     <ul class="wp-admin-menu-list" style="margin: 0; padding: 0.5rem; list-style: none; display: flex; flex-direction: column; gap: 0.4rem;">
       ${adminGroups.map(group => {
         const isGroupActive = activeGroup.id === group.id;
-        const isExpanded = expandedAdminGroupIds.has(group.id);
+        const isExpanded = expandedAdminGroupIds.has(group.id) || isGroupActive;
 
         return `
         <li class="admin-menu-group" style="display: flex; flex-direction: column; gap: 0.15rem;">
@@ -188,8 +229,45 @@ export function renderAdminDashboardView(): string {
 
           <!-- 2차 서브 카테고리 목록 (아코디언 펼쳐졌을 때만 노출) -->
           ${isExpanded ? `
-            <ul class="admin-sub-menu-list" style="margin: 0.15rem 0 0.35rem 0; padding: 0 0 0 0.85rem; list-style: none; display: flex; flex-direction: column; gap: 0.15rem; border-left: 1px dashed rgba(255, 255, 255, 0.15); margin-left: 1rem;">
-              ${group.subTabs.map(st => {
+            <ul class="admin-sub-menu-list" style="margin: 0.15rem 0 0.35rem 0; padding: 0 0 0 0.85rem; list-style: none; display: flex; flex-direction: column; gap: 0.2rem; border-left: 1px dashed rgba(255, 255, 255, 0.15); margin-left: 1rem;">
+              ${group.subTabs.map((st: any) => {
+                // [3단 계층: 상품관리 -> 상품목록, 상품등록, 결제장부]
+                if (st.children && st.children.length > 0) {
+                  const isSubGroupActive = st.children.some((c: any) => c.id === currentTab);
+                  const isSubGroupExpanded = expandedAdminSubMenuIds.has(st.id) || isSubGroupActive;
+
+                  return `
+                  <li style="display: flex; flex-direction: column; gap: 0.15rem;">
+                    <!-- 2단: 상품관리 아코디언 토글 버튼 -->
+                    <div class="btn-toggle-admin-subgroup ${isSubGroupActive ? 'active' : ''}" data-subgroup-id="${st.id}" data-default-tab="${st.defaultTab || st.children[0].id}" style="display: flex; align-items: center; justify-content: space-between; padding: 0.42rem 0.65rem; border-radius: 6px; font-size: 0.84rem; font-weight: ${isSubGroupActive ? '800' : '600'}; color: ${isSubGroupActive ? '#ffffff' : '#cbd5e1'}; background: ${isSubGroupActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent'}; border: 1px solid ${isSubGroupActive ? 'rgba(255,255,255,0.18)' : 'transparent'}; cursor: pointer; transition: all 0.15s ease; user-select: none;">
+                      <div style="display: flex; align-items: center; gap: 0.4rem;">
+                        <span class="material-symbols-outlined" style="font-size: 16px; color: ${isSubGroupActive ? 'var(--primary)' : 'var(--text-muted)'};">inventory_2</span>
+                        <span>${st.label}</span>
+                      </div>
+                      <span style="font-size: 0.65rem; color: ${isSubGroupExpanded ? '#ffffff' : 'rgba(255,255,255,0.35)'}; font-family: monospace;">
+                        ${isSubGroupExpanded ? '▼' : '▶'}
+                      </span>
+                    </div>
+
+                    <!-- 3단: 상품목록, 상품등록, 결제장부 목록 -->
+                    ${isSubGroupExpanded ? `
+                      <ul class="admin-third-menu-list" style="margin: 0.15rem 0 0.25rem 0; padding: 0 0 0 0.75rem; list-style: none; display: flex; flex-direction: column; gap: 0.15rem; border-left: 1px dotted rgba(255, 255, 255, 0.2); margin-left: 0.65rem;">
+                        ${st.children.map((child: any) => {
+                          const isChildActive = currentTab === child.id || (child.id === 'tab-store-orders' && currentTab === 'tab-orders');
+                          return `
+                            <li>
+                              <button type="button" class="admin-tab-btn third-nav-btn ${isChildActive ? 'active' : ''}" data-tab="${child.id}" style="width: 100%; text-align: left; display: block; padding: 0.35rem 0.65rem; border-radius: 5px; font-size: 0.8rem; font-weight: ${isChildActive ? '800' : '500'}; border: 1px solid ${isChildActive ? 'rgba(242, 202, 80, 0.35)' : 'transparent'}; background: ${isChildActive ? 'rgba(242, 202, 80, 0.12)' : 'transparent'}; color: ${isChildActive ? 'var(--primary)' : '#94a3b8'}; cursor: pointer; transition: all 0.15s ease;">
+                                • ${child.label}
+                              </button>
+                            </li>
+                          `;
+                        }).join('')}
+                      </ul>
+                    ` : ''}
+                  </li>
+                  `;
+                }
+
                 const isSubActive = currentTab === st.id;
                 return `
                 <li>
@@ -228,17 +306,23 @@ export function renderAdminDashboardView(): string {
           <span class="material-symbols-outlined" style="font-size: 22px;">menu</span>
         </button>
         <div>
-          <div style="font-size: 0.72rem; color: var(--text-muted);">
-            관리자 &gt; <span style="color: #cbd5e1;">${activeGroup.label}</span> ${currentSubTab ? `&gt; <strong style="color: #ffffff;">${currentSubTab.label}</strong>` : ''}
+          <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap;">
+            <span>관리자</span> &gt; <span style="color: #cbd5e1;">${activeGroup.label}</span>
+            ${matchedSubGroup ? `&gt; <span style="color: #cbd5e1;">${matchedSubGroup.label}</span>` : ''}
+            ${matchedLeafTab ? `&gt; <strong style="color: #ffffff;">${matchedLeafTab.label}</strong>` : ''}
           </div>
           <div style="font-size: 1.05rem; font-weight: 800; color: #dfe2f1; margin-top: 0.15rem;">
-            ${currentSubTab ? currentSubTab.label : activeGroup.label}
+            ${currentTabLabel}
           </div>
         </div>
       </div>
 
       <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <button type="button" id="btn-admin-reset-defaults" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); color: #dfe2f1; border-radius: 8px; padding: 0.45rem 0.75rem; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
+        <a href="/?view=store" target="_blank" style="background: rgba(242,202,80,0.12); border: 1px solid rgba(242,202,80,0.3); color: var(--primary); padding: 0.4rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 0.3rem;">
+          <span class="material-symbols-outlined" style="font-size: 14px;">storefront</span>
+          스토어 보기
+        </a>
+        <button type="button" id="btn-admin-reset-defaults" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); color: #dfe2f1; border-radius: 8px; padding: 0.4rem 0.75rem; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
           <span class="material-symbols-outlined" style="font-size: 14px;">refresh</span>
           초기화
         </button>
@@ -1131,8 +1215,8 @@ export function renderAdminDashboardView(): string {
             ${renderAdminVoucherPanel()}
           </div>
 
-          <div id="tab-store" class="admin-tab-panel" style="display: ${currentTab === 'tab-store' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
-            ${renderAdminStorePanel(activeEditingStoreProductId)}
+          <div id="tab-store" class="admin-tab-panel" style="display: ${['tab-store', 'tab-store-register', 'tab-store-orders'].includes(currentTab) ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+            ${renderAdminStorePanel(activeEditingStoreProductId, currentTab === 'tab-store-register' ? 'register' : (currentTab === 'tab-store-orders' ? 'orders' : 'products'))}
           </div>
 
           <!-- [스터디 관리 패널] -->

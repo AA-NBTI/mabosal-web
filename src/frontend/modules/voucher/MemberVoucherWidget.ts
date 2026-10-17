@@ -18,13 +18,13 @@ export function renderMemberVoucherWidget(): string {
           <span class="material-symbols-outlined" style="font-size: 24px;">wallet</span>
         </div>
         <div>
-          <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">내 지갑 보유 잔액 & 쿠폰</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">내 지갑 보유 잔액 & 행운쿠폰</div>
           <div style="display: flex; align-items: baseline; gap: 0.8rem; margin-top: 0.15rem;">
             <span style="font-size: 1.35rem; font-weight: 900; color: #ffffff;">
               잔액 캐시: <strong style="color: var(--primary);">${cashBalance.toLocaleString()}원</strong>
             </span>
             <span style="font-size: 0.85rem; color: #8fa0c7;">
-              보유 쿠폰: <strong style="color: #4ade80;">${wallet.length}장</strong>
+              보유 행운쿠폰: <strong style="color: #4ade80;">${wallet.length}장</strong>
             </span>
           </div>
         </div>
@@ -35,29 +35,29 @@ export function renderMemberVoucherWidget(): string {
       </button>
     </div>
 
-    <!-- 2단 그리드: 좌측(쿠폰 등록 & 보유 목록) <-> 우측(무통장 입금 신청 & 승인 상태) -->
+    <!-- 2단 그리드: 좌측(행운쿠폰 등록 & 보유 목록) <-> 우측(무통장 입금 신청 & 승인 상태) -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.25rem;">
       
-      <!-- 패널 1: 쿠폰 & 상품권 등록 및 보유 목록 -->
+      <!-- 패널 1: 행운쿠폰 & 상품권 등록 및 보유 목록 -->
       <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 1.25rem; box-shadow: var(--shadow-sm); display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; gap: 0.45rem; margin-bottom: 1rem;">
           <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">confirmation_number</span>
-          <h3 style="font-size: 1.1rem; font-weight: 800; color: #ffffff; margin: 0;">내 쿠폰 & 상품권 보관함</h3>
+          <h3 style="font-size: 1.1rem; font-weight: 800; color: #ffffff; margin: 0;">내 행운쿠폰 & 상품권 보관함</h3>
         </div>
 
-        <!-- 쿠폰 등록 폼 -->
+        <!-- 행운쿠폰 등록 폼 -->
         <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
-          <input type="text" id="input-member-voucher-code" placeholder="쿠폰 또는 상품권 코드 입력" style="flex: 1; min-width: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.8rem; color: #ffffff; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">
+          <input type="text" id="input-member-voucher-code" placeholder="행운쿠폰 또는 상품권 코드 입력" style="flex: 1; min-width: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.8rem; color: #ffffff; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">
           <button type="button" id="btn-register-member-voucher" style="padding: 0.6rem 1rem; font-size: 0.82rem; font-weight: 800; background: rgba(242, 202, 80, 0.2); border: 1px solid rgba(242, 202, 80, 0.45); color: var(--primary); border-radius: 8px; cursor: pointer; white-space: nowrap;">
             등록하기
           </button>
         </div>
 
-        <!-- 보유 쿠폰 목록 -->
-        <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 700; margin-bottom: 0.65rem;">보유 중인 쿠폰 (${wallet.length})</div>
+        <!-- 보유 행운쿠폰 목록 -->
+        <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 700; margin-bottom: 0.65rem;">보유 중인 행운쿠폰 (${wallet.length})</div>
         <div style="display: flex; flex-direction: column; gap: 0.75rem; flex: 1;">
           ${wallet.length === 0 ? `
-            <div style="text-align: center; padding: 1.5rem; color: #64748b; font-size: 0.85rem;">보유 중인 쿠폰이 없습니다.</div>
+            <div style="text-align: center; padding: 1.5rem; color: #64748b; font-size: 0.85rem;">보유 중인 행운쿠폰이 없습니다.</div>
           ` : wallet.map(w => `
             <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(242, 202, 80, 0.2); border-radius: 10px; padding: 0.95rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
               <div style="flex: 1; min-width: 0;">

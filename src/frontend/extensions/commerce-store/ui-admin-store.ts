@@ -55,7 +55,7 @@ const CATEGORY_META: Record<StoreCategoryType, { title: string; badgeColor: stri
   goods: { title: '부적 · 굿즈', badgeColor: '#dfe2f1', icon: 'token' },
 };
 
-export function renderAdminStorePanel(editingProductId?: string | null): string {
+export function renderAdminStorePanel(editingProductId?: string | null, forcedSubTab?: 'products' | 'register' | 'orders'): string {
   const allProducts = getAllStoreProducts();
   const orders = getAllStoreOrders();
 
@@ -65,8 +65,8 @@ export function renderAdminStorePanel(editingProductId?: string | null): string 
     .reduce((sum, o) => sum + o.amount, 0);
 
   const editItem = editingProductId ? getStoreProductById(editingProductId) : undefined;
-  // 수정 중일 때는 자동으로 'register' 탭이 활성화되도록 지원
-  const activeTab = editItem ? 'register' : adminSubTab;
+  // 수정 중일 때는 자동으로 'register' 탭이 활성화되도록 지원, forcedSubTab이 있으면 최우선 적용
+  const activeTab = forcedSubTab || (editItem ? 'register' : adminSubTab);
 
   // 카테고리별 개수 카운트
   const categoryCounts: Record<string, number> = {
@@ -99,61 +99,8 @@ export function renderAdminStorePanel(editingProductId?: string | null): string 
   });
 
   return `
-    <div style="display: flex; flex-direction: column; gap: 1.25rem; width: 100%; box-sizing: border-box;">
+    <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%; box-sizing: border-box;">
       
-      <!-- 상단 헤더 & 설명 -->
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">
-        <div>
-          <h2 style="font-size: 1.3rem; font-weight: 800; color: #dfe2f1; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-            상품 관리
-          </h2>
-          <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.35rem 0 0 0;">
-            스토어에 등록된 4대 정밀 감정 리포트, 전자책, 강의 VOD, 상담권, 굿즈를 관리합니다.
-          </p>
-        </div>
-        <div style="display: flex; gap: 0.5rem;">
-          <a href="/?view=store" target="_blank" style="background: rgba(242,202,80,0.15); border: 1px solid var(--primary); color: var(--primary); padding: 0.45rem 0.85rem; border-radius: 8px; font-size: 0.78rem; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 0.35rem;">
-            <span class="material-symbols-outlined" style="font-size: 16px;">launch</span>
-            스토어 보기
-          </a>
-        </div>
-      </div>
-
-      <!-- 요약 KPI 카드 -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem;">
-        <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.1rem;">
-          <div style="font-size: 0.75rem; color: var(--text-muted);">총 상품 수 (판매중 / 전체)</div>
-          <div style="font-size: 1.45rem; font-weight: 800; color: #fff; margin-top: 0.25rem;">
-            ${activeCount}개 <span style="font-size: 0.85rem; color: var(--text-muted);">/ 총 ${allProducts.length}개</span>
-          </div>
-        </div>
-        <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.1rem;">
-          <div style="font-size: 0.75rem; color: var(--text-muted);">누적 결제 주문 건수</div>
-          <div style="font-size: 1.45rem; font-weight: 800; color: var(--primary); margin-top: 0.25rem;">
-            ${orders.length}건
-          </div>
-        </div>
-        <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.1rem;">
-          <div style="font-size: 0.75rem; color: var(--text-muted);">누적 스토어 매출액</div>
-          <div style="font-size: 1.45rem; font-weight: 800; color: #dfe2f1; margin-top: 0.25rem;">
-            ₩ ${totalRevenue.toLocaleString()}
-          </div>
-        </div>
-      </div>
-
-      <!-- [하부 카테고리 3대 서브 탭 네비게이션] -->
-      <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;">
-        <button type="button" class="btn-store-subtab ${activeTab === 'products' ? 'active' : ''}" data-subtab="products" style="background: ${activeTab === 'products' ? 'var(--primary)' : 'rgba(255,255,255,0.05)'}; color: ${activeTab === 'products' ? '#1c1500' : '#cbd5e1'}; font-weight: 800; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-          상품 목록 (${allProducts.length})
-        </button>
-        <button type="button" class="btn-store-subtab ${activeTab === 'register' ? 'active' : ''}" data-subtab="register" style="background: ${activeTab === 'register' ? 'var(--primary)' : 'rgba(255,255,255,0.05)'}; color: ${activeTab === 'register' ? '#1c1500' : '#cbd5e1'}; font-weight: 800; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-          ${editItem ? '상품 수정' : '상품 등록'}
-        </button>
-        <button type="button" class="btn-store-subtab ${activeTab === 'orders' ? 'active' : ''}" data-subtab="orders" style="background: ${activeTab === 'orders' ? 'var(--primary)' : 'rgba(255,255,255,0.05)'}; color: ${activeTab === 'orders' ? '#1c1500' : '#cbd5e1'}; font-weight: 800; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-          결제 장부 (${orders.length})
-        </button>
-      </div>
-
       <!-- [서브 탭 1] 상품 목록 및 카테고리별 관리 -->
       <div style="display: ${activeTab === 'products' ? 'block' : 'none'};">
         <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.35rem;">
@@ -177,9 +124,13 @@ export function renderAdminStorePanel(editingProductId?: string | null): string 
               }).join('')}
             </div>
 
-            <!-- 검색창 -->
-            <div>
-              <input type="text" id="admin-store-search-input" value="${esc(adminSearchQuery)}" placeholder="상품명 검색..." style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.45rem 0.75rem; border-radius: 8px; font-size: 0.82rem; width: 180px;" />
+            <!-- 검색창 및 상품 등록 바로가기 -->
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="text" id="admin-store-search-input" value="${esc(adminSearchQuery)}" placeholder="상품명 검색..." style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.45rem 0.75rem; border-radius: 8px; font-size: 0.82rem; width: 170px;" />
+              <button type="button" class="admin-tab-btn" data-tab="tab-store-register" style="background: var(--primary); color: #1c1500; font-weight: 800; border: none; padding: 0.45rem 0.85rem; border-radius: 8px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; white-space: nowrap;">
+                <span class="material-symbols-outlined" style="font-size: 16px;">add</span>
+                상품 등록
+              </button>
             </div>
           </div>
 
@@ -250,16 +201,29 @@ export function renderAdminStorePanel(editingProductId?: string | null): string 
       <!-- [서브 탭 2] 상품 등록 / 수정 폼 -->
       <div style="display: ${activeTab === 'register' ? 'block' : 'none'};">
         <div style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1.35rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3 style="font-size: 1.05rem; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
-              <span class="material-symbols-outlined" style="color: var(--primary);">edit_document</span>
-              ${editItem ? `[${editItem.title}] 상품 정보 수정 중` : '신규 상품 등록 (CMS)'}
-            </h3>
-            ${editItem ? `
-              <button type="button" id="btn-cancel-edit-product" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; font-size: 0.78rem; padding: 0.35rem 0.75rem; border-radius: 6px; cursor: pointer;">
-                수정 취소하고 목록으로 돌아가기
-              </button>
-            ` : ''}
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">
+            <div>
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
+                <span class="material-symbols-outlined" style="color: var(--primary);">edit_document</span>
+                ${editItem ? `[${esc(editItem.title)}] 상품 정보 수정` : '신규 상품 등록 (CMS)'}
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.25rem 0 0 0;">
+                네이버 쇼핑형 멀티 갤러리와 세로 상세페이지 이미지를 포함한 상품 정보를 등록합니다.
+              </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              ${editItem ? `
+                <button type="button" id="btn-cancel-edit-product" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; font-size: 0.78rem; font-weight: 600; padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
+                  <span class="material-symbols-outlined" style="font-size: 15px;">close</span>
+                  수정 취소하고 목록으로
+                </button>
+              ` : `
+                <button type="button" class="admin-tab-btn" data-tab="tab-store" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #dfe2f1; font-size: 0.78rem; font-weight: 600; padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
+                  <span class="material-symbols-outlined" style="font-size: 15px;">format_list_bulleted</span>
+                  상품 목록 보기
+                </button>
+              `}
+            </div>
           </div>
 
           <form id="admin-product-cms-form" data-edit-id="${editItem ? editItem.id : ''}">
@@ -313,15 +277,104 @@ export function renderAdminStorePanel(editingProductId?: string | null): string 
               <textarea id="cms-desc" required rows="3" placeholder="상품의 핵심 구성과 가치를 입력하세요." style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.85rem; resize: vertical;">${editItem ? esc(editItem.description) : ''}</textarea>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 0.85rem;">
-              <div>
-                <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">대표 썸네일 이미지 URL</label>
-                <input type="url" id="cms-thumb-url" value="${editItem ? esc(editItem.thumbnailUrl) : ''}" placeholder="https://..." style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.85rem;" />
+            <!-- [네이버 쇼핑 스타일 이미지 업로드 센터] -->
+            <div style="background: rgba(0, 0, 0, 0.3); border: 1.5px dashed rgba(242, 202, 80, 0.4); border-radius: 12px; padding: 1.15rem; margin-bottom: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <label style="font-size: 0.85rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.35rem;">
+                  <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">add_photo_alternate</span>
+                  네이버 쇼핑형 상품 사진 등록 &amp; 갤러리
+                </label>
+                <span style="font-size: 0.72rem; color: #94a3b8;">PC/스마트폰 사진 직접 첨부 지원 (JPG, PNG, WebP)</span>
               </div>
-              <div>
-                <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">구매자 제공 파일/열람 링크 (다운로드 URL) *</label>
-                <input type="text" id="cms-content-payload" required value="${editItem ? esc(editItem.contentPayload) : ''}" placeholder="https://다운로드링크 또는 VOD주소" style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.85rem;" />
+
+              <!-- 1. 대표 썸네일 사진 (1장 필수) -->
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 0.85rem; margin-bottom: 0.85rem;">
+                <div style="font-size: 0.78rem; font-weight: 700; color: #dfe2f1; margin-bottom: 0.4rem; display: flex; justify-content: space-between;">
+                  <span>① 대표 썸네일 사진 (메인 노출용)</span>
+                  <span style="font-size: 0.7rem; color: var(--text-muted);">권장 1:1 또는 16:10 비율</span>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                  <!-- 미리보기 박스 -->
+                  <div id="cms-thumb-preview-box" style="width: 90px; height: 90px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.15); background: #0c0f17; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0;">
+                    <img id="cms-thumb-preview-img" src="${editItem?.thumbnailUrl || ''}" alt="대표 미리보기" style="width: 100%; height: 100%; object-fit: cover; display: ${editItem?.thumbnailUrl ? 'block' : 'none'};" />
+                    <span id="cms-thumb-placeholder" class="material-symbols-outlined" style="font-size: 32px; color: var(--text-muted); display: ${editItem?.thumbnailUrl ? 'none' : 'block'};">image</span>
+                  </div>
+
+                  <!-- 업로드 조작 버튼 및 URL 보조 -->
+                  <div style="flex: 1; min-width: 240px; display: flex; flex-direction: column; gap: 0.45rem;">
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                      <label for="cms-thumb-file-input" style="background: var(--primary); color: #1c1500; font-weight: 800; font-size: 0.78rem; padding: 0.45rem 0.9rem; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem;">
+                        <span class="material-symbols-outlined" style="font-size: 16px;">upload_file</span>
+                        내 사진 파일 첨부하기
+                      </label>
+                      <input type="file" id="cms-thumb-file-input" accept="image/*" style="display: none;" />
+                      <button type="button" id="btn-remove-thumb-img" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; font-size: 0.75rem; padding: 0.45rem 0.75rem; border-radius: 6px; cursor: pointer;">
+                        사진 지우기
+                      </button>
+                    </div>
+                    <input type="text" id="cms-thumb-url" value="${editItem ? esc(editItem.thumbnailUrl) : ''}" placeholder="또는 이미지 웹 URL 직접 입력 (https://...)" style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.12); color: #fff; padding: 0.45rem 0.65rem; border-radius: 6px; font-size: 0.78rem;" />
+                  </div>
+                </div>
               </div>
+
+              <!-- 2. 네이버 쇼핑형 서브 갤러리 추가 사진 (최대 4장) -->
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 0.85rem; margin-bottom: 0.85rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+                  <span style="font-size: 0.78rem; font-weight: 700; color: #dfe2f1;">② 추가 갤러리 컷 (상세 뷰 슬라이드용 - 최대 4장)</span>
+                  <label for="cms-gallery-file-input" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; font-size: 0.74rem; font-weight: 700; padding: 0.3rem 0.65rem; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem;">
+                    <span class="material-symbols-outlined" style="font-size: 15px;">add_photo_alternate</span>
+                    + 사진 추가
+                  </label>
+                  <input type="file" id="cms-gallery-file-input" accept="image/*" multiple style="display: none;" />
+                </div>
+                
+                <!-- 갤러리 썸네일 프리뷰 컨테이너 -->
+                <div id="cms-gallery-preview-container" style="display: flex; gap: 0.6rem; flex-wrap: wrap; min-height: 56px; align-items: center; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 0.5rem;">
+                  ${(editItem?.galleryImages || []).map((imgUrl, idx) => `
+                    <div class="cms-gallery-thumb-chip" data-idx="${idx}" style="position: relative; width: 56px; height: 56px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2);">
+                      <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" />
+                      <button type="button" class="btn-del-gallery-img" data-idx="${idx}" style="position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.7); color: #fff; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1;">×</button>
+                    </div>
+                  `).join('')}
+                  ${(!editItem?.galleryImages || editItem.galleryImages.length === 0) ? `
+                    <span id="cms-gallery-empty-msg" style="font-size: 0.74rem; color: var(--text-muted); padding: 0 0.5rem;">등록된 추가 갤러리 사진이 없습니다.</span>
+                  ` : ''}
+                </div>
+                <input type="hidden" id="cms-gallery-data" value="${editItem?.galleryImages ? esc(JSON.stringify(editItem.galleryImages)) : '[]'}" />
+              </div>
+
+              <!-- 3. 상세페이지 본문 안내 이미지 (최대 3장) -->
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 0.85rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+                  <span style="font-size: 0.78rem; font-weight: 700; color: #dfe2f1;">③ 상세페이지 본문 안내 이미지 (긴 상세 안내 컷 - 최대 3장)</span>
+                  <label for="cms-detail-file-input" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; font-size: 0.74rem; font-weight: 700; padding: 0.3rem 0.65rem; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem;">
+                    <span class="material-symbols-outlined" style="font-size: 15px;">note_add</span>
+                    + 상세 컷 추가
+                  </label>
+                  <input type="file" id="cms-detail-file-input" accept="image/*" multiple style="display: none;" />
+                </div>
+                
+                <!-- 상세 이미지 썸네일 프리뷰 컨테이너 -->
+                <div id="cms-detail-preview-container" style="display: flex; gap: 0.6rem; flex-wrap: wrap; min-height: 56px; align-items: center; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 0.5rem;">
+                  ${(editItem?.detailImages || []).map((imgUrl, idx) => `
+                    <div class="cms-detail-thumb-chip" data-idx="${idx}" style="position: relative; width: 56px; height: 56px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2);">
+                      <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" />
+                      <button type="button" class="btn-del-detail-img" data-idx="${idx}" style="position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.7); color: #fff; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1;">×</button>
+                    </div>
+                  `).join('')}
+                  ${(!editItem?.detailImages || editItem.detailImages.length === 0) ? `
+                    <span id="cms-detail-empty-msg" style="font-size: 0.74rem; color: var(--text-muted); padding: 0 0.5rem;">등록된 상세페이지 안내 이미지가 없습니다.</span>
+                  ` : ''}
+                </div>
+                <input type="hidden" id="cms-detail-data" value="${editItem?.detailImages ? esc(JSON.stringify(editItem.detailImages)) : '[]'}" />
+              </div>
+            </div>
+
+            <!-- 제공 파일 링크 및 배송 설정 -->
+            <div style="margin-bottom: 0.85rem;">
+              <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">구매자 제공 파일/열람 링크 (다운로드 URL) *</label>
+              <input type="text" id="cms-content-payload" required value="${editItem ? esc(editItem.contentPayload) : ''}" placeholder="https://다운로드링크 또는 VOD주소" style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.85rem;" />
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 1rem;">
@@ -353,9 +406,22 @@ export function renderAdminStorePanel(editingProductId?: string | null): string 
       <!-- [서브 탭 3] 실시간 결제 & 주문 장부 -->
       <div style="display: ${activeTab === 'orders' ? 'block' : 'none'};">
         <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.35rem;">
-          <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0 0 1rem 0;">
-            스토어 실시간 결제 장부 (Orders)
-          </h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">
+            <div>
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.45rem;">
+                <span class="material-symbols-outlined" style="color: var(--primary); font-size: 22px;">receipt_long</span>
+                스토어 실시간 결제 장부 (Orders)
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.25rem 0 0 0;">
+                스토어에서 발생한 결제 내역, 주문 상태 및 환불 승인을 관리합니다.
+              </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.65rem;">
+              <div style="background: rgba(242,202,80,0.1); border: 1px solid rgba(242,202,80,0.25); border-radius: 8px; padding: 0.35rem 0.75rem; font-size: 0.78rem; color: #dfe2f1;">
+                총 주문 <strong style="color: var(--primary);">${orders.length}건</strong> / 누적 매출 <strong style="color: var(--primary);">₩ ${totalRevenue.toLocaleString()}</strong>
+              </div>
+            </div>
+          </div>
           <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.82rem; color: #dfe2f1;">
               <thead>

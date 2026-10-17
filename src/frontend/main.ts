@@ -66,6 +66,7 @@ import {
   setEditingStoreProductId,
   getEditingStoreProductId,
   toggleAdminGroup,
+  toggleAdminSubGroup,
 } from './views/AdminDashboardView.js';
 import {
   setInquiryFilter,
@@ -111,6 +112,42 @@ import { renderAuthModal } from './components/AuthModal.js';
 import { renderCharmPricingCheckoutModal } from './components/common-components.js';
 import { generateDownloadableReportText } from './components/tier-templates.js';
 import { renderCheonmyeongwonShareModal } from './components/VisualCharts.js';
+
+function compressImageFile(file: File, maxDimension = 900, quality = 0.85): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        } else {
+          resolve((e.target?.result as string) || '');
+        }
+      };
+      img.onerror = () => resolve((e.target?.result as string) || '');
+      img.src = (e.target?.result as string) || '';
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 class MabosalApp {
  private rootEl: HTMLElement;
@@ -337,6 +374,72 @@ class MabosalApp {
           alert(`[${depositor}] 님의 무통장 입금 확인 신청이 접수되었습니다.\n관리자 입금 확인 후 쿠폰이 즉시 승인 지급됩니다.`);
           this.render(appState.getState());
         }
+        return;
+      }
+
+      // [관리자 CMS: 네이버 쇼핑형 상품 등록 및 사진 저장]
+      if (targetForm?.id === 'admin-product-cms-form') {
+        e.preventDefault();
+        const editId = targetForm.dataset.editId;
+        const title = (document.getElementById('cms-title') as HTMLInputElement)?.value.trim();
+        const category = ((document.getElementById('cms-category') as HTMLSelectElement)?.value || 'report') as StoreCategoryType;
+        const price = parseInt((document.getElementById('cms-price') as HTMLInputElement)?.value || '0', 10);
+        const originalPrice = parseInt((document.getElementById('cms-original-price') as HTMLInputElement)?.value || '0', 10);
+        const status = ((document.getElementById('cms-status') as HTMLSelectElement)?.value || 'active') as any;
+        const badge = (document.getElementById('cms-badge') as HTMLInputElement)?.value.trim() || undefined;
+        const tagLine = (document.getElementById('cms-tagline') as HTMLInputElement)?.value.trim() || '';
+        const description = (document.getElementById('cms-desc') as HTMLTextAreaElement)?.value.trim() || '';
+        const thumbnailUrl = (document.getElementById('cms-thumb-url') as HTMLInputElement)?.value.trim() || '';
+        const contentPayload = (document.getElementById('cms-content-payload') as HTMLInputElement)?.value.trim() || '';
+        const deliveryType = ((document.getElementById('cms-delivery') as HTMLSelectElement)?.value || 'saju_report') as DeliveryType;
+        const targetSignalsStr = (document.getElementById('cms-target-signals') as HTMLInputElement)?.value.trim() || 'money.loss';
+        const targetSignals = targetSignalsStr.split(',').map(s => s.trim()).filter(Boolean);
+
+        let galleryImages: string[] = [];
+        try {
+          const rawGallery = (document.getElementById('cms-gallery-data') as HTMLInputElement)?.value;
+          if (rawGallery) galleryImages = JSON.parse(rawGallery);
+        } catch (err) {}
+
+        let detailImages: string[] = [];
+        try {
+          const rawDetail = (document.getElementById('cms-detail-data') as HTMLInputElement)?.value;
+          if (rawDetail) detailImages = JSON.parse(rawDetail);
+        } catch (err) {}
+
+        if (!title || !contentPayload) {
+          alert('상품명과 구매자 제공 파일 링크를 입력해 주세요.');
+          return;
+        }
+
+        const productPayload = {
+          title,
+          category,
+          price,
+          originalPrice: originalPrice || price,
+          status,
+          badge,
+          tagLine,
+          description,
+          thumbnailUrl,
+          contentPayload,
+          deliveryType,
+          targetSignals,
+          galleryImages,
+          detailImages,
+        };
+
+        if (editId) {
+          updateStoreProduct(editId, productPayload);
+          alert(`[상품 수정 완료]\n\n'${title}' 상품 정보 및 사진이 성공적으로 수정되었습니다.`);
+        } else {
+          saveStoreProduct(productPayload);
+          alert(`[신규 상품 등록 완료]\n\n'${title}' 상품과 사진이 스토어에 등록되어 판매가 시작되었습니다!`);
+        }
+
+        setEditingStoreProductId(null);
+        setAdminStoreSubTab('products');
+        this.render(appState.getState());
         return;
       }
 
@@ -573,6 +676,82 @@ ${content}
  // 관리자 모듈 활성화/비활성화 토글 스위치 리스너
  this.rootEl.addEventListener('change', (e) => {
  const target = e.target as HTMLInputElement;
+
+ // [관리자 CMS: 대표 썸네일 사진 파일 선택]
+ if (target?.id === 'cms-thumb-file-input' && target.files && target.files[0]) {
+   const file = target.files[0];
+   compressImageFile(file, 900, 0.85).then(base64 => {
+     const imgEl = document.getElementById('cms-thumb-preview-img') as HTMLImageElement;
+     const placeholderEl = document.getElementById('cms-thumb-placeholder');
+     const urlInput = document.getElementById('cms-thumb-url') as HTMLInputElement;
+     if (imgEl) {
+       imgEl.src = base64;
+       imgEl.style.display = 'block';
+     }
+     if (placeholderEl) placeholderEl.style.display = 'none';
+     if (urlInput) urlInput.value = base64;
+   }).catch(err => {
+     console.error('[Image Upload] error:', err);
+     alert('이미지 파일을 처리하는 중 오류가 발생했습니다.');
+   });
+   return;
+ }
+
+ // [관리자 CMS: 추가 갤러리 사진 파일 다중 선택]
+ if (target?.id === 'cms-gallery-file-input' && target.files && target.files.length > 0) {
+   const files = Array.from(target.files);
+   Promise.all(files.map(f => compressImageFile(f, 900, 0.85))).then(base64List => {
+     const dataInput = document.getElementById('cms-gallery-data') as HTMLInputElement;
+     const container = document.getElementById('cms-gallery-preview-container');
+     let currentList: string[] = [];
+     try {
+       if (dataInput?.value) currentList = JSON.parse(dataInput.value);
+     } catch (err) {}
+
+     const updated = [...currentList, ...base64List].slice(0, 4); // 최대 4장
+     if (dataInput) dataInput.value = JSON.stringify(updated);
+
+     if (container) {
+       const emptyMsg = document.getElementById('cms-gallery-empty-msg');
+       if (emptyMsg) emptyMsg.remove();
+       container.innerHTML = updated.map((imgUrl, idx) => `
+         <div class="cms-gallery-thumb-chip" data-idx="${idx}" style="position: relative; width: 56px; height: 56px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2);">
+           <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" />
+           <button type="button" class="btn-del-gallery-img" data-idx="${idx}" style="position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.7); color: #fff; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1;">×</button>
+         </div>
+       `).join('');
+     }
+   });
+   return;
+ }
+
+ // [관리자 CMS: 상세페이지 안내 이미지 다중 선택]
+ if (target?.id === 'cms-detail-file-input' && target.files && target.files.length > 0) {
+   const files = Array.from(target.files);
+   Promise.all(files.map(f => compressImageFile(f, 1000, 0.85))).then(base64List => {
+     const dataInput = document.getElementById('cms-detail-data') as HTMLInputElement;
+     const container = document.getElementById('cms-detail-preview-container');
+     let currentList: string[] = [];
+     try {
+       if (dataInput?.value) currentList = JSON.parse(dataInput.value);
+     } catch (err) {}
+
+     const updated = [...currentList, ...base64List].slice(0, 3); // 최대 3장
+     if (dataInput) dataInput.value = JSON.stringify(updated);
+
+     if (container) {
+       const emptyMsg = document.getElementById('cms-detail-empty-msg');
+       if (emptyMsg) emptyMsg.remove();
+       container.innerHTML = updated.map((imgUrl, idx) => `
+         <div class="cms-detail-thumb-chip" data-idx="${idx}" style="position: relative; width: 56px; height: 56px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2);">
+           <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" />
+           <button type="button" class="btn-del-detail-img" data-idx="${idx}" style="position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.7); color: #fff; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1;">×</button>
+         </div>
+       `).join('');
+     }
+   });
+   return;
+ }
 
  // [장바구니 보드: 전체 선택 체크박스]
  if (target?.id === 'cart-check-all') {
@@ -1099,6 +1278,95 @@ ${content}
       return;
     }
 
+    // [스토어 상세 갤러리 썸네일 클릭/호버 전환]
+    const galleryThumbBtn = target.closest('.btn-store-gallery-thumb') as HTMLElement | null;
+    if (galleryThumbBtn) {
+      const imgUrl = galleryThumbBtn.dataset.imgUrl;
+      const mainImg = document.getElementById('store-main-gallery-view') as HTMLImageElement;
+      if (mainImg && imgUrl) {
+        mainImg.src = imgUrl;
+        document.querySelectorAll('.btn-store-gallery-thumb').forEach(b => {
+          (b as HTMLElement).style.borderColor = 'rgba(255,255,255,0.15)';
+        });
+        galleryThumbBtn.style.borderColor = 'var(--primary)';
+      }
+      return;
+    }
+
+    // [관리자 CMS: 대표 사진 지우기 버튼]
+    if (target.closest('#btn-remove-thumb-img')) {
+      const imgEl = document.getElementById('cms-thumb-preview-img') as HTMLImageElement;
+      const placeholderEl = document.getElementById('cms-thumb-placeholder');
+      const urlInput = document.getElementById('cms-thumb-url') as HTMLInputElement;
+      const fileInput = document.getElementById('cms-thumb-file-input') as HTMLInputElement;
+      if (imgEl) {
+        imgEl.src = '';
+        imgEl.style.display = 'none';
+      }
+      if (placeholderEl) placeholderEl.style.display = 'block';
+      if (urlInput) urlInput.value = '';
+      if (fileInput) fileInput.value = '';
+      return;
+    }
+
+    // [관리자 CMS: 갤러리 칩 삭제]
+    const delGalleryBtn = target.closest('.btn-del-gallery-img') as HTMLElement | null;
+    if (delGalleryBtn) {
+      const idx = parseInt(delGalleryBtn.dataset.idx || '-1', 10);
+      if (idx >= 0) {
+        const dataInput = document.getElementById('cms-gallery-data') as HTMLInputElement;
+        const container = document.getElementById('cms-gallery-preview-container');
+        let list: string[] = [];
+        try {
+          if (dataInput?.value) list = JSON.parse(dataInput.value);
+        } catch (e) {}
+        list.splice(idx, 1);
+        if (dataInput) dataInput.value = JSON.stringify(list);
+        if (container) {
+          if (list.length === 0) {
+            container.innerHTML = '<span id="cms-gallery-empty-msg" style="font-size: 0.74rem; color: var(--text-muted); padding: 0 0.5rem;">등록된 추가 갤러리 사진이 없습니다.</span>';
+          } else {
+            container.innerHTML = list.map((imgUrl, i) => `
+              <div class="cms-gallery-thumb-chip" data-idx="${i}" style="position: relative; width: 56px; height: 56px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2);">
+                <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" />
+                <button type="button" class="btn-del-gallery-img" data-idx="${i}" style="position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.7); color: #fff; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1;">×</button>
+              </div>
+            `).join('');
+          }
+        }
+      }
+      return;
+    }
+
+    // [관리자 CMS: 상세 컷 칩 삭제]
+    const delDetailBtn = target.closest('.btn-del-detail-img') as HTMLElement | null;
+    if (delDetailBtn) {
+      const idx = parseInt(delDetailBtn.dataset.idx || '-1', 10);
+      if (idx >= 0) {
+        const dataInput = document.getElementById('cms-detail-data') as HTMLInputElement;
+        const container = document.getElementById('cms-detail-preview-container');
+        let list: string[] = [];
+        try {
+          if (dataInput?.value) list = JSON.parse(dataInput.value);
+        } catch (e) {}
+        list.splice(idx, 1);
+        if (dataInput) dataInput.value = JSON.stringify(list);
+        if (container) {
+          if (list.length === 0) {
+            container.innerHTML = '<span id="cms-detail-empty-msg" style="font-size: 0.74rem; color: var(--text-muted); padding: 0 0.5rem;">등록된 상세페이지 안내 이미지가 없습니다.</span>';
+          } else {
+            container.innerHTML = list.map((imgUrl, i) => `
+              <div class="cms-detail-thumb-chip" data-idx="${i}" style="position: relative; width: 56px; height: 56px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2);">
+                <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" />
+                <button type="button" class="btn-del-detail-img" data-idx="${i}" style="position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.7); color: #fff; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1;">×</button>
+              </div>
+            `).join('');
+          }
+        }
+      }
+      return;
+    }
+
     // [관리자 CMS] 상품 수정 모드 진입
     const editProdBtn = target.closest('.btn-edit-store-product') as HTMLElement | null;
     if (editProdBtn) {
@@ -1455,6 +1723,9 @@ ${content}
       const tabKey = adminSubTabBtn.dataset.subtab as 'products' | 'register' | 'orders';
       if (tabKey) {
         setAdminStoreSubTab(tabKey);
+        if (tabKey === 'products') setAdminActiveTab('tab-store');
+        else if (tabKey === 'register') setAdminActiveTab('tab-store-register');
+        else if (tabKey === 'orders') setAdminActiveTab('tab-store-orders');
         this.render(appState.getState());
       }
       return;
@@ -1568,6 +1839,24 @@ ${content}
       return;
     }
 
+    // [최고 관리자 2단 서브 카테고리(상품관리 등) 3단 아코디언 펼침/닫힘 토글]
+    const toggleSubGroupBtn = target.closest('.btn-toggle-admin-subgroup') as HTMLElement | null;
+    if (toggleSubGroupBtn) {
+      const subId = toggleSubGroupBtn.dataset.subgroupId;
+      if (subId) {
+        toggleAdminSubGroup(subId);
+        const defTab = toggleSubGroupBtn.dataset.defaultTab;
+        if (defTab && !['tab-store', 'tab-store-register', 'tab-store-orders'].includes(getAdminActiveTab())) {
+          setAdminActiveTab(defTab);
+          if (defTab === 'tab-store') setAdminStoreSubTab('products');
+          else if (defTab === 'tab-store-register') setAdminStoreSubTab('register');
+          else if (defTab === 'tab-store-orders') setAdminStoreSubTab('orders');
+        }
+        this.render(appState.getState());
+      }
+      return;
+    }
+
     // 관리자 헤더 브랜딩 클릭 시 기본 대시보드(종합 관제)로 이동
     if (target.closest('.btn-admin-header-home')) {
       setAdminActiveTab('tab-overview');
@@ -1610,7 +1899,19 @@ ${content}
     if (adminTabBtn) {
       const targetTab = adminTabBtn.dataset.tab;
       if (targetTab) {
-        setAdminActiveTab(targetTab);
+        if (targetTab === 'tab-store') {
+          setAdminActiveTab('tab-store');
+          setAdminStoreSubTab('products');
+          setEditingStoreProductId(null);
+        } else if (targetTab === 'tab-store-register') {
+          setAdminActiveTab('tab-store-register');
+          setAdminStoreSubTab('register');
+        } else if (targetTab === 'tab-store-orders' || targetTab === 'tab-orders') {
+          setAdminActiveTab('tab-store-orders');
+          setAdminStoreSubTab('orders');
+        } else {
+          setAdminActiveTab(targetTab);
+        }
         this.render(appState.getState());
       }
       return;

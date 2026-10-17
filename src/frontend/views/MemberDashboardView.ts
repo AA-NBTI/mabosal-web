@@ -48,9 +48,9 @@ export function renderMemberDashboardView(state: AppStateData): string {
     { id: 'tab-daily', icon: 'auto_fix_high', label: '행운처방', badge: '' },
     { id: 'tab-lucky-calendar', icon: 'event_available', label: '행운달력', badge: '' },
     { id: 'tab-magi-calendar', icon: 'event_busy', label: '마기달력', badge: '' },
-    { id: 'tab-vouchers', icon: 'confirmation_number', label: '쿠폰', badge: summary.issuedVouchers.length > 0 ? `${summary.issuedVouchers.length}개` : '' },
-    { id: 'tab-orders', icon: 'receipt_long', label: '주문 내역', badge: summary.pendingTransfers.length > 0 ? `${summary.pendingTransfers.length}건 대기` : '' },
-    { id: 'tab-account', icon: 'manage_accounts', label: '내 정보', badge: '' },
+    { id: 'tab-vouchers', icon: 'confirmation_number', label: '행운쿠폰', badge: summary.issuedVouchers.length > 0 ? `${summary.issuedVouchers.length}개` : '' },
+    { id: 'tab-orders', icon: 'receipt_long', label: '주문내역', badge: summary.pendingTransfers.length > 0 ? `${summary.pendingTransfers.length}건 대기` : '' },
+    { id: 'tab-account', icon: 'manage_accounts', label: '회원정보', badge: '' },
     { id: 'tab-inquiries', icon: 'support_agent', label: '고객센터', badge: myInquiries.some(i => i.status === 'pending') ? '답변대기' : '' },
   ];
 
@@ -266,14 +266,14 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
       `;
     }
 
-    // 2. 주문 내역
+    // 2. 주문내역
     case 'tab-orders':
       return `
         <div style="display: flex; flex-direction: column; gap: 1.5rem;">
           <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
               <div>
-                <h2 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 0.25rem 0;">나의 주문 &amp; 결제 내역</h2>
+                <h2 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 0.25rem 0;">나의 주문내역 &amp; 결제 내역</h2>
                 <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">구매한 상품 및 무통장 입금 승인 상태를 실시간으로 확인합니다.</p>
               </div>
               <button type="button" id="btn-goto-store-from-dash" class="btn-cta-secondary" style="padding: 0.45rem 0.9rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; cursor: pointer;">
@@ -285,13 +285,13 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
         </div>
       `;
 
-    // 3. 쿠폰 (바우처 보관함)
+    // 3. 행운쿠폰 (바우처 보관함)
     case 'tab-vouchers':
       return `
         <div style="display: flex; flex-direction: column; gap: 1.5rem;">
           <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
             <div style="margin-bottom: 1.25rem;">
-              <h2 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 0.25rem 0;">모바일 바우처 / 상품권 보관함</h2>
+              <h2 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 0.25rem 0;">행운쿠폰 / 상품권 보관함</h2>
               <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">승인 완료된 VIP 기프트 상품권과 발급 코드를 안전하게 관리하고 복사하여 사용하세요.</p>
             </div>
             ${renderMemberVoucherWidget()}
@@ -402,7 +402,7 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
         </div>
       `;
 
-    // 내 정보 (아이디/비번 변경, 이용자 정보 등록 및 수정, 안전한 회원탈퇴 아코디언)
+    // 회원정보 (아이디/비번 변경, 이용자 정보 등록 및 수정, 안전한 회원탈퇴 아코디언)
     case 'tab-account':
     default:
       const rawUser = AuthService.getCurrentUser();
@@ -417,7 +417,7 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
           <!-- 회원 프로필 & 계정 설정 폼 -->
           <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
             <div style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
-              <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0 0 0.25rem 0;">내 정보 관리</h2>
+              <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0 0 0.25rem 0;">회원정보 관리</h2>
               <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">로그인 아이디, 비밀번호 변경 및 사주 분석에 필요한 기본 프로필 정보를 등록하고 수정합니다.</p>
             </div>
 

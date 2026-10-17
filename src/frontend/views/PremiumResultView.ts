@@ -131,7 +131,7 @@ export function renderPremiumResultView(state: AppStateData): string {
  평생 열람 가능한 A4 정본 문서 보관함
  </div>
  <div style="font-size: 0.82rem; color: var(--text-muted);">
- 언제든 대시보드 주문 내역에서 재열람하거나 PDF/TXT로 소장하실 수 있습니다.
+ 언제든 대시보드 주문내역에서 재열람하거나 PDF/TXT로 소장하실 수 있습니다.
  </div>
  </div>
  <div style="display: flex; gap: 0.5rem;">

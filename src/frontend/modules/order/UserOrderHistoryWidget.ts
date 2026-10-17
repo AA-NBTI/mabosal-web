@@ -15,7 +15,7 @@ export function renderUserOrderHistoryWidget(): string {
       <div style="background: var(--surface-container); border: 1px dashed rgba(255,255,255,0.15); border-radius: 14px; padding: 2rem; text-align: center; margin-bottom: 2rem;">
         <span class="material-symbols-outlined" style="font-size: 36px; color: var(--text-muted); margin-bottom: 0.5rem;">lock</span>
         <h3 style="font-size: 1.1rem; color: #fff; margin: 0 0 0.5rem 0;">로그인이 필요한 서비스입니다</h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 1rem 0;">로그인하시면 나의 주문 내역, 입금 대기 현황, 구매한 사주 리포트를 확인하실 수 있습니다.</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 1rem 0;">로그인하시면 나의 주문내역, 입금 대기 현황, 구매한 사주 리포트를 확인하실 수 있습니다.</p>
         <button type="button" id="btn-login-from-dashboard" style="background: var(--primary); color: #000; font-weight: 800; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; cursor: pointer;">
           로그인 / 회원가입
         </button>

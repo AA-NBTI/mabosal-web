@@ -221,18 +221,19 @@ export function renderCommerceStoreView(state: AppStateData): string {
         <!-- 2컬럼 메인 영역 (좌: 썸네일/정보, 우: 결제창) -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.28); border-radius: 18px; padding: 1.75rem; box-shadow: var(--shadow-sm);">
           
-          <!-- 좌측: 상품 대표 이미지 및 핵심 요약 -->
-          <div style="display: flex; flex-direction: column; gap: 1rem;">
-            <div style="position: relative; width: 100%; aspect-ratio: 16 / 10; border-radius: 12px; overflow: hidden; background: #0c0f17; border: 1px solid rgba(255,255,255,0.08);">
+          <!-- 좌측: 상품 대표 이미지 및 네이버 쇼핑형 갤러리 -->
+          <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <!-- 메인 대형 이미지 뷰어 -->
+            <div style="position: relative; width: 100%; aspect-ratio: 1 / 1; max-height: 420px; border-radius: 14px; overflow: hidden; background: #0c0f17; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
               ${p.thumbnailUrl ? `
-                <img src="${p.thumbnailUrl}" alt="${esc(p.title)}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                <img id="store-main-gallery-view" src="${p.thumbnailUrl}" alt="${esc(p.title)}" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.2s ease;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
               ` : ''}
-              <div style="display: ${p.thumbnailUrl ? 'none' : 'flex'}; width: 100%; height: 100%; align-items: center; justify-content: flex-start; background: rgba(242,202,80,0.08);">
-                <span class="material-symbols-outlined" style="font-size: 64px; color: var(--primary);">${p.thumbnailIcon || 'menu_book'}</span>
+              <div id="store-main-gallery-placeholder" style="display: ${p.thumbnailUrl ? 'none' : 'flex'}; width: 100%; height: 100%; align-items: center; justify-content: center; background: rgba(242,202,80,0.08);">
+                <span class="material-symbols-outlined" style="font-size: 72px; color: var(--primary);">${p.thumbnailIcon || 'menu_book'}</span>
               </div>
-              <div style="position: absolute; top: 12px; left: 12px; display: flex; gap: 0.4rem;">
+              <div style="position: absolute; top: 12px; left: 12px; display: flex; gap: 0.4rem; z-index: 2;">
                 ${isRecommended ? `
-                  <span style="background: var(--primary); color: #1c1500; font-size: 0.72rem; font-weight: 800; padding: 0.25rem 0.6rem; border-radius: 6px;">
+                  <span style="background: var(--primary); color: #1c1500; font-size: 0.72rem; font-weight: 800; padding: 0.25rem 0.6rem; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">
                      내 사주 맞춤
                   </span>
                 ` : ''}
@@ -243,6 +244,21 @@ export function renderCommerceStoreView(state: AppStateData): string {
                 ` : ''}
               </div>
             </div>
+
+            <!-- 네이버 쇼핑형 하단 썸네일 스트립 (클릭/호버 시 메인 사진 즉시 전환) -->
+            ${(() => {
+              const allGalleryImgs = [p.thumbnailUrl, ...(p.galleryImages || [])].filter(Boolean);
+              if (allGalleryImgs.length <= 1) return '';
+              return `
+                <div style="display: flex; gap: 0.5rem; overflow-x: auto; padding: 0.25rem 0; align-items: center;">
+                  ${allGalleryImgs.map((imgUrl, gIdx) => `
+                    <button type="button" class="btn-store-gallery-thumb" data-img-url="${esc(imgUrl)}" style="width: 58px; height: 58px; border-radius: 8px; border: 2px solid ${gIdx === 0 ? 'var(--primary)' : 'rgba(255,255,255,0.15)'}; background: #0c0f17; overflow: hidden; padding: 0; cursor: pointer; flex-shrink: 0; transition: border-color 0.15s ease;">
+                      <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" />
+                    </button>
+                  `).join('')}
+                </div>
+              `;
+            })()}
 
             <div>
               <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
@@ -394,11 +410,23 @@ export function renderCommerceStoreView(state: AppStateData): string {
 
         </div>
 
-        <!-- 하단 1: 상품 상세 설명 본문 (목차, 추천 대상, 특징) -->
+        <!-- 하단 1: 상품 상세 설명 본문 (목차, 추천 대상, 특징 & 네이버 쇼핑형 상세페이지 이미지) -->
         <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 2rem;">
           <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">
             상품 상세 안내 &amp; 제공 방식
           </h3>
+
+          <!-- 네이버 쇼핑형 세로 상세페이지 이미지 갤러리 -->
+          ${(p.detailImages && p.detailImages.length > 0) ? `
+            <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.75rem; align-items: center;">
+              ${p.detailImages.map(imgUrl => `
+                <div style="width: 100%; max-width: 720px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #0c0f17; box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
+                  <img src="${imgUrl}" alt="상세 안내 이미지" style="width: 100%; height: auto; display: block;" loading="lazy" />
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+
           <p style="font-size: 0.92rem; color: #d1d5db; line-height: 1.7; margin: 0 0 1.25rem 0;">
             ${esc(p.description)}
           </p>

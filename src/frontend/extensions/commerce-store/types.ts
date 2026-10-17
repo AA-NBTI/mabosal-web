@@ -33,6 +33,10 @@ export interface StoreProduct {
   createdAt: string;
   salesCount: number;
   reportTier?: string; // e.g. 'YEAR_2027', 'CAREER', 'WEALTH', 'CONFLICT_MALSAL'
+  /** 네이버 쇼핑형 서브 갤러리 이미지 URL 리스트 */
+  galleryImages?: string[];
+  /** 네이버 쇼핑형 하단 상세페이지 이미지 URL 리스트 */
+  detailImages?: string[];
 }
 
 export interface StoreOrderItem {

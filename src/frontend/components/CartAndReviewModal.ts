@@ -124,7 +124,7 @@ export function renderOrderReviewModal(options: ReviewModalOptions): string {
         
         <div style="text-align: center; margin-bottom: 1.25rem;">
           <span class="material-symbols-outlined" style="font-size: 40px; color: var(--primary); margin-bottom: 0.25rem;">fact_check</span>
-          <h2 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 0.35rem 0;">주문 내역 최종 확인</h2>
+          <h2 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 0.35rem 0;">주문내역 최종 확인</h2>
           <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">결제 전 주문하시는 상품과 사주 정보가 맞는지 확인해 주세요.</p>
         </div>
 
