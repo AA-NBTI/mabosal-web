@@ -648,6 +648,10 @@ ${content}
     const href = navAnchor.getAttribute('data-nav') || navAnchor.getAttribute('href');
     if (href && href.startsWith('/')) {
       e.preventDefault();
+      if (appState.getState().isOnboarding && !href.includes('/analyze')) {
+        alert('✨ 회원가입 필수 단계: 사주 원국 정보를 먼저 저장해 주셔야 맞춤 서비스 이용이 가능합니다.');
+        return;
+      }
       navigateTo(href);
       return;
     }
@@ -2479,48 +2483,156 @@ ${content}
  return;
  }
 
- // 2. [정석 신규 회원가입 제출]
- if (target.closest('#btn-submit-register')) {
- const username = (document.getElementById('input-reg-username') as HTMLInputElement)?.value || '';
- const password = (document.getElementById('input-reg-password') as HTMLInputElement)?.value || '';
- const passwordConfirm = (document.getElementById('input-reg-password-confirm') as HTMLInputElement)?.value || '';
- const name = (document.getElementById('input-reg-name') as HTMLInputElement)?.value || '';
- const phone = (document.getElementById('input-reg-phone') as HTMLInputElement)?.value || '';
- const role = ((document.getElementById('select-reg-role') as HTMLSelectElement)?.value as any) || 'user';
+  // 2. [신규 회원가입 제출: 1단계 가입 완료 -> 2단계 사주 입력(analyze) 필수 직행]
+  if (target.closest('#btn-submit-register')) {
+    const username = (document.getElementById('input-reg-username') as HTMLInputElement)?.value.trim() || '';
+    const password = (document.getElementById('input-reg-password') as HTMLInputElement)?.value || '';
+    const passwordConfirm = (document.getElementById('input-reg-password-confirm') as HTMLInputElement)?.value || '';
+    const name = (document.getElementById('input-reg-name') as HTMLInputElement)?.value.trim() || '';
+    const phone = (document.getElementById('input-reg-phone') as HTMLInputElement)?.value.trim() || '';
+    const role = ((document.getElementById('select-reg-role') as HTMLSelectElement)?.value as any) || 'user';
 
- const res = AuthService.register({
- username,
- password,
- passwordConfirm,
- name,
- phone,
- role,
- });
+    const res = AuthService.register({
+      username,
+      password,
+      passwordConfirm,
+      name,
+      phone,
+      role,
+    });
 
- if (!res.success) {
- alert(`️ 회원가입 실패\n\n${res.message}`);
- return;
- }
+    if (!res.success) {
+      alert(`⚠️ 회원가입 실패\n\n${res.message}`);
+      return;
+    }
 
- this.closeAuthModal();
+    this.closeAuthModal();
 
- if (res.user?.role === 'partner') {
-   appState.setView('partner');
-   this.render(appState.getState());
-   window.scrollTo({ top: 0, behavior: 'smooth' });
-   alert(`[회원가입 완료]\n\n${res.message}\n파트너 포털로 이동합니다.`);
- } else {
-   appState.setView('member-dashboard');
-   this.render(appState.getState());
-   window.scrollTo({ top: 0, behavior: 'smooth' });
-   // 1:1 맞춤 사주 온보딩 모달 자동 오픈
-   const onboardingModal = document.getElementById('modal-saju-onboarding');
-   if (onboardingModal) {
-     onboardingModal.style.display = 'flex';
-   }
- }
- return;
- }
+    if (res.user?.role === 'partner') {
+      appState.setView('partner');
+      this.render(appState.getState());
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      alert(`[회원가입 완료]\n\n${res.message}\n파트너 포털로 이동합니다.`);
+    } else {
+      // 1:1 맞춤 사주 원국 등록 필수 온보딩 화면(/analyze?mode=onboarding)으로 직행!
+      appState.setOnboarding(true);
+      appState.setUserName(name || username);
+      navigateTo('/analyze?mode=onboarding');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    return;
+  }
+
+  // 2-0. [사주 입력 온보딩 화면 "저장" 버튼 클릭 -> 사주 프로필 등록 후 대시보드로 직행]
+  if (target.closest('#btn-save-onboarding-saju')) {
+    const currentUser = AuthService.getCurrentUser();
+    const userId = currentUser.id || currentUser.username;
+    const nameInput = document.getElementById('input-user-name') as HTMLInputElement | null;
+    const userName = nameInput?.value.trim() || currentUser.name || '의뢰인';
+
+    // 1. 역법 추출
+    let calendarType: 'solar' | 'lunar' = 'solar';
+    const activeCalBtn = document.querySelector('.calendar-btn.active') as HTMLElement | null;
+    if (activeCalBtn?.dataset.cal === 'lunar') {
+      calendarType = 'lunar';
+    }
+
+    // 2. 윤달 여부
+    const leapCheck = document.getElementById('check-leap-month') as HTMLInputElement | null;
+    const isLeapMonth = Boolean(calendarType === 'lunar' && leapCheck?.checked);
+
+    // 3. 성별 추출
+    let gender: 'male' | 'female' = 'male';
+    const activeGenderBtn = document.querySelector('.gender-btn.active') as HTMLElement | null;
+    if (activeGenderBtn?.dataset.gender === 'female') {
+      gender = 'female';
+    }
+
+    // 4. 출생 지역
+    const regionSelect = document.getElementById('select-region') as HTMLSelectElement | null;
+    const birthRegion = regionSelect?.value || 'Seoul';
+
+    // 5. 생년월일 정규화
+    const dateInput = document.getElementById('input-birth-date') as HTMLInputElement | null;
+    let rawDate = dateInput?.value.trim() || '';
+    let cleanDate = rawDate.replace(/[^0-9]/g, '');
+
+    if (cleanDate.length === 6) {
+      const yy = parseInt(cleanDate.slice(0, 2), 10);
+      const currentYearTwoDigits = new Date().getFullYear() % 100;
+      const century = yy <= currentYearTwoDigits ? '20' : '19';
+      cleanDate = `${century}${cleanDate}`;
+    }
+
+    if (cleanDate.length !== 8) {
+      alert('생년월일을 8자리 숫자(예: 19751102) 또는 YYYY-MM-DD 형식으로 입력해 주세요.');
+      return;
+    }
+
+    const y = parseInt(cleanDate.slice(0, 4), 10);
+    const m = parseInt(cleanDate.slice(4, 6), 10);
+    const d = parseInt(cleanDate.slice(6, 8), 10);
+
+    if (isNaN(y) || isNaN(m) || isNaN(d) || y < 1900 || y > 2100 || m < 1 || m > 12 || d < 1 || d > 31) {
+      alert('올바른 생년월일(1900~2100년, 1~12월, 1~31일)을 입력해 주세요.');
+      return;
+    }
+
+    const formattedDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+    // 6. 출생시간 정규화
+    const missingHourCheck = document.getElementById('check-missing-hour') as HTMLInputElement | null;
+    const isUnknownTime = Boolean(missingHourCheck?.checked);
+    let birthTimeStr: string | null = null;
+
+    if (!isUnknownTime) {
+      const timeInput = document.getElementById('input-birth-time') as HTMLInputElement | null;
+      const rawTime = timeInput?.value.trim() || '';
+      if (rawTime) {
+        const cleanTime = rawTime.replace(/[^0-9:]/g, '');
+        let h = 0;
+        let min = 0;
+        if (cleanTime.includes(':')) {
+          const parts = cleanTime.split(':');
+          h = parseInt(parts[0], 10);
+          min = parseInt(parts[1], 10);
+        } else if (cleanTime.length === 4) {
+          h = parseInt(cleanTime.slice(0, 2), 10);
+          min = parseInt(cleanTime.slice(2, 4), 10);
+        } else if (cleanTime.length <= 2) {
+          h = parseInt(cleanTime, 10);
+          min = 0;
+        }
+        if (isNaN(h) || isNaN(min) || h < 0 || h > 23 || min < 0 || min > 59) {
+          alert('출생시간을 24시간 기준(00:00~23:59 또는 4자리 숫자 예: 1330)으로 입력해 주세요.');
+          return;
+        }
+        birthTimeStr = `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+      }
+    }
+
+    // 7. 사주 프로필 SSOT 영구 저장 및 동기화
+    UserSajuStore.syncUserSajuProfile({
+      userId,
+      userName,
+      birthDate: formattedDate,
+      birthTime: birthTimeStr,
+      calendarType,
+      isLeapMonth,
+      gender,
+      birthRegion,
+    });
+
+    // 8. 온보딩 완료 처리 및 대시보드 직행!
+    appState.setOnboarding(false);
+    appState.setUserName(userName);
+    navigateTo('/member-dashboard');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    alert(`🎉 [회원가입 및 맞춤 사주 저장 완료]\n\n환영합니다, ${userName} 님!\n사주 원국이 성공적으로 등록되어 1:1 맞춤 오늘의 운세와 행운 처방이 활성화되었습니다.`);
+    return;
+  }
+
 
  // 2-1. 사주 미등록 회원 알림 배너 -> 온보딩 모달 오픈
  if (target.closest('.btn-open-saju-onboarding')) {
@@ -3351,6 +3463,13 @@ ${content}
 
  // 출생정보 제출
  if (form.id === 'form-birth-input') {
+  if (appState.getState().isOnboarding || (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mode') === 'onboarding')) {
+    const saveBtn = document.getElementById('btn-save-onboarding-saju');
+    if (saveBtn) {
+      saveBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      return;
+    }
+  }
  const nameInput = document.getElementById('input-user-name') as HTMLInputElement;
  const dateInput = document.getElementById('input-birth-date') as HTMLInputElement;
  const timeInput = document.getElementById('input-birth-time') as HTMLInputElement;

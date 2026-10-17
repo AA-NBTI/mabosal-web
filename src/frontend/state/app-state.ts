@@ -98,6 +98,7 @@ export interface AppStateData {
     isHourUnknown: boolean;
     relation: string;
   };
+  isOnboarding?: boolean;
 }
 
 export type StateListener = (state: AppStateData) => void;
@@ -303,6 +304,11 @@ class AppStateManager {
     this.state.chatMessages = [];
     this.state.currentView = 'landing';
     this.state.errorMessage = null;
+    this.notify();
+  }
+
+  public setOnboarding(isOnboarding: boolean) {
+    this.state.isOnboarding = isOnboarding;
     this.notify();
   }
 

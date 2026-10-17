@@ -702,13 +702,25 @@ ${(() => {
 // 3. 출생정보 및 고민 입력 뷰 (Phase 30 순서 완벽 준수)
 // ==========================================
 export function renderBirthInputView(state: AppStateData): string {
+ const isOnboarding = Boolean(state.isOnboarding || (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mode') === 'onboarding'));
  return `
  <div class="input-view-container">
-  ${state.activeTierTab === 'CHEMISTRY' ? `
+  ${isOnboarding ? `
+  <div class="form-header" style="text-align: center; margin-bottom: 2rem;">
+    <div style="display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: rgba(242, 202, 80, 0.12); border: 1.5px solid rgba(242, 202, 80, 0.4); margin-bottom: 0.85rem; color: var(--primary);">
+      <span class="material-symbols-outlined" style="font-size: 28px;">badge</span>
+    </div>
+    <h2 style="font-size: 1.55rem; font-weight: 800; color: #fff; margin: 0 0 0.5rem 0;">1:1 맞춤 사주 원국 등록</h2>
+    <p style="font-size: 0.88rem; color: #cbd5e1; margin: 0; line-height: 1.6;">
+      ✨ 회원가입 필수 단계: 오늘의 일진과 귀하의 사주 원국을 실시간 정밀 대조하여,<br/>
+      <strong>오직 귀하만을 위한 1:1 맞춤 일진 점수와 행운 처방</strong>이 매일 자동으로 활성화됩니다.
+    </p>
+  </div>
+  ` : (state.activeTierTab === 'CHEMISTRY' ? `
   <div class="form-header">
   <h2>천명원 정밀 궁합 & 사주 정보 입력</h2>
   </div>
-  ` : ''}
+  ` : '')}
 
  ${state.errorMessage ? `
  <div class="form-error-alert">
@@ -810,7 +822,7 @@ export function renderBirthInputView(state: AppStateData): string {
  <!-- ======================================================== -->
  <!-- [5번 요구사항] 2인 정밀 궁합 전용: 상대방(인연) 사주 정보 입력 카드 (CHEMISTRY만 노출) -->
  <!-- ======================================================== -->
- ${state.activeTierTab === 'CHEMISTRY' ? `
+ ${!isOnboarding && state.activeTierTab === 'CHEMISTRY' ? `
  <div class="partner-two-person-card" style="margin: 1.5rem 0; background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.4); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
  <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -886,7 +898,7 @@ export function renderBirthInputView(state: AppStateData): string {
  ` : ''}
 
  <!-- [1번&2번 요구사항] 궁합, 무료사주, 운세 등 불필요한 상품에서는 6번 고민 입력 제거 -->
- ${(state.activeTierTab === 'CONFLICT_MALSAL' || state.activeTierTab === 'PAID') ? `
+ ${!isOnboarding && (state.activeTierTab === 'CONFLICT_MALSAL' || state.activeTierTab === 'PAID') ? `
  <div class="form-group trouble-input-group">
  <label class="form-label" for="input-trouble-text">
  <span>6. 요즘 가장 마음에 걸리는 일이 무엇인가요?</span>
@@ -907,10 +919,17 @@ export function renderBirthInputView(state: AppStateData): string {
  ` : ''}
 
  <div style="margin-top: 2rem; margin-bottom: 4.5rem; width: 100%;">
+        ${isOnboarding ? `
+        <button type="submit" class="btn-cta-primary submit-btn-full" id="btn-save-onboarding-saju" style="width: 100%; padding: 0.95rem 1.5rem; font-size: 1.05rem; font-weight: 800; border-radius: 12px; background: var(--primary); color: #241a00; border: none; cursor: pointer; box-shadow: 0 4px 18px rgba(242, 202, 80, 0.35); display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s;">
+          <span class="material-symbols-outlined" style="font-size: 22px;">save</span>
+          <span>저장</span>
+        </button>
+        ` : `
         <button type="submit" class="btn-cta-primary submit-btn-full" id="btn-submit-analyze" style="width: 100%; padding: 0.95rem 1.5rem; font-size: 1.05rem; font-weight: 800; border-radius: 12px; background: var(--primary); color: #241a00; border: none; cursor: pointer; box-shadow: 0 4px 18px rgba(242, 202, 80, 0.35); display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s;">
           <span class="material-symbols-outlined" style="font-size: 22px;">${state.activeTierTab === 'CHEMISTRY' ? 'favorite' : 'auto_awesome'}</span>
           <span>${state.activeTierTab === 'CHEMISTRY' ? '궁합 심층 분석' : '사주 분석'}</span>
         </button>
+        `}
       </div>
  </form>
  </div>

@@ -99,6 +99,83 @@ export class UserSajuStore {
   }
 
   /**
+   * 단일 진실 공급원(SSOT) 사주 프로필, 계정 및 세션 일괄 동기화
+   */
+  public static syncUserSajuProfile(params: {
+    userId?: string;
+    userName?: string;
+    birthDate: string; // YYYY-MM-DD
+    birthTime?: string | null;
+    calendarType?: 'solar' | 'lunar';
+    isLeapMonth?: boolean;
+    gender?: 'male' | 'female';
+    birthRegion?: string;
+    userTroubleText?: string;
+  }): MabosalSessionState | null {
+    const effectiveUserId = params.userId || AuthService.getCurrentUser().id || AuthService.getCurrentUser().username;
+    const effectiveUserName = params.userName || AuthService.getCurrentUser().name || '의뢰인';
+
+    // 1. AuthService 계정 정보 실시간 동기화
+    AuthService.updateProfile({
+      name: effectiveUserName,
+      birthDate: params.birthDate,
+      birthTime: params.birthTime || undefined,
+      calendarType: params.calendarType || 'solar',
+      isLeapMonth: params.isLeapMonth || false,
+      gender: params.gender || 'male',
+    });
+
+    // 2. UserSajuStore 프로필 영구 보존
+    const parts = params.birthDate.split('-');
+    const birthYear = parseInt(parts[0], 10) || 1993;
+    const birthMonth = parseInt(parts[1], 10) || 8;
+    const birthDay = parseInt(parts[2], 10) || 15;
+
+    let birthTimeStr = '12:00';
+    if (params.birthTime) {
+      birthTimeStr = params.birthTime;
+    }
+
+    this.saveProfile({
+      userName: effectiveUserName,
+      solarBirthDate: params.birthDate,
+      birthYear,
+      birthMonth,
+      birthDay,
+      birthTime: birthTimeStr,
+      gender: params.gender || 'male',
+      calendarType: params.calendarType || 'solar',
+      isLeapMonth: params.isLeapMonth || false,
+      birthRegion: params.birthRegion || 'Seoul',
+      userTroubleText: params.userTroubleText,
+    }, effectiveUserId);
+
+    // 3. 기존 과거 세션 캐시 100% 완전 파기
+    appState.clearSession();
+
+    // 4. 새로운 맞춤 사주 세션 즉각 계산
+    const newSession = this.calculateSessionForUser(effectiveUserId);
+    if (newSession) {
+      appState.setSession(newSession);
+    }
+
+    // 5. AppState 전역 상태 동기화
+    appState.setUserName(effectiveUserName);
+    if (params.gender) appState.setGender(params.gender);
+    if (params.calendarType) appState.setCalendarType(params.calendarType);
+    if (params.isLeapMonth !== undefined) appState.setLeapMonth(params.isLeapMonth);
+
+    return newSession;
+  }
+
+  /**
+   * 보존된 사주 프로필 불러오기 (호환용 alias)
+   */
+  public static getSajuProfile(targetUserId?: string): UserSajuProfile | null {
+    return this.getProfile(targetUserId);
+  }
+
+  /**
    * 보존된 사주 프로필 불러오기 (계정별 분리 조회)
    */
   public static getProfile(targetUserId?: string): UserSajuProfile | null {

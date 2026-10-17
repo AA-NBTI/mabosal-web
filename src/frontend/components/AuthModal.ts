@@ -121,8 +121,9 @@ export function renderAuthModal(): string {
 
  
 
- <button type="submit" id="btn-submit-register" class="btn-cta-primary" style="width: 100%; padding: 0.85rem; font-weight: 700; border-radius: 10px; font-size: 0.95rem; margin-top: 0.35rem;">
- 회원가입 완료
+ <button type="submit" id="btn-submit-register" class="btn-cta-primary" style="width: 100%; padding: 0.85rem; font-weight: 700; border-radius: 10px; font-size: 0.95rem; margin-top: 0.35rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+ <span>회원가입 진행 (사주 입력 단계로 이동)</span>
+ <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
  </button>
  </form>
 
