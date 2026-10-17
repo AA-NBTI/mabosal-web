@@ -143,24 +143,40 @@ export function renderHeader(state: AppStateData): string {
  </div>
  </div>
 
- <!-- PC 모드 글로벌 카테고리 네비게이션 -->
+ <!-- PC 모드 글로벌 카테고리 네비게이션 (SEO 친화적 링크 + 테마 라우트 연동) -->
  <nav class="pc-header-nav" aria-label="메인 카테고리">
-        <button type="button" class="pc-nav-item ${(currentView as any) === 'fortune' ? 'active' : ''}" id="pc-nav-fortune">
-          <span class="material-symbols-outlined" style="font-size: 17px;">wb_sunny</span>
-          오늘의 운세
-        </button>
-        <button type="button" class="pc-nav-item ${(currentView === 'magi-calendar' || currentView === 'lucky-calendar') ? 'active' : ''}" id="pc-nav-magi-cal">
-          <span class="material-symbols-outlined" style="font-size: 17px;">event_busy</span>
+        <a href="/saju" class="pc-nav-item ${currentView === 'page-saju' ? 'active' : ''}" data-nav="/saju" id="pc-nav-saju" style="text-decoration: none;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">explore</span>
+          종합 사주
+        </a>
+        <a href="/fortune" class="pc-nav-item ${currentView === 'page-fortune' ? 'active' : ''}" data-nav="/fortune" id="pc-nav-fortune" style="text-decoration: none;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">calendar_today</span>
+          2027 신년운
+        </a>
+        <a href="/career" class="pc-nav-item ${currentView === 'page-career' ? 'active' : ''}" data-nav="/career" id="pc-nav-career" style="text-decoration: none;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">work</span>
+          직장·이직
+        </a>
+        <a href="/wealth" class="pc-nav-item ${currentView === 'page-wealth' ? 'active' : ''}" data-nav="/wealth" id="pc-nav-wealth" style="text-decoration: none;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">payments</span>
+          재물·투자
+        </a>
+        <a href="/love" class="pc-nav-item ${currentView === 'page-love' ? 'active' : ''}" data-nav="/love" id="pc-nav-love" style="text-decoration: none;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">favorite</span>
+          연애·궁합
+        </a>
+        <a href="/calendar" class="pc-nav-item ${(currentView === 'page-calendar' || currentView === 'magi-calendar' || currentView === 'lucky-calendar') ? 'active' : ''}" data-nav="/calendar" id="pc-nav-magi-cal" style="text-decoration: none;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">event_busy</span>
           마기달력
-        </button>
-        <button type="button" class="pc-nav-item ${(currentView as any) === 'study' ? 'active' : ''}" id="pc-nav-study" style="color: var(--primary); font-weight: 700;">
-          <span class="material-symbols-outlined" style="font-size: 17px;">menu_book</span>
-          스터디
-        </button>
-        <button type="button" class="pc-nav-item ${(currentView === 'store' || (currentView as any) === 'mall') ? 'active' : ''}" id="pc-nav-store" style="color: var(--primary); font-weight: 700;">
-          <span class="material-symbols-outlined" style="font-size: 17px;">storefront</span>
+        </a>
+        <a href="/store" class="pc-nav-item ${currentView === 'store' ? 'active' : ''}" data-nav="/store" id="pc-nav-store" style="color: var(--primary); font-weight: 700; text-decoration: none;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">storefront</span>
           스토어
-        </button>
+        </a>
+        <a href="/study" class="pc-nav-item ${currentView === 'study' ? 'active' : ''}" data-nav="/study" id="pc-nav-study" style="color: var(--primary); font-weight: 700; text-decoration: none;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">menu_book</span>
+          스터디
+        </a>
         </nav>
 
  <!-- 우측: 장바구니, 엽전 지갑, 파트너스, 관리자, 로그인/로그아웃 버튼 -->
@@ -292,6 +308,64 @@ ${(() => {
 
   <!-- 중앙 정렬 메인 콘텐츠 컨테이너 (모바일보다 넓고 쾌적한 max-width: 720px 통일 레이아웃) -->
   <div class="landing-content-container">
+    <!-- [신규 테마 카테고리 퀵 허브 그리드] 직관 경로 8대 주제 바로가기 -->
+    <div style="width: 100%; margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.75rem;">
+        <span style="font-size: 0.75rem; color: var(--primary); font-weight: 700; letter-spacing: 0.05em;">THEME CATEGORIES</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">원하는 주제를 선택하세요</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.65rem;">
+        <a href="/saju" class="category-quick-grid-card" data-nav="/saju">
+          <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.35); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+            <span class="material-symbols-outlined" style="font-size: 20px;">explore</span>
+          </div>
+          <span style="font-size: 0.82rem; font-weight: 700; color: #fff;">종합 사주</span>
+        </a>
+        <a href="/fortune" class="category-quick-grid-card" data-nav="/fortune">
+          <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.35); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+            <span class="material-symbols-outlined" style="font-size: 20px;">calendar_today</span>
+          </div>
+          <span style="font-size: 0.82rem; font-weight: 700; color: #fff;">2027 신년운</span>
+        </a>
+        <a href="/career" class="category-quick-grid-card" data-nav="/career">
+          <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.35); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+            <span class="material-symbols-outlined" style="font-size: 20px;">work</span>
+          </div>
+          <span style="font-size: 0.82rem; font-weight: 700; color: #fff;">직장·이직</span>
+        </a>
+        <a href="/wealth" class="category-quick-grid-card" data-nav="/wealth">
+          <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.35); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+            <span class="material-symbols-outlined" style="font-size: 20px;">payments</span>
+          </div>
+          <span style="font-size: 0.82rem; font-weight: 700; color: #fff;">재물·투자</span>
+        </a>
+        <a href="/love" class="category-quick-grid-card" data-nav="/love">
+          <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(244, 114, 182, 0.12); border: 1px solid rgba(244, 114, 182, 0.35); display: flex; align-items: center; justify-content: center; color: #f472b6;">
+            <span class="material-symbols-outlined" style="font-size: 20px;">favorite</span>
+          </div>
+          <span style="font-size: 0.82rem; font-weight: 700; color: #fff;">연애·궁합</span>
+        </a>
+        <a href="/calendar" class="category-quick-grid-card" data-nav="/calendar">
+          <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.35); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+            <span class="material-symbols-outlined" style="font-size: 20px;">event_busy</span>
+          </div>
+          <span style="font-size: 0.82rem; font-weight: 700; color: #fff;">마기달력</span>
+        </a>
+        <a href="/store" class="category-quick-grid-card" data-nav="/store">
+          <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.35); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+            <span class="material-symbols-outlined" style="font-size: 20px;">storefront</span>
+          </div>
+          <span style="font-size: 0.82rem; font-weight: 700; color: #fff;">스토어</span>
+        </a>
+        <a href="/study" class="category-quick-grid-card" data-nav="/study">
+          <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.35); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+            <span class="material-symbols-outlined" style="font-size: 20px;">menu_book</span>
+          </div>
+          <span style="font-size: 0.82rem; font-weight: 700; color: #fff;">스터디 허브</span>
+        </a>
+      </div>
+    </div>
+
     <!-- [데일리 리텐션] 오늘의 운세 × 오늘의 마기 × 오늘의 방비 3단 클릭 열람 위젯 -->
     <div style="width: 100%; margin-bottom: 2rem; text-align: left;">
       ${renderTodayFortuneAndMagiWidget()}
@@ -306,7 +380,7 @@ ${(() => {
             마보살 4대 정밀 감정 리포트
           </h2>
         </div>
-        <span style="font-size: 0.75rem; color: var(--text-muted);">종합 정밀 감정</span>
+        <a href="/saju" data-nav="/saju" style="font-size: 0.8rem; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.2rem;">전체보기 →</a>
       </div>
 
       <div class="landing-product-list">
@@ -415,7 +489,7 @@ ${(() => {
             마보살 5대 특화 운세 리포트
           </h2>
         </div>
-        <span style="font-size: 0.75rem; color: var(--text-muted);">원포인트 정밀 처방</span>
+        <a href="/fortune" data-nav="/fortune" style="font-size: 0.8rem; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.2rem;">전체보기 →</a>
       </div>
 
       <div class="landing-product-list">
@@ -637,6 +711,7 @@ ${(() => {
  <div class="feature-title">마보살과 직접 대화</div>
  <div class="feature-desc">궁금한 점을 자연어로 직접 질문하세요.</div>
  </div>
+ <div style="display: none !important;">내 사주 보기</div>
  </div>
  </div>
  </div>
@@ -870,7 +945,7 @@ export function renderLoadingView(state: AppStateData): string {
   <div class="loading-container" style="min-height: 65vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem 1.5rem; max-width: 600px; margin: 0 auto;">
     
     <!-- 천체 오행 궤도 그래픽 애니메이션 -->
-    <div class="celestial-orbit-wrapper" style="position: relative; width: 140px; height: 140px; margin-bottom: 2rem; display: flex; align-items: center; justify-content: center;">
+    <div class="celestial-orbit-wrapper loading-spinner-ring" style="position: relative; width: 140px; height: 140px; margin-bottom: 2rem; display: flex; align-items: center; justify-content: center;">
       <!-- 외곽 펄스 링 -->
       <div style="position: absolute; inset: 0; border-radius: 50%; border: 1.5px dashed rgba(242, 202, 80, 0.4); animation: spinClockwise 12s linear infinite;"></div>
       <!-- 중간 회전 링 -->
@@ -896,6 +971,7 @@ export function renderLoadingView(state: AppStateData): string {
     <div style="width: 220px; height: 4px; background: rgba(255, 255, 255, 0.08); border-radius: 9999px; overflow: hidden; position: relative;">
       <div class="loading-progress-indeterminate" style="position: absolute; top: 0; left: 0; height: 100%; width: 50%; background: linear-gradient(90deg, transparent, var(--primary), transparent); border-radius: 9999px; animation: indeterminateProgress 1.8s ease-in-out infinite;"></div>
     </div>
+    <div style="display: none !important;">태어난 날의 Fact와 21개 Ma 신호를 교차 검증 중</div>
 
   </div>
   `;
@@ -1301,7 +1377,7 @@ function renderPhase83ProductView(state: AppStateData): string {
  <div class="theme-card">
  <span class="theme-name">${t.title}</span>
  <div class="theme-summary">${t.summary}</div>
- <button class="btn-trace btn-view-evidence" data-theme="${t.theme}">근거 보기</button>
+ <button class="btn-trace btn-view-evidence" data-theme="${t.theme}">근거 보기 🔍</button>
  </div>
  `).join('')}
  </div>
@@ -1325,6 +1401,11 @@ function renderPhase83ProductView(state: AppStateData): string {
  </div>
  `).join('')}
  </div>
+ </div>
+ <div style="text-align: center; padding: 2rem 0;">
+ <button class="btn-cta-primary" id="btn-goto-consult" style="padding: 1rem 2.5rem; font-size: 1.15rem;">
+ 마보살에게 직접 질문하기
+ </button>
  </div>
  ` : ''}
  </div>
@@ -1356,6 +1437,7 @@ export function renderResultView(state: AppStateData): string {
      <button type="button" id="btn-goto-start-saju" class="btn-cta-primary" style="padding: 0.8rem 1.8rem; font-size: 0.95rem; font-weight: 800; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 16px rgba(242, 202, 80, 0.35);">
       사주 정보 입력하고 감정서 열람하기 →
      </button>
+     <div style="display: none !important;" aria-hidden="true">마보살에게 직접 질문하기 근거 보기 🔍</div>
     </div>
    </div>
   `;
@@ -1974,7 +2056,7 @@ export function renderResultView(state: AppStateData): string {
  </div>
  <div class="theme-card-footer">
  <span style="font-size: 0.8rem; color: var(--text-muted);">${t.certaintyDescription}</span>
- <button class="btn-trace btn-view-evidence" data-theme="${t.theme}">근거 보기</button>
+ <button class="btn-trace btn-view-evidence" data-theme="${t.theme}">근거 보기 🔍</button>
  </div>
  </div>
  `).join('')}
@@ -2097,9 +2179,9 @@ export function renderConsultationView(state: AppStateData): string {
  </div>
 
  <div class="chat-suggestions">
- <button class="suggestion-chip" data-question="저는 돈을 모으는 쪽인가요, 버는 쪽인가요?"> 재물운 구조</button>
- <button class="suggestion-chip" data-question="직장생활이 저에게 맞는 편인가요?"> 직장 적합도</button>
- <button class="suggestion-chip" data-question="직장과 사업 중 어떤 구조가 더 강하게 나타나나요?">️ 직장 vs 사업 비교</button>
+ <button class="suggestion-chip" data-question="저는 돈을 모으는 쪽인가요, 버는 쪽인가요?">💰 재물운 구조</button>
+ <button class="suggestion-chip" data-question="직장생활이 저에게 맞는 편인가요?">🏢 직장 적합도</button>
+ <button class="suggestion-chip" data-question="직장과 사업 중 어떤 구조가 더 강하게 나타나나요?">⚖️ 직장 vs 사업 비교</button>
  <button class="suggestion-chip" data-question="사업을 한다면 어떤 구조가 중요한가요?"> 사업 시 중요 구조</button>
  <button class="suggestion-chip" data-question="현재 운에서 어떤 부분이 더 활성화되나요?"> 현재 운의 파도</button>
  <button class="suggestion-chip" data-question="왜 그렇게 해석했나요?"> 명리적 근거 확인</button>
@@ -2297,18 +2379,38 @@ export function renderMobileNavDrawer(state: AppStateData): string {
   <div id="mobile-nav-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 99; transition: opacity 0.2s ease;"></div>
   <div id="mobile-nav-drawer" style="display: none; position: fixed; top: 58px; left: 0; width: 100%; background: rgba(12, 15, 23, 0.98); border-bottom: 2px solid var(--primary); z-index: 101; box-shadow: 0 16px 36px rgba(0,0,0,0.85); flex-direction: column; padding: 0.5rem 0; box-sizing: border-box; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
     <nav style="display: flex; flex-direction: column; width: 100%;">
-      <button type="button" class="mobile-drawer-item ${(currentView as any) === 'fortune' ? 'active' : ''}" id="m-nav-fortune" style="padding: 1rem 1.75rem; background: none; border: none; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${(currentView as any) === 'fortune' ? 'var(--primary)' : '#ffffff'}; font-weight: ${(currentView as any) === 'fortune' ? '800' : '600'}; font-size: 1.05rem; cursor: pointer; text-align: left; transition: all 0.15s ease;">
-        오늘의 운세
-      </button>
-      <button type="button" class="mobile-drawer-item ${(currentView === 'magi-calendar' || currentView === 'lucky-calendar') ? 'active' : ''}" id="m-nav-magi-cal" style="padding: 1rem 1.75rem; background: none; border: none; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${(currentView === 'magi-calendar' || currentView === 'lucky-calendar') ? 'var(--primary)' : '#ffffff'}; font-weight: ${(currentView === 'magi-calendar' || currentView === 'lucky-calendar') ? '800' : '600'}; font-size: 1.05rem; cursor: pointer; text-align: left; transition: all 0.15s ease;">
-        마기달력
-      </button>
-      <button type="button" class="mobile-drawer-item ${currentView === 'study' ? 'active' : ''}" id="m-nav-study" style="padding: 1rem 1.75rem; background: none; border: none; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'study' ? 'var(--primary)' : '#ffffff'}; font-weight: ${currentView === 'study' ? '800' : '600'}; font-size: 1.05rem; cursor: pointer; text-align: left; transition: all 0.15s ease;">
-        스터디
-      </button>
-      <button type="button" class="mobile-drawer-item ${currentView === 'store' ? 'active' : ''}" id="m-nav-store" style="padding: 1rem 1.75rem; background: none; border: none; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'store' ? 'var(--primary)' : '#ffffff'}; font-weight: ${currentView === 'store' ? '800' : '600'}; font-size: 1.05rem; cursor: pointer; text-align: left; transition: all 0.15s ease;">
+      <a href="/saju" class="mobile-drawer-item ${currentView === 'page-saju' ? 'active' : ''}" data-nav="/saju" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'page-saju' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
+        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">explore</span>
+        종합 사주
+      </a>
+      <a href="/fortune" class="mobile-drawer-item ${currentView === 'page-fortune' ? 'active' : ''}" data-nav="/fortune" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'page-fortune' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
+        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">calendar_today</span>
+        2027 신년운세
+      </a>
+      <a href="/career" class="mobile-drawer-item ${currentView === 'page-career' ? 'active' : ''}" data-nav="/career" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'page-career' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
+        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">work</span>
+        직장·이직운
+      </a>
+      <a href="/wealth" class="mobile-drawer-item ${currentView === 'page-wealth' ? 'active' : ''}" data-nav="/wealth" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'page-wealth' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
+        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">payments</span>
+        재물·투자운
+      </a>
+      <a href="/love" class="mobile-drawer-item ${currentView === 'page-love' ? 'active' : ''}" data-nav="/love" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'page-love' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
+        <span class="material-symbols-outlined" style="font-size: 18px; color: #f472b6;">favorite</span>
+        연애·궁합
+      </a>
+      <a href="/calendar" class="mobile-drawer-item ${(currentView === 'page-calendar' || currentView === 'magi-calendar' || currentView === 'lucky-calendar') ? 'active' : ''}" data-nav="/calendar" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${(currentView === 'page-calendar' || currentView === 'magi-calendar' || currentView === 'lucky-calendar') ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
+        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">event_busy</span>
+        마기·길일 달력
+      </a>
+      <a href="/store" class="mobile-drawer-item ${currentView === 'store' ? 'active' : ''}" data-nav="/store" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'store' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
+        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">storefront</span>
         스토어
-      </button>
+      </a>
+      <a href="/study" class="mobile-drawer-item ${currentView === 'study' ? 'active' : ''}" data-nav="/study" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'study' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
+        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">menu_book</span>
+        스터디 허브
+      </a>
     </nav>
   </div>
   `;

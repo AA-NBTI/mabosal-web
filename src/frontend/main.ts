@@ -6,6 +6,15 @@ import { renderMagiCalendarView } from './views/MagiCalendarView.js';
 import { renderLuckyCalendarView } from './views/LuckyCalendarView.js';
 import { renderStudyView, setStudyCategory, selectStudyArticle } from './extensions/study-hub/index.js';
 import { SiteContentStore } from './state/site-content-store.js';
+import { navigateTo, parseRouteFromLocation, getViewPath, updateSeoForView, mountPageToOutlet, syncNavActiveState } from './modules/router/index.js';
+import {
+  renderSajuCategoryPage,
+  renderFortuneCategoryPage,
+  renderCareerCategoryPage,
+  renderWealthCategoryPage,
+  renderLoveCategoryPage,
+  renderCalendarCategoryPage,
+} from './views/pages/index.js';
 import {
   renderSolutionHub,
   bindSolutionHubEvents,
@@ -106,6 +115,7 @@ import { renderCheonmyeongwonShareModal } from './components/VisualCharts.js';
 class MabosalApp {
  private rootEl: HTMLElement;
  private selectedGender: 'male' | 'female' = 'male';
+ private isShellMounted = false;
 
  constructor(rootId: string) {
  const el = document.getElementById(rootId);
@@ -196,11 +206,13 @@ class MabosalApp {
 
  if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
-      const viewParam = urlParams.get('view');
+      const parsed = parseRouteFromLocation();
+      let initialView = parsed.view;
+
       if (urlParams.get('payment')) {
         appState.setView('store');
         void this.handlePaymentReturn(urlParams);
-      } else if (viewParam === 'admin' || urlParams.get('admin') === 'true') {
+      } else if (initialView === 'admin' || urlParams.get('admin') === 'true') {
         const tabParam = urlParams.get('tab');
         if (tabParam) {
           const fullTabId = tabParam.startsWith('tab-') ? tabParam : `tab-${tabParam}`;
@@ -215,40 +227,28 @@ class MabosalApp {
             if (userInput) userInput.value = 'admin';
           }, 150);
         }
-      } else if (viewParam === 'store' || viewParam === 'mall') {
-        appState.setView('store');
-      } else if (viewParam === 'member-dashboard') {
+      } else if (initialView === 'result' || initialView === 'report') {
+        UserSajuStore.restoreLastActiveAnalysis(urlParams.get('orderId'), urlParams.get('tier'));
+        appState.setView('result');
+      } else if (initialView === 'member-dashboard') {
         const memberTabParam = urlParams.get('tab');
         if (memberTabParam) {
           const fullTab = memberTabParam.startsWith('tab-') ? memberTabParam : `tab-${memberTabParam}`;
           setMemberActiveTab(fullTab);
         }
         appState.setView('member-dashboard');
-      } else if (viewParam === 'report' || viewParam === 'result') {
-        UserSajuStore.restoreLastActiveAnalysis(urlParams.get('orderId'), urlParams.get('tier'));
-        appState.setView('result');
-      } else if (viewParam === 'cart') {
-        appState.setView('cart');
-      } else if (viewParam === 'checkout') {
-        appState.setView('checkout');
-      } else if (viewParam === 'analyze') {
-        appState.setView('analyze');
-      } else if (viewParam === 'loading') {
-        appState.setView('loading');
       } else {
-        // [3번 요구사항 완벽 해결] 새로고침 시 스터디 등으로 잘못 튕기지 않고 메인 홈(landing) 우선 로드
-        appState.setView('landing');
-        if (window.location.search && !viewParam) {
-          window.history.replaceState({ view: 'landing' }, '', window.location.pathname);
-        }
+        appState.setView(initialView);
       }
+      updateSeoForView(appState.getState().currentView);
     }
- // [6번 요구사항] History API 연동 & 메인 화면 뒤로가기 사이트 이탈 방지 핸들러
+
+ // [SEO & 테마 페이지 구조화] History API 연동 & 뒤로가기/앞으로가기
  if (typeof window !== 'undefined') {
  window.history.replaceState({ view: appState.getState().currentView }, '', window.location.href);
 
  window.addEventListener('popstate', (event) => {
- const targetView = event.state?.view;
+ const targetView = event.state?.view || parseRouteFromLocation().view;
  const currentView = appState.getState().currentView;
 
  if (targetView === 'loading') {
@@ -257,11 +257,12 @@ class MabosalApp {
  }
 
  if (targetView && targetView !== currentView) {
+ updateSeoForView(targetView);
  appState.setView(targetView);
  } else if (!targetView || currentView === 'landing') {
- // 메인 화면에서 뒤로가기 누를 시 사이트를 벗어나지 않고 안전하게 메인 화면 유지
- window.history.pushState({ view: 'landing' }, '', window.location.href);
+ window.history.pushState({ view: 'landing' }, '', '/');
  if (currentView !== 'landing') {
+ updateSeoForView('landing');
  appState.setView('landing');
  }
  }
@@ -276,13 +277,12 @@ class MabosalApp {
  }
 
  if (typeof window !== 'undefined' && state.currentView !== prevNavView) {
-   let targetUrl = state.currentView === 'landing' 
-     ? window.location.pathname 
-     : `${window.location.pathname}?view=${state.currentView}`;
+   let targetUrl = getViewPath(state.currentView);
    if (state.currentView === 'result' && appState.getActiveTierTab()) {
-     targetUrl += `&tier=${appState.getActiveTierTab()}`;
+     targetUrl += `?tier=${appState.getActiveTierTab()}`;
    }
    window.history.pushState({ view: state.currentView }, '', targetUrl);
+   updateSeoForView(state.currentView);
    prevNavView = state.currentView;
  }
  this.render(state);
@@ -507,85 +507,55 @@ ${content}
  }
  }
 
+ private ensureLayoutShell(state: AppStateData) {
+ if (this.isShellMounted) {
+   const headerContainer = document.getElementById('app-header-container');
+   if (headerContainer) headerContainer.innerHTML = renderHeader(state);
+   const dockContainer = document.getElementById('app-dock-container');
+   if (dockContainer) dockContainer.innerHTML = renderFloatingBottomDock(state.currentView);
+   const drawerContainer = document.getElementById('app-drawer-container');
+   if (drawerContainer) drawerContainer.innerHTML = renderMobileNavDrawer(state);
+   return;
+ }
+
+ this.rootEl.innerHTML = `
+ <div id="app-header-container">${renderHeader(state)}</div>
+ <main id="app-main">
+   <div class="app-container" id="page-outlet"></div>
+ </main>
+ <div id="app-footer-container">${renderFooter()}</div>
+ <div id="app-modals-container">
+   ${renderLegalAndSupportModals()}
+   ${renderFortuneDetailModals()}
+   <div id="evidence-modal-slot">${renderEvidenceTraceModal(state)}</div>
+   ${renderCheonmyeongwonShareModal()}
+   ${renderAuthModal()}
+   <div id="checkout-modal-container"></div>
+   <div id="cart-modal-container"></div>
+   <div id="order-review-modal-container"></div>
+   <div id="review-write-modal-container"></div>
+ </div>
+ <div id="app-dock-container">${renderFloatingBottomDock(state.currentView)}</div>
+ <div id="app-drawer-container">${renderMobileNavDrawer(state)}</div>
+ `;
+ this.isShellMounted = true;
+ }
+
  private render(state: AppStateData) {
- let mainContentHtml = '';
+ this.ensureLayoutShell(state);
+
+ const outletEl = document.getElementById('page-outlet');
+ if (!outletEl) return;
+
  const wasAnalyzeView = !!document.getElementById('form-birth-input');
  const formSnapshot = wasAnalyzeView ? this.snapshotFormValues() : null;
 
- switch (state.currentView) {
- case 'landing':
- mainContentHtml = renderLandingView(state);
- break;
- case 'analyze':
- mainContentHtml = renderBirthInputView(state);
- break;
- case 'loading':
- mainContentHtml = renderLoadingView(state);
- break;
- case 'result':
- mainContentHtml = renderResultView(state);
- break;
- case 'consult':
- mainContentHtml = renderConsultationView(state);
- break;
- case 'report':
- mainContentHtml = renderReportView(state);
- break;
- case 'partner':
- mainContentHtml = renderPartnerPortalView();
- break;
- case 'admin':
- mainContentHtml = renderAdminDashboardView();
- break;
- case 'member-dashboard':
-        mainContentHtml = renderMemberDashboardView(state);
-        break;
-      case 'magi-calendar':
-        mainContentHtml = renderMagiCalendarView(state);
-        break;
-      case 'lucky-calendar':
-        mainContentHtml = renderLuckyCalendarView(state);
-        break;
-      case 'study':
-        mainContentHtml = renderStudyView();
-        break;
-      case 'store':
-        mainContentHtml = renderCommerceStoreView(state);
-        break;
-      case 'cart':
-        mainContentHtml = renderCartBoardView();
-        break;
-      case 'checkout':
-        mainContentHtml = renderCheckoutBoardView();
-        break;
- }
+ // [모던 웹 표준: 독립 Page 컴포넌트 마운트]
+ const currentPath = getViewPath(state.currentView);
+ mountPageToOutlet(currentPath, outletEl);
 
- if (state.currentView === 'result') {
-      mainContentHtml += renderSolutionHub(state);
-    }
-
-    const modalHtml = renderEvidenceTraceModal(state);
-
- this.rootEl.innerHTML = `
- ${renderHeader(state)}
- <main id="app-main">
- <div class="app-container">
- ${mainContentHtml}
- </div>
- </main>
-      ${renderFooter()}
-      ${renderLegalAndSupportModals()}
-      ${renderFortuneDetailModals()}
- ${renderFloatingBottomDock(state.currentView)}
-      ${renderMobileNavDrawer(state)}
- ${modalHtml}
- ${renderCheonmyeongwonShareModal()}
- ${renderAuthModal()}
- <div id="checkout-modal-container"></div>
- <div id="cart-modal-container"></div>
- <div id="order-review-modal-container"></div>
- <div id="review-write-modal-container"></div>
- `;
+ const modalSlot = document.getElementById('evidence-modal-slot');
+ if (modalSlot) modalSlot.innerHTML = renderEvidenceTraceModal(state);
 
  if (formSnapshot && state.currentView === 'analyze') {
  this.restoreFormValues(formSnapshot);
@@ -671,6 +641,29 @@ ${content}
  this.rootEl.addEventListener('click', async (e) => {
   const target = e.target as HTMLElement;
   if (!target) return;
+
+  // [신규 SPA 테마 라우팅: data-nav 및 내부 a 태그 클릭 가로채기]
+  const navAnchor = target.closest('a[data-nav], a[href^="/"]') as HTMLAnchorElement | null;
+  if (navAnchor && !navAnchor.target && !navAnchor.hasAttribute('download')) {
+    const href = navAnchor.getAttribute('data-nav') || navAnchor.getAttribute('href');
+    if (href && href.startsWith('/')) {
+      e.preventDefault();
+      navigateTo(href);
+      return;
+    }
+  }
+
+  // [달력 카테고리 서브탭 전환 버튼 인터랙션]
+  if (target.closest('#btn-subtab-magi-cal')) {
+    e.preventDefault();
+    navigateTo('/calendar?tab=magi');
+    return;
+  }
+  if (target.closest('#btn-subtab-lucky-cal')) {
+    e.preventDefault();
+    navigateTo('/calendar?tab=lucky');
+    return;
+  }
 
   // ==============================================================
   // [최우선 순위: 모바일 햄버거 전체 메뉴 토글]

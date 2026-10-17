@@ -1518,7 +1518,7 @@ export function generateDownloadableReportText(state: AppStateData): string {
 
   let doc = '';
   doc += `${separator}\n`;
-  doc += `              마보살 정통 사주 감정서 (평생 소장본)\n`;
+  doc += `              마보살 정통 사주 감명서 (평생 소장본)\n`;
   doc += `       천명(天命)을 읽고 삶의 주도권을 잡는 심층 명리 해설서\n`;
   doc += `${separator}\n\n`;
 
@@ -1530,7 +1530,7 @@ export function generateDownloadableReportText(state: AppStateData): string {
   doc += `• 감정 등급   : ${reportTypeName}\n\n`;
 
   doc += `${subSeparator}\n`;
-  doc += `[ 2. 전체 감정 목차 (Table of Contents) ]\n`;
+  doc += `[ 2. 전체 감명 목차 (Table of Contents) ]\n`;
   doc += `${subSeparator}\n`;
   doc += tocEntries.join('\n') + '\n\n';
 

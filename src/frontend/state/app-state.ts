@@ -14,7 +14,28 @@ import { ReportDepthMode } from '../../modules/phase10/phase10-types.js';
 import { IntegratedAnalysisResult, ProductTier, CalendarType } from '../../modules/phase17_25/index.js';
 import { GunghapAnalysisResult } from '../../modules/chemistry/gunghap-engine.js';
 
-export type AppViewType = 'landing' | 'analyze' | 'loading' | 'result' | 'consult' | 'report' | 'partner' | 'admin' | 'member-dashboard' | 'magi-calendar' | 'lucky-calendar' | 'store' | 'study' | 'cart' | 'checkout';
+export type AppViewType = 
+  | 'landing' 
+  | 'page-saju' 
+  | 'page-fortune' 
+  | 'page-career' 
+  | 'page-wealth' 
+  | 'page-love' 
+  | 'page-calendar' 
+  | 'analyze' 
+  | 'loading' 
+  | 'result' 
+  | 'consult' 
+  | 'report' 
+  | 'partner' 
+  | 'admin' 
+  | 'member-dashboard' 
+  | 'magi-calendar' 
+  | 'lucky-calendar' 
+  | 'store' 
+  | 'study' 
+  | 'cart' 
+  | 'checkout';
 
 export interface ChatMessage {
   id: string;

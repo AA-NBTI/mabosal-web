@@ -4,34 +4,34 @@ import { calculateLuckyCodex, getDailyLuckyCodex } from '../src/modules/prescrip
 describe('Lucky Codex Module (행운 처방 코드 모듈)', () => {
   it('오행별 하도·낙서 수비학 수가 정확히 매핑된다', () => {
     const wood = calculateLuckyCodex('목');
-    expect(wood.luckyNumbers).toBe('3 과 8');
+    expect(wood.luckyNumbers).toBe('3');
     expect(wood.primaryNumber).toBe(3);
     expect(wood.secondaryNumber).toBe(8);
-    expect(wood.luckyDirection.name).toContain('동방');
+    expect(wood.luckyDirection.name).toContain('동');
 
     const fire = calculateLuckyCodex('화');
-    expect(fire.luckyNumbers).toBe('2 와 7');
-    expect(fire.primaryNumber).toBe(2);
-    expect(fire.secondaryNumber).toBe(7);
-    expect(fire.luckyDirection.name).toContain('남방');
+    expect(fire.luckyNumbers).toBe('7');
+    expect(fire.primaryNumber).toBe(7);
+    expect(fire.secondaryNumber).toBe(2);
+    expect(fire.luckyDirection.name).toContain('남');
 
     const earth = calculateLuckyCodex('토');
-    expect(earth.luckyNumbers).toBe('5 와 10');
+    expect(earth.luckyNumbers).toBe('5');
     expect(earth.primaryNumber).toBe(5);
     expect(earth.secondaryNumber).toBe(10);
-    expect(earth.luckyDirection.name).toContain('동남방');
+    expect(earth.luckyDirection.name).toContain('동남');
 
     const metal = calculateLuckyCodex('금');
-    expect(metal.luckyNumbers).toBe('4 와 9');
-    expect(metal.primaryNumber).toBe(4);
-    expect(metal.secondaryNumber).toBe(9);
-    expect(metal.luckyDirection.name).toContain('서방');
+    expect(metal.luckyNumbers).toBe('9');
+    expect(metal.primaryNumber).toBe(9);
+    expect(metal.secondaryNumber).toBe(4);
+    expect(metal.luckyDirection.name).toContain('서');
 
     const water = calculateLuckyCodex('수');
-    expect(water.luckyNumbers).toBe('1 과 6');
+    expect(water.luckyNumbers).toBe('1');
     expect(water.primaryNumber).toBe(1);
     expect(water.secondaryNumber).toBe(6);
-    expect(water.luckyDirection.name).toContain('북방');
+    expect(water.luckyDirection.name).toContain('북');
   });
 
   it('복합 문자열(용신/부족 오행) 입력 시 정확한 오행을 파싱한다', () => {
@@ -51,6 +51,6 @@ describe('Lucky Codex Module (행운 처방 코드 모듈)', () => {
 
     const codexWithBranch = getDailyLuckyCodex(undefined, '자');
     expect(codexWithBranch.targetElement).toBe('금'); // 자수(水)를 생하는 금(金)
-    expect(codexWithBranch.luckyNumbers).toBe('4 와 9');
+    expect(codexWithBranch.luckyNumbers).toBe('9');
   });
 });
