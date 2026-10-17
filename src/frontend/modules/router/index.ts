@@ -152,6 +152,34 @@ export function parseRouteFromLocation(): { view: AppViewType; pathname: string;
     return { view: 'landing', pathname, params };
   }
 
+  // 스토어 서브 경로 및 쿼리 지원 (/store/prod-xxx 또는 /store?product=xxx)
+  if (pathname === '/store' || pathname === '/mall' || pathname.startsWith('/store/')) {
+    if (pathname.startsWith('/store/')) {
+      params.product = decodeURIComponent(pathname.replace('/store/', ''));
+    }
+    return { view: 'store', pathname, params };
+  }
+
+  // 스터디 서브 경로 및 쿼리 지원 (/study/article-slug 또는 /study?article=xxx)
+  if (pathname === '/study' || pathname.startsWith('/study/')) {
+    if (pathname.startsWith('/study/')) {
+      params.article = decodeURIComponent(pathname.replace('/study/', ''));
+    }
+    return { view: 'study', pathname, params };
+  }
+
+  // 관리자 서브 경로 (/admin/tab-store 등)
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    if (pathname.startsWith('/admin/')) {
+      params.tab = decodeURIComponent(pathname.replace('/admin/', ''));
+    }
+    return { view: 'admin', pathname, params };
+  }
+
+  if (pathname === '/mypage' || pathname === '/member-dashboard' || pathname.startsWith('/mypage/') || pathname.startsWith('/member-dashboard/')) {
+    return { view: 'member-dashboard', pathname, params };
+  }
+
   if (pathname === '/saju') return { view: 'page-saju', pathname, params };
   if (pathname === '/fortune') return { view: 'page-fortune', pathname, params };
   if (pathname === '/career') return { view: 'page-career', pathname, params };
@@ -161,10 +189,6 @@ export function parseRouteFromLocation(): { view: AppViewType; pathname: string;
     if (urlParams.get('tab') === 'lucky') return { view: 'lucky-calendar', pathname, params };
     return { view: 'page-calendar', pathname, params };
   }
-  if (pathname === '/store' || pathname === '/mall') return { view: 'store', pathname, params };
-  if (pathname === '/study') return { view: 'study', pathname, params };
-  if (pathname === '/admin') return { view: 'admin', pathname, params };
-  if (pathname === '/mypage' || pathname === '/member-dashboard') return { view: 'member-dashboard', pathname, params };
   if (pathname === '/cart') return { view: 'cart', pathname, params };
   if (pathname === '/checkout') return { view: 'checkout', pathname, params };
   if (pathname === '/analyze') return { view: 'analyze', pathname, params };

@@ -285,7 +285,8 @@ class MabosalApp {
  window.history.replaceState({ view: appState.getState().currentView }, '', window.location.href);
 
  window.addEventListener('popstate', (event) => {
- const targetView = event.state?.view || parseRouteFromLocation().view;
+ const parsed = parseRouteFromLocation();
+ const targetView = event.state?.view || parsed.view;
  const currentView = appState.getState().currentView;
 
  if (targetView === 'loading') {
@@ -294,14 +295,11 @@ class MabosalApp {
  }
 
  if (targetView && targetView !== currentView) {
- updateSeoForView(targetView);
- appState.setView(targetView);
- } else if (!targetView || currentView === 'landing') {
- window.history.pushState({ view: 'landing' }, '', '/');
- if (currentView !== 'landing') {
- updateSeoForView('landing');
- appState.setView('landing');
- }
+   updateSeoForView(targetView);
+   appState.setView(targetView);
+ } else {
+   // 동일 뷰 내에서 서브 파라미터(상품/아티클/탭 등)가 변경된 경우 즉시 재렌더링
+   this.render(appState.getState());
  }
  });
  }
@@ -677,7 +675,26 @@ ${content}
  this.rootEl.addEventListener('change', (e) => {
  const target = e.target as HTMLInputElement;
 
- // [관리자 CMS: 대표 썸네일 사진 파일 선택]
+ // [관리자 CMS: PDF / 전자책 디지털 파일 직접 선택]
+ if (target?.id === 'cms-digital-file-input' && target.files && target.files[0]) {
+   const file = target.files[0];
+   const payloadInput = document.getElementById('cms-content-payload');
+   const statusDiv = document.getElementById('cms-digital-file-status');
+   const deliverySelect = document.getElementById('cms-delivery');
+   if (deliverySelect) deliverySelect.value = 'digital_download';
+   const reader = new FileReader();
+   reader.onload = (ev) => {
+     const dataUrl = ev.target?.result;
+     if (payloadInput) payloadInput.value = dataUrl || ('/downloads/' + file.name);
+     if (statusDiv) {
+       statusDiv.innerHTML = `<span style="color: #4ade80; font-weight: 700;">✓ 파일 첨부 완료: ${file.name} (${(file.size / 1024).toFixed(1)} KB)</span> — 구매 시 즉시 다운로드 제공됩니다.`;
+     }
+   };
+   reader.readAsDataURL(file);
+   return;
+ }
+
+ // [관리자 CMS: 대표 썸네일 사진 파일 선택]
  if (target?.id === 'cms-thumb-file-input' && target.files && target.files[0]) {
    const file = target.files[0];
    compressImageFile(file, 900, 0.85).then(base64 => {
@@ -3044,12 +3061,21 @@ ${content}
     // 마보살 스토어 네비게이션 클릭
     // /* id-nav-study-handled */
     if (target.closest('#pc-nav-study') || target.closest('#m-nav-study')) {
+      selectStudyArticle(null);
+      setStudyCategory('all');
       appState.setView('study');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const drawer = document.getElementById('mobile-nav-drawer');
+      const backdrop = document.getElementById('mobile-nav-backdrop');
+      if (drawer) drawer.classList.remove('open');
+      if (backdrop) backdrop.classList.remove('open');
       this.render(appState.getState());
       return;
     }
 
     if (target.closest('#pc-nav-store') || target.closest('#m-nav-store')) {
+      selectStoreProduct(null);
+      setStoreActiveCategory('all');
       appState.setView('store');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       const drawer = document.getElementById('mobile-nav-drawer');

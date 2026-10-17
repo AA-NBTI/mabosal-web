@@ -16,32 +16,40 @@ export function setStudyCategory(cat: string) {
   currentArticleSlug = null;
   if (typeof window !== 'undefined') {
     const url = new URL(window.location.href);
-    url.searchParams.set('view', 'study');
+    url.pathname = '/study';
     url.searchParams.delete('article');
-    window.history.pushState({}, '', url.toString());
+    if (cat === 'all') url.searchParams.delete('category');
+    else url.searchParams.set('category', cat);
+    window.history.pushState({ view: 'study', category: cat }, '', url.toString());
     document.title = '마보살 스터디 & 사주 인사이트 허브';
   }
 }
 
-export function selectStudyArticle(slugOrId: string | null) {
+export function selectStudyArticle(slugOrId: string | null, updateHistory: boolean = true) {
   currentArticleSlug = slugOrId;
-  if (typeof window !== 'undefined' && slugOrId) {
-    const art = StudyService.getArticleBySlug(slugOrId) || StudyService.getArticleById(slugOrId);
-    if (art) {
-      currentArticleSlug = art.slug;
-      const url = new URL(window.location.href);
-      url.searchParams.set('view', 'study');
-      url.searchParams.set('article', art.slug);
-      window.history.pushState({}, '', url.toString());
-      document.title = `${art.title} | 마보살 명리학 스터디`;
-      
-      let metaDesc = document.querySelector('meta[name="description"]');
-      if (!metaDesc) {
-        metaDesc = document.createElement('meta');
-        metaDesc.setAttribute('name', 'description');
-        document.head.appendChild(metaDesc);
+  if (typeof window !== 'undefined' && updateHistory) {
+    const url = new URL(window.location.href);
+    url.pathname = '/study';
+    if (slugOrId) {
+      const art = StudyService.getArticleBySlug(slugOrId) || StudyService.getArticleById(slugOrId);
+      if (art) {
+        currentArticleSlug = art.slug;
+        url.searchParams.set('article', art.slug);
+        window.history.pushState({ view: 'study', article: art.slug }, '', url.toString());
+        document.title = `${art.title} | 마보살 명리학 스터디`;
+        
+        let metaDesc = document.querySelector('meta[name="description"]');
+        if (!metaDesc) {
+          metaDesc = document.createElement('meta');
+          metaDesc.setAttribute('name', 'description');
+          document.head.appendChild(metaDesc);
+        }
+        metaDesc.setAttribute('content', art.summary);
       }
-      metaDesc.setAttribute('content', art.summary);
+    } else {
+      url.searchParams.delete('article');
+      window.history.pushState({ view: 'study' }, '', url.toString());
+      document.title = '마보살 스터디 & 사주 인사이트 허브';
     }
   }
 }
@@ -91,12 +99,22 @@ const STUDY_SHORT_LABELS: Record<string, { short: string; desc: string; subItems
 export function renderStudyView(): string {
   StudyService.init();
 
-  // URL에서 article slug 감지
-  if (typeof window !== 'undefined' && !currentArticleSlug) {
+  // URL에서 article slug 및 category 양방향 동기화
+  if (typeof window !== 'undefined') {
     const urlParams = new URLSearchParams(window.location.search);
     const slugParam = urlParams.get('article');
+    const catParam = urlParams.get('category');
     if (slugParam) {
       currentArticleSlug = slugParam;
+    } else if (window.location.pathname.startsWith('/study/')) {
+      const pathSlug = decodeURIComponent(window.location.pathname.replace('/study/', ''));
+      if (pathSlug) currentArticleSlug = pathSlug;
+    } else {
+      currentArticleSlug = null;
+    }
+
+    if (catParam) {
+      activeCategory = catParam;
     }
   }
 

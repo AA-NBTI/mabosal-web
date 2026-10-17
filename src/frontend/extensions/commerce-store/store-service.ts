@@ -108,6 +108,81 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
     createdAt: '2026-10-12',
     salesCount: 68,
   },
+  // [전자책 1. 마보살 사주 셀프 리딩 가이드 (실용 명리학 라이프 시리즈 01)]
+  {
+    id: 'prod-ebook-saju-self-guide',
+    title: '[전자책] 마보살의 사주 셀프 리딩 가이드: 한자 몰라도 3분 만에 읽는 나만의 인생 내비게이션',
+    category: 'ebook',
+    price: 14900,
+    originalPrice: 25000,
+    tagLine: '51만 가지 사주 조합에서 내 기질과 대운 타이밍을 스스로 읽어내는 정통 실용 명리 공식 가이드북',
+    badge: 'NEW · 추천',
+    description: '어려운 한자나 고전 암기 없이, 10개 일간 도감, 오행 에너지 밸런스 개운법, 십신 커리어 무기, 10년 대운 타이밍 설계를 3분 만에 스스로 읽어낼 수 있는 마보살 디지털 랩의 실용 명리학 라이프 공식 가이드북(PDF 소장본)입니다.',
+    detailsHtml: `
+      <div style="line-height: 1.7; font-size: 0.9rem; color: #d1d5db;">
+        <!-- 상단 혜택 안내 -->
+        <div style="background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+          <h4 style="color: var(--primary); margin: 0 0 0.5rem 0; font-size: 1rem; display: flex; align-items: center; gap: 0.4rem;">
+            <span class="material-symbols-outlined" style="font-size: 20px;">menu_book</span>
+            MABOSAL DIGITAL EDITION • 실용 명리학 라이프 시리즈 01
+          </h4>
+          <p style="margin: 0 0 0.5rem 0; color: #e2e8f0; font-size: 0.88rem;">
+            "사주팔자는 정해진 숙명이 아닙니다. 내가 세상에 태어날 때 부여받은 기질의 일기예보이자, 인생의 중요한 전환점마다 최선의 결정을 돕는 정밀한 라이프 내비게이션입니다."
+          </p>
+          <ul style="margin: 0; padding-left: 1.2rem; color: #cbd5e1; font-size: 0.84rem;">
+            <li><strong>형식</strong>: 고화질 정식 디지털 전자책 (PDF 다운로드 소장본)</li>
+            <li><strong>발행처</strong>: 마보살 디지털 랩 (Mabosal Digital Lab) • 2026-2027 정식 발행본</li>
+            <li><strong>제공 혜택</strong>: 결제 완료 즉시 평생 소장 가능한 PDF 파일 다운로드 링크 발급 및 인쇄 허용</li>
+          </ul>
+        </div>
+
+        <!-- 상세 목차 구성 -->
+        <h4 style="color: #ffffff; margin: 0 0 0.75rem 0; font-size: 1.05rem;">
+          [전자책 핵심 목차 &amp; 구성]
+        </h4>
+        <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-bottom: 1.5rem;">
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
+            <strong style="color: var(--primary);">프롤로그 | 운명을 믿지 않아도 사주를 알아야 하는 이유</strong>
+            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">MBTI를 넘어선 51만 8,400가지 영혼의 하드웨어 스펙과 동양의 계절학적 심리 행동 통계</p>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
+            <strong style="color: var(--primary);">1장 | 3분 만에 내 사주 원국 소환하기 (마보살 만세력 가이드)</strong>
+            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">년·월·일·시 4개 기둥의 의미와 내 게임 캐릭터의 본체인 핵심 '일간(日干)' 확인법</p>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
+            <strong style="color: var(--primary);">2장 | 나를 정의하는 진짜 캐릭터: 10개 일간(日干) 도감</strong>
+            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">갑목(거목)부터 계수(봄비)까지 10대 자연 원형으로 풀어낸 타고난 포텐셜과 개운 처방전</p>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
+            <strong style="color: var(--primary);">3장 | 내 삶의 에너지 밸런스: 오행(목·화·토·금·수)과 개운법</strong>
+            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">오행 에너지 흐름과 일상에서 부족한 기운을 즉각 채우는 마보살 실천 라이프 해킹</p>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
+            <strong style="color: var(--primary);">4장 | 사회적 무기와 현실 자산: 십신(十神)으로 읽는 커리어와 돈</strong>
+            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">비겁·식상·재성·관성·인성으로 판별하는 직장인 체질 vs 사업가 체질 맞춤 처방</p>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
+            <strong style="color: var(--primary);">5장 | 기회의 파도를 타는 법: 대운과 세운의 타이밍 설계</strong>
+            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">10년 단위 계절(대운)과 매년의 날씨(세운)를 활용한 인생 액션 플랜 및 교운기 극복 지혜</p>
+          </div>
+        </div>
+
+        <!-- 리딩 팁 -->
+        <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 1rem;">
+          <strong style="color: #38bdf8;">💡 전자책 200% 활용 리딩 팁</strong><br/>
+          순서대로 통독하셔도 좋고, mabosal.com에서 내 사주 원국을 먼저 확인한 뒤 내 일간(2장)이나 대운(5장)을 바로 찾아 읽으셔도 좋습니다.
+        </div>
+      </div>
+    `,
+    thumbnailUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'menu_book',
+    deliveryType: 'digital_download',
+    contentPayload: '/downloads/mabosal_saju_self_reading_guide.pdf',
+    targetSignals: ['general.knowledge', 'wealth.flow', 'career.change'],
+    status: 'active',
+    createdAt: '2026-10-17',
+    salesCount: 87,
+  },
   // [1. 마보살 대표 플래그십 상품: 정통 유료 사주풀이 (39,900원)]
   {
     id: 'prod-paid-saju-premium',

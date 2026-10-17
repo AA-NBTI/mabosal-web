@@ -37,18 +37,40 @@ export function setStoreActiveCategory(cat: StoreCategoryType): void {
   currentCategory = cat;
   currentSelectedProductId = null;
   lastCreatedOrder = null;
+  if (typeof window !== 'undefined') {
+    const url = new URL(window.location.href);
+    url.pathname = '/store';
+    url.searchParams.delete('product');
+    if (cat === 'all') url.searchParams.delete('category');
+    else url.searchParams.set('category', cat);
+    window.history.pushState({ view: 'store', category: cat }, '', url.toString());
+  }
 }
 
-export function selectStoreProduct(productId: string | null): void {
-  if (productId) {
-    const isAuth = OrderAuthGuard.checkOrderAuth(productId);
-    if (!isAuth) {
-      // 비회원이면 로그인 모달이 팝업되고 주문서 진입 차단
-      return;
-    }
-  }
+export function selectStoreProduct(productId: string | null, updateHistory: boolean = true): void {
   currentSelectedProductId = productId;
   lastCreatedOrder = null;
+
+  if (typeof window !== 'undefined' && updateHistory) {
+    const url = new URL(window.location.href);
+    url.pathname = '/store';
+    if (productId) {
+      const prod = getStoreProductById(productId);
+      url.searchParams.set('product', productId);
+      window.history.pushState({ view: 'store', product: productId }, '', url.toString());
+      if (prod) {
+        document.title = `${prod.title} | 마보살 스토어`;
+      }
+    } else {
+      url.searchParams.delete('product');
+      window.history.pushState({ view: 'store' }, '', url.toString());
+      document.title = '마보살 스토어 | 정통 맞춤 개운 부적 & 처방 굿즈';
+    }
+  }
+}
+
+export function getSelectedStoreProductId(): string | null {
+  return currentSelectedProductId;
 }
 
 export function setLastStoreOrder(order: StoreOrder | null): void {
@@ -104,6 +126,26 @@ const STORE_SHORT_LABELS: Record<string, { short: string; desc: string; subItems
 export function renderCommerceStoreView(state: AppStateData): string {
   const session = state.sessionState;
   const userSignals = extractSignalTags(session).map(s => s.tag);
+
+  // URL 파라미터에서 상품 및 카테고리 실시간 양방향 동기화
+  if (typeof window !== 'undefined') {
+    const urlParams = new URLSearchParams(window.location.search);
+    const prodParam = urlParams.get('product');
+    const catParam = urlParams.get('category') as StoreCategoryType;
+    if (prodParam) {
+      currentSelectedProductId = prodParam;
+    } else if (window.location.pathname.startsWith('/store/')) {
+      const pathProd = decodeURIComponent(window.location.pathname.replace('/store/', ''));
+      currentSelectedProductId = pathProd || null;
+    } else {
+      // URL에 product가 없으면 무조건 목록 화면으로 리셋!
+      currentSelectedProductId = null;
+    }
+
+    if (catParam && STORE_CATEGORIES.some(c => c.id === catParam)) {
+      currentCategory = catParam;
+    }
+  }
 
   const allCategoryProducts = getStoreProductsByCategory('all');
   const products = getStoreProductsByCategory(currentCategory);
@@ -208,14 +250,18 @@ export function renderCommerceStoreView(state: AppStateData): string {
       <div style="display: flex; flex-direction: column; gap: 1.5rem;">
         
         <!-- 상단 네비게이션 브레드크럼 -->
-        <div style="display: flex; align-items: center; justify-content: flex-start; gap: 0.75rem;">
-          <button type="button" id="btn-store-back-to-list" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #cbd5e1; padding: 0.45rem 0.85rem; border-radius: 8px; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 0.35rem;">
-            <span class="material-symbols-outlined" style="font-size: 16px;">arrow_back</span>
-            상품 목록으로 돌아가기
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.65rem 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; color: var(--text-muted); flex-wrap: wrap;">
+            <button type="button" class="btn-back-to-store-list" style="background: none; border: none; color: var(--primary); font-weight: 700; cursor: pointer; padding: 0; font-size: 0.82rem;">스토어 홈</button>
+            <span>&gt;</span>
+            <button type="button" class="btn-store-category" data-category="${p.category}" style="background: none; border: none; color: #cbd5e1; cursor: pointer; padding: 0; font-size: 0.82rem; font-weight: 600;">${STORE_CATEGORIES.find(c => c.id === p.category)?.label || p.category}</button>
+            <span>&gt;</span>
+            <strong style="color: #fff; font-size: 0.82rem;">${esc(p.title)}</strong>
+          </div>
+          <button type="button" id="btn-store-back-to-list" class="btn-back-to-store-list" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.35rem;">
+            <span class="material-symbols-outlined" style="font-size: 15px;">arrow_back</span>
+            목록으로 돌아가기
           </button>
-          <span style="font-size: 0.78rem; color: var(--text-muted);">
-            홈 &gt; ${STORE_CATEGORIES.find(c => c.id === p.category)?.label || p.category} &gt; ${esc(p.title)}
-          </span>
         </div>
 
         <!-- 2컬럼 메인 영역 (좌: 썸네일/정보, 우: 결제창) -->

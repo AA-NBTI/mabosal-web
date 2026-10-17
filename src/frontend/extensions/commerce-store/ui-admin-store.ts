@@ -372,9 +372,28 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
             </div>
 
             <!-- 제공 파일 링크 및 배송 설정 -->
-            <div style="margin-bottom: 0.85rem;">
-              <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">구매자 제공 파일/열람 링크 (다운로드 URL) *</label>
-              <input type="text" id="cms-content-payload" required value="${editItem ? esc(editItem.contentPayload) : ''}" placeholder="https://다운로드링크 또는 VOD주소" style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.85rem;" />
+            <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 1rem; margin-bottom: 0.85rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                <label style="font-size: 0.82rem; font-weight: 700; color: #dfe2f1; display: flex; align-items: center; gap: 0.35rem;">
+                  <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">attach_file</span>
+                  구매자 제공 파일 / 열람 링크 (다운로드 URL) *
+                </label>
+                <!-- 내 PC에서 PDF 직접 선택 버튼 -->
+                <div>
+                  <label for="cms-digital-file-input" style="background: rgba(242, 202, 80, 0.15); border: 1px solid var(--primary); color: var(--primary); padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.76rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem;">
+                    <span class="material-symbols-outlined" style="font-size: 15px;">upload_file</span>
+                    내 PC에서 PDF/전자책 파일 첨부
+                  </label>
+                  <input type="file" id="cms-digital-file-input" accept=".pdf,.epub,.zip,.txt" style="display: none;" />
+                </div>
+              </div>
+
+              <input type="text" id="cms-content-payload" required value="${editItem ? esc(editItem.contentPayload) : ''}" placeholder="예: /downloads/내전자책.pdf 또는 구글 드라이브 다운로드 링크, VOD 웹 링크" style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.6rem; border-radius: 6px; font-size: 0.85rem;" />
+              
+              <div id="cms-digital-file-status" style="margin-top: 0.35rem; font-size: 0.74rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.3rem;">
+                <span class="material-symbols-outlined" style="font-size: 14px; color: #38bdf8;">info</span>
+                <span>💡 위 [내 PC에서 PDF 파일 첨부] 버튼을 누르시거나, 구글 드라이브 / 노션 / 클라우드 공유 링크를 직접 붙여넣으시면 됩니다.</span>
+              </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 1rem;">
