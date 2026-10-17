@@ -16,6 +16,7 @@ import { renderUserOrderHistoryWidget } from '../modules/order/UserOrderHistoryW
 import { renderMemberVoucherWidget } from '../modules/voucher/MemberVoucherWidget.js';
 import { renderCheonmyeongwonDailyDashboard, renderDailyAuspiciousHoursWidget } from '../components/VisualCharts.js';
 import { CustomerInquiryStore } from '../state/customer-inquiry-store.js';
+import { UserSajuStore } from '../state/user-saju-store.js';
 import { renderMemberLuckyCalendarWidget, renderMemberMagiCalendarWidget } from './MemberCalendarWidgets.js';
 
 let activeMemberTabId = 'tab-daily';
@@ -219,19 +220,53 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
   switch (tabId) {
     // 1. 행운처방 (기본 홈화면)
     case 'tab-daily': {
-      const sajuCore = state?.calcResult?.saju_core || (state?.sessionState as any)?.sajuCore || (state?.calcResult as any)?.sajuCore;
-      const signal = state?.calcResult?.signal;
-      const relationship = state?.calcResult?.relationships;
+      // 1) 메모리 세션 또는 계정별 저장소에서 실시간 사주 세션 산출
+      let sessionData = (state?.sessionState as any) || state?.calcResult;
+      if (!sessionData?.sajuCore && !sessionData?.saju_core) {
+        const userSession = UserSajuStore.calculateSessionForUser(user.id || user.username);
+        if (userSession) {
+          sessionData = userSession;
+        }
+      }
+
+      const sajuCore = sessionData?.sajuCore || sessionData?.saju_core;
+      const signal = sessionData?.signal;
+      const relationship = sessionData?.relationship || sessionData?.relationships;
+      const hasSaju = UserSajuStore.hasSajuProfile(user.id || user.username);
+
       return `
-        <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
-          ${renderCheonmyeongwonDailyDashboard({
-            userName: state?.userName || user.name || '의뢰인',
-            gender: state?.gender,
-            calcResult: state?.calcResult,
-            sajuCore: sajuCore,
-            signal: signal,
-            relationship: relationship,
-          })}
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          ${!hasSaju ? `
+            <!-- 사주 미등록 회원 전용 1:1 맞춤 일진 온보딩 배너 -->
+            <div class="saju-registration-alert-banner" style="background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1.15rem 1.35rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.85rem; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(242, 202, 80, 0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <span class="material-symbols-outlined" style="color: var(--primary); font-size: 22px;">notifications_active</span>
+                </div>
+                <div>
+                  <div style="font-weight: 800; font-size: 0.95rem; color: #fff;">사주 정보(생년월일시)를 등록해 주세요</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">
+                    생년월일시를 등록하시면 ${user.name || '회원'}님만의 1:1 맞춤 일진 처방과 대길 행운지수가 활성화됩니다.
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn-open-saju-onboarding" style="padding: 0.6rem 1.15rem; border-radius: 8px; background: var(--primary); color: #1a1400; font-weight: 800; font-size: 0.82rem; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; transition: transform 0.15s ease;">
+                <span class="material-symbols-outlined" style="font-size: 16px;">edit_calendar</span>
+                <span>1:1 맞춤 사주 등록하기 →</span>
+              </button>
+            </div>
+          ` : ''}
+
+          <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
+            ${renderCheonmyeongwonDailyDashboard({
+              userName: user.name || state?.userName || '의뢰인',
+              gender: user.gender || state?.gender,
+              calcResult: sessionData,
+              sajuCore: sajuCore,
+              signal: signal,
+              relationship: relationship,
+            })}
+          </div>
         </div>
       `;
     }

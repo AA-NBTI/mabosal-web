@@ -51,18 +51,36 @@ export const DEFAULT_USER_SAJU_PROFILE: UserSajuProfile = {
 
 export class UserSajuStore {
   /**
-   * 사용자 사주 프로필을 LocalStorage에 영구 보존
+   * 계정별 독립 저장소 키 산출
    */
-  public static saveProfile(profile: Partial<UserSajuProfile>): UserSajuProfile {
-    const existing = this.getProfile() || DEFAULT_USER_SAJU_PROFILE;
+  private static getStorageKey(userId?: string): string {
+    const user = AuthService.getCurrentUser();
+    const effectiveId = userId || (user && user.role !== 'guest' ? user.username : 'guest');
+    return `mm_user_saju_profile_${effectiveId}`;
+  }
+
+  /**
+   * 사용자 사주 프로필을 LocalStorage에 영구 보존 (계정별 독립 저장)
+   */
+  public static saveProfile(profile: Partial<UserSajuProfile>, targetUserId?: string): UserSajuProfile {
+    const existing = this.getProfile(targetUserId);
+    const currentUser = AuthService.getCurrentUser();
+    const base = existing || {
+      ...DEFAULT_USER_SAJU_PROFILE,
+      userName: currentUser?.name || '의뢰인',
+    };
+
     const merged: UserSajuProfile = {
-      ...existing,
+      ...base,
       ...profile,
       updatedAt: new Date().toISOString(),
     };
 
     if (typeof window !== 'undefined' && window.localStorage) {
       try {
+        const key = this.getStorageKey(targetUserId);
+        localStorage.setItem(key, JSON.stringify(merged));
+        // 하위 호환용 글로벌 키도 동기화
         localStorage.setItem(STORAGE_KEY_USER_SAJU, JSON.stringify(merged));
       } catch (err) {
         console.warn('[UserSajuStore] 프로필 저장 실패:', err);
@@ -81,30 +99,113 @@ export class UserSajuStore {
   }
 
   /**
-   * 보존된 사주 프로필 불러오기
+   * 보존된 사주 프로필 불러오기 (계정별 분리 조회)
    */
-  public static getProfile(): UserSajuProfile | null {
+  public static getProfile(targetUserId?: string): UserSajuProfile | null {
     if (typeof window === 'undefined' || !window.localStorage) return null;
     try {
-      const raw = localStorage.getItem(STORAGE_KEY_USER_SAJU);
-      if (!raw) return null;
-      return JSON.parse(raw) as UserSajuProfile;
+      const key = this.getStorageKey(targetUserId);
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        return JSON.parse(raw) as UserSajuProfile;
+      }
+
+      // 계정 키에 없으면 AuthService의 사용자 정보로부터 복원 시도
+      const currentUser = AuthService.getCurrentUser();
+      if (currentUser && currentUser.role !== 'guest' && currentUser.birthDate) {
+        const parts = currentUser.birthDate.split('-');
+        const birthYear = parseInt(parts[0], 10) || 1993;
+        const birthMonth = parseInt(parts[1], 10) || 8;
+        const birthDay = parseInt(parts[2], 10) || 15;
+        
+        let birthTimeStr = '12:00';
+        if (currentUser.birthTime) {
+          const hourNum = parseInt(currentUser.birthTime, 10);
+          if (!isNaN(hourNum)) {
+            birthTimeStr = `${String(hourNum).padStart(2, '0')}:00`;
+          } else {
+            birthTimeStr = currentUser.birthTime;
+          }
+        }
+
+        const autoProfile: UserSajuProfile = {
+          ...DEFAULT_USER_SAJU_PROFILE,
+          userName: currentUser.name || '의뢰인',
+          solarBirthDate: currentUser.birthDate,
+          birthYear,
+          birthMonth,
+          birthDay,
+          birthTime: birthTimeStr,
+          gender: currentUser.gender || 'male',
+          calendarType: currentUser.calendarType || 'solar',
+          updatedAt: new Date().toISOString(),
+        };
+        // 저장해둠
+        localStorage.setItem(key, JSON.stringify(autoProfile));
+        return autoProfile;
+      }
+
+      // 글로벌 키 폴백 (게스트 전용)
+      const globalRaw = localStorage.getItem(STORAGE_KEY_USER_SAJU);
+      if (globalRaw && (!targetUserId || targetUserId === 'guest')) {
+        return JSON.parse(globalRaw) as UserSajuProfile;
+      }
+
+      return null;
     } catch {
       return null;
     }
   }
 
   /**
-   * 보존된 프로필이 있으면 반환하고, 없으면 기본값 반환
-   * (로그인 상태일 경우 로그인 회원 이름을 기본 프로필 이름으로 자동 동기화)
+   * 해당 이용자가 사주 정보(생년월일)를 정상 등록했는지 여부
    */
-  public static getProfileOrDefault(): UserSajuProfile {
-    const profile = this.getProfile() || { ...DEFAULT_USER_SAJU_PROFILE };
+  public static hasSajuProfile(targetUserId?: string): boolean {
+    const profile = this.getProfile(targetUserId);
+    if (!profile) return false;
+    if (!profile.solarBirthDate || profile.solarBirthDate.trim() === '') return false;
+    return true;
+  }
+
+  /**
+   * 보존된 프로필이 있으면 반환하고, 없으면 기본값 반환
+   */
+  public static getProfileOrDefault(targetUserId?: string): UserSajuProfile {
+    const profile = this.getProfile(targetUserId) || { ...DEFAULT_USER_SAJU_PROFILE };
     const currentUser = AuthService.getCurrentUser();
     if (currentUser?.name && (!profile.userName || profile.userName === '의뢰인')) {
       profile.userName = currentUser.name;
     }
     return profile;
+  }
+
+  /**
+   * 현재 로그인 회원의 사주 세션(sajuCore, signal, relationship)을 실시간 동기 계산
+   */
+  public static calculateSessionForUser(targetUserId?: string): MabosalSessionState | null {
+    const profile = this.getProfile(targetUserId);
+    if (!profile || !profile.solarBirthDate) return null;
+
+    try {
+      const birthTime = profile.isUnknownTime ? null : (profile.birthTime || '12:00');
+      const sessionEngine = new MabosalSessionEngine();
+      const res = sessionEngine.createSession({
+        name: profile.userName || '의뢰인',
+        birthDate: profile.solarBirthDate,
+        birthTime: birthTime,
+        gender: profile.gender || 'male',
+        calendarType: profile.calendarType || 'solar',
+        isLeapMonth: profile.isLeapMonth || false,
+        region: profile.birthRegion || 'Seoul',
+      });
+
+      if (res.success && res.data) {
+        return res.data;
+      }
+    } catch (e) {
+      console.warn('[UserSajuStore] 실시간 사주 세션 계산 경고:', e);
+    }
+    return null;
   }
 
   /**

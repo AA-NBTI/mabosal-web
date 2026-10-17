@@ -1932,7 +1932,34 @@ ${content}
         return;
       }
 
-      alert('회원 정보가 성공적으로 저장되었습니다.');
+      // 계정별 UserSajuStore 동기화
+      if (birthDate) {
+        const parts = birthDate.split('-');
+        const birthYear = parseInt(parts[0], 10) || 1993;
+        const birthMonth = parseInt(parts[1], 10) || 8;
+        const birthDay = parseInt(parts[2], 10) || 15;
+        let birthTimeStr = '12:00';
+        if (birthTime) {
+          const hourNum = parseInt(birthTime, 10);
+          if (!isNaN(hourNum)) {
+            birthTimeStr = `${String(hourNum).padStart(2, '0')}:00`;
+          } else {
+            birthTimeStr = birthTime;
+          }
+        }
+        UserSajuStore.saveProfile({
+          userName: newName,
+          solarBirthDate: birthDate,
+          birthYear,
+          birthMonth,
+          birthDay,
+          birthTime: birthTimeStr,
+          gender: gender || 'male',
+          calendarType: calendarType || 'solar',
+        }, currentUser.id || currentUser.username);
+      }
+
+      alert('회원 정보와 사주 프로필이 성공적으로 저장되었습니다.\n대시보드의 일진 처방이 갱신되었습니다.');
       this.render(appState.getState());
       return;
     }
@@ -2466,17 +2493,86 @@ ${content}
  }
 
  this.closeAuthModal();
- this.render(appState.getState());
 
  if (res.user?.role === 'partner') {
    appState.setView('partner');
+   this.render(appState.getState());
    window.scrollTo({ top: 0, behavior: 'smooth' });
+   alert(`[회원가입 완료]\n\n${res.message}\n파트너 포털로 이동합니다.`);
  } else {
    appState.setView('member-dashboard');
+   this.render(appState.getState());
    window.scrollTo({ top: 0, behavior: 'smooth' });
+   // 1:1 맞춤 사주 온보딩 모달 자동 오픈
+   const onboardingModal = document.getElementById('modal-saju-onboarding');
+   if (onboardingModal) {
+     onboardingModal.style.display = 'flex';
+   }
  }
- alert(` [회원가입 완료]\n\n${res.message}\n회원 대시보드(마이페이지)로 이동합니다.`);
  return;
+ }
+
+ // 2-1. 사주 미등록 회원 알림 배너 -> 온보딩 모달 오픈
+ if (target.closest('.btn-open-saju-onboarding')) {
+   const onboardingModal = document.getElementById('modal-saju-onboarding');
+   if (onboardingModal) onboardingModal.style.display = 'flex';
+   return;
+ }
+
+ // 2-2. 1:1 맞춤 사주 온보딩 모달 제출 및 저장
+ if (target.closest('#btn-submit-onboarding-saju')) {
+   const currentUser = AuthService.getCurrentUser();
+   const birthDate = (document.getElementById('onboarding-birthdate') as HTMLInputElement)?.value;
+   const calendarType = (document.getElementById('onboarding-calendar') as HTMLSelectElement)?.value as 'solar' | 'lunar';
+   const gender = (document.getElementById('onboarding-gender') as HTMLSelectElement)?.value as 'male' | 'female';
+   const birthTime = (document.getElementById('onboarding-birthtime') as HTMLSelectElement)?.value;
+
+   if (!birthDate) {
+     alert('생년월일을 선택해 주세요.');
+     return;
+   }
+
+   // 1. AuthService 계정 정보 업데이트
+   AuthService.updateAccount(currentUser.id, {
+     birthDate,
+     calendarType,
+     gender,
+     birthTime,
+   });
+
+   // 2. UserSajuStore 계정별 저장
+   const parts = birthDate.split('-');
+   const birthYear = parseInt(parts[0], 10) || 1993;
+   const birthMonth = parseInt(parts[1], 10) || 8;
+   const birthDay = parseInt(parts[2], 10) || 15;
+   let birthTimeStr = '12:00';
+   if (birthTime) {
+     const hourNum = parseInt(birthTime, 10);
+     if (!isNaN(hourNum)) {
+       birthTimeStr = `${String(hourNum).padStart(2, '0')}:00`;
+     } else {
+       birthTimeStr = birthTime;
+     }
+   }
+
+   UserSajuStore.saveProfile({
+     userName: currentUser.name || '의뢰인',
+     solarBirthDate: birthDate,
+     birthYear,
+     birthMonth,
+     birthDay,
+     birthTime: birthTimeStr,
+     gender,
+     calendarType,
+   }, currentUser.id || currentUser.username);
+
+   // 3. 모달 닫기 및 대시보드 실시간 재계산 렌더링
+   const onboardingModal = document.getElementById('modal-saju-onboarding');
+   if (onboardingModal) onboardingModal.style.display = 'none';
+
+   this.render(appState.getState());
+   alert(`1:1 맞춤 사주 정보가 등록되었습니다!\n\n오늘의 일진과 ${currentUser.name} 님의 사주 원국을 대조한 맞춤 행운 처방과 지수가 활성화되었습니다.`);
+   return;
  }
 
  // 1. 브랜드 로고 클릭 -> 홈 이동
