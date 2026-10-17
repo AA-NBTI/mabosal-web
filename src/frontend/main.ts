@@ -883,6 +883,32 @@ ${content}
 
   // 0-6. 행운지수 (천기지수) 심층 분석 모달 열기
   if (target.closest('.interactive-fortune-score-card, [data-open-score-modal]')) {
+    const card = (target.closest('.interactive-fortune-score-card') || target.closest('[data-open-score-modal]')) as HTMLElement;
+    if (card && card.dataset.score) {
+      const scoreEl = document.getElementById('modal-fortune-score-circle');
+      const titleEl = document.getElementById('modal-fortune-grade-title');
+      const descEl = document.getElementById('modal-fortune-grade-desc');
+      const mTitleEl = document.getElementById('modal-fortune-money-title');
+      const mDescEl = document.getElementById('modal-fortune-money-desc');
+      const lTitleEl = document.getElementById('modal-fortune-love-title');
+      const lDescEl = document.getElementById('modal-fortune-love-desc');
+      const vTitleEl = document.getElementById('modal-fortune-vitality-title');
+      const vDescEl = document.getElementById('modal-fortune-vitality-desc');
+
+      if (scoreEl) scoreEl.textContent = card.dataset.score;
+      if (titleEl) {
+        const grade = card.dataset.grade ? `${card.dataset.grade} · ` : '';
+        const title = card.dataset.title || '길조의 기운';
+        titleEl.textContent = `${grade}${title} (${card.dataset.score}점)`;
+      }
+      if (descEl && card.dataset.desc) descEl.textContent = card.dataset.desc;
+      if (mTitleEl && card.dataset.moneyScore) mTitleEl.textContent = `💰 금전운 (${card.dataset.moneyScore}점)`;
+      if (mDescEl && card.dataset.moneyDesc) mDescEl.textContent = card.dataset.moneyDesc;
+      if (lTitleEl && card.dataset.loveScore) lTitleEl.textContent = `💖 애정운 (${card.dataset.loveScore}점)`;
+      if (lDescEl && card.dataset.loveDesc) lDescEl.textContent = card.dataset.loveDesc;
+      if (vTitleEl && card.dataset.vitalityScore) vTitleEl.textContent = `⚡ 활력도 (${card.dataset.vitalityScore}점)`;
+      if (vDescEl && card.dataset.vitalityDesc) vDescEl.textContent = card.dataset.vitalityDesc;
+    }
     const scoreModal = document.getElementById('modal-fortune-score-detail');
     if (scoreModal) scoreModal.style.display = 'flex';
     return;

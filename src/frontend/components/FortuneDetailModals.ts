@@ -65,11 +65,11 @@ export function renderFortuneDetailModals(): string {
         <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 12px; padding: 1.1rem 1.25rem; margin-bottom: 1.25rem;">
           <div>
             <span style="font-size: 0.72rem; color: var(--primary); font-weight: 700;">오늘의 총운 등급</span>
-            <div style="font-size: 1.2rem; font-weight: 800; color: #fff; margin-top: 0.2rem;">귀인조력 성취운 (78점)</div>
-            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">천을귀인의 조력과 재물 통로가 열리는 길일</div>
+            <div id="modal-fortune-grade-title" style="font-size: 1.2rem; font-weight: 800; color: #fff; margin-top: 0.2rem;">귀인조력 성취운 (85점)</div>
+            <div id="modal-fortune-grade-desc" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">천간과 지지가 빚어내는 자연의 조화 속에 중요한 결정을 내리기 유익한 시간입니다.</div>
           </div>
-          <div style="width: 58px; height: 58px; border-radius: 50%; background: rgba(242,202,80,0.15); border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; font-weight: 900; color: var(--primary);">
-            78
+          <div id="modal-fortune-score-circle" style="width: 58px; height: 58px; border-radius: 50%; background: rgba(242,202,80,0.15); border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; font-weight: 900; color: var(--primary);">
+            85
           </div>
         </div>
 
@@ -80,31 +80,31 @@ export function renderFortuneDetailModals(): string {
         <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
           <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 0.85rem 1rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
-              <span style="font-weight: 700; color: var(--primary); font-size: 0.88rem;">💰 금전운 (80점 / 최상급)</span>
+              <span id="modal-fortune-money-title" style="font-weight: 700; color: var(--primary); font-size: 0.88rem;">💰 금전운 (88점 / 최상급)</span>
               <span style="font-size: 0.72rem; color: #50c878; font-weight: 700;">투자 및 결실 유리</span>
             </div>
-            <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.55;">
-              작은 노력으로도 실속을 거둘 수 있는 날입니다. 중요한 금융 거래나 지출 계약은 오후 13:30~15:30(미시) 사이에 진행하면 불필요한 누수를 막을 수 있습니다.
+            <p id="modal-fortune-money-desc" style="margin: 0; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.55;">
+              실속 있는 관리 흐름. 중요한 금융 거래나 지출 계약을 진행하기에 적합한 흐름입니다.
             </p>
           </div>
 
           <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 0.85rem 1rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
-              <span style="font-weight: 700; color: #ff3385; font-size: 0.88rem;">💖 애정운 (75점 / 순항)</span>
+              <span id="modal-fortune-love-title" style="font-weight: 700; color: #ff3385; font-size: 0.88rem;">💖 애정운 (85점 / 순항)</span>
               <span style="font-size: 0.72rem; color: #ff3385; font-weight: 700;">솔직한 대화 추천</span>
             </div>
-            <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.55;">
-              상대방의 입장을 한 번 더 배려하는 태도가 오해를 막아줍니다. 가벼운 안부 연락이나 감사의 표현이 좋은 인연의 불씨를 키웁니다.
+            <p id="modal-fortune-love-desc" style="margin: 0; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.55;">
+              원만한 유대감 형성. 상대방의 입장을 배려하는 태도가 좋은 인연의 불씨를 키웁니다.
             </p>
           </div>
 
           <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 0.85rem 1rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
-              <span style="font-weight: 700; color: #bec6dd; font-size: 0.88rem;">⚡ 활력도 (80점 / 안정)</span>
+              <span id="modal-fortune-vitality-title" style="font-weight: 700; color: #bec6dd; font-size: 0.88rem;">⚡ 활력도 (82점 / 안정)</span>
               <span style="font-size: 0.72rem; color: #93c5fd; font-weight: 700;">신체 리듬 쾌조</span>
             </div>
-            <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.55;">
-              기운의 소모가 적고 집중력이 오래 유지됩니다. 따뜻한 차 한 잔으로 체온을 유지하며 오후 산책을 곁들이면 심신 균형이 극대화됩니다.
+            <p id="modal-fortune-vitality-desc" style="margin: 0; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.55;">
+              안정적인 생체 리듬. 기운의 소모가 적고 집중력이 안정적으로 유지됩니다.
             </p>
           </div>
         </div>

@@ -860,10 +860,19 @@ export function renderCheonmyeongwonDailyDashboard(options?: CheonmyeongwonDaily
     </div>
   </div>
 
-  <!-- [2. 중간 배치] 행운지수 게이지 카드 (클릭 시 심층 분석 모달 오픈) -->
-  <div class="interactive-fortune-score-card" data-open-score-modal="true" style="position: relative; overflow: hidden; border-radius: 16px; background: rgba(28, 31, 42, 0.85); backdrop-filter: blur(16px); padding: 1.25rem; box-shadow: 0 12px 36px rgba(0,0,0,0.5); border: 1px solid rgba(242, 202, 80, 0.25); margin-bottom: 1.25rem; cursor: pointer; transition: all 0.2s ease;" title="클릭하여 오늘의 천기지수 심층 분석 보기">
-    <div style="position: absolute; top: -3rem; right: -3rem; width: 11rem; height: 11rem; border-radius: 50%; background: rgba(242, 202, 80, 0.1); filter: blur(40px); pointer-events: none;"></div>
-    <div style="position: absolute; bottom: -2.5rem; left: -2.5rem; width: 9rem; height: 9rem; border-radius: 50%; background: rgba(242, 202, 80, 0.05); filter: blur(30px); pointer-events: none;"></div>
+  <!-- [2. 중간 배치] 행운지수 게이지 카드 (클릭 시 심층 분석 모달 오픈 - 그라데이션 제거 단색 배경) -->
+  <div class="interactive-fortune-score-card" data-open-score-modal="true" 
+       data-score="${score}"
+       data-grade="${gradeBadge}"
+       data-title="${summaryTitle}"
+       data-desc="${summaryDesc}"
+       data-money-score="${moneyScore}"
+       data-money-desc="${moneyDesc}"
+       data-love-score="${loveScore}"
+       data-love-desc="${loveDesc}"
+       data-vitality-score="${vitalityScore}"
+       data-vitality-desc="${vitalityDesc}"
+       style="position: relative; overflow: hidden; border-radius: 16px; background: var(--surface-container); padding: 1.25rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 1.25rem; cursor: pointer; transition: all 0.2s ease;" title="클릭하여 오늘의 천기지수 심층 분석 보기">
 
     <div style="display: flex; align-items: center; justify-content: space-between; gap: 1.15rem; position: relative; z-index: 1;">
       <div style="display: flex; flex-direction: column; min-width: 0; flex: 1;">
