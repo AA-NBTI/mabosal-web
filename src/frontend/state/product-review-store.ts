@@ -27,11 +27,11 @@ const INITIAL_REVIEWS: ProductReview[] = [
   {
     id: 'REV-20261012-0001',
     productId: 'core-lifelong-saju',
-    productTitle: '마보살 평생 정밀 사주 감정서',
+    productTitle: '마보살 평생 정밀 사주 리포트',
     orderId: 'ORD-2026-0001',
     authorName: '김서연',
     rating: 5,
-    content: '사주를 여러 번 봤지만 이렇게 구체적인 시기와 대운의 흐름, 현실적인 행동 지침까지 명쾌하게 짚어주는 감정서는 처음입니다. 15개 챕터 분량도 방대하고 제 사주의 핵심 결을 정확하게 짚어내서 마음의 정리가 되었습니다.',
+    content: '사주를 여러 번 봤지만 이렇게 구체적인 시기와 대운의 흐름, 현실적인 행동 지침까지 명쾌하게 짚어주는 리포트는 처음입니다. 15개 챕터 분량도 방대하고 제 사주의 핵심 결을 정확하게 짚어내서 마음의 정리가 되었습니다.',
     tags: ['명쾌한 해설', '시기 적중', '깊이있는 분석'],
     isBest: true,
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
@@ -51,7 +51,7 @@ const INITIAL_REVIEWS: ProductReview[] = [
   {
     id: 'REV-20261014-0003',
     productId: 'core-lifelong-saju',
-    productTitle: '마보살 평생 정밀 사주 감정서',
+    productTitle: '마보살 평생 정밀 사주 리포트',
     orderId: 'ORD-2026-0004',
     authorName: '박지은',
     rating: 5,

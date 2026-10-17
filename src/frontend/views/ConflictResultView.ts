@@ -72,7 +72,7 @@ export function renderConflictResultView(state: AppStateData): string {
  </div>
  </div>
  <h1 style="font-family: var(--font-serif); font-size: 1.65rem; font-weight: 700; color: #dfe2f1; margin: 0 0 0.35rem 0;">
- 마보살 상충·마·살 특화 감정서
+ 마보살 상충·마·살 특화 분석 리포트
  </h1>
  <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0; line-height: 1.5;">
  인간관계 충돌(축진파/인사해), 망신살·신살 위치, 퇴사 vs 잔류 4주 점검표, 갈등 방어 대화법 집중 분석 완결본입니다.

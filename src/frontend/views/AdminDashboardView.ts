@@ -768,7 +768,7 @@ export function renderAdminDashboardView(): string {
                 <div>• 전체 주문번호: <strong style="color: #fff; font-family: monospace;">${o.orderId}</strong></div>
                 <div>• 결제 수단: <strong style="color: #fff;">${o.paymentMethod === 'bank_transfer' ? '무통장 입금' : '카드 / 간편결제'}</strong></div>
                 <div>• 결제 일시: <strong style="color: #fff;">${new Date(o.paidAt).toLocaleString()}</strong></div>
-                <div>• 배송/수령 구분: <strong style="color: #fff;">${o.deliveryType === 'shipping' ? '실물 배송 상품' : '디지털 감정서 리포트'}</strong></div>
+                <div>• 배송/수령 구분: <strong style="color: #fff;">${o.deliveryType === 'shipping' ? '실물 배송 상품' : '디지털 분석 리포트'}</strong></div>
                 ${o.shippingAddress ? `<div style="grid-column: 1 / -1;">• 배송지 주소: <strong style="color: #fff;">${o.shippingAddress}</strong></div>` : ''}
               </div>
             </div>

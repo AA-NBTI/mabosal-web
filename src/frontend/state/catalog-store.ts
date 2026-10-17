@@ -74,10 +74,10 @@ export class CatalogStore {
     {
       id: 'prod_premium',
       tierId: 'PREMIUM',
-      title: '마보살 프리미엄 정밀 사주 감정서 (VIP)',
+      title: '마보살 프리미엄 정밀 사주 리포트 (VIP)',
       price: 149900,
       originalPrice: 250000,
-      description: '29개 VIP 전수 분석, 현실 딜레마 A/B 대조표, 디지털 금고 평생 보관',
+      description: '29개 VIP 전수 분석, 현실 딜레마 A/B 대조표, 온라인 영구 보관',
       badge: 'VIP',
       enabled: true,
       category: 'core',

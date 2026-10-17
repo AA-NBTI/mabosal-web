@@ -27,7 +27,7 @@ export function renderAdminReviewsPanel(): string {
             스토어 상품 구매 후기 & 평점 집중 관리
           </h2>
           <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">
-            실제 결제 완료 고객이 남긴 생생한 내돈내산 사주 감정서 및 상품 후기를 모니터링하고 베스트 리뷰를 지정합니다.
+            실제 결제 완료 고객이 남긴 생생한 내돈내산 사주 리포트 및 상품 후기를 모니터링하고 베스트 리뷰를 지정합니다.
           </p>
         </div>
       </div>

@@ -220,12 +220,12 @@ export const INITIAL_MODULES: SystemModuleItem[] = [
   },
   {
     id: 'archive_digital_vault',
-    name: '감정서 디지털 금고 & 백업 아카이브',
+    name: '사주 리포트 보관함 & 소장용 다운로드',
     category: 'visual_dashboard',
     status: 'ready',
     enabled: true,
-    description: 'POLYGON DID 블록체인 공인, 소장용 TXT 다운로드, 암호화 ZIP 백업',
-    tags: ['디지털금고', 'DID', 'TXT다운로드'],
+    description: '소장용 TXT 다운로드 및 안전 파일 백업 지원',
+    tags: ['리포트보관함', 'TXT다운로드'],
   },
   {
     id: 'spline_monthly_chart',
@@ -249,21 +249,21 @@ export const INITIAL_MODULES: SystemModuleItem[] = [
   // 3. 서술형 리포트 (Report Section)
   {
     id: 'narrative_13_sections',
-    name: '13개 장절 정본 감정서 (화면 및 TXT)',
+    name: '13개 장절 정본 사주 리포트 (화면 및 TXT)',
     category: 'report_section',
     status: 'ready',
     enabled: true,
     description: '잡다한 섹션 번호 없이 세련된 소제목으로 읽는 13개 무료 리포트',
-    tags: ['무료감정서', '13장절'],
+    tags: ['무료리포트', '13장절'],
   },
   {
     id: 'narrative_18_sections',
-    name: '18개 장절 심층 정본 감정서',
+    name: '18개 장절 심층 정본 사주 리포트',
     category: 'report_section',
     status: 'ready',
     enabled: true,
     description: '월별 세운 12개월 해설 및 3개년 변화 순서가 포함된 심층 리포트',
-    tags: ['유료감정서', '18장절'],
+    tags: ['유료리포트', '18장절'],
   },
 
   // 4. 커머스 & 제휴 마케팅 (Commerce & Affiliate)
@@ -419,7 +419,7 @@ export const INITIAL_PRODUCTS: ProductTierConfig[] = [
   },
   {
     tierId: 'PAID',
-    title: '유료 사주풀이 — 심층 정본 감정서',
+    title: '유료 사주풀이 — 심층 정본 리포트',
     price: 39900,
     originalPrice: 59000,
     enabled: true,

@@ -1044,12 +1044,12 @@ ${content}
  const url = URL.createObjectURL(blob);
  const a = document.createElement('a');
  a.href = url;
- a.download = `[보안백업]_${userName}_사주정본_감정서_DID공인.txt`;
+ a.download = `[사주분석]_${userName}_평생사주_리포트.txt`;
  document.body.appendChild(a);
  a.click();
  document.body.removeChild(a);
  URL.revokeObjectURL(url);
- alert(` Polygon DID 블록체인 공인 보안 백업 완료\n\n• 명주: ${userName} 님\n• 전체 13개 장절 정본 감정서 (DID 무결성 검증 키 포함)\n• 저장 위치: 이용자 PC의 [다운로드(Downloads)] 폴더\n\n탐색기 [다운로드] 폴더에서 확인하실 수 있습니다.`);
+ alert(`사주 분석 리포트 다운로드 완료\n\n• 명주: ${userName} 님\n• 전체 사주 분석 결과 리포트\n• 저장 위치: 이용자 PC의 [다운로드(Downloads)] 폴더\n\n탐색기 [다운로드] 폴더에서 확인하실 수 있습니다.`);
  return;
  }
 

@@ -1273,20 +1273,20 @@ export function renderCheonmyeongwonArchiveVault(options?: CheonmyeongwonVaultOp
  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
  <div style="display: flex; align-items: center; gap: 0.45rem;">
  <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">lock</span>
- <h3 style="font-size: 1.05rem; font-weight: 700; color: #dfe2f1; margin: 0;">감정서 디지털 금고</h3>
- </div>
- <span style="font-family: var(--font-display); font-size: 0.68rem; color: #ff3385; background: rgba(255, 51, 133,0.12); padding: 0.15rem 0.5rem; border-radius: 9999px; font-weight: 700;">
- POLYGON DID 공인
- </span>
- </div>
+        <h3 style="font-size: 1.05rem; font-weight: 700; color: #dfe2f1; margin: 0;">사주 분석 리포트 보관함</h3>
+      </div>
+      <span style="font-family: var(--font-display); font-size: 0.68rem; color: #34d399; background: rgba(52, 211, 153, 0.12); padding: 0.15rem 0.5rem; border-radius: 9999px; font-weight: 700;">
+        안전 보관
+      </span>
+    </div>
 
  <div style="background: var(--surface-container-low); border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between;">
  <div>
  <div style="font-size: 0.9rem; font-weight: 700; color: #dfe2f1;">
- ${userName} 님의 평생 사주 정본 감정서
+ ${userName} 님의 평생 사주 분석 리포트
  </div>
  <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
- 전체 13개 장절 • 고해상도 PDF &amp; 소장용 TXT 검증본
+ 전체 사주 분석 결과 • 소장용 TXT 파일 저장 지원
  </div>
  </div>
  <span style="font-family: var(--font-display); font-size: 0.72rem; color: #34d399; font-weight: 700;">

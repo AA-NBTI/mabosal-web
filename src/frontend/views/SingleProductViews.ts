@@ -5,7 +5,7 @@ function renderSingleProductDownloadBar(productTitle: string): string {
  <div class="single-product-download-action-bar" style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 12px; padding: 1.25rem 1.5rem; margin: 2rem 0 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; box-shadow: var(--shadow-sm);">
  <div>
  <div style="font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-bottom: 0.2rem;">
- 감정서 영구 보관 & 인쇄
+ 분석 결과 리포트 저장 &amp; 인쇄
  </div>
  <div style="font-size: 0.95rem; font-weight: 800; color: #fff;">
  ${productTitle} 결과를 소장하세요
@@ -175,7 +175,7 @@ export function renderChemistrySingleProductView(state: AppStateData): string {
  <div style="margin-bottom: 1.5rem;">
  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
  <span class="card-badge gold-badge" style="font-size: 0.82rem; padding: 0.25rem 0.75rem; background: rgba(242, 202, 80, 0.12); color: var(--primary); border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 9999px; font-weight: 700;">
- 2인 정밀 궁합 감정서 · 29,900원 완결본
+ 2인 정밀 궁합 분석 리포트 · 29,900원 완결본
  </span>
  <span style="font-size: 0.82rem; color: var(--text-muted);">
  산출 기준: 정밀 명리학 원국 대조 엔진

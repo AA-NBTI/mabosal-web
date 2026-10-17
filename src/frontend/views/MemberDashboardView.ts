@@ -42,12 +42,11 @@ export function renderMemberDashboardView(state: AppStateData): string {
     (i.userName === userName)
   );
 
-  // 카테고리 탭 목록 (홈화면 제거 -> 행운처방을 홈화면으로 설정)
+  // 카테고리 탭 목록 (홈화면 제거 -> 행운처방을 홈화면으로 설정, 감정서 탭 제거)
   const tabs = [
     { id: 'tab-daily', icon: 'auto_fix_high', label: '행운처방', badge: '' },
     { id: 'tab-lucky-calendar', icon: 'event_available', label: '행운달력', badge: '' },
     { id: 'tab-magi-calendar', icon: 'event_busy', label: '마기달력', badge: '' },
-    { id: 'tab-fortune', icon: 'auto_stories', label: '감정서', badge: state.calcResult ? '열람가능' : '' },
     { id: 'tab-vouchers', icon: 'confirmation_number', label: '쿠폰', badge: summary.issuedVouchers.length > 0 ? `${summary.issuedVouchers.length}개` : '' },
     { id: 'tab-orders', icon: 'receipt_long', label: '주문 내역', badge: summary.pendingTransfers.length > 0 ? `${summary.pendingTransfers.length}건 대기` : '' },
     { id: 'tab-account', icon: 'manage_accounts', label: '내 정보', badge: '' },
@@ -291,7 +290,7 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
                 <span class="material-symbols-outlined" style="font-size: 44px; color: var(--text-muted); margin-bottom: 0.75rem;">chat_bubble_outline</span>
                 <div style="font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 0.4rem;">등록된 1:1 문의 내역이 없습니다</div>
                 <p style="font-size: 0.82rem; color: var(--text-muted); max-width: 420px; margin: 0 auto 1.25rem;">
-                  서비스 이용 중 궁금하신 점이나 결제, 사주 감정서 관련 문의를 남겨주시면 신속하게 답변해 드립니다.
+                  서비스 이용 중 궁금하신 점이나 결제, 사주 풀이 및 리포트 관련 문의를 남겨주시면 신속하게 답변해 드립니다.
                 </p>
                 <button type="button" id="btn-open-support-empty" class="btn-cta-secondary" style="padding: 0.55rem 1.25rem; font-size: 0.85rem; font-weight: 800; border-radius: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; cursor: pointer;">
                   1:1 문의 접수하기
@@ -352,40 +351,6 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
               </div>
             `}
 
-          </div>
-        </div>
-      `;
-
-    // 5. 감정서
-    case 'tab-fortune':
-      return `
-        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-          <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
-            <h2 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 0.25rem 0;">나의 정통 사주 감정서</h2>
-            <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0 0 1.5rem 0;">등록된 사주 원국과 인생 대운의 길흉화복 리포트를 언제든지 다시 열람할 수 있습니다.</p>
-
-            ${state.calcResult ? `
-              <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
-                  <div>
-                    <div style="font-size: 0.78rem; color: #cbd5e1; font-weight: 700; margin-bottom: 0.25rem;">분석 완료</div>
-                    <div style="font-size: 1.15rem; font-weight: 800; color: #fff;">나의 평생 사주 감정서</div>
-                  </div>
-                  <button type="button" id="btn-goto-my-result" class="btn-cta-secondary" style="padding: 0.6rem 1.2rem; font-size: 0.85rem; font-weight: 800; border-radius: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); color: #fff; cursor: pointer;">
-                    사주 감정서 열람하기
-                  </button>
-                </div>
-              </div>
-            ` : `
-              <div style="text-align: center; padding: 3rem 1.5rem; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.12);">
-                <span class="material-symbols-outlined" style="font-size: 48px; color: var(--text-muted); margin-bottom: 0.75rem;">auto_stories</span>
-                <div style="font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">아직 보관된 사주 정보가 없습니다</div>
-                <p style="font-size: 0.85rem; color: var(--text-muted); max-width: 400px; margin: 0 auto 1.5rem;">생년월일시를 입력하고 나만을 위한 평생 정밀 사주 감정서를 생성해보세요.</p>
-                <button type="button" id="btn-goto-start-saju" class="btn-cta-secondary" style="padding: 0.65rem 1.5rem; font-size: 0.9rem; font-weight: 800; border-radius: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; cursor: pointer;">
-                  사주 분석 시작
-                </button>
-              </div>
-            `}
           </div>
         </div>
       `;
@@ -558,7 +523,7 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
                 회원 탈퇴 및 데이터 영구 삭제 안내
               </div>
               <p style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 0.85rem 0;">
-                회원 탈퇴 시 의뢰인님의 등록된 명리 프로필, 상품 구매 내역, 감정서 열람 기록 및 모든 개인정보가 즉시 영구 파기되며 복구할 수 없습니다.
+                회원 탈퇴 시 의뢰인님의 등록된 명리 프로필, 상품 구매 내역, 사주 리포트 열람 기록 및 모든 개인정보가 즉시 영구 파기되며 복구할 수 없습니다.
               </p>
 
               <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: #fca5a5; cursor: pointer; margin-bottom: 1rem; user-select: none;">

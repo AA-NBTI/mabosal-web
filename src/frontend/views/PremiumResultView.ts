@@ -77,7 +77,7 @@ export function renderPremiumResultView(state: AppStateData): string {
  </div>
  </div>
  <h1 style="font-family: var(--font-serif); font-size: 1.65rem; font-weight: 700; color: #dfe2f1; margin: 0 0 0.35rem 0;">
- 마보살 프리미엄 정밀 사주 감정서
+ 마보살 프리미엄 정밀 사주 리포트
  </h1>
  <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0; line-height: 1.5;">
  원국·격국·신살·대운·세운 전수 분석, 현실 딜레마 A/B 대조표, 업무 변경 기록표 양식, 4주차 단계별 실행 로드맵 완결판입니다.
@@ -125,13 +125,13 @@ export function renderPremiumResultView(state: AppStateData): string {
  <div style="background: linear-gradient(135deg, rgba(242, 202, 80, 0.12), rgba(15, 19, 29, 0.95)); border: 1px solid rgba(242, 202, 80, 0.4); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
  <div>
  <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary); margin-bottom: 0.25rem;">
- ️ 디지털 감정서 금고 영구 보관
+ ️ 사주 리포트 온라인 영구 보관
  </div>
  <div style="font-family: var(--font-serif); font-size: 1.12rem; font-weight: 700; color: #dfe2f1; margin-bottom: 0.35rem;">
  평생 열람 가능한 A4 정본 문서 보관함
  </div>
  <div style="font-size: 0.82rem; color: var(--text-muted);">
- 언제든 내 금고에서 재열람하거나 PDF/TXT로 소장하실 수 있습니다.
+ 언제든 대시보드 주문 내역에서 재열람하거나 PDF/TXT로 소장하실 수 있습니다.
  </div>
  </div>
  <div style="display: flex; gap: 0.5rem;">

@@ -15,7 +15,7 @@ export function renderUserOrderHistoryWidget(): string {
       <div style="background: var(--surface-container); border: 1px dashed rgba(255,255,255,0.15); border-radius: 14px; padding: 2rem; text-align: center; margin-bottom: 2rem;">
         <span class="material-symbols-outlined" style="font-size: 36px; color: var(--text-muted); margin-bottom: 0.5rem;">lock</span>
         <h3 style="font-size: 1.1rem; color: #fff; margin: 0 0 0.5rem 0;">로그인이 필요한 서비스입니다</h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 1rem 0;">로그인하시면 나의 주문 내역, 입금 대기 현황, 구매한 감정서를 확인하실 수 있습니다.</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 1rem 0;">로그인하시면 나의 주문 내역, 입금 대기 현황, 구매한 사주 리포트를 확인하실 수 있습니다.</p>
         <button type="button" id="btn-login-from-dashboard" style="background: var(--primary); color: #000; font-weight: 800; border: none; padding: 0.6rem 1.25rem; border-radius: 8px; cursor: pointer;">
           로그인 / 회원가입
         </button>
@@ -235,7 +235,7 @@ export function renderUserOrderHistoryWidget(): string {
 
                     ${o.status === 'completed' && o.deliveryType === 'saju_report' ? `
                       <button type="button" class="btn-open-user-report" data-order-id="${o.orderId}" data-product-id="${o.productId}" style="background: #ffffff; color: #0f131d; font-weight: 800; font-size: 0.82rem; padding: 0.45rem 1rem; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
-                        <span>감정서 열람</span>
+                        <span>리포트 열람</span>
                         <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
                       </button>
                     ` : ''}
