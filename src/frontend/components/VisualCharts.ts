@@ -771,7 +771,22 @@ export function renderCheonmyeongwonDailyDashboard(options?: CheonmyeongwonDaily
  const strokeOffset = Math.max(0, Math.min(263.89, 263.89 * (1 - score / 100)));
 
  // 정통 명리학 오행·하도낙서 기반 실시간 행운 코드 산출
- const detectedTargetEl = sajuCore?.pillars?.day?.stem?.element || '토';
+ const stemObj = sajuCore?.pillars?.day?.stem || sajuCore?.four_pillars?.day?.stem;
+ let detectedTargetEl: string = '토';
+ if (typeof stemObj === 'object' && stemObj?.element) {
+   detectedTargetEl = stemObj.element;
+ } else if (sajuCore?.day_element) {
+   detectedTargetEl = sajuCore.day_element;
+ } else if ((sajuCore as any)?.fact?.day_element) {
+   detectedTargetEl = (sajuCore as any).fact.day_element;
+ } else if (typeof stemObj === 'string' || typeof (sajuCore as any)?.day_stem === 'string') {
+   const sChar = typeof stemObj === 'string' ? stemObj : (sajuCore as any).day_stem;
+   const stemMap: Record<string, string> = {
+     '갑': '목', '을': '목', '병': '화', '정': '화', '무': '토', '기': '토', '경': '금', '신': '금', '임': '수', '계': '수',
+     '甲': '목', '乙': '목', '丙': '화', '丁': '화', '戊': '토', '己': '토', '庚': '금', '辛': '금', '壬': '수', '癸': '수'
+   };
+   detectedTargetEl = stemMap[sChar] || '토';
+ }
  const codex = calculateLuckyCodex(options?.yongshin || options?.targetElement || detectedTargetEl);
  const luckyColor = options?.luckyColor || codex.luckyColor.name;
  const luckyColorHex = codex.luckyColor.hex;
@@ -780,8 +795,11 @@ export function renderCheonmyeongwonDailyDashboard(options?: CheonmyeongwonDaily
  const wiseQuote = options?.wiseQuote || codex.wiseQuote;
 
  // SPECIAL EDITION 배너 개인화 변수 산출
- const dayMasterChar = sajuCore?.pillars?.day?.stem?.char;
- const dayMasterEl = sajuCore?.pillars?.day?.stem?.element;
+ let dayMasterChar = (typeof stemObj === 'object' ? stemObj?.char : stemObj) || (sajuCore as any)?.day_stem;
+ let dayMasterEl = (typeof stemObj === 'object' ? stemObj?.element : undefined) || (sajuCore as any)?.day_element || detectedTargetEl;
+ if (typeof dayMasterChar === 'object') {
+   dayMasterChar = (dayMasterChar as any)?.char || (dayMasterChar as any)?.name;
+ }
  const dayMasterDesc = dayMasterChar && dayMasterEl ? `${dayMasterChar}${dayMasterEl}` : '';
  const specialBadgeText = isPersonalized ? `SPECIAL EDITION · ${userName} 님 1:1 맞춤 본명궁` : `SPECIAL EDITION · 신년 정밀 대운 비책`;
  const specialTitle = isPersonalized && dayMasterDesc

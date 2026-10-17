@@ -1957,6 +1957,16 @@ ${content}
           gender: gender || 'male',
           calendarType: calendarType || 'solar',
         }, currentUser.id || currentUser.username);
+
+        // 과거 세션 캐시 즉각 무효화 및 새 프로필 기반 세션 재계산
+        appState.clearSession();
+        const newSession = UserSajuStore.calculateSessionForUser(currentUser.id || currentUser.username);
+        if (newSession) {
+          appState.setSession(newSession);
+        }
+        appState.setUserName(newName);
+        if (gender) appState.setGender(gender);
+        if (calendarType) appState.setCalendarType(calendarType);
       }
 
       alert('회원 정보와 사주 프로필이 성공적으로 저장되었습니다.\n대시보드의 일진 처방이 갱신되었습니다.');

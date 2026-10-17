@@ -147,10 +147,14 @@ export class DailyFortuneEngine {
     let celestialScore = 72;
 
     // A. 5대 축 신호 반영 (기회도 +, 완화도 +, 압박도 -)
-    if (signal) {
-      const oppBonus = ((signal.axis5_baseline.opportunity - 50) * 0.18);
-      const mitBonus = ((signal.axis5_baseline.mitigation - 50) * 0.12);
-      const pressPenalty = ((signal.axis5_baseline.pressure - 50) * 0.20);
+    if (signal && (signal as any).axis5_baseline) {
+      const base = (signal as any).axis5_baseline;
+      const opp = base.opportunity ?? 50;
+      const mit = base.mitigation ?? 50;
+      const press = base.pressure ?? 50;
+      const oppBonus = ((opp - 50) * 0.18);
+      const mitBonus = ((mit - 50) * 0.12);
+      const pressPenalty = ((press - 50) * 0.20);
       celestialScore += Math.round(oppBonus + mitBonus - pressPenalty);
     }
 
@@ -195,10 +199,13 @@ export class DailyFortuneEngine {
     // 명리 근거: 재성 구조점수(structureScore) + 식상생재(sikSangProduceJae) - 비겁분산(biGeopDispersion)
     let moneyScore = 70;
     let moneyDesc = '평이한 자금 흐름';
-    if (signal) {
-      const wealthSignal = signal.wealth;
-      const baseWealth = wealthSignal.structureScore * 0.45 + wealthSignal.sikSangProduceJae * 0.35;
-      const biGeopRisk = wealthSignal.biGeopDispersion * 0.25;
+    if (signal && (signal as any).wealth) {
+      const wealthSignal = (signal as any).wealth;
+      const struct = wealthSignal.structureScore ?? 60;
+      const sik = wealthSignal.sikSangProduceJae ?? 50;
+      const biGeop = wealthSignal.biGeopDispersion ?? 40;
+      const baseWealth = struct * 0.45 + sik * 0.35;
+      const biGeopRisk = biGeop * 0.25;
       moneyScore = Math.round(baseWealth - biGeopRisk + 25);
     }
     // 오늘 일진이 재성(내가 극하는 오행) 또는 식상(재물을 낳는 오행)인지 대조
@@ -223,7 +230,7 @@ export class DailyFortuneEngine {
     // 명리 근거: 일지(배우자궁) 안정도 + 오늘 일진과의 합/충 + 성별 인연 기운
     let loveScore = 70;
     let loveDesc = '온화하고 무탈한 관계';
-    const clashScore = rel ? rel.summary.total_clash_score : 10;
+    const clashScore = rel ? rel.summary?.total_clash_score ?? 10 : 10;
     loveScore = Math.round(85 - clashScore * 0.4);
 
     if (isHarmonious) {
@@ -250,9 +257,9 @@ export class DailyFortuneEngine {
     // 명리 근거: 일간 감당력(dayMasterCapacity) + 추진력(executionDrive) + 신강약 안정성
     let vitalityScore = 70;
     let vitalityDesc = '균형 잡힌 생체 리듬';
-    if (signal) {
-      const cap = signal.wealth.dayMasterCapacity * 0.5;
-      const drive = signal.output.executionDrive * 0.4;
+    if (signal && (signal as any).wealth && (signal as any).output) {
+      const cap = ((signal as any).wealth.dayMasterCapacity ?? 60) * 0.5;
+      const drive = ((signal as any).output.executionDrive ?? 60) * 0.4;
       vitalityScore = Math.round(cap + drive + 10);
     }
     // 오늘 일진이 일간을 생조(인성/비겁)하는 기운이면 활력 보충

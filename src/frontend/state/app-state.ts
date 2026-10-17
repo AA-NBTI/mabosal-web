@@ -283,11 +283,23 @@ class AppStateManager {
     this.notify();
   }
 
-  public resetSession() {
+  public clearSession() {
     this.state.sessionState = null;
+    this.state.calcResult = null;
     this.state.integratedResult = null;
     this.state.latestProduct = null;
     this.state.deepResult = null;
+    this.state.productOutputSet = null;
+    this.notify();
+  }
+
+  public resetSession() {
+    this.state.sessionState = null;
+    this.state.calcResult = null;
+    this.state.integratedResult = null;
+    this.state.latestProduct = null;
+    this.state.deepResult = null;
+    this.state.productOutputSet = null;
     this.state.chatMessages = [];
     this.state.currentView = 'landing';
     this.state.errorMessage = null;

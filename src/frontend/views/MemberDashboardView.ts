@@ -220,17 +220,12 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
   switch (tabId) {
     // 1. 행운처방 (기본 홈화면)
     case 'tab-daily': {
-      // 1) 메모리 세션 또는 계정별 저장소에서 실시간 사주 세션 산출
-      let sessionData = (state?.sessionState as any) || state?.calcResult;
-      if (!sessionData?.sajuCore && !sessionData?.saju_core) {
-        const userSession = UserSajuStore.calculateSessionForUser(user.id || user.username);
-        if (userSession) {
-          sessionData = userSession;
-        }
-      }
+      // 현재 로그인한 회원의 최신 등록 사주 기반 1순위 실시간 세션 산출 (과거 캐시 강제 무효화)
+      const userSession = UserSajuStore.calculateSessionForUser(user.id || user.username);
+      const sessionData = userSession || (state?.sessionState as any) || state?.calcResult;
 
-      const sajuCore = sessionData?.sajuCore || sessionData?.saju_core;
-      const signal = sessionData?.signal;
+      const sajuCore = sessionData?.sajuCore || sessionData?.saju_core || (sessionData as any)?.fact;
+      const signal = sessionData?.signal || (sessionData as any)?.signalSet;
       const relationship = sessionData?.relationship || sessionData?.relationships;
       const hasSaju = UserSajuStore.hasSajuProfile(user.id || user.username);
 
