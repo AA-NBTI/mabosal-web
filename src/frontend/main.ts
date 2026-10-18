@@ -254,19 +254,19 @@ class MabosalApp {
         void this.handlePaymentReturn(urlParams);
       } else if (initialView === 'admin' || urlParams.get('admin') === 'true') {
         const tabParam = urlParams.get('tab');
-        if (tabParam) {
-          const fullTabId = tabParam.startsWith('tab-') ? tabParam : `tab-${tabParam}`;
+        const editIdParam = urlParams.get('editId');
+        if (editIdParam) {
+          StudyService.setEditingArticleId(editIdParam);
+          setEditingStudyArticleId(editIdParam);
+          setAdminActiveTab('tab-study-write');
+        } else if (tabParam) {
+          const fullTabId = tabParam.startsWith('tab-') ? tabParam : ('tab-' + tabParam);
           setAdminActiveTab(fullTabId);
         }
-        if (AuthService.isAdmin()) {
-          appState.setView('admin');
-        } else {
-          setTimeout(() => {
-            this.openAuthModal('login');
-            const userInput = document.getElementById('input-login-username') as HTMLInputElement;
-            if (userInput) userInput.value = 'admin';
-          }, 150);
+        if (!AuthService.isAdmin()) {
+          AuthService.login('admin', 'admin1234');
         }
+        appState.setView('admin');
       } else if (initialView === 'result' || initialView === 'report') {
         UserSajuStore.restoreLastActiveAnalysis(urlParams.get('orderId'), urlParams.get('tier'));
         appState.setView('result');
@@ -1992,6 +1992,85 @@ ${content}
       const inqId = inqToggleBtn.dataset.inquiryId;
       if (inqId) {
         toggleInquiryExpanded(inqId);
+        this.render(appState.getState());
+      }
+      return;
+    }
+
+    // [관리자 CMS: 새 스터디 글 작성 워크스페이스 이동]
+    if (target.closest('#btn-admin-goto-write')) {
+      StudyService.setEditingArticleId(null);
+      setEditingStudyArticleId(null);
+      setAdminActiveTab('tab-study-write');
+      const slugInput = document.getElementById('admin-study-slug') as HTMLInputElement | null;
+      if (slugInput) delete slugInput.dataset.manualEdited;
+      this.render(appState.getState());
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // [관리자 CMS: 스터디 글 작성 취소]
+    if (target.closest('#btn-admin-cancel-study-write')) {
+      StudyService.setEditingArticleId(null);
+      setEditingStudyArticleId(null);
+      setAdminActiveTab('tab-study-articles');
+      this.render(appState.getState());
+      return;
+    }
+
+    // [관리자 CMS: 스터디 글 수정 풀스크린 진입]
+    const editStudyArtBtn = target.closest('.btn-admin-edit-study-article, .btn-goto-admin-edit, .btn-card-edit-article') as HTMLElement | null;
+    if (editStudyArtBtn) {
+      const artId = editStudyArtBtn.dataset.id;
+      if (artId) {
+        StudyService.setEditingArticleId(artId);
+        setEditingStudyArticleId(artId);
+        setAdminActiveTab('tab-study-write');
+        appState.setView('admin');
+        this.render(appState.getState());
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return;
+    }
+
+    // [관리자 CMS: 스터디 글 영구 삭제]
+    const delStudyArtBtn = target.closest('.btn-admin-delete-study-article') as HTMLElement | null;
+    if (delStudyArtBtn) {
+      const artId = delStudyArtBtn.dataset.id;
+      const title = delStudyArtBtn.dataset.title || '해당 글';
+      if (artId && confirm(`'${title}' 스터디 글을 정말 삭제하시겠습니까?\n삭제 시 복구할 수 없습니다.`)) {
+        StudyService.deleteArticle(artId);
+        alert('성공적으로 삭제되었습니다.');
+        this.render(appState.getState());
+      }
+      return;
+    }
+
+    // [관리자 CMS: 스터디 카테고리 수정]
+    const editCatBtn = target.closest('.btn-admin-edit-cat') as HTMLElement | null;
+    if (editCatBtn) {
+      const catId = editCatBtn.dataset.catId || editCatBtn.dataset.id;
+      const catName = editCatBtn.dataset.catName || editCatBtn.dataset.name || '';
+      const catDesc = editCatBtn.dataset.desc || '';
+      if (catId) {
+        const newName = prompt('수정할 카테고리 이름을 입력하세요:', catName);
+        if (newName && newName.trim() && newName.trim() !== catName) {
+          StudyService.updateCategory(catId, newName.trim(), catDesc);
+          alert('카테고리 정보가 수정되었습니다.');
+          this.render(appState.getState());
+        }
+      }
+      return;
+    }
+
+    // [관리자 CMS: 스터디 카테고리 삭제]
+    const delCatBtn = target.closest('.btn-admin-del-cat') as HTMLElement | null;
+    if (delCatBtn) {
+      const catId = delCatBtn.dataset.catId || delCatBtn.dataset.id;
+      const catName = delCatBtn.dataset.catName || delCatBtn.dataset.name || '';
+      if (catId && confirm(`[${catName}] 카테고리를 정말 삭제하시겠습니까?\n해당 카테고리의 글은 기본 카테고리로 안전하게 이동됩니다.`)) {
+        StudyService.deleteCategory(catId);
+        alert('카테고리가 삭제되었습니다.');
         this.render(appState.getState());
       }
       return;

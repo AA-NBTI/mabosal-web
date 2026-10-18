@@ -1237,6 +1237,7 @@ export function renderAdminDashboardView(): string {
           </div>
 
           <!-- [컨텐츠 > 스터디 3대 서브카테고리 독립 패널 워크스페이스] -->
+          ${renderAdminStudyWorkspace(currentTab)}
           
 
         <!-- [패널 10] 1:1 고객 문의 관리 센터 -->
@@ -1596,10 +1597,10 @@ function renderAdminStudyWorkspace(currentTab: string): string {
                       </div>
                     </div>
                     <div style="display: flex; gap: 0.4rem;">
-                      <button type="button" class="btn-admin-edit-cat" data-id="${c.id}" data-name="${c.name}" data-desc="${c.description || ''}" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; border-radius: 5px; padding: 0.3rem 0.6rem; font-size: 0.78rem; cursor: pointer;">
+                      <button type="button" class="btn-admin-edit-cat" data-cat-id="${c.id}" data-id="${c.id}" data-cat-name="${c.name}" data-name="${c.name}" data-desc="${c.description || ''}" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; border-radius: 5px; padding: 0.3rem 0.6rem; font-size: 0.78rem; cursor: pointer;">
                         수정
                       </button>
-                      <button type="button" class="btn-admin-del-cat" data-id="${c.id}" data-name="${c.name}" style="background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.3); color: #f87171; border-radius: 5px; padding: 0.3rem 0.6rem; font-size: 0.78rem; cursor: pointer;">
+                      <button type="button" class="btn-admin-del-cat" data-cat-id="${c.id}" data-id="${c.id}" data-cat-name="${c.name}" data-name="${c.name}" style="background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.3); color: #f87171; border-radius: 5px; padding: 0.3rem 0.6rem; font-size: 0.78rem; cursor: pointer;">
                         삭제
                       </button>
                     </div>
