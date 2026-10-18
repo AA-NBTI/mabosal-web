@@ -434,6 +434,7 @@ class MabosalApp {
           alert('새 스터디 글이 성공적으로 등록 및 발행되었습니다.');
         }
 
+        StudyService.setEditingArticleId(null);
         setEditingStudyArticleId(null);
         setAdminActiveTab('tab-study-articles');
         this.render(appState.getState());

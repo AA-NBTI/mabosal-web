@@ -242,129 +242,6 @@ export function renderStudyView(): string {
     </main>
   </div>
 
-  <!-- 1. 글 작성 및 수정 모달 -->
-  <div id="modal-study-article-form" class="study-modal-backdrop">
-    <div class="study-modal-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.85rem;">
-        <h2 id="study-modal-title" style="color: #ffffff; font-size: 1.3rem; font-weight: 800; margin: 0;">
-          ${editingArticle ? '스터디 글 수정' : '새 스터디 글 작성'}
-        </h2>
-        <button type="button" class="btn-close-study-modal" style="background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; line-height: 1; padding: 0.2rem;">&times;</button>
-      </div>
-
-      <form id="form-study-article">
-        <input type="hidden" id="study-input-id" value="${editingArticle?.id || ''}" />
-        
-        <div class="study-form-group">
-          <label class="study-form-label" for="study-input-title">글 제목 *</label>
-          <input type="text" id="study-input-title" class="study-form-input" placeholder="예: 십신으로 읽어내는 나의 숨은 사회적 잠재력" value="${editingArticle?.title || ''}" required />
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <div class="study-form-group">
-            <label class="study-form-label" for="study-select-category">카테고리 *</label>
-            <select id="study-select-category" class="study-form-select" required>
-              ${categories.map(c => `
-                <option value="${c.id}" ${editingArticle?.category === c.id ? 'selected' : ''}>${c.name}</option>
-              `).join('')}
-            </select>
-          </div>
-
-          <div class="study-form-group">
-            <label class="study-form-label" for="study-input-author">작성자</label>
-            <input type="text" id="study-input-author" class="study-form-input" placeholder="예: 마보살 연구소" value="${editingArticle?.author || '마보살 연구소'}" />
-          </div>
-        </div>
-
-        <div class="study-form-group">
-          <label class="study-form-label" for="study-input-summary">글 핵심 요약</label>
-          <input type="text" id="study-input-summary" class="study-form-input" placeholder="목록 카드에 노출될 1~2줄 요약문을 적어주세요." value="${editingArticle?.summary || ''}" />
-        </div>
-
-        <div class="study-form-group">
-          <label class="study-form-label" for="study-input-tags">태그 (쉼표로 구분)</label>
-          <input type="text" id="study-input-tags" class="study-form-input" placeholder="예: 십신, 사주기초, 적성분석" value="${editingArticle?.tags?.join(', ') || ''}" />
-        </div>
-
-        <div class="study-form-group">
-          <label class="study-form-label" for="study-textarea-content">상세 본문 내용 *</label>
-          <textarea id="study-textarea-content" class="study-form-textarea" rows="11" placeholder="스터디 본문 내용을 자유롭게 작성하세요..." required style="line-height: 1.6;">${editingArticle?.content || ''}</textarea>
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.25rem;">
-          <button type="button" class="btn-close-study-modal study-action-btn" style="background: rgba(255,255,255,0.08); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15);">
-            취소
-          </button>
-          <button type="submit" class="study-action-btn" style="background: var(--primary); color: #1c1500; font-weight: 800; border: none; padding: 0.6rem 1.4rem;">
-            ${editingArticle ? '수정 완료' : '글 발행하기'}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- 2. 카테고리 관리 모달 -->
-  <div id="modal-study-category-manager" class="study-modal-backdrop">
-    <div class="study-modal-content" style="max-width: 580px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.85rem;">
-        <div>
-          <h2 style="color: #ffffff; font-size: 1.25rem; font-weight: 800; margin: 0 0 0.25rem;">
-            스터디 카테고리 관리
-          </h2>
-          <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0;">
-            카테고리를 추가, 수정, 삭제하여 자유롭게 분류 체계를 구성할 수 있습니다.
-          </p>
-        </div>
-        <button type="button" class="btn-close-category-modal" style="background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; line-height: 1; padding: 0.2rem;">&times;</button>
-      </div>
-
-      <!-- 기존 카테고리 리스트 -->
-      <div style="margin-bottom: 1.75rem;">
-        <label class="study-form-label">현재 등록된 카테고리 목록 (${categories.length}개)</label>
-        <div style="display: flex; flex-direction: column; gap: 0.6rem; max-height: 240px; overflow-y: auto; padding-right: 0.25rem;">
-          ${categories.map(c => {
-            const count = StudyService.getArticles(c.id).length;
-            return `
-              <div style="display: flex; align-items: center; justify-content: space-between; background: #0c0f18; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.65rem 0.95rem;">
-                <div>
-                  <div style="color: #ffffff; font-size: 0.9rem; font-weight: 700;">${c.name}</div>
-                  <div style="color: var(--text-muted); font-size: 0.75rem;">글 ${count}건 · ID: ${c.id}</div>
-                </div>
-                <div style="display: flex; gap: 0.4rem;">
-                  <button type="button" class="btn-edit-category study-action-btn" data-cat-id="${c.id}" data-cat-name="${c.name}" data-cat-desc="${c.description || ''}" style="background: rgba(255,255,255,0.08); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.12); padding: 0.25rem 0.55rem; font-size: 0.75rem;">
-                    이름 변경
-                  </button>
-                  <button type="button" class="btn-delete-category study-action-btn" data-cat-id="${c.id}" data-cat-name="${c.name}" style="background: rgba(248, 113, 113, 0.15); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); padding: 0.25rem 0.55rem; font-size: 0.75rem;">
-                    삭제
-                  </button>
-                </div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </div>
-
-      <!-- 새 카테고리 추가 폼 -->
-      <form id="form-add-category" style="background: rgba(242, 202, 80, 0.05); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 10px; padding: 1.15rem;">
-        <div style="color: var(--primary); font-size: 0.88rem; font-weight: 800; margin-bottom: 0.75rem;">
-          + 새 카테고리 추가
-        </div>
-        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.65rem;">
-          <input type="text" id="input-new-cat-name" class="study-form-input" placeholder="카테고리 이름 (예: 신년운세 가이드)" required style="flex: 1;" />
-          <button type="submit" class="study-action-btn" style="background: var(--primary); color: #1c1500; font-weight: 800; border: none; padding: 0 1.25rem; white-space: nowrap;">
-            추가
-          </button>
-        </div>
-        <input type="text" id="input-new-cat-desc" class="study-form-input" placeholder="카테고리 설명 (선택사항)" style="font-size: 0.82rem;" />
-      </form>
-
-      <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem;">
-        <button type="button" class="btn-close-category-modal study-action-btn" style="background: var(--primary); color: #1c1500; font-weight: 800; border: none; padding: 0.55rem 1.25rem;">
-          완료
-        </button>
-      </div>
-    </div>
-  </div>
   `;
 }
 
@@ -504,7 +381,7 @@ function renderArticleDetail(art: StudyArticle): string {
 let studyEventsBound = false;
 
 export function bindStudyHubEvents(): void {
-  if (typeof window === 'undefined' || studyEventsBound) return;
+  if (typeof window !== 'undefined' && studyEventsBound) return;
   studyEventsBound = true;
 
   // 1. 클릭 이벤트 위임
@@ -541,184 +418,33 @@ export function bindStudyHubEvents(): void {
       return;
     }
 
-    // 글 작성 모달 열기
-    if (target.closest('#btn-open-study-write-modal') || target.closest('.btn-open-write-shortcut')) {
-      editingArticleId = null;
-      openArticleModal();
-      return;
-    }
-
-    // 카드에서 글 수정 클릭
-    const editCardBtn = target.closest('.btn-card-edit-article') as HTMLElement | null;
-    if (editCardBtn) {
+    // [중요: 글 화면에서 수정 클릭 시 팝업이 아니라 관리자 대시보드 풀스크린 에디터로 즉시 전환]
+    const editBtn = target.closest('.btn-card-edit-article, .btn-goto-admin-edit, .btn-edit-current-article') as HTMLElement | null;
+    if (editBtn) {
+      e.preventDefault();
       e.stopPropagation();
-      const id = editCardBtn.dataset.id;
+      const id = editBtn.dataset.id;
       if (id) {
-        editingArticleId = id;
-        openArticleModal(id);
+        StudyService.setEditingArticleId(id);
+        const adminUrl = '/admin?tab=tab-study-write&editId=' + encodeURIComponent(id);
+        window.location.href = adminUrl;
       }
       return;
     }
 
-    // 상세 페이지에서 글 수정 클릭
-    const editDetailBtn = target.closest('.btn-edit-current-article') as HTMLElement | null;
-    if (editDetailBtn) {
-      const id = editDetailBtn.dataset.id;
-      if (id) {
-        editingArticleId = id;
-        openArticleModal(id);
-      }
-      return;
-    }
-
-    // 카드 또는 상세에서 글 삭제 클릭
+    // 글 삭제 클릭 (고객 화면에서 관리자 접근 시)
     const deleteBtn = (target.closest('.btn-card-delete-article') || target.closest('.btn-delete-current-article')) as HTMLElement | null;
     if (deleteBtn) {
       e.stopPropagation();
       const id = deleteBtn.dataset.id;
       const title = deleteBtn.dataset.title || '해당 글';
-      if (id && confirm(`정말로 [${title}] 글을 삭제하시겠습니까?`)) {
+      if (id && confirm(`정말로 [${title}] 글을 삭제하시겠습니까?\n삭제 시 복구할 수 없습니다.`)) {
         StudyService.deleteArticle(id);
         alert(`[${title}] 글이 삭제되었습니다.`);
         if (currentArticleSlug) {
           selectStudyArticle(null);
         }
         triggerAppRerender();
-      }
-      return;
-    }
-
-    // 글 작성/수정 모달 닫기
-    if (target.closest('.btn-close-study-modal') || (target.id === 'modal-study-article-form')) {
-      closeArticleModal();
-      return;
-    }
-
-    // 카테고리 관리 모달 열기
-    if (target.closest('#btn-open-category-manage-modal')) {
-      openCategoryModal();
-      return;
-    }
-
-    // 카테고리 관리 모달 닫기
-    if (target.closest('.btn-close-category-modal') || (target.id === 'modal-study-category-manager')) {
-      closeCategoryModal();
-      return;
-    }
-
-    // 카테고리 이름 수정 클릭
-    const editCatBtn = target.closest('.btn-edit-category') as HTMLElement | null;
-    if (editCatBtn) {
-      const catId = editCatBtn.dataset.catId;
-      const catName = editCatBtn.dataset.catName || '';
-      const catDesc = editCatBtn.dataset.catDesc || '';
-      const newName = prompt('새로운 카테고리 이름을 입력하세요:', catName);
-      if (newName && newName.trim() && newName.trim() !== catName) {
-        StudyService.updateCategory(catId!, newName.trim(), catDesc);
-        alert(`카테고리 이름이 [${newName.trim()}] 으로 변경되었습니다.`);
-        triggerAppRerender();
-      }
-      return;
-    }
-
-    // 카테고리 삭제 클릭
-    const delCatBtn = target.closest('.btn-delete-category') as HTMLElement | null;
-    if (delCatBtn) {
-      const catId = delCatBtn.dataset.catId;
-      const catName = delCatBtn.dataset.catName || '이 카테고리';
-      if (catId) {
-        const categories = StudyService.getCategories();
-        if (categories.length <= 1) {
-          alert('최소 1개 이상의 카테고리가 유지되어야 합니다.');
-          return;
-        }
-        if (confirm(`[${catName}] 카테고리를 삭제하시겠습니까?\n해당 카테고리의 글들은 기본 카테고리로 자동 이동됩니다.`)) {
-          StudyService.deleteCategory(catId);
-          alert(`[${catName}] 카테고리가 삭제되었습니다.`);
-          if (activeCategory === catId) activeCategory = 'all';
-          triggerAppRerender();
-        }
-      }
-      return;
-    }
-  });
-
-  // 2. 폼 제출(Submit) 이벤트 위임
-  document.addEventListener('submit', (e) => {
-    const form = e.target as HTMLFormElement;
-    if (!form) return;
-
-    // 글 등록 및 수정 서브밋
-    if (form.id === 'form-study-article') {
-      e.preventDefault();
-      const id = (document.getElementById('study-input-id') as HTMLInputElement)?.value;
-      const title = (document.getElementById('study-input-title') as HTMLInputElement)?.value.trim();
-      const category = (document.getElementById('study-select-category') as HTMLSelectElement)?.value;
-      const author = (document.getElementById('study-input-author') as HTMLInputElement)?.value.trim() || '마보살 연구소';
-      const summary = (document.getElementById('study-input-summary') as HTMLInputElement)?.value.trim();
-      const tagsStr = (document.getElementById('study-input-tags') as HTMLInputElement)?.value.trim() || '';
-      const content = (document.getElementById('study-textarea-content') as HTMLTextAreaElement)?.value.trim();
-
-      if (!title || !content || !category) {
-        alert('글 제목, 카테고리, 본문 내용은 필수 항목입니다.');
-        return;
-      }
-
-      const tags = tagsStr.split(',').map(t => t.trim().replace(/^#/, '')).filter(Boolean);
-
-      if (id) {
-        // 기존 글 수정
-        const updated = StudyService.updateArticle(id, {
-          title,
-          category,
-          author,
-          summary,
-          tags,
-          content,
-        });
-        alert(`[${title}] 글이 성공적으로 수정되었습니다.`);
-        closeArticleModal();
-        if (updated) selectStudyArticle(updated.slug);
-      } else {
-        // 새 글 생성
-        const created = StudyService.createArticle({
-          title,
-          category,
-          author,
-          summary,
-          tags,
-          content,
-        });
-        alert(`[${title}] 글이 성공적으로 등록되었습니다!`);
-        closeArticleModal();
-        selectStudyArticle(created.slug);
-      }
-
-      triggerAppRerender();
-      return;
-    }
-
-    // 새 카테고리 추가 서브밋
-    if (form.id === 'form-add-category') {
-      e.preventDefault();
-      const nameInput = document.getElementById('input-new-cat-name') as HTMLInputElement;
-      const descInput = document.getElementById('input-new-cat-desc') as HTMLInputElement;
-      const name = nameInput?.value.trim();
-      const desc = descInput?.value.trim() || '';
-
-      if (!name) {
-        alert('추가할 카테고리 이름을 입력해 주세요.');
-        return;
-      }
-
-      try {
-        const newCat = StudyService.addCategory(name, desc);
-        alert(`신규 카테고리 [${newCat.name}] 이 추가되었습니다!`);
-        nameInput.value = '';
-        if (descInput) descInput.value = '';
-        triggerAppRerender();
-      } catch (err: any) {
-        alert(err.message || '카테고리 추가 실패');
       }
       return;
     }

@@ -143,6 +143,15 @@ export class StudyService {
   private static articles: StudyArticle[] = [];
   private static comments: StudyComment[] = [];
   private static initialized = false;
+  private static editingArticleId: string | null = null;
+
+  static setEditingArticleId(id: string | null): void {
+    this.editingArticleId = id;
+  }
+
+  static getEditingArticleId(): string | null {
+    return this.editingArticleId;
+  }
 
   static init(): void {
     if (this.initialized) return;

@@ -1339,7 +1339,8 @@ function renderAdminStudyWorkspace(currentTab: string): string {
   StudyService.init();
   const articles = StudyService.getArticles();
   const categories = StudyService.getCategories();
-  const editingId = getEditingStudyArticleId();
+  const urlParamEditId = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('editId') : null;
+  const editingId = StudyService.getEditingArticleId() || getEditingStudyArticleId() || urlParamEditId;
   const editingArticle = editingId ? StudyService.getArticleById(editingId) : null;
 
   return `
@@ -1439,7 +1440,7 @@ function renderAdminStudyWorkspace(currentTab: string): string {
               <span style="font-size: 0.72rem; font-weight: 700; color: var(--primary); letter-spacing: 0.05em;">ARTICLE EDITOR SYSTEM</span>
             </div>
             <h2 style="font-size: 1.35rem; font-weight: 800; color: #dfe2f1; margin: 0;">
-              ${editingArticle ? `스터디 글 수정 : [${editingArticle.title}]` : '새 스터디 아티클 작성 및 발행'}
+              ${editingArticle ? `✏ 스터디 글 수정 : [${editingArticle.title}] (ID: ${editingArticle.id})` : '+ 새 스터디 아티클 작성 및 발행'}
             </h2>
             <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.35rem 0 0 0;">
               제목을 입력하면 정통 SEO 한글 슬러그가 자동으로 생성됩니다. 내용 작성 후 즉시 고객 화면에 반영됩니다.
