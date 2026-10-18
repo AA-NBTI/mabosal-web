@@ -125,8 +125,8 @@ export function renderHeader(state: AppStateData): string {
  <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 1440px; margin: 0 auto; padding: 0 1.25rem; box-sizing: border-box;">
  <!-- 메인 로고 & 브랜드 -->
  <div class="brand-container" id="btn-nav-brand" style="display: flex; align-items: center; gap: 0.65rem; cursor: pointer; flex-shrink: 0;">
- <div class="brand-emblem" style="width: 34px; height: 34px; border-radius: 9px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.45); display: flex; align-items: center; justify-content: center; color: var(--primary); box-shadow: 0 0 14px rgba(242, 202, 80, 0.28);">
- <span class="material-symbols-outlined" style="font-size: 21px; color: var(--primary);">explore</span>
+ <div class="brand-emblem" style="width: 38px; height: 38px; border-radius: 50%; overflow: hidden; background: transparent; border: none; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px rgba(242, 202, 80, 0.45); flex-shrink: 0;">
+   <img src="/images/mabosal-concept-a.jpg" alt="마보살 보름달 로고" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
  </div>
  <div class="brand-text" style="display: flex; flex-direction: column; line-height: 1.15;">
  <div class="brand-title" style="display: flex; align-items: baseline; gap: 0.4rem;">
@@ -146,16 +146,13 @@ export function renderHeader(state: AppStateData): string {
  <!-- PC 모드 글로벌 카테고리 네비게이션 (종합사주, 스터디, 스토어) -->
  <nav class="pc-header-nav" aria-label="메인 카테고리">
         <a href="/saju" class="pc-nav-item ${currentView === 'page-saju' ? 'active' : ''}" data-nav="/saju" id="pc-nav-saju" style="text-decoration: none;">
-          <span class="material-symbols-outlined" style="font-size: 16px;">explore</span>
-          종합사주
+           종합사주
         </a>
         <a href="/study" class="pc-nav-item ${currentView === 'study' ? 'active' : ''}" data-nav="/study" id="pc-nav-study" style="color: var(--primary); font-weight: 700; text-decoration: none;">
-          <span class="material-symbols-outlined" style="font-size: 16px;">menu_book</span>
-          스터디
+           스터디
         </a>
         <a href="/store" class="pc-nav-item ${currentView === 'store' ? 'active' : ''}" data-nav="/store" id="pc-nav-store" style="color: var(--primary); font-weight: 700; text-decoration: none;">
-          <span class="material-symbols-outlined" style="font-size: 16px;">storefront</span>
-          스토어
+           스토어
         </a>
  </nav>
 
@@ -179,7 +176,6 @@ export function renderHeader(state: AppStateData): string {
 
  ${isGuest ? `
  <button type="button" id="btn-header-login" style="background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 8px; padding: 0.35rem 0.65rem; color: var(--primary); font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
- <span class="material-symbols-outlined" style="font-size: 14px;">login</span>
  로그인
  </button>
  ` : `
@@ -2379,16 +2375,13 @@ export function renderMobileNavDrawer(state: AppStateData): string {
   <div id="mobile-nav-drawer" style="display: none; position: fixed; top: 58px; left: 0; width: 100%; background: rgba(12, 15, 23, 0.98); border-bottom: 2px solid var(--primary); z-index: 101; box-shadow: 0 16px 36px rgba(0,0,0,0.85); flex-direction: column; padding: 0.5rem 0; box-sizing: border-box; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
     <nav style="display: flex; flex-direction: column; width: 100%;">
       <a href="/saju" class="mobile-drawer-item ${currentView === 'page-saju' ? 'active' : ''}" data-nav="/saju" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'page-saju' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
-        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">explore</span>
-        종합사주
+           종합사주
       </a>
       <a href="/study" class="mobile-drawer-item ${currentView === 'study' ? 'active' : ''}" data-nav="/study" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'study' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
-        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">menu_book</span>
-        스터디
+           스터디
       </a>
       <a href="/store" class="mobile-drawer-item ${currentView === 'store' ? 'active' : ''}" data-nav="/store" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'store' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
-        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">storefront</span>
-        스토어
+           스토어
       </a>
     </nav>
   </div>

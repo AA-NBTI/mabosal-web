@@ -1,3 +1,4 @@
+import { StudyService, StudyArticle, StudyCategory, generateKoreanSlug } from '../extensions/study-hub/index.js';
 import { renderAdminBankTransferPanel, renderAdminCouponPanel, renderAdminVoucherPanel, bindAdminVoucherEvents } from '../modules/voucher/AdminVoucherPanel.js';
 import { VoucherStore } from '../modules/voucher/voucher-store.js';
 import { renderAdminPaymentPanel } from '../modules/payment/AdminPaymentPanel.js';
@@ -17,6 +18,15 @@ import {
 import { renderAdminStorePanel, getAllStoreOrders } from '../extensions/commerce-store/index.js';
 import { renderAdminInquiriesPanel, expandSpecificInquiry } from './AdminInquiriesPanel.js';
 import { renderAdminReviewsPanel } from './AdminReviewsPanel.js';
+
+
+let activeEditingStudyArticleId: string | null = null;
+export function setEditingStudyArticleId(id: string | null): void {
+  activeEditingStudyArticleId = id;
+}
+export function getEditingStudyArticleId(): string | null {
+  return activeEditingStudyArticleId;
+}
 
 let activeEditingStoreProductId: string | null = null;
 export function setEditingStoreProductId(id: string | null): void {
@@ -40,7 +50,7 @@ export function getAdminActiveTab(): string {
 const expandedAdminGroupIds = new Set<string>();
 
 // 2차 서브 카테고리(3단 아코디언) 상태 관리: 상품관리는 기본 펼침
-const expandedAdminSubMenuIds = new Set<string>(['subgroup-store']);
+const subGroupToggleState = new Map<string, boolean>();
 
 export function toggleAdminGroup(groupId: string): void {
   if (expandedAdminGroupIds.has(groupId)) {
@@ -51,11 +61,8 @@ export function toggleAdminGroup(groupId: string): void {
 }
 
 export function toggleAdminSubGroup(subGroupId: string): void {
-  if (expandedAdminSubMenuIds.has(subGroupId)) {
-    expandedAdminSubMenuIds.delete(subGroupId);
-  } else {
-    expandedAdminSubMenuIds.add(subGroupId);
-  }
+  const current = subGroupToggleState.has(subGroupId) ? subGroupToggleState.get(subGroupId)! : true;
+  subGroupToggleState.set(subGroupId, !current);
 }
 
 export function isGroupExpanded(groupId: string): boolean {
@@ -109,9 +116,18 @@ export function renderAdminDashboardView(): string {
     {
       id: 'group-content',
       label: '컨텐츠',
-      defaultTab: 'tab-study',
+      defaultTab: 'tab-study-articles',
       subTabs: [
-        { id: 'tab-study', label: '스터디' },
+        {
+          id: 'subgroup-study',
+          label: '스터디',
+          defaultTab: 'tab-study-articles',
+          children: [
+            { id: 'tab-study-articles', label: '아티클 목록' },
+            { id: 'tab-study-write', label: '글 작성' },
+            { id: 'tab-study-categories', label: '카테고리 관리' },
+          ]
+        },
       ]
     },
     {
@@ -150,6 +166,7 @@ export function renderAdminDashboardView(): string {
   );
   if (!activeGroup) {
     if (['tab-store', 'tab-store-register', 'tab-store-orders', 'tab-orders', 'tab-vouchers'].includes(currentTab)) activeGroup = adminGroups[1];
+    else if (['tab-study-articles', 'tab-study-write', 'tab-study-categories', 'tab-study'].includes(currentTab)) activeGroup = adminGroups[2];
     else if (currentTab === 'tab-products') activeGroup = adminGroups[5];
     else activeGroup = adminGroups[0];
   }
@@ -234,14 +251,14 @@ export function renderAdminDashboardView(): string {
                 // [3단 계층: 상품관리 -> 상품목록, 상품등록, 결제장부]
                 if (st.children && st.children.length > 0) {
                   const isSubGroupActive = st.children.some((c: any) => c.id === currentTab);
-                  const isSubGroupExpanded = expandedAdminSubMenuIds.has(st.id) || isSubGroupActive;
+                  const isSubGroupExpanded = subGroupToggleState.has(st.id) ? subGroupToggleState.get(st.id)! : (st.id === 'subgroup-store' || isSubGroupActive);
 
                   return `
                   <li style="display: flex; flex-direction: column; gap: 0.15rem;">
                     <!-- 2단: 상품관리 아코디언 토글 버튼 -->
                     <div class="btn-toggle-admin-subgroup ${isSubGroupActive ? 'active' : ''}" data-subgroup-id="${st.id}" data-default-tab="${st.defaultTab || st.children[0].id}" style="display: flex; align-items: center; justify-content: space-between; padding: 0.42rem 0.65rem; border-radius: 6px; font-size: 0.84rem; font-weight: ${isSubGroupActive ? '800' : '600'}; color: ${isSubGroupActive ? '#ffffff' : '#cbd5e1'}; background: ${isSubGroupActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent'}; border: 1px solid ${isSubGroupActive ? 'rgba(255,255,255,0.18)' : 'transparent'}; cursor: pointer; transition: all 0.15s ease; user-select: none;">
                       <div style="display: flex; align-items: center; gap: 0.4rem;">
-                        <span class="material-symbols-outlined" style="font-size: 16px; color: ${isSubGroupActive ? 'var(--primary)' : 'var(--text-muted)'};">inventory_2</span>
+                        <span class="material-symbols-outlined" style="font-size: 16px; color: ${isSubGroupActive ? 'var(--primary)' : 'var(--text-muted)'};">${st.id === 'subgroup-study' ? 'menu_book' : 'inventory_2'}</span>
                         <span>${st.label}</span>
                       </div>
                       <span style="font-size: 0.65rem; color: ${isSubGroupExpanded ? '#ffffff' : 'rgba(255,255,255,0.35)'}; font-family: monospace;">
@@ -1219,202 +1236,8 @@ export function renderAdminDashboardView(): string {
             ${renderAdminStorePanel(activeEditingStoreProductId, currentTab === 'tab-store-register' ? 'register' : (currentTab === 'tab-store-orders' ? 'orders' : 'products'))}
           </div>
 
-          <!-- [스터디 관리 패널] -->
-          <div id="tab-study" class="admin-tab-panel" style="display: ${currentTab === 'tab-study' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
-            ${(() => {
-              const studySubTab = (typeof window !== 'undefined' && (window as any).__studyAdminSubTab) || 'articles';
-              return `
-                <div style="background: var(--surface-container); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.35rem; display: flex; flex-direction: column; gap: 1.25rem;">
-                  <!-- 상단 헤더 & 설명 -->
-                  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">
-                    <div>
-                      <h2 style="font-size: 1.3rem; font-weight: 800; color: #dfe2f1; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                        <span class="material-symbols-outlined" style="color: #f2ca50; font-size: 26px;">menu_book</span>
-                        스터디 &amp; 사주 지식 허브 CMS 관리
-                      </h2>
-                      <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.35rem 0 0 0;">
-                        명리학 정보 블로그 아티클을 발행하고 독자들의 질문과 커뮤니티 댓글을 중앙 관리합니다.
-                      </p>
-                    </div>
-                    <div style="display: flex; gap: 0.5rem;">
-                      <a href="/?view=study" target="_blank" style="display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(242, 202, 80, 0.15); color: #f2ca50; border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 6px; padding: 0.45rem 0.85rem; font-size: 0.8rem; font-weight: 700; text-decoration: none;">
-                        <span class="material-symbols-outlined" style="font-size: 16px;">open_in_new</span>
-                        고객 스터디 허브 바로가기
-                      </a>
-                    </div>
-                  </div>
-
-                  <!-- 상단 3대 KPI 요약 -->
-                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem;">
-                    <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
-                      <div style="font-size: 0.75rem; color: var(--text-muted);">발행된 아티클</div>
-                      <div style="font-size: 1.4rem; font-weight: 800; color: #fff; margin-top: 0.25rem;">4편</div>
-                    </div>
-                    <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
-                      <div style="font-size: 0.75rem; color: var(--text-muted);">누적 조회수</div>
-                      <div style="font-size: 1.4rem; font-weight: 800; color: #f2ca50; margin-top: 0.25rem;">9,100회</div>
-                    </div>
-                    <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem;">
-                      <div style="font-size: 0.75rem; color: var(--text-muted);">커뮤니티 질문/댓글</div>
-                      <div style="font-size: 1.4rem; font-weight: 800; color: #dfe2f1; margin-top: 0.25rem;">89건</div>
-                    </div>
-                  </div>
-
-                  <!-- 3대 보조 탭 내비게이션 바 -->
-                  <div style="display: flex; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.85rem; flex-wrap: wrap;">
-                    <button type="button" class="btn-admin-study-subtab" data-subtab="articles" style="background: ${studySubTab === 'articles' ? '#f2ca50' : 'rgba(255,255,255,0.05)'}; color: ${studySubTab === 'articles' ? '#0f172a' : '#cbd5e1'}; font-weight: 800; border: none; padding: 0.55rem 1.15rem; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                      <span class="material-symbols-outlined" style="font-size: 18px;">menu_book</span>
-                      아티클 목록 (4)
-                    </button>
-                    <button type="button" class="btn-admin-study-subtab" data-subtab="write" style="background: ${studySubTab === 'write' ? '#f2ca50' : 'rgba(255,255,255,0.05)'}; color: ${studySubTab === 'write' ? '#0f172a' : '#cbd5e1'}; font-weight: 800; border: none; padding: 0.55rem 1.15rem; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                      <span class="material-symbols-outlined" style="font-size: 18px;">edit_document</span>
-                      + 새 글 작성기 (CMS)
-                    </button>
-                    <button type="button" class="btn-admin-study-subtab" data-subtab="community" style="background: ${studySubTab === 'community' ? '#f2ca50' : 'rgba(255,255,255,0.05)'}; color: ${studySubTab === 'community' ? '#0f172a' : '#cbd5e1'}; font-weight: 800; border: none; padding: 0.55rem 1.15rem; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                      <span class="material-symbols-outlined" style="font-size: 18px;">forum</span>
-                      커뮤니티 질의응답 관리 (89)
-                    </button>
-                  </div>
-
-                  <!-- [서브탭 1] 아티클 목록 -->
-                  <div style="display: ${studySubTab === 'articles' ? 'block' : 'none'};">
-                    <div style="overflow-x: auto;">
-                      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.84rem; color: #dfe2f1;">
-                        <thead>
-                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);">
-                            <th style="padding: 0.65rem;">분류</th>
-                            <th style="padding: 0.65rem;">아티클 제목</th>
-                            <th style="padding: 0.65rem;">작성자</th>
-                            <th style="padding: 0.65rem;">조회수</th>
-                            <th style="padding: 0.65rem;">댓글수</th>
-                            <th style="padding: 0.65rem;">등록일시</th>
-                            <th style="padding: 0.65rem; text-align: right;">관리</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                            <td style="padding: 0.65rem;"><span style="background: rgba(242, 202, 80, 0.15); color: #f2ca50; padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.75rem;">십신/인간관계</span></td>
-                            <td style="padding: 0.65rem; font-weight: 700; color: #fff;">십신(十神)으로 읽어내는 나의 숨은 사회적 잠재력</td>
-                            <td style="padding: 0.65rem; color: #a1a1aa;">마보살 학술팀</td>
-                            <td style="padding: 0.65rem; color: #f2ca50; font-weight: 600;">1,240회</td>
-                            <td style="padding: 0.65rem; color: #dfe2f1; font-weight: 600;">18건</td>
-                            <td style="padding: 0.65rem; color: var(--text-muted); font-size: 0.75rem;">2026-10-10</td>
-                            <td style="padding: 0.65rem; text-align: right;">
-                              <button type="button" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #dfe2f1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">수정</button>
-                            </td>
-                          </tr>
-                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                            <td style="padding: 0.65rem;"><span style="background: rgba(242,202,80,0.15); color: var(--primary); padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.75rem;">대운&amp;세운 흐름</span></td>
-                            <td style="padding: 0.65rem; font-weight: 700; color: #fff;">삼재(三災)와 대운(大運)의 진실: 공포 마케팅에 속지 않는 법</td>
-                            <td style="padding: 0.65rem; color: #a1a1aa;">마보살 마스터</td>
-                            <td style="padding: 0.65rem; color: #f2ca50; font-weight: 600;">2,890회</td>
-                            <td style="padding: 0.65rem; color: #dfe2f1; font-weight: 600;">32건</td>
-                            <td style="padding: 0.65rem; color: var(--text-muted); font-size: 0.75rem;">2026-10-08</td>
-                            <td style="padding: 0.65rem; text-align: right;">
-                              <button type="button" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #dfe2f1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">수정</button>
-                            </td>
-                          </tr>
-                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                            <td style="padding: 0.65rem;"><span style="background: rgba(52,211,153,0.15); color: #dfe2f1; padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.75rem;">사주 기초&amp;오행</span></td>
-                            <td style="padding: 0.65rem; font-weight: 700; color: #fff;">오행(五行) 목·화·토·금·수 자가 진단과 일상 속 개운법</td>
-                            <td style="padding: 0.65rem; color: #a1a1aa;">마보살 지식허브</td>
-                            <td style="padding: 0.65rem; color: #f2ca50; font-weight: 600;">3,120회</td>
-                            <td style="padding: 0.65rem; color: #dfe2f1; font-weight: 600;">25건</td>
-                            <td style="padding: 0.65rem; color: var(--text-muted); font-size: 0.75rem;">2026-10-05</td>
-                            <td style="padding: 0.65rem; text-align: right;">
-                              <button type="button" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #dfe2f1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">수정</button>
-                            </td>
-                          </tr>
-                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                            <td style="padding: 0.65rem;"><span style="background: rgba(244,114,182,0.15); color: #dfe2f1; padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.75rem;">Q&amp;A 커뮤니티</span></td>
-                            <td style="padding: 0.65rem; font-weight: 700; color: #fff;">Q&amp;A: 사주에 역마살(驛馬殺)이 많으면 평생 방황하나요?</td>
-                            <td style="padding: 0.65rem; color: #a1a1aa;">마보살 연구소</td>
-                            <td style="padding: 0.65rem; color: #f2ca50; font-weight: 600;">1,850회</td>
-                            <td style="padding: 0.65rem; color: #dfe2f1; font-weight: 600;">14건</td>
-                            <td style="padding: 0.65rem; color: var(--text-muted); font-size: 0.75rem;">2026-10-02</td>
-                            <td style="padding: 0.65rem; text-align: right;">
-                              <button type="button" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #dfe2f1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">수정</button>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  <!-- [서브탭 2] 새 글 작성기 (CMS) -->
-                  <div style="display: ${studySubTab === 'write' ? 'block' : 'none'};">
-                    <form id="study-article-form" onsubmit="event.preventDefault(); alert('새 스터디 아티클이 성공적으로 발행되었습니다.');" style="display: flex; flex-direction: column; gap: 0.85rem;">
-                      <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 0.85rem;">
-                        <div>
-                          <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">카테고리 *</label>
-                          <select required style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.5rem; border-radius: 6px; font-size: 0.84rem;">
-                            <option value="saju_basics">사주 기초 &amp; 오행</option>
-                            <option value="ten_gods">십신 &amp; 인간관계</option>
-                            <option value="fortune_flow">대운 &amp; 세운 흐름</option>
-                            <option value="qna_community">Q&amp;A 커뮤니티</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">아티클 제목 *</label>
-                          <input type="text" required placeholder="예: 비견과 겁재의 실전 심리 분석과 대인관계 해법" style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.5rem; border-radius: 6px; font-size: 0.84rem;" />
-                        </div>
-                      </div>
-                      <div>
-                        <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">요약 설명 문구 *</label>
-                        <input type="text" required placeholder="본문 상단에 노출될 1~2줄 핵심 요약" style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.5rem; border-radius: 6px; font-size: 0.84rem;" />
-                      </div>
-                      <div>
-                        <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">본문 내용 (마크다운 지원) *</label>
-                        <textarea rows="6" required placeholder="아티클 본문 내용을 입력하세요..." style="width: 100%; box-sizing: border-box; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.5rem; border-radius: 6px; font-size: 0.84rem; font-family: inherit; resize: vertical;"></textarea>
-                      </div>
-                      <div style="text-align: right;">
-                        <button type="submit" style="background: #f2ca50; color: #0f172a; font-weight: 800; border: none; border-radius: 6px; padding: 0.55rem 1.35rem; font-size: 0.85rem; cursor: pointer;">
-                          즉시 아티클 발행하기
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-
-                  <!-- [서브탭 3] 커뮤니티 질의응답 관리 -->
-                  <div style="display: ${studySubTab === 'community' ? 'block' : 'none'};">
-                    <div style="overflow-x: auto;">
-                      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.84rem; color: #dfe2f1;">
-                        <thead>
-                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);">
-                            <th style="padding: 0.65rem;">질문자</th>
-                            <th style="padding: 0.65rem;">질문 및 상담 내용</th>
-                            <th style="padding: 0.65rem;">연결 아티클</th>
-                            <th style="padding: 0.65rem;">답변 상태</th>
-                            <th style="padding: 0.65rem; text-align: right;">조치</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                            <td style="padding: 0.65rem; font-weight: 700;">김*민 (익명)</td>
-                            <td style="padding: 0.65rem; color: #fff;">일지에 편관이 있으면 배우자운이 정말 불리한가요?</td>
-                            <td style="padding: 0.65rem; color: #f2ca50;">십신으로 읽는 잠재력</td>
-                            <td style="padding: 0.65rem;"><span style="background: rgba(52,211,153,0.15); color: #dfe2f1; padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.72rem;">답변완료</span></td>
-                            <td style="padding: 0.65rem; text-align: right;">
-                              <button type="button" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #dfe2f1; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">답변 수정</button>
-                            </td>
-                          </tr>
-                          <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                            <td style="padding: 0.65rem; font-weight: 700;">박*우 (회원)</td>
-                            <td style="padding: 0.65rem; color: #fff;">정미년 삼재 액막이는 언제부터 준비해야 효과가 있나요?</td>
-                            <td style="padding: 0.65rem; color: #f2ca50;">삼재와 대운의 진실</td>
-                            <td style="padding: 0.65rem;"><span style="background: rgba(242,202,80,0.15); color: var(--primary); padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.72rem;">검토대기</span></td>
-                            <td style="padding: 0.65rem; text-align: right;">
-                              <button type="button" style="background: rgba(242,202,80,0.2); border: 1px solid rgba(242,202,80,0.4); color: var(--primary); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">답변 작성</button>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              `;
-            })()}
-          </div>
+          <!-- [컨텐츠 > 스터디 3대 서브카테고리 독립 패널 워크스페이스] -->
+          
 
         <!-- [패널 10] 1:1 고객 문의 관리 센터 -->
         <div id="tab-inquiries" class="admin-tab-panel" style="display: ${currentTab === 'tab-inquiries' ? 'block' : 'none'};">
@@ -1501,6 +1324,291 @@ function renderAdminOverviewPanel(): string {
 
       </div>
 
+    </div>
+  `;
+}
+
+
+// ==========================================
+// [컨텐츠 > 스터디 3대 서브카테고리 전용 시스템 워크스페이스]
+// 1. 아티클 목록 (tab-study-articles)
+// 2. 글 작성 및 수정 (tab-study-write) - 알림창이 아닌 풀스크린 시스템화 폼
+// 3. 카테고리 관리 (tab-study-categories)
+// ==========================================
+function renderAdminStudyWorkspace(currentTab: string): string {
+  StudyService.init();
+  const articles = StudyService.getArticles();
+  const categories = StudyService.getCategories();
+  const editingId = getEditingStudyArticleId();
+  const editingArticle = editingId ? StudyService.getArticleById(editingId) : null;
+
+  return `
+    <!-- 1. 아티클 목록 패널 -->
+    <div id="tab-study-articles" class="admin-tab-panel" style="display: ${currentTab === 'tab-study-articles' || currentTab === 'tab-study' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+      <div style="background: var(--surface-container); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
+        
+        <!-- 상단 헤더 & 액션 -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">
+          <div>
+            <div style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.6rem; border-radius: 9999px; background: rgba(242,202,80,0.15); border: 1px solid rgba(242,202,80,0.3); margin-bottom: 0.4rem;">
+              <span class="material-symbols-outlined" style="font-size: 0.85rem; color: var(--primary);">article</span>
+              <span style="font-size: 0.72rem; font-weight: 700; color: var(--primary); letter-spacing: 0.05em;">STUDY ARTICLES MANAGEMENT</span>
+            </div>
+            <h2 style="font-size: 1.3rem; font-weight: 800; color: #dfe2f1; margin: 0;">
+              스터디 아티클 목록 (${articles.length}편)
+            </h2>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.35rem 0 0 0;">
+              발행된 스터디 글을 확인하고 실시간으로 수정 및 삭제할 수 있습니다.
+            </p>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="button" class="admin-tab-btn" data-tab="tab-study-write" id="btn-admin-goto-write" style="display: inline-flex; align-items: center; gap: 0.4rem; background: var(--primary); color: #1c1500; border: none; border-radius: 8px; padding: 0.55rem 1.15rem; font-size: 0.85rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(242,202,80,0.25);">
+              <span class="material-symbols-outlined" style="font-size: 18px;">edit_document</span>
+              + 새 글 작성하기
+            </button>
+            <a href="/study" target="_blank" style="display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 0.55rem 0.95rem; font-size: 0.82rem; font-weight: 700; text-decoration: none;">
+              <span class="material-symbols-outlined" style="font-size: 16px;">open_in_new</span>
+              고객 화면 보기
+            </a>
+          </div>
+        </div>
+
+        <!-- 아티클 데이터 테이블 -->
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.86rem; color: #dfe2f1;">
+            <thead>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); background: rgba(0,0,0,0.2);">
+                <th style="padding: 0.75rem 0.85rem;">카테고리</th>
+                <th style="padding: 0.75rem 0.85rem;">아티클 제목</th>
+                <th style="padding: 0.75rem 0.85rem;">한글 슬러그 (URL)</th>
+                <th style="padding: 0.75rem 0.85rem;">작성자</th>
+                <th style="padding: 0.75rem 0.85rem; text-align: center;">조회수</th>
+                <th style="padding: 0.75rem 0.85rem;">등록일시</th>
+                <th style="padding: 0.75rem 0.85rem; text-align: right;">관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${articles.map(art => {
+                const catObj = categories.find(c => c.id === art.category);
+                const catName = catObj ? catObj.name : (art.categoryName || art.category);
+                return `
+                  <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.02)';" onmouseout="this.style.background='transparent';">
+                    <td style="padding: 0.85rem;">
+                      <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); padding: 0.2rem 0.55rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; border: 1px solid rgba(242,202,80,0.25);">
+                        ${catName}
+                      </span>
+                    </td>
+                    <td style="padding: 0.85rem; font-weight: 700; color: #ffffff; max-width: 260px;">
+                      ${art.title}
+                    </td>
+                    <td style="padding: 0.85rem; font-size: 0.78rem;">
+                      <a href="/study/${encodeURIComponent(art.slug)}" target="_blank" style="color: #94a3b8; text-decoration: none; display: inline-flex; align-items: center; gap: 0.2rem;" title="글 보러가기">
+                        <code style="color: var(--primary); background: rgba(0,0,0,0.3); padding: 0.15rem 0.4rem; border-radius: 4px;">/${art.slug}</code>
+                        <span class="material-symbols-outlined" style="font-size: 14px;">open_in_new</span>
+                      </a>
+                    </td>
+                    <td style="padding: 0.85rem; color: #cbd5e1;">${art.author}</td>
+                    <td style="padding: 0.85rem; text-align: center; color: var(--primary); font-weight: 700;">${art.views.toLocaleString()}회</td>
+                    <td style="padding: 0.85rem; color: var(--text-muted); font-size: 0.78rem;">${art.createdAt}</td>
+                    <td style="padding: 0.85rem; text-align: right; white-space: nowrap;">
+                      <button type="button" class="btn-admin-edit-study-article" data-id="${art.id}" style="background: rgba(242, 202, 80, 0.14); border: 1px solid rgba(242, 202, 80, 0.35); color: var(--primary); padding: 0.3rem 0.65rem; border-radius: 5px; font-size: 0.78rem; font-weight: 700; cursor: pointer; margin-right: 0.35rem;">
+                        수정
+                      </button>
+                      <button type="button" class="btn-admin-delete-study-article" data-id="${art.id}" data-title="${art.title.replace(/"/g, '&quot;')}" style="background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.3); color: #f87171; padding: 0.3rem 0.65rem; border-radius: 5px; font-size: 0.78rem; font-weight: 700; cursor: pointer;">
+                        삭제
+                      </button>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 글 작성 및 수정 전용 시스템 에디터 워크스페이스 패널 -->
+    <div id="tab-study-write" class="admin-tab-panel" style="display: ${currentTab === 'tab-study-write' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+      <div style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1.75rem; display: flex; flex-direction: column; gap: 1.5rem;">
+        
+        <!-- 상단 타이틀 바 -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">
+          <div>
+            <div style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.6rem; border-radius: 9999px; background: rgba(242,202,80,0.15); border: 1px solid rgba(242,202,80,0.3); margin-bottom: 0.4rem;">
+              <span class="material-symbols-outlined" style="font-size: 0.85rem; color: var(--primary);">edit_note</span>
+              <span style="font-size: 0.72rem; font-weight: 700; color: var(--primary); letter-spacing: 0.05em;">ARTICLE EDITOR SYSTEM</span>
+            </div>
+            <h2 style="font-size: 1.35rem; font-weight: 800; color: #dfe2f1; margin: 0;">
+              ${editingArticle ? `스터디 글 수정 : [${editingArticle.title}]` : '새 스터디 아티클 작성 및 발행'}
+            </h2>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.35rem 0 0 0;">
+              제목을 입력하면 정통 SEO 한글 슬러그가 자동으로 생성됩니다. 내용 작성 후 즉시 고객 화면에 반영됩니다.
+            </p>
+          </div>
+          <button type="button" class="admin-tab-btn" data-tab="tab-study-articles" id="btn-admin-cancel-study-write" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; border-radius: 8px; padding: 0.5rem 1rem; font-size: 0.82rem; font-weight: 700; cursor: pointer;">
+            ← 아티클 목록으로
+          </button>
+        </div>
+
+        <!-- 시스템 폼 -->
+        <form id="form-admin-study-article" style="display: flex; flex-direction: column; gap: 1.25rem;">
+          <input type="hidden" id="admin-study-article-id" value="${editingArticle?.id || ''}" />
+
+          <!-- 제목 & 카테고리 -->
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem;">
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #ffffff; margin-bottom: 0.45rem;">
+                아티클 제목 *
+              </label>
+              <input type="text" id="admin-study-title" required value="${editingArticle?.title || ''}" placeholder="예: 십신으로 읽어내는 나의 숨은 사회적 잠재력" style="width: 100%; box-sizing: border-box; background: #0c0f18; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.95rem; font-weight: 700;" />
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #ffffff; margin-bottom: 0.45rem;">
+                카테고리 *
+              </label>
+              <select id="admin-study-category" required style="width: 100%; box-sizing: border-box; background: #0c0f18; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.9rem;">
+                ${categories.map(c => `
+                  <option value="${c.id}" ${editingArticle?.category === c.id ? 'selected' : ''}>${c.name}</option>
+                `).join('')}
+              </select>
+            </div>
+          </div>
+
+          <!-- 한글 슬러그 (SEO URL) -->
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--primary); margin-bottom: 0.45rem;">
+              한글 슬러그 (고유 페이지 URL 경로) *
+            </label>
+            <div style="display: flex; align-items: center; background: #0c0f18; border: 1px solid rgba(242,202,80,0.3); border-radius: 8px; padding-left: 0.85rem; overflow: hidden;">
+              <span style="color: var(--primary); font-size: 0.85rem; font-weight: 700; font-family: monospace;">mabosal.com/study/</span>
+              <input type="text" id="admin-study-slug" required value="${editingArticle?.slug || ''}" placeholder="십신으로-읽어내는-나의-숨은-사회적-잠재력" style="flex: 1; background: transparent; border: none; color: #ffffff; padding: 0.75rem 0.75rem; font-size: 0.9rem; font-weight: 600; outline: none;" />
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0.35rem 0 0 0;">
+              제목을 입력하면 자동으로 한글 슬러그가 채워지며, 필요 시 원하는 한글 키워드로 직접 수정할 수 있습니다.
+            </p>
+          </div>
+
+          <!-- 작성자 & 태그 -->
+          <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.25rem;">
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #ffffff; margin-bottom: 0.45rem;">
+                작성자 이름
+              </label>
+              <input type="text" id="admin-study-author" value="${editingArticle?.author || '마보살 연구소'}" placeholder="예: 마보살 학술팀" style="width: 100%; box-sizing: border-box; background: #0c0f18; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.7rem 0.9rem; border-radius: 8px; font-size: 0.88rem;" />
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #ffffff; margin-bottom: 0.45rem;">
+                태그 (쉼표로 구분)
+              </label>
+              <input type="text" id="admin-study-tags" value="${editingArticle?.tags ? editingArticle.tags.join(', ') : '명리학, 사주, 실전해설'}" placeholder="예: 십신, 사주기초, 적성분석" style="width: 100%; box-sizing: border-box; background: #0c0f18; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.7rem 0.9rem; border-radius: 8px; font-size: 0.88rem;" />
+            </div>
+          </div>
+
+          <!-- 요약 설명 문구 -->
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #ffffff; margin-bottom: 0.45rem;">
+              요약 설명 문구 (검색 결과 및 카드에 노출) *
+            </label>
+            <input type="text" id="admin-study-summary" required value="${editingArticle?.summary || ''}" placeholder="아티클 목록 카드와 검색엔진 스니펫에 노출될 1~2줄 핵심 요약" style="width: 100%; box-sizing: border-box; background: #0c0f18; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.88rem;" />
+          </div>
+
+          <!-- 본문 에디터 텍스트에어리어 -->
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #ffffff; margin-bottom: 0.45rem;">
+              상세 본문 내용 (단락 및 줄바꿈 지원) *
+            </label>
+            <textarea id="admin-study-content" rows="15" required placeholder="독자들에게 전달할 명리학 지식 및 해설 내용을 정성스럽게 작성해 주세요..." style="width: 100%; box-sizing: border-box; background: #0c0f18; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 1rem; border-radius: 8px; font-size: 0.95rem; line-height: 1.8; font-family: inherit; resize: vertical;">${editingArticle?.content || ''}</textarea>
+          </div>
+
+          <!-- 저장/발행 버튼 액션 -->
+          <div style="display: flex; justify-content: flex-end; gap: 0.75rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.25rem;">
+            <button type="button" class="admin-tab-btn" data-tab="tab-study-articles" style="background: rgba(255,255,255,0.08); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem 1.5rem; font-size: 0.9rem; font-weight: 700; cursor: pointer;">
+              작성 취소
+            </button>
+            <button type="submit" style="background: var(--primary); color: #1c1500; border: none; border-radius: 8px; padding: 0.7rem 2rem; font-size: 0.95rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 16px rgba(242,202,80,0.35);">
+              ${editingArticle ? '수정 사항 저장 및 즉시 반영' : '새 아티클 발행하기'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 3. 카테고리 관리 전용 패널 -->
+    <div id="tab-study-categories" class="admin-tab-panel" style="display: ${currentTab === 'tab-study-categories' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+      <div style="background: var(--surface-container); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
+        
+        <!-- 상단 헤더 -->
+        <div style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">
+          <div style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.6rem; border-radius: 9999px; background: rgba(242,202,80,0.15); border: 1px solid rgba(242,202,80,0.3); margin-bottom: 0.4rem;">
+            <span class="material-symbols-outlined" style="font-size: 0.85rem; color: var(--primary);">category</span>
+            <span style="font-size: 0.72rem; font-weight: 700; color: var(--primary); letter-spacing: 0.05em;">CATEGORY STRUCTURE</span>
+          </div>
+          <h2 style="font-size: 1.3rem; font-weight: 800; color: #dfe2f1; margin: 0;">
+            스터디 카테고리 관리 (${categories.length}개)
+          </h2>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.35rem 0 0 0;">
+            카테고리를 추가, 수정, 삭제하여 독자들을 위한 명리학 분류 체계를 자유롭게 구성합니다.
+          </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 1.5rem; align-items: flex-start;">
+          
+          <!-- 새 카테고리 추가 폼 -->
+          <form id="form-admin-add-category" style="background: rgba(242,202,80,0.04); border: 1px solid rgba(242,202,80,0.25); border-radius: 12px; padding: 1.35rem; display: flex; flex-direction: column; gap: 1rem;">
+            <h3 style="color: var(--primary); font-size: 1rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 0.35rem;">
+              <span class="material-symbols-outlined" style="font-size: 20px;">add_circle</span>
+              새 카테고리 추가
+            </h3>
+            
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #dfe2f1; margin-bottom: 0.35rem;">카테고리 이름 *</label>
+              <input type="text" id="admin-input-new-cat-name" required placeholder="예: 신년운세 가이드 & 비책" style="width: 100%; box-sizing: border-box; background: #0c0f18; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.65rem 0.85rem; border-radius: 6px; font-size: 0.88rem;" />
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #dfe2f1; margin-bottom: 0.35rem;">간단 설명</label>
+              <input type="text" id="admin-input-new-cat-desc" placeholder="예: 매년 새해 운세와 절기별 개운 솔루션" style="width: 100%; box-sizing: border-box; background: #0c0f18; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.65rem 0.85rem; border-radius: 6px; font-size: 0.88rem;" />
+            </div>
+
+            <button type="submit" style="background: var(--primary); color: #1c1500; font-weight: 800; border: none; border-radius: 6px; padding: 0.7rem; font-size: 0.9rem; cursor: pointer; margin-top: 0.35rem;">
+              + 신규 카테고리 등록
+            </button>
+          </form>
+
+          <!-- 현재 등록된 카테고리 목록 테이블 -->
+          <div style="background: #0c0f18; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.25rem;">
+            <h3 style="color: #ffffff; font-size: 0.95rem; font-weight: 800; margin: 0 0 0.85rem;">
+              등록된 카테고리 목록
+            </h3>
+
+            <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+              ${categories.map(c => {
+                const count = StudyService.getArticles(c.id).length;
+                return `
+                  <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 0.75rem 1rem;">
+                    <div>
+                      <div style="color: #ffffff; font-size: 0.92rem; font-weight: 700;">${c.name}</div>
+                      <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.15rem;">
+                        등록된 글 ${count}건 · ID: ${c.id}
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 0.4rem;">
+                      <button type="button" class="btn-admin-edit-cat" data-id="${c.id}" data-name="${c.name}" data-desc="${c.description || ''}" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; border-radius: 5px; padding: 0.3rem 0.6rem; font-size: 0.78rem; cursor: pointer;">
+                        수정
+                      </button>
+                      <button type="button" class="btn-admin-del-cat" data-id="${c.id}" data-name="${c.name}" style="background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.3); color: #f87171; border-radius: 5px; padding: 0.3rem 0.6rem; font-size: 0.78rem; cursor: pointer;">
+                        삭제
+                      </button>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   `;
 }

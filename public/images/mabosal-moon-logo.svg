@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- 시안 B: 웜 리치 골드 보름달 입체 그라디언트 -->
+    <radialGradient id="richGoldMoon" cx="38%" cy="34%" r="66%">
+      <stop offset="0%" stop-color="#FFFDF2" />
+      <stop offset="28%" stop-color="#FFECA2" />
+      <stop offset="62%" stop-color="#F2C648" />
+      <stop offset="86%" stop-color="#DE9D20" />
+      <stop offset="100%" stop-color="#BE7B08" />
+    </radialGradient>
+
+    <!-- 달 표면의 미세 크레이터 음영 질감 -->
+    <radialGradient id="crater1" cx="68%" cy="28%" r="30%">
+      <stop offset="0%" stop-color="#D49010" stop-opacity="0.30" />
+      <stop offset="100%" stop-color="#D49010" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="crater2" cx="28%" cy="72%" r="34%">
+      <stop offset="0%" stop-color="#B66E02" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="#B66E02" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- 모던 인장 소프트 섀도우 -->
+    <filter id="modernSealShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2.5" stdDeviation="3.5" flood-color="#000000" flood-opacity="0.32" />
+    </filter>
+  </defs>
+
+  <!-- 1. 보름달 본체 (외곽 여백 0%, 100% 원형) -->
+  <circle cx="256" cy="256" r="256" fill="url(#richGoldMoon)" />
+  <circle cx="256" cy="256" r="256" fill="url(#crater1)" />
+  <circle cx="256" cy="256" r="256" fill="url(#crater2)" />
+
+  <!-- 2. 시안 B: 모던 럭셔리 인장형(Modern Luxury Minimalist) 한글 '마' -->
+  <g fill="#0b0e17" filter="url(#modernSealShadow)">
+    <!-- 'ㅁ': 모던 라운드 코너 블록 (외곽 180x230, rx=22 / 내부 64x114, rx=10 / 획 두께 58px) -->
+    <path fill-rule="evenodd" d="
+      M 98,141
+      h 136
+      a 22,22 0 0 1 22,22
+      v 186
+      a 22,22 0 0 1 -22,22
+      H 98
+      a 22,22 0 0 1 -22,-22
+      V 163
+      a 22,22 0 0 1 22,-22
+      Z
+      M 156,199
+      h 44
+      a 10,10 0 0 1 10,10
+      v 70
+      a 10,10 0 0 1 -10,10
+      h -44
+      a 10,10 0 0 1 -10,-10
+      v -70
+      a 10,10 0 0 1 10,-10
+      Z
+    " />
+
+    <!-- 'ㅏ' 세로 기둥 (두께 60px, 높이 276px, 부드러운 라운드 rx=16) -->
+    <rect x="296" y="118" width="60" height="276" rx="16" />
+
+    <!-- 'ㅏ' 가로 곁가지 (두께 56px, 길이 72px, 부드러운 라운드 rx=14) -->
+    <rect x="352" y="228" width="72" height="56" rx="14" />
+  </g>
+</svg>

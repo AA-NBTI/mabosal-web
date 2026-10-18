@@ -67,6 +67,24 @@ html, body {
   flex-direction: column;
 }
 
+/* Material Symbols 아이콘 폰트 로드 전 영문 텍스트 플래시(FOUT) 및 레이아웃 틀어짐 방지 */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'liga';
+}
+
 /* ==========================================================================
    UNIFIED 1440px CONTAINER
    ========================================================================== */

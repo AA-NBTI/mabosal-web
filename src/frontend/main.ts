@@ -4,7 +4,7 @@ import { savePaymentConfigFromDom } from './modules/payment/AdminPaymentPanel.js
 import { VoucherStore } from './modules/voucher/voucher-store.js';
 import { renderMagiCalendarView } from './views/MagiCalendarView.js';
 import { renderLuckyCalendarView } from './views/LuckyCalendarView.js';
-import { renderStudyView, setStudyCategory, selectStudyArticle } from './extensions/study-hub/index.js';
+import { renderStudyView, setStudyCategory, selectStudyArticle, bindStudyHubEvents, StudyService, generateKoreanSlug } from './extensions/study-hub/index.js';
 import { SiteContentStore } from './state/site-content-store.js';
 import { navigateTo, parseRouteFromLocation, getViewPath, updateSeoForView, mountPageToOutlet, syncNavActiveState } from './modules/router/index.js';
 import {
@@ -25,6 +25,7 @@ import {
 } from './extensions/solution-hub/index.js';
 
 bindSolutionHubEvents();
+bindStudyHubEvents();
 /**
  * Phase 14~27: Frontend Main Application Entry
  * 
@@ -67,6 +68,8 @@ import {
   getEditingStoreProductId,
   toggleAdminGroup,
   toggleAdminSubGroup,
+  setEditingStudyArticleId,
+  getEditingStudyArticleId,
 } from './views/AdminDashboardView.js';
 import {
   setInquiryFilter,
@@ -267,6 +270,12 @@ class MabosalApp {
       } else if (initialView === 'result' || initialView === 'report') {
         UserSajuStore.restoreLastActiveAnalysis(urlParams.get('orderId'), urlParams.get('tier'));
         appState.setView('result');
+      } else if (initialView === 'study') {
+        const articleSlug = parsed.params.article || urlParams.get('article');
+        if (articleSlug) {
+          selectStudyArticle(articleSlug, false);
+        }
+        appState.setView('study');
       } else if (initialView === 'member-dashboard') {
         const memberTabParam = urlParams.get('tab');
         if (memberTabParam) {
@@ -304,7 +313,11 @@ class MabosalApp {
  });
  }
 
- let prevNavView = appState.getState().currentView;
+ window.addEventListener('study-state-changed', () => {
+      this.render(appState.getState());
+    });
+
+  let prevNavView = appState.getState().currentView;
  appState.subscribe(state => {
  if (state.currentView === 'loading') {
    this.render(state);
@@ -372,6 +385,78 @@ class MabosalApp {
           alert(`[${depositor}] 님의 무통장 입금 확인 신청이 접수되었습니다.\n관리자 입금 확인 후 쿠폰이 즉시 승인 지급됩니다.`);
           this.render(appState.getState());
         }
+        return;
+      }
+
+      // [관리자 CMS: 스터디 글 풀스크린 시스템 에디터 저장/발행]
+      if (targetForm?.id === 'form-admin-study-article') {
+        e.preventDefault();
+        const articleId = (document.getElementById('admin-study-article-id') as HTMLInputElement)?.value.trim() || undefined;
+        const title = (document.getElementById('admin-study-title') as HTMLInputElement)?.value.trim();
+        const category = (document.getElementById('admin-study-category') as HTMLSelectElement)?.value;
+        let slug = (document.getElementById('admin-study-slug') as HTMLInputElement)?.value.trim();
+        const author = (document.getElementById('admin-study-author') as HTMLInputElement)?.value.trim() || '마보살 연구소';
+        const tagsStr = (document.getElementById('admin-study-tags') as HTMLInputElement)?.value.trim() || '';
+        const tags = tagsStr.split(',').map(t => t.trim()).filter(Boolean);
+        const summary = (document.getElementById('admin-study-summary') as HTMLInputElement)?.value.trim();
+        const content = (document.getElementById('admin-study-content') as HTMLTextAreaElement)?.value.trim();
+
+        if (!title || !category || !summary || !content) {
+          alert('필수 입력 항목(제목, 카테고리, 요약, 본문)을 모두 채워주세요.');
+          return;
+        }
+
+        if (!slug) {
+          slug = generateKoreanSlug(title);
+        }
+
+        if (articleId) {
+          StudyService.updateArticle(articleId, {
+            title,
+            slug,
+            category,
+            author,
+            tags,
+            summary,
+            content
+          });
+          alert('스터디 글이 성공적으로 수정되었습니다.');
+        } else {
+          StudyService.createArticle({
+            title,
+            slug,
+            category,
+            author,
+            tags,
+            summary,
+            content
+          });
+          alert('새 스터디 글이 성공적으로 등록 및 발행되었습니다.');
+        }
+
+        setEditingStudyArticleId(null);
+        setAdminActiveTab('tab-study-articles');
+        this.render(appState.getState());
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      // [관리자 CMS: 스터디 카테고리 신규 추가]
+      if (targetForm?.id === 'form-admin-add-category') {
+        e.preventDefault();
+        const catNameInput = document.getElementById('admin-input-new-cat-name') as HTMLInputElement;
+        const catDescInput = document.getElementById('admin-input-new-cat-desc') as HTMLInputElement;
+        const catName = catNameInput?.value.trim();
+        const catDesc = catDescInput?.value.trim() || '';
+
+        if (!catName) {
+          alert('카테고리 이름을 입력해주세요.');
+          return;
+        }
+
+        StudyService.addCategory(catName, catDesc);
+        alert(`새 카테고리 [${catName}] 이 등록되었습니다.`);
+        this.render(appState.getState());
         return;
       }
 

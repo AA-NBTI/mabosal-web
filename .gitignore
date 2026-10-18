@@ -39,7 +39,7 @@ lerna-debug.log*
 .DS_Store
 Thumbs.db
 
-# Temp & Scratch files (scratch 폴더 내 대용량/임시 파일만 제외하거나 필요한 경우 유지)
-scratch/tmp/
+# Temp & Scratch files
+scratch/
 *.tmp
 supabase/.temp/
