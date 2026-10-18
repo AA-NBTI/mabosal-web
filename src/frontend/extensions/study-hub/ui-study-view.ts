@@ -7,6 +7,7 @@
  */
 
 import { StudyService } from './study-service.js';
+import { AuthService } from '../../state/auth-service.js';
 import { StudyArticle, StudyCategory } from './types.js';
 
 let activeCategory: string = 'all';
@@ -67,16 +68,21 @@ function triggerAppRerender() {
 export function renderStudyView(): string {
   StudyService.init();
 
-  // URL에서 파라미터 파싱
+  // URL에서 파라미터 파싱 및 명시적 리셋
   if (typeof window !== 'undefined') {
     const urlParams = new URLSearchParams(window.location.search);
     const slugParam = urlParams.get('article');
     const catParam = urlParams.get('category');
+    const pathname = window.location.pathname;
+
     if (slugParam) {
       currentArticleSlug = slugParam;
-    } else if (window.location.pathname.startsWith('/study/')) {
-      const pathSlug = decodeURIComponent(window.location.pathname.replace('/study/', ''));
-      if (pathSlug) currentArticleSlug = pathSlug;
+    } else if (pathname.startsWith('/study/') && pathname !== '/study/' && pathname !== '/study') {
+      const pathSlug = decodeURIComponent(pathname.replace('/study/', '').replace(/\/+$/, ''));
+      currentArticleSlug = pathSlug || null;
+    } else {
+      // /study 기본 경로로 접근하거나 상단 메뉴 클릭 시에는 상세 글 상태를 확실히 리셋하여 목록 표시!
+      currentArticleSlug = null;
     }
 
     if (catParam) {
@@ -202,17 +208,19 @@ export function renderStudyView(): string {
         </p>
       </div>
 
-      <!-- 우측 컨트롤: 관리자 시스템 에디터 연결 -->
-      <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
-        <a href="/admin?tab=tab-study-write" class="study-action-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; background: var(--primary); color: #1c1500; font-weight: 800; border: none; padding: 0.6rem 1.15rem; font-size: 0.88rem; box-shadow: 0 4px 14px rgba(242, 202, 80, 0.28); border-radius: 8px;">
-          <span class="material-symbols-outlined" style="font-size: 18px;">edit_document</span>
-          관리자 글 작성 시스템
-        </a>
-        <a href="/admin?tab=tab-study-categories" class="study-action-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); color: #dfe2f1; padding: 0.6rem 1rem; font-size: 0.88rem; border-radius: 8px;">
-          <span class="material-symbols-outlined" style="font-size: 16px;">category</span>
-          카테고리 관리 (${categories.length})
-        </a>
-      </div>
+      <!-- 우측 컨트롤: 최고 관리자에게만 노출되는 바로가기 -->
+      ${AuthService.isAdmin() ? `
+        <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
+          <a href="/admin?tab=tab-study-write" class="study-action-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; background: var(--primary); color: #1c1500; font-weight: 800; border: none; padding: 0.5rem 1rem; font-size: 0.82rem; box-shadow: 0 4px 14px rgba(242, 202, 80, 0.28); border-radius: 8px;">
+            <span class="material-symbols-outlined" style="font-size: 16px;">edit_document</span>
+            글 작성 CMS
+          </a>
+          <a href="/admin?tab=tab-study-categories" class="study-action-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); color: #dfe2f1; padding: 0.5rem 0.9rem; font-size: 0.82rem; border-radius: 8px;">
+            <span class="material-symbols-outlined" style="font-size: 16px;">category</span>
+            카테고리 관리
+          </a>
+        </div>
+      ` : ''}
     </div>
 
     <!-- 동적 카테고리 탭 네비게이션 바 -->
@@ -278,15 +286,17 @@ function renderArticleList(articles: StudyArticle[], currentCat: string, categor
                 ${catName}
               </span>
 
-              <!-- 카드 우측 인라인 관리 액션 (수정/삭제) -->
-              <div style="display: flex; gap: 0.35rem;" onclick="event.stopPropagation();">
-                <a href="/admin?tab=tab-study-write" class="btn-card-edit-article" data-id="${art.id}" title="관리자에서 글 수정" style="text-decoration: none; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #cbd5e1; border-radius: 6px; padding: 0.2rem 0.5rem; font-size: 0.72rem; cursor: pointer;">
-                  수정
-                </a>
-                <button type="button" class="btn-card-delete-article" data-id="${art.id}" data-title="${art.title.replace(/"/g, '&quot;')}" title="글 삭제" style="background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.25); color: #f87171; border-radius: 6px; padding: 0.2rem 0.5rem; font-size: 0.72rem; cursor: pointer;">
-                  삭제
-                </button>
-              </div>
+              <!-- 카드 우측 관리자 액션 (관리자에게만 노출) -->
+              ${AuthService.isAdmin() ? `
+                <div style="display: flex; gap: 0.35rem;" onclick="event.stopPropagation();">
+                  <a href="/admin?tab=tab-study-write" class="btn-card-edit-article" data-id="${art.id}" title="관리자에서 글 수정" style="text-decoration: none; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #cbd5e1; border-radius: 6px; padding: 0.2rem 0.5rem; font-size: 0.72rem; cursor: pointer;">
+                    수정
+                  </a>
+                  <button type="button" class="btn-card-delete-article" data-id="${art.id}" data-title="${art.title.replace(/"/g, '&quot;')}" title="글 삭제" style="background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.25); color: #f87171; border-radius: 6px; padding: 0.2rem 0.5rem; font-size: 0.72rem; cursor: pointer;">
+                    삭제
+                  </button>
+                </div>
+              ` : ''}
             </div>
 
             <!-- 제목 -->
@@ -328,14 +338,16 @@ function renderArticleDetail(art: StudyArticle): string {
           ← 목록으로 돌아가기
         </button>
 
-        <div style="display: flex; gap: 0.5rem;">
-          <a href="/admin?tab=tab-study-write" class="study-action-btn btn-goto-admin-edit" data-id="${art.id}" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem; background: rgba(242, 202, 80, 0.14); border: 1px solid rgba(242, 202, 80, 0.35); color: var(--primary); padding: 0.45rem 0.85rem; border-radius: 6px; font-size: 0.82rem; font-weight: 700;">
-            ✏ 관리자에서 수정
-          </a>
-          <button type="button" class="btn-delete-current-article study-action-btn" data-id="${art.id}" data-title="${art.title.replace(/"/g, '&quot;')}" style="background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.3); color: #f87171;">
-            🗑 글 삭제
-          </button>
-        </div>
+        ${AuthService.isAdmin() ? `
+          <div style="display: flex; gap: 0.5rem;">
+            <a href="/admin?tab=tab-study-write" class="study-action-btn btn-goto-admin-edit" data-id="${art.id}" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem; background: rgba(242, 202, 80, 0.14); border: 1px solid rgba(242, 202, 80, 0.35); color: var(--primary); padding: 0.45rem 0.85rem; border-radius: 6px; font-size: 0.82rem; font-weight: 700;">
+              ✏ 관리자에서 수정
+            </a>
+            <button type="button" class="btn-delete-current-article study-action-btn" data-id="${art.id}" data-title="${art.title.replace(/"/g, '&quot;')}" style="background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.3); color: #f87171;">
+              🗑 글 삭제
+            </button>
+          </div>
+        ` : ''}
       </div>
 
       <!-- 카테고리 뱃지 & 발행 메타정보 -->
