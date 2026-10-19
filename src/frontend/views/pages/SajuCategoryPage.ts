@@ -40,7 +40,7 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
         <div class="product-action-box">
           <div class="product-price-label">0원</div>
           <button type="button" class="btn-cta-secondary btn-select-product" data-tier="FREE" style="background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary);">
-            무료 시작 →
+            무료 체험
           </button>
         </div>
       </div>
@@ -64,7 +64,7 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
         <div class="product-action-box">
           <div class="product-price-label">39,900원</div>
           <button type="button" class="btn-cta-primary btn-select-product" data-tier="PAID" style="background: var(--primary); color: #241a00; border: none;">
-            신청 →
+            구매하기
           </button>
         </div>
       </div>
@@ -88,7 +88,7 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
         <div class="product-action-box">
           <div class="product-price-label">79,900원</div>
           <button type="button" class="btn-cta-primary btn-select-product" data-tier="CONFLICT_MALSAL" style="background: var(--primary); color: #241a00; border: none;">
-            신청 →
+            구매하기
           </button>
         </div>
       </div>
@@ -112,7 +112,7 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
         <div class="product-action-box">
           <div class="product-price-label">149,900원</div>
           <button type="button" class="btn-cta-primary btn-select-product" data-tier="PREMIUM" style="background: var(--primary); color: #241a00; border: none;">
-            신청 →
+            구매하기
           </button>
         </div>
       </div>

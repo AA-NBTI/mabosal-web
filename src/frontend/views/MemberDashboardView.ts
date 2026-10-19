@@ -15,6 +15,7 @@ import { UserOrderService } from '../modules/order/user-order-service.js';
 import { renderUserOrderHistoryWidget } from '../modules/order/UserOrderHistoryWidget.js';
 import { renderMemberVoucherWidget } from '../modules/voucher/MemberVoucherWidget.js';
 import { renderCheonmyeongwonDailyDashboard, renderDailyAuspiciousHoursWidget } from '../components/VisualCharts.js';
+import { toDashboardOptions } from '../modules/fortune-adapter/index.js';
 import { CustomerInquiryStore } from '../state/customer-inquiry-store.js';
 import { UserSajuStore } from '../state/user-saju-store.js';
 import { renderMemberLuckyCalendarWidget, renderMemberMagiCalendarWidget } from './MemberCalendarWidgets.js';
@@ -43,7 +44,7 @@ export function renderMemberDashboardView(state: AppStateData): string {
     (i.userName === userName)
   );
 
-  // 카테고리 탭 목록 (홈화면 제거 -> 행운처방을 홈화면으로 설정, 감정서 탭 제거)
+  // 카테고리 탭 목록 (홈화면 제거 -> 행운처방을 홈화면으로 설정, 리포트 탭 제거)
   const tabs = [
     { id: 'tab-daily', icon: 'auto_fix_high', label: '행운처방', badge: '' },
     { id: 'tab-lucky-calendar', icon: 'event_available', label: '행운달력', badge: '' },
@@ -220,14 +221,16 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
   switch (tabId) {
     // 1. 행운처방 (기본 홈화면)
     case 'tab-daily': {
-      // 현재 로그인한 회원의 최신 등록 사주 기반 1순위 실시간 세션 산출 (과거 캐시 강제 무효화)
-      const userSession = UserSajuStore.calculateSessionForUser(user.id || user.username);
+      // 현재 로그인한 회원의 최신 등록 사주 기반 1순위 실시간 세션 산출
+      const userSession = UserSajuStore.calculateSessionForUser(user.id);
       const sessionData = userSession || (state?.sessionState as any) || state?.calcResult;
+      const hasSaju = UserSajuStore.hasSajuProfile(user.id);
 
-      const sajuCore = sessionData?.sajuCore || sessionData?.saju_core || (sessionData as any)?.fact;
-      const signal = sessionData?.signal || (sessionData as any)?.signalSet;
-      const relationship = sessionData?.relationship || sessionData?.relationships;
-      const hasSaju = UserSajuStore.hasSajuProfile(user.id || user.username);
+      // fortune-adapter: 세션(fact, signalSet) -> 정밀 지수 엔진 계약 변환 (개인화 보장)
+      const fortuneOpts = toDashboardOptions(sessionData, {
+        userName: user.name || state?.userName || '의뢰인',
+        gender: user.gender || state?.gender,
+      });
 
       return `
         <div style="display: flex; flex-direction: column; gap: 1.25rem;">
@@ -254,12 +257,8 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
 
           <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
             ${renderCheonmyeongwonDailyDashboard({
-              userName: user.name || state?.userName || '의뢰인',
-              gender: user.gender || state?.gender,
+              ...fortuneOpts,
               calcResult: sessionData,
-              sajuCore: sajuCore,
-              signal: signal,
-              relationship: relationship,
             })}
           </div>
         </div>

@@ -1,17 +1,22 @@
 /**
- * 사용자 사주 프로필 영구 저장 및 감정서 자동 복원(Rehydration) 매니저
+ * 사용자 사주 프로필 영구 저장 및 리포트 자동 복원(Rehydration) 매니저
  * 
  * 원칙:
  * 1. 사용자가 사주 정보를 한 번이라도 입력하면 LocalStorage('mm_user_saju_profile')에 영구 보존합니다.
- * 2. 결제 완료 후 또는 마이페이지에서 '감정서 열람' 클릭 시, 사주 입력창으로 되돌아가지 않고
- *    보존된 사주 정보를 바탕으로 즉시 감정서(Phase 83 4단계 결과물 및 세션)를 동기 복원하여 결과 화면을 표시합니다.
+ * 2. 결제 완료 후 또는 마이페이지에서 '리포트 열람' 클릭 시, 사주 입력창으로 되돌아가지 않고
+ *    보존된 사주 정보를 바탕으로 즉시 리포트(Phase 83 4단계 결과물 및 세션)를 동기 복원하여 결과 화면을 표시합니다.
  */
 
 import { appState, ProductTierTab } from './app-state.js';
 import { AuthService } from './auth-service.js';
 import { generateAllProductOutputs, CommonCaseInput } from '../../modules/product-output/index.js';
 import { MabosalSessionEngine } from '../../modules/phase13/mabosal-session.js';
+import type { MabosalSessionState } from '../../modules/phase13/phase13-types.js';
 import { ReportRouterMapper } from '../modules/checkout/report-router-mapper.js';
+import { getStorage, readJson, writeJson, removeKey, PersistenceKeys } from '../modules/persistence/index.js';
+import { getIdentity } from '../modules/identity/index.js';
+import { profileStorageKey, resolveProfileOwnerId, normalizeBirthDate, normalizeBirthTime } from '../modules/saju-profile/profile-core.js';
+import { resolveOrderForView, hasEntitlement } from '../modules/entitlement/entitlement-core.js';
 
 export interface UserSajuProfile {
   userName: string;
@@ -53,21 +58,30 @@ export class UserSajuStore {
   /**
    * 계정별 독립 저장소 키 산출
    */
+  /** 프로필 소유자 id 단일 결정 (id/username 어느 쪽을 받아도 account.id 로 정규화) */
+  private static ownerId(userId?: string): string {
+    const me = getIdentity();
+    return resolveProfileOwnerId(userId, AuthService.getAllAccounts(), {
+      id: me.userId || '',
+      username: me.username,
+      isGuest: me.isGuest,
+    });
+  }
+
   private static getStorageKey(userId?: string): string {
-    const user = AuthService.getCurrentUser();
-    const effectiveId = userId || (user && user.role !== 'guest' ? user.username : 'guest');
-    return `mm_user_saju_profile_${effectiveId}`;
+    return profileStorageKey(this.ownerId(userId));
   }
 
   /**
    * 사용자 사주 프로필을 LocalStorage에 영구 보존 (계정별 독립 저장)
    */
   public static saveProfile(profile: Partial<UserSajuProfile>, targetUserId?: string): UserSajuProfile {
-    const existing = this.getProfile(targetUserId);
-    const currentUser = AuthService.getCurrentUser();
+    const ownerId = this.ownerId(targetUserId);
+    const me = getIdentity();
+    const existing = this.getProfile(ownerId);
     const base = existing || {
       ...DEFAULT_USER_SAJU_PROFILE,
-      userName: currentUser?.name || '의뢰인',
+      userName: me.name || '의뢰인',
     };
 
     const merged: UserSajuProfile = {
@@ -76,24 +90,20 @@ export class UserSajuStore {
       updatedAt: new Date().toISOString(),
     };
 
-    if (typeof window !== 'undefined' && window.localStorage) {
-      try {
-        const key = this.getStorageKey(targetUserId);
-        localStorage.setItem(key, JSON.stringify(merged));
-        // 하위 호환용 글로벌 키도 동기화
-        localStorage.setItem(STORAGE_KEY_USER_SAJU, JSON.stringify(merged));
-      } catch (err) {
-        console.warn('[UserSajuStore] 프로필 저장 실패:', err);
-      }
-    }
+    writeJson(profileStorageKey(ownerId), merged);
+    // 비로그인 하위호환 키는 게스트 프로필에만 사용 (회원 데이터가 전역 키로 새지 않게 함)
+    if (ownerId === 'guest') writeJson(STORAGE_KEY_USER_SAJU, merged);
 
-    // appState 메모리 필드 동기화
-    if (merged.userName) appState.setUserName(merged.userName);
-    if (merged.gender) appState.setGender(merged.gender);
-    if (merged.calendarType) appState.setCalendarType(merged.calendarType);
-    if (merged.isLeapMonth !== undefined) appState.setLeapMonth(merged.isLeapMonth);
-    if (merged.userTroubleText) appState.setUserTroubleText(merged.userTroubleText);
-    if (merged.desiredQuestion) appState.setDesiredQuestion(merged.desiredQuestion);
+    // appState 메모리 필드 동기화 (현재 로그인 사용자 본인 프로필일 때만)
+    const isCurrent = ownerId === (me.userId || 'guest');
+    if (isCurrent) {
+      if (merged.userName) appState.setUserName(merged.userName);
+      if (merged.gender) appState.setGender(merged.gender);
+      if (merged.calendarType) appState.setCalendarType(merged.calendarType);
+      if (merged.isLeapMonth !== undefined) appState.setLeapMonth(merged.isLeapMonth);
+      if (merged.userTroubleText) appState.setUserTroubleText(merged.userTroubleText);
+      if (merged.desiredQuestion) appState.setDesiredQuestion(merged.desiredQuestion);
+    }
 
     return merged;
   }
@@ -104,7 +114,7 @@ export class UserSajuStore {
   public static syncUserSajuProfile(params: {
     userId?: string;
     userName?: string;
-    birthDate: string; // YYYY-MM-DD
+    birthDate: string; // YYYY-MM-DD 또는 YYYYMMDD
     birthTime?: string | null;
     calendarType?: 'solar' | 'lunar';
     isLeapMonth?: boolean;
@@ -112,59 +122,52 @@ export class UserSajuStore {
     birthRegion?: string;
     userTroubleText?: string;
   }): MabosalSessionState | null {
-    const effectiveUserId = params.userId || AuthService.getCurrentUser().id || AuthService.getCurrentUser().username;
-    const effectiveUserName = params.userName || AuthService.getCurrentUser().name || '의뢰인';
+    // 가입 · 온보딩 · 회원정보 수정이 모두 통과하는 단일 입력점
+    const date = normalizeBirthDate(params.birthDate);
+    if (!date) return null;
 
-    // 1. AuthService 계정 정보 실시간 동기화
-    AuthService.updateProfile({
-      name: effectiveUserName,
-      birthDate: params.birthDate,
-      birthTime: params.birthTime || undefined,
-      calendarType: params.calendarType || 'solar',
-      isLeapMonth: params.isLeapMonth || false,
-      gender: params.gender || 'male',
-    });
+    const me = getIdentity();
+    const ownerId = this.ownerId(params.userId);
+    const time = normalizeBirthTime(params.birthTime);
+    const name = (params.userName || me.name || '의뢰인').trim();
+    const calendarType = params.calendarType || 'solar';
+    const isLeapMonth = params.isLeapMonth || false;
+    const gender = params.gender || 'male';
 
-    // 2. UserSajuStore 프로필 영구 보존
-    const parts = params.birthDate.split('-');
-    const birthYear = parseInt(parts[0], 10) || 1993;
-    const birthMonth = parseInt(parts[1], 10) || 8;
-    const birthDay = parseInt(parts[2], 10) || 15;
-
-    let birthTimeStr = '12:00';
-    if (params.birthTime) {
-      birthTimeStr = params.birthTime;
+    // 1. 계정(AuthService) 동기화 - 본인 계정일 때만
+    if (ownerId === me.userId) {
+      AuthService.updateProfile({
+        name,
+        birthDate: date.iso,
+        birthTime: time || undefined,
+        calendarType,
+        isLeapMonth,
+        gender,
+      });
     }
 
+    // 2. 사주 프로필 영구 보존 (키 = account.id)
     this.saveProfile({
-      userName: effectiveUserName,
-      solarBirthDate: params.birthDate,
-      birthYear,
-      birthMonth,
-      birthDay,
-      birthTime: birthTimeStr,
-      gender: params.gender || 'male',
-      calendarType: params.calendarType || 'solar',
-      isLeapMonth: params.isLeapMonth || false,
+      userName: name,
+      solarBirthDate: date.iso,
+      birthYear: date.year,
+      birthMonth: date.month,
+      birthDay: date.day,
+      birthTime: time,
+      isUnknownTime: !time,
+      gender,
+      calendarType,
+      isLeapMonth,
       birthRegion: params.birthRegion || 'Seoul',
-      userTroubleText: params.userTroubleText,
-    }, effectiveUserId);
+      ...(params.userTroubleText !== undefined ? { userTroubleText: params.userTroubleText } : {}),
+    }, ownerId);
 
-    // 3. 기존 과거 세션 캐시 100% 완전 파기
+    // 3. 과거 세션 캐시 파기 후 새 세션 즉시 계산
     appState.clearSession();
-
-    // 4. 새로운 맞춤 사주 세션 즉각 계산
-    const newSession = this.calculateSessionForUser(effectiveUserId);
+    const newSession = this.calculateSessionForUser(ownerId);
     if (newSession) {
       appState.setSession(newSession);
     }
-
-    // 5. AppState 전역 상태 동기화
-    appState.setUserName(effectiveUserName);
-    if (params.gender) appState.setGender(params.gender);
-    if (params.calendarType) appState.setCalendarType(params.calendarType);
-    if (params.isLeapMonth !== undefined) appState.setLeapMonth(params.isLeapMonth);
-
     return newSession;
   }
 
@@ -179,59 +182,51 @@ export class UserSajuStore {
    * 보존된 사주 프로필 불러오기 (계정별 분리 조회)
    */
   public static getProfile(targetUserId?: string): UserSajuProfile | null {
-    if (typeof window === 'undefined' || !window.localStorage) return null;
-    try {
-      const key = this.getStorageKey(targetUserId);
-      const raw = localStorage.getItem(key);
-      if (raw) {
-        return JSON.parse(raw) as UserSajuProfile;
-      }
+    const ownerId = this.ownerId(targetUserId);
+    const key = profileStorageKey(ownerId);
 
-      // 계정 키에 없으면 AuthService의 사용자 정보로부터 복원 시도
-      const currentUser = AuthService.getCurrentUser();
-      if (currentUser && currentUser.role !== 'guest' && currentUser.birthDate) {
-        const parts = currentUser.birthDate.split('-');
-        const birthYear = parseInt(parts[0], 10) || 1993;
-        const birthMonth = parseInt(parts[1], 10) || 8;
-        const birthDay = parseInt(parts[2], 10) || 15;
-        
-        let birthTimeStr = '12:00';
-        if (currentUser.birthTime) {
-          const hourNum = parseInt(currentUser.birthTime, 10);
-          if (!isNaN(hourNum)) {
-            birthTimeStr = `${String(hourNum).padStart(2, '0')}:00`;
-          } else {
-            birthTimeStr = currentUser.birthTime;
-          }
-        }
+    const saved = readJson<UserSajuProfile | null>(key, null);
+    if (saved) return saved;
 
-        const autoProfile: UserSajuProfile = {
-          ...DEFAULT_USER_SAJU_PROFILE,
-          userName: currentUser.name || '의뢰인',
-          solarBirthDate: currentUser.birthDate,
-          birthYear,
-          birthMonth,
-          birthDay,
-          birthTime: birthTimeStr,
-          gender: currentUser.gender || 'male',
-          calendarType: currentUser.calendarType || 'solar',
-          updatedAt: new Date().toISOString(),
-        };
-        // 저장해둠
-        localStorage.setItem(key, JSON.stringify(autoProfile));
-        return autoProfile;
-      }
-
-      // 글로벌 키 폴백 (게스트 전용)
-      const globalRaw = localStorage.getItem(STORAGE_KEY_USER_SAJU);
-      if (globalRaw && (!targetUserId || targetUserId === 'guest')) {
-        return JSON.parse(globalRaw) as UserSajuProfile;
-      }
-
-      return null;
-    } catch {
-      return null;
+    // 게스트 전용 하위호환 키
+    if (ownerId === 'guest') {
+      return readJson<UserSajuProfile | null>(STORAGE_KEY_USER_SAJU, null);
     }
+
+    const account = AuthService.getAllAccounts().find(a => a.id === ownerId);
+    if (!account) return null;
+
+    // 레거시 마이그레이션: 예전에는 username 키로 저장되었음 → account.id 키로 이전
+    const legacyKey = profileStorageKey(account.username);
+    const legacy = readJson<UserSajuProfile | null>(legacyKey, null);
+    if (legacy) {
+      writeJson(key, legacy);
+      removeKey(legacyKey);
+      return legacy;
+    }
+
+    // 계정에 등록된 생년월일이 있으면 프로필로 복원
+    const date = normalizeBirthDate(account.birthDate);
+    if (date) {
+      const time = normalizeBirthTime(account.birthTime);
+      const restored: UserSajuProfile = {
+        ...DEFAULT_USER_SAJU_PROFILE,
+        userName: account.name || '의뢰인',
+        solarBirthDate: date.iso,
+        birthYear: date.year,
+        birthMonth: date.month,
+        birthDay: date.day,
+        birthTime: time,
+        isUnknownTime: !time,
+        gender: account.gender || 'male',
+        calendarType: account.calendarType || 'solar',
+        isLeapMonth: account.isLeapMonth || false,
+        updatedAt: new Date().toISOString(),
+      };
+      writeJson(key, restored);
+      return restored;
+    }
+    return null;
   }
 
   /**
@@ -264,15 +259,12 @@ export class UserSajuStore {
     if (!profile || !profile.solarBirthDate) return null;
 
     try {
-      const birthTime = profile.isUnknownTime ? null : (profile.birthTime || '12:00');
+      const birthTime = profile.isUnknownTime ? null : (profile.birthTime || null);
       const sessionEngine = new MabosalSessionEngine();
       const res = sessionEngine.createSession({
-        name: profile.userName || '의뢰인',
         birthDate: profile.solarBirthDate,
         birthTime: birthTime,
         gender: profile.gender || 'male',
-        calendarType: profile.calendarType || 'solar',
-        isLeapMonth: profile.isLeapMonth || false,
         region: profile.birthRegion || 'Seoul',
       });
 
@@ -286,14 +278,15 @@ export class UserSajuStore {
   }
 
   /**
-   * 특정 주문(Order)에 귀속된 고객 사주 스냅샷을 기반으로 맞춤 감정서를 즉시 조립
+   * 특정 주문(Order)에 귀속된 고객 사주 스냅샷을 기반으로 맞춤 리포트를 즉시 조립
    */
   public static ensureAnalysisReadyFromOrder(order: { buyerName?: string; reportTier?: string; sajuInput?: Partial<UserSajuProfile>; productId?: string }): void {
+    if (getIdentity().isGuest) return; // 비로그인은 주문 기반 복원 불가
     const defaultProfile = this.getProfileOrDefault();
     const currentUser = AuthService.getCurrentUser();
     const customerName = (order.sajuInput?.userName && order.sajuInput.userName !== '의뢰인')
       ? order.sajuInput.userName
-      : (order.buyerName && order.buyerName !== '의뢰인' ? order.buyerName : (currentUser?.name || defaultProfile.userName || '김서연'));
+      : (order.buyerName && order.buyerName !== '의뢰인' ? order.buyerName : (currentUser?.name || defaultProfile.userName || '의뢰인'));
     const profile: UserSajuProfile = {
       ...DEFAULT_USER_SAJU_PROFILE,
       ...defaultProfile,
@@ -319,7 +312,10 @@ export class UserSajuStore {
     if (profile.isLeapMonth !== undefined) appState.setLeapMonth(profile.isLeapMonth);
     if (profile.userTroubleText) appState.setUserTroubleText(profile.userTroubleText);
 
-    appState.setPaidUser(true);
+    const paidOrders = readJson<any[]>(PersistenceKeys.orders, []);
+    const entitled = targetTier === 'FREE' ? false : hasEntitlement(paidOrders, getIdentity(), (o: any) =>
+      ReportRouterMapper.resolveTier(o.productId, o.reportTier) === targetTier);
+    appState.setPaidUser(entitled);
     appState.setActiveTierTab(targetTier);
 
     try {
@@ -354,12 +350,12 @@ export class UserSajuStore {
         appState.setSession(sessionRes.data);
       }
     } catch (err) {
-      console.warn('[UserSajuStore] 주문 맞춤 감정서 생성 경고:', err);
+      console.warn('[UserSajuStore] 주문 맞춤 리포트 생성 경고:', err);
     }
   }
 
   /**
-   * 감정서 열람을 위해 분석 데이터(SessionState 및 Phase 83 ProductOutputSet)가
+   * 리포트 열람을 위해 분석 데이터(SessionState 및 Phase 83 ProductOutputSet)가
    * appState에 완전히 적재되어 있는지 검사하고, 비어 있으면 저장된 사주를 바탕으로 즉시 복원 생성
    */
   public static ensureAnalysisReady(targetTier: ProductTierTab = 'PAID'): void {
@@ -419,41 +415,29 @@ export class UserSajuStore {
   }
 
   /**
-   * 새로고침 시 고객이 직전에 보던 특정 상품 감정서를 100% 온전하게 복원
+   * 새로고침 시 고객이 직전에 보던 특정 상품 리포트를 100% 온전하게 복원
    */
   public static restoreLastActiveAnalysis(orderIdParam?: string | null, tierParam?: string | null): void {
-    if (typeof localStorage === 'undefined') {
-      this.ensureAnalysisReady('PAID');
+    const me = getIdentity();
+    // 비로그인은 어떤 경우에도 타인/과거 주문을 복원하지 않는다
+    if (me.isGuest) {
+      this.ensureAnalysisReady('FREE');
       return;
     }
 
     try {
-      const rawOrders = localStorage.getItem('mabosal_store_orders');
-      const allOrders: any[] = rawOrders ? JSON.parse(rawOrders) : [];
-      const targetOrderId = orderIdParam || localStorage.getItem('mm_last_active_order_id');
-
-      // 1. 주문 ID로 매칭되는 주문 복원
-      if (targetOrderId) {
-        const found = allOrders.find(o => o.orderId === targetOrderId);
-        if (found) {
-          this.ensureAnalysisReadyFromOrder(found);
-          return;
-        }
-      }
-
-      // 2. 가장 최근에 완료된 고객 주문이 있는지 탐색
-      const latestCompleted = allOrders.find(o => o.status === 'completed');
-      if (latestCompleted) {
-        this.ensureAnalysisReadyFromOrder(latestCompleted);
+      const orders = readJson<any[]>(PersistenceKeys.orders, []);
+      const lastId = getStorage().getItem('mm_last_active_order_id');
+      // 지정/직전 주문이 본인 소유가 아니면 본인의 최신 결제 완료 주문으로 대체
+      const found = resolveOrderForView(orders, me, orderIdParam || lastId) || resolveOrderForView(orders, me, null);
+      if (found) {
+        this.ensureAnalysisReadyFromOrder(found);
         return;
       }
-
-      // 3. 주문이 없으면 보존된 티어 또는 파라미터 기반 복원
-      const savedTier = (tierParam || localStorage.getItem('mm_last_active_tier') || 'PAID') as ProductTierTab;
-      this.ensureAnalysisReady(savedTier);
+      this.ensureAnalysisReady((tierParam || 'FREE') as ProductTierTab);
     } catch (err) {
       console.warn('[UserSajuStore] restoreLastActiveAnalysis 복원 중 예외:', err);
-      this.ensureAnalysisReady('PAID');
+      this.ensureAnalysisReady('FREE');
     }
   }
 }

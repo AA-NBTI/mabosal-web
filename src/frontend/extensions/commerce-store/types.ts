@@ -81,7 +81,7 @@ export interface StoreOrder {
   appliedCouponCode?: string;
   discountAmount?: number;
   usedYeop?: number;
-  /** 디지털 감정서 열람 추적 (전자상거래법 환불 제한 근거) */
+  /** 디지털 리포트 열람 추적 (전자상거래법 환불 제한 근거) */
   viewedAt?: string;
   /** 반품 및 환불 관리 */
   refundRequested?: boolean;

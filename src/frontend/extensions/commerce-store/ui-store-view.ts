@@ -16,7 +16,6 @@ import {
   STORE_CATEGORIES,
 } from './store-service.js';
 import type { StoreCategoryType, StoreOrder, StoreProduct } from './types.js';
-import { renderPaymentMethodSelector } from '../../modules/payment/PaymentMethodSelector.js';
 import { CartStore } from '../../state/cart-store.js';
 import { UserSajuStore } from '../../state/user-saju-store.js';
 import { ProductReviewStore } from '../../state/product-review-store.js';
@@ -87,8 +86,8 @@ const STORE_SHORT_LABELS: Record<string, { short: string; desc: string; subItems
   },
   report: {
     short: '리포트',
-    desc: '사주 원국과 10년 평생 대운, 현실 고민 3대 솔루션을 담은 정통 감정서',
-    subItems: ['마보살 정통 유료 사주풀이', '2027 정묘년 신년운세 비결서', '평생 재물운 & 파재살 방어', '직업·이직·사업운 감정서', '애정·궁합·재회 리포트', '오행 건강 체질'],
+    desc: '사주 원국과 10년 평생 대운, 현실 고민 3대 솔루션을 담은 정통 리포트',
+    subItems: ['마보살 정통 유료 사주풀이', '2027 정묘년 신년운세 비결서', '평생 재물운 & 파재살 방어', '직업·이직·사업운 리포트', '애정·궁합·재회 리포트', '오행 건강 체질'],
     tags: ['#평생대운', '#신년운세', '#재물운', '#이직운', '#애정궁합']
   },
   voucher: {
@@ -213,7 +212,7 @@ export function renderCommerceStoreView(state: AppStateData): string {
           ` : ''}
           ${order.status !== 'pending' && order.deliveryType === 'saju_report' ? `
             <button type="button" id="btn-store-goto-report" data-order-id="${order.orderId}" data-product-id="${order.productId}" style="display: block; width: 100%; box-sizing: border-box; background: var(--primary); color: #1c1500; font-weight: 800; padding: 0.95rem; border-radius: 10px; border: none; cursor: pointer; font-size: 1.05rem; box-shadow: 0 4px 16px rgba(242,202,80,0.3); text-align: center; transition: opacity 0.2s ease;">
-              ${esc(order.buyerName)} 님 감정서 즉시 열람하기 →
+              ${esc(order.buyerName)} 님 리포트 즉시 열람하기 →
             </button>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; margin-top: 0.25rem;">
               <button type="button" class="btn-cta-secondary btn-download-txt" style="padding: 0.75rem 0.5rem; font-size: 0.85rem; font-weight: 700; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
@@ -339,47 +338,25 @@ export function renderCommerceStoreView(state: AppStateData): string {
             </div>
           </div>
 
-          <!-- 우측: 빠른 간편 주문 및 결제 폼 -->
+          <!-- 우측: 옵션 선택 및 구매 버튼부 -->
           <div style="background: rgba(15, 19, 29, 0.85); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 14px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: flex-start; gap: 0.75rem;">
             <div>
-              <h3 style="font-size: 1.05rem; font-weight: 800; color: #fff; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.4rem;">
-                <span class="material-symbols-outlined" style="color: var(--primary);">credit_card</span>
-                주문자 정보 &amp; 즉시 결제
-              </h3>
-
               <form id="store-checkout-form" data-product-id="${p.id}">
                 ${(() => {
                   const savedProf = UserSajuStore.getProfile();
                   if (p.deliveryType === 'saju_report') {
                     const already = savedProf ? isProductAlreadyPurchased(p.id, savedProf.userName) : { purchased: false };
                     return `
-                      ${already.purchased ? `
-                        <div style="background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.35); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 0.85rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
-                          <div>
-                            <div style="color: #4ade80; font-weight: 800; font-size: 0.88rem; display: flex; align-items: center; gap: 0.3rem;">
-                              <span class="material-symbols-outlined" style="font-size: 16px;">verified</span>
-                              이미 소장 중인 감정서입니다
-                            </div>
-                            <div style="color: #cbd5e1; font-size: 0.76rem; margin-top: 0.15rem;">
-                              ${esc(savedProf!.userName)} 님의 사주로 이미 결제되어 언제든 다시 열람하실 수 있습니다.
-                            </div>
-                          </div>
-                          <button type="button" class="btn-view-purchased-direct" data-order-id="${already.order?.orderId || ''}" style="background: #4ade80; color: #000; border: none; border-radius: 8px; padding: 0.45rem 0.85rem; font-size: 0.8rem; font-weight: 800; cursor: pointer; white-space: nowrap;">
-                            감정서 열람 📖
-                          </button>
-                        </div>
-                      ` : ''}
-
                       <div style="background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 10px; padding: 0.85rem; margin-bottom: 0.75rem;">
                         <div style="font-size: 0.78rem; font-weight: 800; color: var(--primary); margin-bottom: 0.45rem; display: flex; align-items: center; gap: 0.3rem;">
                           <span class="material-symbols-outlined" style="font-size: 16px;">psychology</span>
-                          사주 분석 대상자 (1:1 감정서 생성)
+                          사주 분석 대상자
                         </div>
                         ${savedProf ? `
                           <label style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.85rem; color: #fff; cursor: pointer; margin-bottom: 0.4rem;">
                             <input type="radio" name="saju-target-choice" value="saved" ${already.purchased ? '' : 'checked'} style="margin-top: 0.2rem;" />
                             <div>
-                              <strong>등록된 내 사주로 즉시 분석 ${already.purchased ? '<span style="color: #4ade80; font-size: 0.75rem; margin-left: 0.3rem;">[구매완료]</span>' : '(추천)'}</strong>
+                              <strong>내 사주로 분석 ${already.purchased ? '<span style="color: #4ade80; font-size: 0.75rem; margin-left: 0.3rem;">[구매완료]</span>' : '(추천)'}</strong>
                               <div style="font-size: 0.76rem; color: var(--primary); margin-top: 0.1rem; font-weight: 700;">
                                 ${esc(savedProf.userName)} 님 (${esc(savedProf.solarBirthDate)} ${esc(savedProf.birthTime || '')} · ${savedProf.gender === 'female' ? '坤命' : '乾命'})
                               </div>
@@ -387,7 +364,7 @@ export function renderCommerceStoreView(state: AppStateData): string {
                           </label>
                           <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: #94a3b8; cursor: pointer;">
                             <input type="radio" name="saju-target-choice" value="custom" ${already.purchased ? 'checked' : ''} />
-                            다른 사람 사주로 분석하기 (가족/지인 선물)
+                            다른 사람 사주로 분석 (선물하기)
                           </label>
                           <div id="custom-saju-input-fields" style="display: none; margin-top: 0.65rem; padding-top: 0.65rem; border-top: 1px dashed rgba(255,255,255,0.15);">
                             <input type="text" id="custom-saju-name" placeholder="대상자 성명" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.45rem; border-radius: 6px; font-size: 0.8rem; margin-bottom: 0.4rem;" />
@@ -410,40 +387,13 @@ export function renderCommerceStoreView(state: AppStateData): string {
                   return '';
                 })()}
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.65rem;">
-                  <div>
-                    <label style="font-size: 0.76rem; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">주문자 성명 *</label>
-                    <input type="text" id="order-buyer-name" required value="${esc(AuthService.getCurrentUser().role !== 'guest' ? AuthService.getCurrentUser().name : (UserSajuStore.getProfile()?.userName || ''))}" placeholder="홍길동" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.82rem;" />
-                  </div>
-                  <div>
-                    <label style="font-size: 0.76rem; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">휴대폰 연락처 *</label>
-                    <input type="tel" id="order-buyer-phone" required value="${esc(AuthService.getCurrentUser().role !== 'guest' && AuthService.getCurrentUser().phone ? AuthService.getCurrentUser().phone! : '')}" placeholder="010-0000-0000" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.82rem;" />
-                  </div>
-                </div>
-
-                <div style="margin-bottom: 0.65rem;">
-                  <label style="font-size: 0.76rem; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">수신 이메일 (디지털 링크 발송) *</label>
-                  <input type="email" id="order-buyer-email" required placeholder="name@domain.com" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.82rem;" />
-                </div>
-
-                ${p.deliveryType === 'shipping' ? `
-                  <div style="margin-bottom: 0.65rem;">
-                    <label style="font-size: 0.76rem; color: #fbbf24; display: block; margin-bottom: 0.2rem; font-weight: 700;">
-                      <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">local_shipping</span> 실물 상품 배송지 주소 *
-                    </label>
-                    <input type="text" id="order-shipping-address" required placeholder="상세 수령지 주소를 입력해 주세요" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.82rem;" />
-                  </div>
-                ` : ''}
-
-                ${renderPaymentMethodSelector(p.price)}
-
-                <div style="display: grid; grid-template-columns: 1fr 1.35fr; gap: 0.65rem; margin-top: 0.75rem;">
-                  <button type="button" class="btn-add-to-cart-from-detail" data-product-id="${p.id}" style="background: rgba(242, 202, 80, 0.12); color: var(--primary); border: 1px solid rgba(242, 202, 80, 0.35); font-size: 0.88rem; font-weight: 800; border-radius: 10px; padding: 0.85rem 0.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem; transition: all 0.15s ease;">
-                    <span class="material-symbols-outlined" style="font-size: 18px;">add_shopping_cart</span>
-                    장바구니 담기
+                <div style="display: grid; grid-template-columns: 1fr 1.35fr; gap: 0.65rem; margin-top: 0.5rem;">
+                  <button type="button" class="btn-add-to-cart-from-detail" data-product-id="${p.id}" style="background: rgba(242, 202, 80, 0.12); color: var(--primary); border: 1px solid rgba(242, 202, 80, 0.35); font-size: 0.9rem; font-weight: 800; border-radius: 10px; padding: 0.9rem 0.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem; transition: all 0.15s ease;">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">shopping_bag</span>
+                    장바구니
                   </button>
-                  <button type="submit" style="width: 100%; background: var(--primary); color: #1c1500; font-size: 0.95rem; font-weight: 800; border: none; border-radius: 10px; padding: 0.85rem; cursor: pointer; box-shadow: 0 4px 16px rgba(242,202,80,0.35); transition: transform 0.15s ease;">
-                    주문서 확인 및 결제 →
+                  <button type="submit" style="width: 100%; background: var(--primary); color: #1c1500; font-size: 1rem; font-weight: 800; border: none; border-radius: 10px; padding: 0.9rem; cursor: pointer; box-shadow: 0 4px 16px rgba(242,202,80,0.35); transition: transform 0.15s ease;">
+                    ${p.price === 0 ? '무료 체험' : '구매하기'}
                   </button>
                 </div>
               </form>
@@ -639,8 +589,8 @@ export function renderCommerceStoreView(state: AppStateData): string {
                       ₩ ${p.price.toLocaleString()}
                     </div>
                   </div>
-                  <button type="button" class="btn-open-product-detail" data-product-id="${p.id}" style="background: var(--primary); color: #1c1500; font-size: 0.8rem; font-weight: 700; border: none; border-radius: 8px; padding: 0.45rem 0.85rem; cursor: pointer;">
-                    자세히 보기 →
+                  <button type="button" class="btn-open-product-detail" data-product-id="${p.id}" style="background: var(--primary); color: #1c1500; font-size: 0.82rem; font-weight: 800; border: none; border-radius: 8px; padding: 0.45rem 0.85rem; cursor: pointer;">
+                    자세히 보기
                   </button>
                 </div>
               </div>
@@ -795,7 +745,7 @@ export function renderCommerceStoreView(state: AppStateData): string {
         <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: nowrap;">
           ${categoryNavHtml}
         </div>
-        <button type="button" id="btn-open-cart-modal" style="background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); font-weight: 800; font-size: 0.85rem; padding: 0.5rem 0.95rem; border-radius: 9999px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap; transition: all 0.2s ease;">
+        <button type="button" id="btn-open-cart-modal" style="background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); font-weight: 800; font-size: 0.85rem; padding: 0.5rem 0.95rem; border-radius: 9999px; cursor: pointer; display: ${AuthService.getCurrentUser().role !== 'guest' && CartStore.getCount() > 0 ? 'inline-flex' : 'none'}; align-items: center; gap: 0.4rem; white-space: nowrap; transition: all 0.2s ease;">
           <span class="material-symbols-outlined" style="font-size: 19px;">shopping_bag</span>
           장바구니 <span style="background: var(--primary); color: #000; font-size: 0.72rem; padding: 0.1rem 0.45rem; border-radius: 9999px; font-weight: 900;">${CartStore.getCount()}</span>
         </button>

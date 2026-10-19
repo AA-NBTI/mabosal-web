@@ -1,5 +1,5 @@
 /**
- * ReportRouterMapper - 상품 ID 및 티어 기반 전용 감정서 1:1 직결 라우팅 매퍼
+ * ReportRouterMapper - 상품 ID 및 티어 기반 전용 리포트 1:1 직결 라우팅 매퍼
  */
 import { ProductTierTab } from '../../state/app-state.js';
 
@@ -10,6 +10,11 @@ export class ReportRouterMapper {
   public static resolveTier(productId?: string, reportTier?: string): ProductTierTab {
     const pId = (productId || '').toLowerCase();
     const tier = (reportTier || '').toUpperCase();
+
+    // 0. 무료 사주 진단서 (체험 상품)
+    if (tier === 'FREE' || pId === 'prod-free-experience' || pId.includes('free')) {
+      return 'FREE';
+    }
 
     // 1. 2027 신년운세 리포트
     if (tier === 'YEAR_2027' || pId.includes('year2027') || pId.includes('year-2027') || pId.includes('newyear')) {
@@ -41,22 +46,22 @@ export class ReportRouterMapper {
       return 'LOVE_REUNION';
     }
 
-    // 7. VIP 14.9만원 정밀 감정서
-    if (tier === 'PREMIUM' || pId.includes('vip') || pId === 'prod-paid-saju-premium') {
+    // 7. VIP 14.9만원 정밀 리포트 (prod-paid-saju-vip)
+    if (tier === 'PREMIUM' || pId.includes('vip') || pId === 'prod-paid-saju-vip') {
       return 'PREMIUM';
     }
 
-    // 8. 3.9만원 정통 유료 사주 또는 입문 진단서
-    if (tier === 'PAID' || tier === 'COMPREHENSIVE' || tier === 'ENTRY' || pId.includes('saju')) {
+    // 8. 3.9만원 대표 플래그십 정통 유료 사주 (prod-paid-saju-premium)
+    if (tier === 'PAID' || tier === 'COMPREHENSIVE' || tier === 'ENTRY' || pId === 'prod-paid-saju-premium' || pId.includes('flagship') || pId.includes('saju')) {
       return 'PAID';
     }
 
-    // 기본값: PAID (유료 결제 완료 고객이므로 유료 사주 화면 우선 배정)
+    // 기본값: PAID
     return 'PAID';
   }
 
   /**
-   * 주문 상품의 친화적 감정서 타이틀 반환
+   * 주문 상품의 친화적 리포트 타이틀 반환
    */
   public static getReportTitle(tier: ProductTierTab): string {
     switch (tier) {
@@ -65,16 +70,20 @@ export class ReportRouterMapper {
       case 'CAREER':
         return '직장·이직 특화 운세: 퇴사 vs 잔류 명리 판단 리포트';
       case 'WEALTH':
-        return '평생 재물운 & 금전 대운 흐름 심층 감정서';
+        return '평생 재물운 & 금전 대운 흐름 심층 리포트';
       case 'CHEMISTRY':
         return '마보살 정밀 인연 궁합 & 관계 처방서';
       case 'CONFLICT_MALSAL':
         return '마살(魔煞) 심층 진단 & 충·형·파·해 방어 비책';
       case 'PREMIUM':
-        return '마보살 VIP 심층 사주 감정서 (149,000원 상당)';
+        return '마보살 VIP 심층 사주 리포트 (149,000원 상당)';
       case 'PAID':
       default:
-        return '마보살 정통 사주풀이 (평생 대운 & 정밀 심층 감정서)';
+        return '마보살 정통 사주풀이 (평생 대운 & 정밀 심층 리포트)';
     }
+  }
+
+  public static getReportTitleByTier(tier: ProductTierTab): string {
+    return this.getReportTitle(tier);
   }
 }

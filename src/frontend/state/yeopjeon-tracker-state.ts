@@ -8,6 +8,8 @@
  */
 
 import { YeopjeonEngine, StreakEvaluationResult } from '../../modules/daily-fortune/yeopjeon-engine.js';
+import { getIdentity } from '../modules/identity/index.js';
+import { getStorage } from '../modules/persistence/index.js';
 
 export interface DailyDefenseRecord {
   date: string; // YYYY-MM-DD
@@ -46,6 +48,12 @@ export class YeopjeonTrackerState {
     this.loadFromStorage();
   }
 
+  public static getStorageKey(): string {
+    const me = getIdentity();
+    const ownerId = me.isGuest ? 'guest' : (me.userId || 'guest');
+    return `${STORAGE_KEY}_${ownerId}`;
+  }
+
   public static getInstance(): YeopjeonTrackerState {
     if (!YeopjeonTrackerState.instance) {
       YeopjeonTrackerState.instance = new YeopjeonTrackerState();
@@ -53,10 +61,15 @@ export class YeopjeonTrackerState {
     return YeopjeonTrackerState.instance;
   }
 
-  private loadFromStorage(): void {
+  /** 계정 전환 시 최신 데이터로 인메모리 상태 재동기화 */
+  public reload(): void {
+    this.loadFromStorage();
+  }
+
+  public loadFromStorage(): void {
     try {
-      if (typeof window === 'undefined' || !window.localStorage) return;
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const key = YeopjeonTrackerState.getStorageKey();
+      const raw = getStorage().getItem(key);
       if (raw) {
         const parsed = JSON.parse(raw);
         this.totalYeopjeon = parsed.totalYeopjeon || 0;
@@ -65,6 +78,13 @@ export class YeopjeonTrackerState {
         this.lastCompletedDate = parsed.lastCompletedDate || null;
         this.records = parsed.records || {};
         this.isMemberUnlocked = parsed.isMemberUnlocked ?? false;
+      } else {
+        this.totalYeopjeon = 0;
+        this.currentStreak = 0;
+        this.maxStreak = 0;
+        this.lastCompletedDate = null;
+        this.records = {};
+        this.isMemberUnlocked = false;
       }
     } catch (e) {
       console.warn('YeopjeonTrackerState load error:', e);
@@ -73,7 +93,7 @@ export class YeopjeonTrackerState {
 
   public saveToStorage(): void {
     try {
-      if (typeof window === 'undefined' || !window.localStorage) return;
+      const key = YeopjeonTrackerState.getStorageKey();
       const payload = {
         totalYeopjeon: this.totalYeopjeon,
         currentStreak: this.currentStreak,
@@ -82,7 +102,7 @@ export class YeopjeonTrackerState {
         records: this.records,
         isMemberUnlocked: this.isMemberUnlocked,
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      getStorage().setItem(key, JSON.stringify(payload));
     } catch (e) {
       console.warn('YeopjeonTrackerState save error:', e);
     }

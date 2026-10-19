@@ -2,6 +2,8 @@
  * AuthService (정석 ID/비밀번호 기반 인증 및 회원가입 계정 저장소)
  */
 
+import { getStorage } from '../modules/persistence/index.js';
+
 export type UserRole = 'guest' | 'user' | 'partner' | 'admin';
 export type PartnerType = 'AFFILIATE' | 'EXPERT' | 'HYBRID';
 
@@ -15,6 +17,7 @@ export interface UserAccount {
   birthDate?: string;
   birthTime?: string;
   calendarType?: 'solar' | 'lunar';
+  isLeapMonth?: boolean;
   gender?: 'male' | 'female';
   role: UserRole;
   partnerType?: PartnerType;
@@ -58,7 +61,7 @@ export class AuthService {
       username: 'user1',
       password: '1234',
       name: '홍길동',
-      email: 'seoyeon@mabosal.com',
+      email: 'hong@mabosal.com',
       phone: '010-9876-5432',
       birthDate: '1993-08-15',
       birthTime: '12',
@@ -76,16 +79,16 @@ export class AuthService {
   public static init(): void {
     if (this.initialized) return;
 
-    if (typeof window !== 'undefined') {
+    if (true) {
       try {
         // 계정 DB 초기화 (없으면 기본 시드 삽입)
-        const storedAccounts = localStorage.getItem(STORAGE_KEY_ACCOUNTS);
+        const storedAccounts = getStorage().getItem(STORAGE_KEY_ACCOUNTS);
         if (!storedAccounts) {
-          localStorage.setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(this.defaultAccounts));
+          getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(this.defaultAccounts));
         }
 
         // 현재 로그인 세션 복원
-        const storedSession = localStorage.getItem(STORAGE_KEY_CURRENT_SESSION);
+        const storedSession = getStorage().getItem(STORAGE_KEY_CURRENT_SESSION);
         if (storedSession) {
           this.currentSession = JSON.parse(storedSession);
         }
@@ -99,9 +102,8 @@ export class AuthService {
   /** 등록된 모든 계정 조회 */
   public static getAllAccounts(): UserAccount[] {
     this.init();
-    if (typeof window === 'undefined') return this.defaultAccounts;
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY_ACCOUNTS);
+        try {
+      const stored = getStorage().getItem(STORAGE_KEY_ACCOUNTS);
       return stored ? JSON.parse(stored) : this.defaultAccounts;
     } catch {
       return this.defaultAccounts;
@@ -167,9 +169,10 @@ export class AuthService {
 
     // 로그인 성공 -> 세션 저장
     this.currentSession = found;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(found));
+    if (true) {
+      getStorage().setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(found));
     }
+    this.notifyAuthChange();
     return { success: true, message: `환영합니다, ${found.name} 님!`, user: found };
   }
 
@@ -223,15 +226,16 @@ export class AuthService {
     };
 
     accounts.push(newAccount);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
+    if (true) {
+      getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
     }
 
     // 가입 즉시 자동 로그인
     this.currentSession = newAccount;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(newAccount));
+    if (true) {
+      getStorage().setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(newAccount));
     }
+    this.notifyAuthChange();
 
     return { success: true, message: `회원가입이 완료되었습니다! 환영합니다, ${name} 님!`, user: newAccount };
   }
@@ -239,11 +243,19 @@ export class AuthService {
   /**
    * 3. 로그아웃
    */
+
+  public static notifyAuthChange(): void {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('mm-auth-changed'));
+      window.dispatchEvent(new CustomEvent('mm-cart-changed'));
+    }
+  }
   public static logout(): void {
     this.currentSession = null;
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(STORAGE_KEY_CURRENT_SESSION);
+    if (true) {
+      getStorage().removeItem(STORAGE_KEY_CURRENT_SESSION);
     }
+    this.notifyAuthChange();
   }
 
   /**
@@ -258,13 +270,13 @@ export class AuthService {
     const acc = accounts.find(a => a.username.toLowerCase() === targetUsername.toLowerCase());
     if (acc) {
       acc.yeopBalance = (acc.yeopBalance || 0) + amount;
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
+      if (true) {
+        getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
       }
       if (this.currentSession && this.currentSession.username.toLowerCase() === targetUsername.toLowerCase()) {
         this.currentSession.yeopBalance = acc.yeopBalance;
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(this.currentSession));
+        if (true) {
+          getStorage().setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(this.currentSession));
         }
       }
       return acc.yeopBalance;
@@ -282,6 +294,7 @@ export class AuthService {
     birthDate?: string;
     birthTime?: string;
     calendarType?: 'solar' | 'lunar';
+    isLeapMonth?: boolean;
     gender?: 'male' | 'female';
   }): { success: boolean; message: string; user?: UserAccount } {
     this.init();
@@ -317,16 +330,17 @@ export class AuthService {
     if (updates.birthDate !== undefined) acc.birthDate = updates.birthDate;
     if (updates.birthTime !== undefined) acc.birthTime = updates.birthTime;
     if (updates.calendarType !== undefined) acc.calendarType = updates.calendarType;
+    if (updates.isLeapMonth !== undefined) acc.isLeapMonth = updates.isLeapMonth;
     if (updates.gender !== undefined) acc.gender = updates.gender;
 
     // 저장 및 세션 갱신
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
+    if (true) {
+      getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
     }
     if (this.currentSession && this.currentSession.id === acc.id) {
       this.currentSession = { ...acc };
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(this.currentSession));
+      if (true) {
+        getStorage().setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(this.currentSession));
       }
     }
 
@@ -345,12 +359,40 @@ export class AuthService {
     }
 
     accounts = accounts.filter(a => a.id !== target.id);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
+    if (true) {
+      getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
     }
 
     // 현재 세션 로그아웃
     this.logout();
     return { success: true, message: '회원 탈퇴가 완료되었습니다.' };
+  }
+
+
+  /**
+   * 7. 현재 로그인 회원의 프로필(사주 입력 항목 등) 갱신 - 계정 id 기준으로 DB와 메모리 세션을 함께 갱신
+   */
+  public static updateProfile(patch: Partial<Pick<UserAccount, 'name' | 'phone' | 'birthDate' | 'birthTime' | 'calendarType' | 'isLeapMonth' | 'gender'>>): { success: boolean; message: string } {
+    this.init();
+    const current = this.currentSession;
+    if (!current || current.role === 'guest') {
+      return { success: false, message: '로그인이 필요합니다.' };
+    }
+    const accounts = this.getAllAccounts();
+    const acc = accounts.find(a => a.id === current.id);
+    if (!acc) {
+      return { success: false, message: '계정 정보를 찾을 수 없습니다.' };
+    }
+    Object.assign(acc, patch);
+    getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
+    this.currentSession = { ...acc };
+    getStorage().setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(this.currentSession));
+    return { success: true, message: '프로필이 갱신되었습니다.' };
+  }
+
+  /** 테스트/로그아웃 시 메모리 캐시 초기화 */
+  public static resetForTest(): void {
+    this.currentSession = null;
+    this.initialized = false;
   }
 }

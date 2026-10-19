@@ -29,7 +29,7 @@ const INITIAL_REVIEWS: ProductReview[] = [
     productId: 'core-lifelong-saju',
     productTitle: '마보살 평생 정밀 사주 리포트',
     orderId: 'ORD-2026-0001',
-    authorName: '김서연',
+    authorName: '박*원',
     rating: 5,
     content: '사주를 여러 번 봤지만 이렇게 구체적인 시기와 대운의 흐름, 현실적인 행동 지침까지 명쾌하게 짚어주는 리포트는 처음입니다. 15개 챕터 분량도 방대하고 제 사주의 핵심 결을 정확하게 짚어내서 마음의 정리가 되었습니다.',
     tags: ['명쾌한 해설', '시기 적중', '깊이있는 분석'],

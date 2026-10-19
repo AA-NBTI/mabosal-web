@@ -8,12 +8,40 @@
  */
 
 import { AppStateData } from '../state/app-state.js';
+import { AuthService } from '../state/auth-service.js';
 import { UserSajuStore } from '../state/user-saju-store.js';
+import { canViewTier } from '../modules/entitlement/index.js';
+import { ReportRouterMapper } from '../modules/checkout/report-router-mapper.js';
+import { appState } from '../state/app-state.js';
 import { extractReportContext, getPremiumReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
 import { renderMiniSajuPillarsCard, renderAffiliatePromoBanner } from '../components/common-components.js';
 import { renderCheonmyeongwonFiveElementsMultiBar, renderCheonmyeongwonDayMasterArchetype } from '../components/VisualCharts.js';
 
 export function renderPremiumResultView(state: AppStateData): string {
+  // [보안 게이트키퍼] 정식 결제 완료 주문(StoreOrder) 검증
+  const hasValidOrder = canViewTier('PREMIUM');
+
+  if (!hasValidOrder) {
+    return `
+      <div class="result-view-container" style="max-width: 580px; margin: 3rem auto; padding: 2rem 1.5rem; text-align: center;">
+        <div style="background: rgba(14, 18, 28, 0.85); border: 1.5px solid rgba(242, 202, 80, 0.35); border-radius: 18px; padding: 3rem 1.5rem; box-shadow: 0 12px 40px rgba(0,0,0,0.6);">
+          <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(242, 202, 80, 0.12); border: 1px solid var(--primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; color: var(--primary);">
+            <span class="material-symbols-outlined" style="font-size: 32px;">lock</span>
+          </div>
+          <h2 style="font-size: 1.45rem; font-weight: 800; color: #fff; margin: 0 0 0.6rem 0;">
+            마보살 VIP 심층 사주 리포트
+          </h2>
+          <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.6; margin: 0 0 2rem 0;">
+            본 리포트는 29개 챕터 전수 완결본으로, 정식 주문 및 결제 완료 후 열람하실 수 있습니다.
+          </p>
+          <button type="button" class="btn-select-product" data-tier="PREMIUM" style="width: 100%; padding: 1rem; border-radius: 10px; background: var(--primary); color: #1c1500; font-size: 1.05rem; font-weight: 800; border: none; cursor: pointer; box-shadow: 0 4px 18px rgba(242,202,80,0.35);">
+            구매하기
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
  const session = state.sessionState;
  const pillars = session?.fact?.four_pillars || state.productOutputSet?.common?.pillars || {
  year: { stem: '무', branch: '인' },
@@ -27,7 +55,8 @@ export function renderPremiumResultView(state: AppStateData): string {
  const narrativeHtml = renderNarrativeReport(narrativeMarkdown);
 
  const savedProf = UserSajuStore.getProfile();
- const userName = state.userName || savedProf?.userName || (state.userTroubleText ? '의뢰인' : '김서연');
+ const user = AuthService.getCurrentUser();
+  const userName = state.userName || savedProf?.userName || (user.role !== 'guest' ? user.name : '의뢰인');
  const curGender = state.gender || savedProf?.gender || 'female';
  const genderTag = curGender === 'female' ? '坤命 · 陰' : '乾命 · 陽';
  const bDate = state.sessionState?.request?.birthDate || savedProf?.solarBirthDate || '1995.04.12';

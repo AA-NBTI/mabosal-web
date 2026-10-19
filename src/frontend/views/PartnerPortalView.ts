@@ -200,7 +200,7 @@ export function renderPartnerPortalView(currentCode: string = 'vip_creator'): st
  </div>
  <div>
  <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">예금주 성명</label>
- <input type="text" id="input-payout-holder" value="${currentUser.name || '김도원'}" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 0.65rem; color: #dfe2f1; font-size: 0.88rem;" />
+ <input type="text" id="input-payout-holder" value="${currentUser.name || ''}" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 0.65rem; color: #dfe2f1; font-size: 0.88rem;" />
  </div>
  </div>
 

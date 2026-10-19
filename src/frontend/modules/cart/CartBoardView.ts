@@ -2,6 +2,7 @@
  * CartBoardView - 마보살 정식 쇼핑몰 전체 보드형 장바구니 뷰
  */
 import { CartStore, SHIPPING_FREE_THRESHOLD, DEFAULT_SHIPPING_FEE } from './cart-store.js';
+import { AuthService } from '../../state/auth-service.js';
 
 function esc(str: string): string {
   return str
@@ -13,6 +14,31 @@ function esc(str: string): string {
 }
 
 export function renderCartBoardView(): string {
+  const currentUser = AuthService.getCurrentUser();
+  if (currentUser.role === 'guest') {
+    return `
+      <div class="cart-board-view" style="max-width: 900px; margin: 0 auto; padding: 3rem 1rem 5rem 1rem; text-align: center;">
+        <div style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 18px; padding: 4rem 1.5rem;">
+          <div style="width: 72px; height: 72px; border-radius: 50%; background: rgba(242, 202, 80, 0.1); border: 1px solid rgba(242, 202, 80, 0.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem auto;">
+            <span class="material-symbols-outlined" style="font-size: 36px; color: var(--primary);">lock</span>
+          </div>
+          <h2 style="font-size: 1.35rem; color: #fff; margin: 0 0 0.5rem 0;">로그인이 필요한 서비스입니다</h2>
+          <p style="font-size: 0.9rem; color: #94a3b8; margin: 0 0 1.75rem 0; line-height: 1.6;">
+            장바구니는 마보살 회원 전용 공간입니다.<br/>로그인 후 안전하게 주문을 진행해 보세요.
+          </p>
+          <div style="display: flex; gap: 0.75rem; justify-content: center;">
+            <button type="button" class="btn-cart-trigger-login" id="btn-cart-login-prompt" style="background: var(--primary); color: #0f131d; border: none; border-radius: 10px; padding: 0.85rem 2rem; font-size: 0.95rem; font-weight: 800; cursor: pointer;">
+              로그인하기 →
+            </button>
+            <button type="button" class="btn-goto-store" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #e2e8f0; border-radius: 10px; padding: 0.85rem 1.5rem; font-size: 0.95rem; cursor: pointer;">
+              스토어로 돌아가기
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   const items = CartStore.getItems();
   const summary = CartStore.getSummary();
   const isAllSelected = items.length > 0 && items.every(it => it.selected);

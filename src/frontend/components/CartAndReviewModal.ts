@@ -88,7 +88,7 @@ export function renderCartModal(): string {
                 쇼핑 계속하기
               </button>
               <button type="button" id="btn-cart-proceed-checkout" style="background: var(--primary); color: #1c1500; border: none; border-radius: 10px; padding: 0.8rem; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 16px rgba(242,202,80,0.35);">
-                주문서 확인 및 결제하기 →
+                주문하기
               </button>
             </div>
           </div>
@@ -148,7 +148,7 @@ export function renderOrderReviewModal(options: ReviewModalOptions): string {
           <div style="background: rgba(242, 202, 80, 0.06); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
               <span style="font-size: 0.78rem; font-weight: 800; color: var(--primary);">2. 사주 분석 대상자 확인</span>
-              <span style="font-size: 0.72rem; padding: 0.1rem 0.4rem; background: rgba(242, 202, 80, 0.2); border-radius: 4px; color: var(--primary); font-weight: 700;">맞춤 감정서 생성용</span>
+              <span style="font-size: 0.72rem; padding: 0.1rem 0.4rem; background: rgba(242, 202, 80, 0.2); border-radius: 4px; color: var(--primary); font-weight: 700;">맞춤 리포트 생성용</span>
             </div>
             <div style="font-size: 0.95rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">
               ${prof.userName} 님 (${prof.gender === 'female' ? '坤命 · 女性' : '乾命 · 男性'})

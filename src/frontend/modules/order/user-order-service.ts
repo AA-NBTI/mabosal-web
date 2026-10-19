@@ -4,7 +4,7 @@
  */
 import { AuthService } from '../../state/auth-service.js';
 import { supabase } from '../supabase/supabase-client.js';
-import { getAllStoreOrders } from '../../extensions/commerce-store/store-service.js';
+import { getMyStoreOrders } from '../../extensions/commerce-store/store-service.js';
 import { VoucherStore } from '../voucher/voucher-store.js';
 import type { StoreOrder } from '../../extensions/commerce-store/types.js';
 import type { BankTransferRequest } from '../voucher/voucher-store.js';
@@ -29,18 +29,11 @@ export class UserOrderService {
       return { orders: [], pendingTransfers: [], completedOrders: [], issuedVouchers: [] };
     }
 
-    const allLocalOrders = getAllStoreOrders();
-    const userLocalOrders = allLocalOrders.filter(o => 
-      (o as any).userId === user.id ||
-      o.buyerEmail === user.email ||
-      o.buyerName === user.name ||
-      (user.phone && o.buyerPhone === user.phone)
-    );
+    const userLocalOrders = getMyStoreOrders();
 
     const allTransfers = VoucherStore.getBankTransfers();
     const userTransfers = allTransfers.filter(t =>
-      t.depositorName === user.name ||
-      (t.orderId && userLocalOrders.some(o => o.orderId === t.orderId))
+      (!!t.orderId && userLocalOrders.some(o => o.orderId === t.orderId))
     );
 
     const pendingTransfers = userTransfers.filter(t => t.status === 'pending');
@@ -87,19 +80,12 @@ export class UserOrderService {
     }
 
     // 1. 로컬 스토어 주문 조회 (회원 식별자 매칭)
-    const allLocalOrders = getAllStoreOrders();
-    const userLocalOrders = allLocalOrders.filter(o => 
-      (o as any).userId === user.id ||
-      o.buyerEmail === user.email ||
-      o.buyerName === user.name ||
-      (user.phone && o.buyerPhone === user.phone)
-    );
+    const userLocalOrders = getMyStoreOrders();
 
     // 2. 무통장 입금 신청 내역 매칭
     const allTransfers = VoucherStore.getBankTransfers();
     const userTransfers = allTransfers.filter(t =>
-      t.depositorName === user.name ||
-      (t.orderId && userLocalOrders.some(o => o.orderId === t.orderId))
+      (!!t.orderId && userLocalOrders.some(o => o.orderId === t.orderId))
     );
 
     const pendingTransfers = userTransfers.filter(t => t.status === 'pending');

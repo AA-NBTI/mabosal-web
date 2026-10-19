@@ -4,6 +4,7 @@
 import { CartStore } from '../cart/cart-store.js';
 import { AuthService } from '../../state/auth-service.js';
 import { UserSajuStore } from '../../state/user-saju-store.js';
+import { VoucherStore } from '../voucher/voucher-store.js';
 
 function esc(str: string): string {
   return str
@@ -15,10 +16,36 @@ function esc(str: string): string {
 }
 
 export function renderCheckoutBoardView(): string {
+  const currentUser = AuthService.getCurrentUser();
+  if (currentUser.role === 'guest') {
+    return `
+      <div class="checkout-board-view" style="max-width: 900px; margin: 0 auto; padding: 3rem 1rem 5rem 1rem; text-align: center;">
+        <div style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 18px; padding: 4rem 1.5rem;">
+          <div style="width: 72px; height: 72px; border-radius: 50%; background: rgba(242, 202, 80, 0.1); border: 1px solid rgba(242, 202, 80, 0.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem auto;">
+            <span class="material-symbols-outlined" style="font-size: 36px; color: var(--primary);">lock</span>
+          </div>
+          <h2 style="font-size: 1.35rem; color: #fff; margin: 0 0 0.5rem 0;">로그인이 필요한 서비스입니다</h2>
+          <p style="font-size: 0.9rem; color: #94a3b8; margin: 0 0 1.75rem 0; line-height: 1.6;">
+            주문서 작성 및 결제는 안전한 리포트 확인 및 주문내역 보관을 위해 회원 로그인 후 진행 가능합니다.<br/>로그인하시거나 간편 회원가입 후 이용해 주세요.
+          </p>
+          <div style="display: flex; gap: 0.75rem; justify-content: center;">
+            <button type="button" class="btn-checkout-trigger-login" id="btn-checkout-login-prompt" style="background: var(--primary); color: #0f131d; border: none; border-radius: 10px; padding: 0.85rem 2rem; font-size: 0.95rem; font-weight: 800; cursor: pointer;">
+              로그인하기 →
+            </button>
+            <button type="button" class="btn-goto-store" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #e2e8f0; border-radius: 10px; padding: 0.85rem 1.5rem; font-size: 0.95rem; cursor: pointer;">
+              스토어로 돌아가기
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   const selectedItems = CartStore.getSelectedItems();
   const summary = CartStore.getSummary();
-  const currentUser = AuthService.getCurrentUser();
   const defaultProfile = UserSajuStore.getProfileOrDefault();
+  const primaryItem = selectedItems[0];
+  const availableCoupons = VoucherStore.getEnabledCouponsForProduct(primaryItem?.productId);
 
   // 만약 장바구니에 선택된 상품이 없으면 안내
   if (selectedItems.length === 0) {
@@ -36,9 +63,9 @@ export function renderCheckoutBoardView(): string {
     `;
   }
 
-  const buyerName = currentUser.role !== 'guest' ? currentUser.name : defaultProfile.userName;
-  const buyerPhone = currentUser.role !== 'guest' && currentUser.phone ? currentUser.phone : '010-0000-0000';
-  const buyerEmail = currentUser.role !== 'guest' ? currentUser.email : 'user@mabosal.com';
+  const buyerName = currentUser.name || defaultProfile.userName;
+  const buyerPhone = currentUser.phone || '010-0000-0000';
+  const buyerEmail = currentUser.email || 'user@mabosal.com';
 
   return `
     <div class="checkout-board-view" style="max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 6rem 1rem;">
@@ -184,30 +211,53 @@ export function renderCheckoutBoardView(): string {
               `}
             </div>
 
-            <!-- 4. 할인 & 쿠폰 적용 블록 -->
+            <!-- 4. 할인 & 쿠폰 적용 블록 (관리자 CMS 연동 동적 쿠폰 인터페이스) -->
             <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.5rem;">
               <h2 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.4rem;">
                 <span class="material-symbols-outlined" style="color: var(--primary); font-size: 20px;">redeem</span>
-                할인 &amp; 쿠폰 / 적립금 적용
+                할인 및 혜택 적용
               </h2>
 
               <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <!-- 쿠폰 코드 입력 -->
+                ${availableCoupons.length > 0 ? `
+                  <div>
+                    <label style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.5rem; font-weight: 700;">
+                      적용 가능한 쿠폰 및 혜택 선택
+                    </label>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                      ${availableCoupons.map((c, cIdx) => `
+                        <label class="checkout-coupon-option-label" style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 0.65rem 0.95rem; cursor: pointer; transition: border-color 0.15s ease;">
+                          <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <input type="radio" name="checkout-selected-coupon-radio" value="${c.code}" class="radio-auto-coupon" style="accent-color: var(--primary); width: 16px; height: 16px; cursor: pointer;" />
+                            <span style="font-size: 0.88rem; font-weight: 700; color: #ffffff;">${c.name}</span>
+                          </div>
+                          <span style="font-size: 0.8rem; color: #4ade80; font-weight: 800; white-space: nowrap;">
+                            ${c.type === 'free_pass' ? '전액 무료 승인' : (c.type === 'percent_discount' ? c.discountRate + '% 할인' : (c.discountAmount || 0).toLocaleString() + '원 할인')}
+                          </span>
+                        </label>
+                      `).join('')}
+
+                      <label class="checkout-coupon-option-label" style="display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.65rem; cursor: pointer; color: var(--text-muted); font-size: 0.82rem;">
+                        <input type="radio" name="checkout-selected-coupon-radio" value="" checked class="radio-auto-coupon" style="accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer;" />
+                        <span>혜택 적용 안 함 (정규 결제 진행)</span>
+                      </label>
+                    </div>
+                  </div>
+                ` : ''}
+
+                <!-- 쿠폰 코드 직접 입력 -->
                 <div>
                   <label style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.35rem; font-weight: 700;">
-                    프로모션 쿠폰 코드
+                    쿠폰 코드 직접 입력
                   </label>
                   <div style="display: flex; gap: 0.5rem;">
-                    <input type="text" id="checkout-coupon-code" placeholder="쿠폰 코드 입력 (예: MABOSAL-FREE)" style="flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem; color: #fff; font-size: 0.9rem; text-transform: uppercase;" />
+                    <input type="text" id="checkout-coupon-code" placeholder="보유하신 쿠폰 코드가 있으시면 입력해 주세요" style="flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem; color: #fff; font-size: 0.88rem; text-transform: uppercase;" />
                     <button type="button" id="btn-apply-coupon" style="background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); font-weight: 700; border-radius: 8px; padding: 0 1.25rem; cursor: pointer; white-space: nowrap;">
-                      코드 적용
+                      코드 확인
                     </button>
                   </div>
                   <div id="checkout-coupon-msg" style="font-size: 0.8rem; margin-top: 0.35rem; display: none;"></div>
                 </div>
-
-                <!-- 엽전 포인트 차감 -->
-                
               </div>
             </div>
 
@@ -302,9 +352,9 @@ export function renderCheckoutBoardView(): string {
               </div>
 
               <!-- 최종 결제 버튼 -->
-              <button type="submit" id="btn-submit-final-order" style="width: 100%; background: var(--primary); color: #0f131d; border: none; border-radius: 12px; padding: 1.1rem; font-size: 1.1rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 20px rgba(242, 202, 80, 0.4); display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: transform 0.15s ease;">
+              <button type="submit" id="btn-submit-final-order" style="width: 100%; background: var(--primary); color: #0f131d; border: none; border-radius: 12px; padding: 1.1rem; font-size: 1.15rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 20px rgba(242, 202, 80, 0.4); display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: transform 0.15s ease;">
                 <span class="material-symbols-outlined" style="font-size: 20px;">lock</span>
-                최종 결제 승인하기
+                결제하기
               </button>
 
               <div style="margin-top: 1rem; text-align: center; font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;">

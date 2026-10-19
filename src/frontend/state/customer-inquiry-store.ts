@@ -26,8 +26,8 @@ const INITIAL_INQUIRIES: CustomerInquiry[] = [
   {
     id: 'INQ-20261015-1001',
     userId: 'user_001',
-    userName: '김서연',
-    replyEmail: 'seoyeon@example.com',
+    userName: '박지원',
+    replyEmail: 'jiwon.park@example.com',
     phone: '010-3456-7890',
     orderId: 'ORD-2026-0001',
     category: '사주 분석 & 리포트 문의',
@@ -35,7 +35,7 @@ const INITIAL_INQUIRIES: CustomerInquiry[] = [
     content: '지난주 평생 정밀 사주 리포트를 결제하여 열람했습니다. 2027년 정묘년 상반기 재물운에서 방어 기간과 공격 시점이 나오는데, 이 시기 투자 전환점을 좀 더 자세히 상담받을 수 있는 바우처가 있을까요?',
     status: 'answered',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
-    adminAnswer: '안녕하세요 김서연 고객님, 마보살 전문 상담 센터입니다. 고객님의 정밀 사주 분석 결과를 바탕으로 심층 상담을 진행하시려면 스토어 내 [1:1 상담권] 카테고리의 "천명원 1:1 집중 심층 상담권"을 이용하시면 전문 역학 상담사와 직접 맞춤 통화를 진행하실 수 있습니다. 이용해 주셔서 진심으로 감사드립니다.',
+    adminAnswer: '안녕하세요 박지원 고객님, 마보살 전문 상담 센터입니다. 고객님의 정밀 사주 분석 결과를 바탕으로 심층 상담을 진행하시려면 스토어 내 [1:1 상담권] 카테고리의 "천명원 1:1 집중 심층 상담권"을 이용하시면 전문 역학 상담사와 직접 맞춤 통화를 진행하실 수 있습니다. 이용해 주셔서 진심으로 감사드립니다.',
     answeredAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
   },
   {

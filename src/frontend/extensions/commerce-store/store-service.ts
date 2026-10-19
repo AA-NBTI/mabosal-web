@@ -11,6 +11,8 @@ export const OFFICIAL_BANK_ACCOUNT = {
 
 import type { StoreCategory, StoreCategoryType, StoreOrder, StoreProduct } from './types.js';
 import { UserSajuStore } from '../../state/user-saju-store.js';
+import { getIdentity, ownsRecord } from '../../modules/identity/index.js';
+import { getStorage } from '../../modules/persistence/index.js';
 
 const STORAGE_PRODUCTS_KEY = 'mabosal_store_products_v4';
 const STORAGE_ORDERS_KEY = 'mabosal_store_orders';
@@ -186,63 +188,123 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
   // [1. 마보살 대표 플래그십 상품: 정통 유료 사주풀이 (39,900원)]
   {
     id: 'prod-paid-saju-premium',
-    title: '마보살 정통 유료 사주풀이 (평생 대운 & 정밀 심층 감정서)',
+    title: '마보살 정통 유료 사주풀이 (평생 대운 & 정밀 심층 리포트)',
     category: 'report',
     price: 39900,
     originalPrice: 59000,
-    tagLine: '내 천명 본원과 10년 평생 대운, 현실 고민 3대 솔루션을 담은 마보살 최고급 맞춤 감정서',
-    badge: '대표 플래그십',
-    description: '기본 무료 사주 분석 입구를 넘어, 일생의 흐름과 용희신, 재물·직업·애정 3대 테마, 마보살 비전 실천 개운법까지 사이트 내 전용 웹 뷰어 평생 열람과 PDF/TXT 소장본을 동시에 제공하는 정통 명리학 정밀 리포트입니다.',
+    tagLine: '18개 정밀 챕터 + 12개월 월운 상세 흐름 완벽 수록',
+    badge: '인기 1위',
+    description: '사주 원국과 오행 분포, 대운의 흐름을 심층 분석하여 18개 핵심 챕터와 12개월 월운 전체를 완벽 해설한 베스트셀러 정통 리포트입니다.',
     detailsHtml: `
       <div style="line-height: 1.7; font-size: 0.9rem; color: #d1d5db;">
-        <div style="background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
-          <h4 style="color: var(--primary); margin: 0 0 0.5rem 0; font-size: 1rem; display: flex; align-items: center; gap: 0.4rem;">
-            <span class="material-symbols-outlined" style="font-size: 20px;">workspace_premium</span>
-            구매자 전용 3대 프리미엄 제공 혜택
-          </h4>
-          <ul style="margin: 0; padding-left: 1.2rem; color: #e2e8f0; font-size: 0.88rem;">
-            <li><strong>마보살 웹 인터랙티브 뷰어 즉시 열람</strong>: 5대 챕터 정밀 분석 결과를 웹에서 언제든 평생 재열람</li>
-            <li><strong>소장용 PDF &amp; TXT 원클릭 다운로드</strong>: 인쇄 및 개인 보관이 가능한 고화질 파일 무제한 발급</li>
-            <li><strong>내 사주 1:1 맞춤형 정밀 추명</strong>: 현재 입력된 사주 원국 데이터를 바탕으로 한 개인별 전용 리포트</li>
-          </ul>
-        </div>
-
-        <h4 style="color: #ffffff; margin: 0 0 0.75rem 0; font-size: 1.05rem;">
-          [정밀 감정서 5단계 상세 목차]
-        </h4>
-        <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-bottom: 1.5rem;">
-          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
-            <strong style="color: var(--primary);">제1장: 천명 본원과 오행 분포 정밀 분석</strong>
-            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">타고난 사주 원국 그릇, 일간의 본질과 오행 과다·결핍 균형 판별</p>
-          </div>
-          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
-            <strong style="color: var(--primary);">제2장: 용신(用神)·희신(喜神) 판별 및 기운 보완 비책</strong>
-            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">내 인생을 살리는 핵심 기운 파악 및 부족한 오행을 채우는 현실 개운 요소</p>
-          </div>
-          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
-            <strong style="color: var(--primary);">제3장: 10년 주기 평생 대운 흐름과 인생 전성기</strong>
-            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">대운의 흐름도와 인생 4계절, 앞으로 다가올 대운 변곡점과 기회의 타이밍</p>
-          </div>
-          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
-            <strong style="color: var(--primary);">제4장: 재물·직업·애정 3대 핵심 테마 심층 진단</strong>
-            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">재물 그릇과 투자 성향, 최적의 직업 적성 및 인연·애정 관계 현실 처방</p>
-          </div>
-          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
-            <strong style="color: var(--primary);">제5장: 마보살 비전 실천 행동 지침</strong>
-            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">위기를 피하고 행운을 끌어당기는 일상 속 현실 개운 행동 수칙</p>
-          </div>
-        </div>
+        <h4 style="color: var(--primary); margin: 0 0 0.5rem 0;">정통 사주풀이 18개 정밀 섹션 구성</h4>
+        <ul style="margin: 0; padding-left: 1.2rem; color: #cbd5e1; font-size: 0.88rem;">
+          <li>원국과 오행의 균형 및 격국 심층 해설</li>
+          <li>10년 대운과 직업·재물·연애운 흐름</li>
+          <li>12개월 월별 운세 흐름 및 주의 시기</li>
+          <li>사주 맞춤형 일상 개운법 및 실천 지침</li>
+        </ul>
+      </div>
+    `,
+    thumbnailUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'auto_stories',
+    deliveryType: 'saju_report',
+    contentPayload: 'PAID_REPORT',
+    reportTier: 'PAID',
+    targetSignals: ['wealth.flow', 'career.change', 'mind.stress'],
+    status: 'active',
+    createdAt: '2026-10-01',
+    salesCount: 312,
+  },
+  // [3. 마보살 무료 사주 진단서 (체험 상품)]
+  {
+    id: 'prod-free-experience',
+    title: '마보살 무료 사주 진단서 (기초 원국 & 13개 체험 분석)',
+    category: 'report',
+    price: 0,
+    originalPrice: 19900,
+    tagLine: '자신의 타고난 기운과 오행 기본 구조를 확인하는 13개 체험 섹션 무료 진단서',
+    badge: '무료 체험',
+    description: '사주 원국과 오행 분포, 일간의 본질을 확인하고 마(Ma)의 징후를 진단하는 13개 체험 섹션 리포트입니다. 정식 0원 주문을 통해 마이페이지 보관함에 안전하게 등록됩니다.',
+    detailsHtml: `
+      <div style="line-height: 1.7; font-size: 0.9rem; color: #d1d5db;">
+        <h4 style="color: var(--primary); margin: 0 0 0.5rem 0; font-size: 1rem;">13개 무료 체험 진단 수록 항목</h4>
+        <ul style="margin: 0; padding-left: 1.2rem; color: #cbd5e1; font-size: 0.88rem;">
+          <li>4주 8자 정통 만세력 원국표</li>
+          <li>일간 본원 및 오행 에너지 분포도</li>
+          <li>올해의 핵심 기운 전환점과 기회 요약</li>
+        </ul>
+      </div>
+    `,
+    thumbnailUrl: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'explore',
+    deliveryType: 'saju_report',
+    contentPayload: 'FREE_EXPERIENCE',
+    reportTier: 'FREE',
+    targetSignals: ['general.knowledge'],
+    status: 'active',
+    createdAt: '2026-10-01',
+    salesCount: 520,
+  },
+  // [4. 마보살 상충·마·살 특화 리포트 (79,900원)]
+  {
+    id: 'prod-saju-conflict',
+    title: '마보살 상충·마·살 갈등 특화 리포트 (20개 섹션)',
+    category: 'report',
+    price: 79900,
+    originalPrice: 120000,
+    tagLine: '인간관계 충돌(축진파/인사해), 퇴사 vs 잔류 4주 집중 점검',
+    badge: '갈등 특화',
+    description: '내 사주에 얽힌 충(衝), 형(刑), 파(破), 해(害)와 살(煞)의 충돌 지점을 정밀 분석하여 인간관계 스트레스와 이직·퇴사의 유불리를 명쾌하게 판정합니다.',
+    detailsHtml: `
+      <div style="line-height: 1.7; font-size: 0.9rem; color: #d1d5db;">
+        <h4 style="color: var(--primary); margin: 0 0 0.5rem 0;">상충·마·살 20개 섹션 분석 내용</h4>
+        <ul style="margin: 0; padding-left: 1.2rem; color: #cbd5e1; font-size: 0.88rem;">
+          <li>원국 내 상충 및 원진, 귀문관살 정밀 검증</li>
+          <li>직장 동료 및 상사와의 관계 갈등 회피법</li>
+          <li>손재마 및 관재구설 방어 행동 처방</li>
+        </ul>
       </div>
     `,
     thumbnailUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80',
-    thumbnailIcon: 'auto_awesome',
+    thumbnailIcon: 'bolt',
     deliveryType: 'saju_report',
-    contentPayload: 'LIFETIME_DEEP',
-    reportTier: 'COMPREHENSIVE',
-    targetSignals: ['wealth.flow', 'career.change', 'reunion.timing', 'compatibility.marriage'],
+    contentPayload: 'CONFLICT_MALSAL',
+    reportTier: 'CONFLICT_MALSAL',
+    targetSignals: ['mind.stress', 'career.transition'],
     status: 'active',
     createdAt: '2026-10-01',
-    salesCount: 142,
+    salesCount: 94,
+  },
+  // [5. 마보살 VIP 심층 사주 리포트 (149,000원)]
+  {
+    id: 'prod-paid-saju-vip',
+    title: '마보살 VIP 심층 사주 리포트 (29개 챕터 전수 완결본)',
+    category: 'report',
+    price: 149000,
+    originalPrice: 250000,
+    tagLine: '원국·격국·용신·대운·세운 전면 개방, 4주 맞춤 개운 로드맵 수록',
+    badge: 'VIP 최고급',
+    description: '명리학 5대 고전의 격국과 억부, 조후, 통관 용신을 총동원한 29개 챕터 완결형 VIP 리포트입니다. 평생 대운의 10년 주기와 4주 로드맵, 맞춤 솔루션을 전면 제공합니다.',
+    detailsHtml: `
+      <div style="line-height: 1.7; font-size: 0.9rem; color: #d1d5db;">
+        <h4 style="color: var(--primary); margin: 0 0 0.5rem 0;">VIP 프리미엄 29대 전수 챕터 구성</h4>
+        <ul style="margin: 0; padding-left: 1.2rem; color: #cbd5e1; font-size: 0.88rem;">
+          <li>29개 VIP 서술형 리포트 전문 평생 소장</li>
+          <li>평생 10년 대운 그래프 및 세운 교운기 비책</li>
+          <li>A/B 현실 선택 대안 및 4주 액션 플랜</li>
+        </ul>
+      </div>
+    `,
+    thumbnailUrl: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'diamond',
+    deliveryType: 'saju_report',
+    contentPayload: 'PREMIUM_VIP',
+    reportTier: 'PREMIUM',
+    targetSignals: ['wealth.flow', 'career.change', 'mind.stress'],
+    status: 'active',
+    createdAt: '2026-10-01',
+    salesCount: 68,
   },
   // [2. 런칭 프로모션 상품: 마보살 정통 사주 진단서 (19,900원 - 쿠폰 적용 시 0원 무료)]
   {
@@ -293,7 +355,7 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
     price: 19900,
     originalPrice: 30000,
     tagLine: '2027년 상반기 대운과 월별 기회·위험 정밀 총정리 리포트',
-    description: '다가오는 2027년의 세운(歲運)과 내 사주의 상호작용을 정밀 추명하여 월별로 언제 움직여야 하고 언제 조심해야 하는지 행동 지침을 알려주는 마보살 정본 신년 감정서입니다.',
+    description: '다가오는 2027년의 세운(歲運)과 내 사주의 상호작용을 정밀 추명하여 월별로 언제 움직여야 하고 언제 조심해야 하는지 행동 지침을 알려주는 마보살 정본 신년 리포트입니다.',
     detailsHtml: `
       <div style="line-height: 1.7; font-size: 0.9rem; color: #d1d5db;">
         <h4 style="color: #f2ca50; margin: 0 0 0.5rem 0;"> 리포트 주요 수록 내용</h4>
@@ -410,7 +472,7 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
     price: 79900,
     originalPrice: 120000,
     tagLine: '칠살, 백호, 원진살 등 악재와 구설을 무력화하는 심층 방어 솔루션',
-    description: '사주 내 살(殺)과 충(沖)의 상호작용으로 인해 지속되는 심리적 불안, 소송, 인간관계 파탄의 근본 원인을 파악하고 이를 조율하는 최상위 심층 감정서입니다.',
+    description: '사주 내 살(殺)과 충(沖)의 상호작용으로 인해 지속되는 심리적 불안, 소송, 인간관계 파탄의 근본 원인을 파악하고 이를 조율하는 최상위 심층 리포트입니다.',
     detailsHtml: `
       <div style="line-height: 1.7; font-size: 0.9rem; color: #d1d5db;">
         <h4 style="color: #f2ca50; margin: 0 0 0.5rem 0;"> 리포트 주요 수록 내용</h4>
@@ -623,13 +685,19 @@ export function setStoreProductStatus(id: string, status: 'active' | 'soldout' |
 
 /** 주문 목록 조회 */
 export function getAllStoreOrders(): StoreOrder[] {
-  if (typeof localStorage === 'undefined') return [];
   try {
-    const raw = localStorage.getItem(STORAGE_ORDERS_KEY);
+    const raw = getStorage().getItem(STORAGE_ORDERS_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
   }
+}
+
+/** 현재 로그인 회원 본인의 주문만 반환 (소유자 필터 강제). 화면/권한 판정에는 이 함수만 사용한다. */
+export function getMyStoreOrders(): StoreOrder[] {
+  const me = getIdentity();
+  if (me.isGuest) return [];
+  return getAllStoreOrders().filter(o => ownsRecord(o, me));
 }
 
 /** 신규 주문 생성 (결제 완료 시 호출) */
@@ -648,7 +716,7 @@ export function createStoreOrder(orderData: {
   const orders = getAllStoreOrders();
   const newOrder: StoreOrder = {
     productId: orderData.productId,
-    productTitle: prod ? prod.title : '마보살 정통 유료 사주풀이 (평생 대운 & 정밀 심층 감정서)',
+    productTitle: prod ? prod.title : '마보살 정통 유료 사주풀이 (평생 대운 & 정밀 심층 리포트)',
     category: (prod?.category || 'report') as any,
     amount: prod ? prod.price : 39900,
     deliveryType: (prod?.deliveryType || 'saju_report') as any,
@@ -657,18 +725,16 @@ export function createStoreOrder(orderData: {
     buyerPhone: orderData.buyerPhone,
     buyerEmail: orderData.buyerEmail,
     paymentMethod: orderData.paymentMethod,
-    userId: orderData.userId,
+    userId: orderData.userId || getIdentity().userId || undefined,
     orderId: orderData.orderId || 'ORD-' + Date.now().toString(36).toUpperCase(),
     paidAt: new Date().toISOString(),
     status: orderData.status || 'completed',
     ...(orderData.paymentKey ? { paymentKey: orderData.paymentKey } : {}),
-    sajuInput: UserSajuStore.getProfileOrDefault(),
+    sajuInput: UserSajuStore.getProfile() || undefined,
     reportTier: prod?.reportTier || 'COMPREHENSIVE',
   };
   orders.unshift(newOrder);
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders.slice(0, 500)));
-  }
+  getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders.slice(0, 500)));
 
   // 해당 상품 판매수 +1 (결제 완료된 주문만)
   if (prod && newOrder.status === 'completed') {
@@ -735,7 +801,7 @@ export function redeemStoreVoucher(rawCode: string, buyerInfo?: { name: string; 
 
   return {
     success: true,
-    message: `[${discountDesc}] 쿠폰이 정상 승인되었습니다! 즉시 감정서를 열람하실 수 있습니다.`,
+    message: `[${discountDesc}] 쿠폰이 정상 승인되었습니다! 즉시 리포트를 열람하실 수 있습니다.`,
     order: newOrder,
   };
 }
@@ -748,9 +814,7 @@ export function updateStoreOrder(orderId: string, patch: Partial<StoreOrder>): S
   const prev = orders[idx];
   const next = { ...prev, ...patch } as StoreOrder;
   orders[idx] = next;
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
-  }
+  getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
   if (prev.status !== 'completed' && next.status === 'completed') {
     const prod = getStoreProductById(next.productId);
     if (prod) updateStoreProduct(prod.id, { salesCount: (prod.salesCount || 0) + 1 });
@@ -762,7 +826,8 @@ export function updateStoreOrder(orderId: string, patch: Partial<StoreOrder>): S
  * 특정 사주 대상자에 대해 이미 결제 완료된 디지털 리포트인지 중복 여부 검사
  */
 export function isProductAlreadyPurchased(productId: string, sajuName?: string): { purchased: boolean; order?: StoreOrder } {
-  const orders = getAllStoreOrders().filter(o => o.status === 'completed');
+  const me = getIdentity();
+  const orders = getAllStoreOrders().filter(o => o.status === 'completed' && ownsRecord(o, me));
   const targetName = (sajuName || '').trim();
 
   for (const o of orders) {
@@ -780,7 +845,7 @@ export function isProductAlreadyPurchased(productId: string, sajuName?: string):
 }
 
 /**
- * 디지털 감정서 열람 시점 기록 (전자상거래법 환불 제한 근거 확보)
+ * 디지털 리포트 열람 시점 기록 (전자상거래법 환불 제한 근거 확보)
  */
 export function markOrderAsViewed(orderId: string): void {
   const orders = getAllStoreOrders();
@@ -808,7 +873,7 @@ export function requestStoreOrderRefund(orderId: string, reason: string): { succ
   if (target.category === 'report' && target.viewedAt) {
     return {
       success: false,
-      message: '해당 감정서는 이미 열람/다운로드가 개시되어 전자상거래법 제17조에 따라 청약철회(환불)가 제한됩니다.',
+      message: '해당 리포트는 이미 열람/다운로드가 개시되어 전자상거래법 제17조에 따라 청약철회(환불)가 제한됩니다.',
     };
   }
 

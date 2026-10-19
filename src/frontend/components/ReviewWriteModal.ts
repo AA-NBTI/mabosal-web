@@ -54,7 +54,7 @@ export function renderReviewWriteModal(options: ReviewWriteModalOptions): string
         <!-- 1. 별점 평가 -->
         <div style="text-align: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem;">
           <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #dfe2f1; margin-bottom: 0.5rem;">
-            전체적인 감정서 및 서비스 만족도를 평가해주세요
+            전체적인 리포트 및 서비스 만족도를 평가해주세요
           </label>
           <div id="star-rating-selector" style="display: inline-flex; gap: 0.5rem; cursor: pointer;">
             ${[1, 2, 3, 4, 5].map(star => `
@@ -87,7 +87,7 @@ export function renderReviewWriteModal(options: ReviewWriteModalOptions): string
           <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #dfe2f1; margin-bottom: 0.35rem;">
             상세 후기 내용 <span style="color: #f87171;">*</span>
           </label>
-          <textarea id="review-content" required rows="4" placeholder="사주 감정서나 상품을 이용하신 솔직한 소감을 적어주세요. 다른 의뢰인분들에게 큰 도움이 됩니다. (최소 10자 이상)" style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.75rem 0.85rem; color: #fff; font-size: 0.85rem; outline: none; resize: vertical; line-height: 1.5;"></textarea>
+          <textarea id="review-content" required rows="4" placeholder="사주 리포트나 상품을 이용하신 솔직한 소감을 적어주세요. 다른 의뢰인분들에게 큰 도움이 됩니다. (최소 10자 이상)" style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.75rem 0.85rem; color: #fff; font-size: 0.85rem; outline: none; resize: vertical; line-height: 1.5;"></textarea>
         </div>
 
         

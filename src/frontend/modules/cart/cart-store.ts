@@ -4,16 +4,25 @@
 import { StoreProduct } from '../../extensions/commerce-store/types.js';
 import { UserSajuProfile, UserSajuStore } from '../../state/user-saju-store.js';
 import { CartItem, CartSummary } from './types.js';
+import { getIdentity } from '../identity/index.js';
+import { getStorage } from '../persistence/index.js';
 
-const STORAGE_KEY_CART = 'mabosal_inhouse_cart';
+const STORAGE_KEY_PREFIX = 'mabosal_inhouse_cart';
 export const SHIPPING_FREE_THRESHOLD = 50000;
 export const DEFAULT_SHIPPING_FEE = 3000;
 
 export class CartStore {
+  /** 현재 로그인 사용자별 격리된 장바구니 스토리지 키 산출 */
+  public static getStorageKey(): string {
+    const me = getIdentity();
+    const ownerId = me.isGuest ? 'guest' : (me.userId || 'guest');
+    return `${STORAGE_KEY_PREFIX}_${ownerId}`;
+  }
+
   public static getItems(): CartItem[] {
-    if (typeof localStorage === 'undefined') return [];
     try {
-      const raw = localStorage.getItem(STORAGE_KEY_CART);
+      const key = this.getStorageKey();
+      const raw = getStorage().getItem(key);
       if (!raw) return [];
       const list = JSON.parse(raw) as CartItem[];
       return Array.isArray(list) ? list : [];
@@ -23,8 +32,8 @@ export class CartStore {
   }
 
   private static saveItems(items: CartItem[]): void {
-    if (typeof localStorage === 'undefined') return;
-    localStorage.setItem(STORAGE_KEY_CART, JSON.stringify(items));
+    const key = this.getStorageKey();
+    getStorage().setItem(key, JSON.stringify(items));
     this.notifyChange();
   }
 
@@ -103,8 +112,7 @@ export class CartStore {
   }
 
   public static clear(): void {
-    if (typeof localStorage === 'undefined') return;
-    localStorage.removeItem(STORAGE_KEY_CART);
+    getStorage().removeItem(this.getStorageKey());
     this.notifyChange();
   }
 
@@ -164,7 +172,7 @@ export class CartStore {
     };
   }
 
-  private static notifyChange(): void {
+  public static notifyChange(): void {
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('mm-cart-changed', { detail: { count: this.getCount() } }));
     }

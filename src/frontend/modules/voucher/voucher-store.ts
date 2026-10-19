@@ -1,5 +1,7 @@
 import { updateStoreOrder } from '../../extensions/commerce-store/store-service.js';
 import { supabase } from '../supabase/supabase-client.js';
+import { getIdentity } from '../identity/index.js';
+import { getStorage } from '../persistence/index.js';
 /**
  * [Voucher & Bank Transfer Module] 쿠폰, 상품권 및 무통장 입금 트랜잭션 마스터 스토어
  */
@@ -141,6 +143,14 @@ export class VoucherStore {
   static onTransferRejected(h: (t: BankTransferRequest) => void): void { this.rejectHooks.push(h); }
 
   // 1. 쿠폰 관리
+  
+  /** 관리자가 활성화해 둔 상품 적용 가능 쿠폰 조회 */
+  static getEnabledCouponsForProduct(targetProductId?: string): VoucherCoupon[] {
+    const all = this.getCoupons().filter(c => c.enabled);
+    if (!targetProductId) return all;
+    return all.filter(c => c.targetProduct === 'all' || c.targetProduct === targetProductId || (c.type === 'free_pass' && (c.targetProduct === 'free_report' || c.targetProduct === 'all')));
+  }
+
   static getCoupons(): VoucherCoupon[] {
     try {
       const raw = localStorage.getItem(STORAGE_KEY_COUPONS);
@@ -402,10 +412,23 @@ export class VoucherStore {
     }
   }
 
-  // 3. 사용자 쿠폰 지갑
+  private static getUserWalletKey(): string {
+    const me = getIdentity();
+    const ownerId = me.isGuest ? 'guest' : (me.userId || 'guest');
+    return `${STORAGE_KEY_USER_WALLET}_${ownerId}`;
+  }
+
+  private static getUserCashKey(): string {
+    const me = getIdentity();
+    const ownerId = me.isGuest ? 'guest' : (me.userId || 'guest');
+    return `${STORAGE_KEY_USER_CASH}_${ownerId}`;
+  }
+
+  // 3. 사용자 쿠폰 지갑 (계정별 독립 관리)
   static getUserWallet(): UserVoucherWalletItem[] {
+    const key = this.getUserWalletKey();
     try {
-      const raw = localStorage.getItem(STORAGE_KEY_USER_WALLET);
+      const raw = getStorage().getItem(key);
       if (raw) return JSON.parse(raw);
     } catch (e) {}
     // 기본으로 런칭 무료 쿠폰 보유 상태 제공
@@ -421,7 +444,7 @@ export class VoucherStore {
         isUsed: false
       }
     ];
-    localStorage.setItem(STORAGE_KEY_USER_WALLET, JSON.stringify(initialWallet));
+    getStorage().setItem(key, JSON.stringify(initialWallet));
     return initialWallet;
   }
 
@@ -459,14 +482,16 @@ export class VoucherStore {
       isUsed: false
     });
 
-    localStorage.setItem(STORAGE_KEY_USER_WALLET, JSON.stringify(wallet));
+    const key = this.getUserWalletKey();
+    getStorage().setItem(key, JSON.stringify(wallet));
     return { success: true, message: `[${found.name}] 쿠폰이 등록되었습니다.`, coupon: found };
   }
 
-  // 4. 잔액 캐시 관리
+  // 4. 잔액 캐시 관리 (계정별 독립 관리)
   static getUserCash(): number {
+    const key = this.getUserCashKey();
     try {
-      const raw = localStorage.getItem(STORAGE_KEY_USER_CASH);
+      const raw = getStorage().getItem(key);
       if (raw) return parseInt(raw, 10);
     } catch (e) {}
     return 100; // 기본 잔액 100원
@@ -475,14 +500,16 @@ export class VoucherStore {
   static addCash(amount: number): number {
     const current = this.getUserCash();
     const next = current + amount;
-    localStorage.setItem(STORAGE_KEY_USER_CASH, next.toString());
+    const key = this.getUserCashKey();
+    getStorage().setItem(key, next.toString());
     return next;
   }
 
   static deductCash(amount: number): boolean {
     const current = this.getUserCash();
     if (current < amount) return false;
-    localStorage.setItem(STORAGE_KEY_USER_CASH, (current - amount).toString());
+    const key = this.getUserCashKey();
+    getStorage().setItem(key, (current - amount).toString());
     return true;
   }
 }

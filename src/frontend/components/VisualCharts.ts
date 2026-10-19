@@ -1274,7 +1274,7 @@ export function renderCheonmyeongwonShareModal(): string {
 }
 
 // ============================================================================
-// 13. 천명원 6번 & 4번 규격: 감정서 디지털 금고 & 백업 아카이브 (Archive Vault)
+// 13. 천명원 6번 & 4번 규격: 리포트 디지털 금고 & 백업 아카이브 (Archive Vault)
 // ============================================================================
 export interface CheonmyeongwonVaultOptions {
  userName?: string;
@@ -1286,7 +1286,7 @@ export function renderCheonmyeongwonArchiveVault(options?: CheonmyeongwonVaultOp
  const count = options?.totalRecordsCount ?? 1;
 
  return `
- <!-- [천명원 6번 & 4번 규격] 감정서 디지털 금고(보관함) & 백업 시스템 -->
+ <!-- [천명원 6번 & 4번 규격] 리포트 디지털 금고(보관함) & 백업 시스템 -->
  <section class="cheonmyeongwon-archive-vault" style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.25rem 1.35rem; margin-bottom: 2rem; box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
  <div style="display: flex; align-items: center; gap: 0.45rem;">

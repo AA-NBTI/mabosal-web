@@ -278,7 +278,7 @@ export function renderCharmPricingCheckoutModal(options: CheckoutModalOptions): 
         <div style="background: var(--surface-container); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.15rem; margin-bottom: 1.25rem;">
           <div style="font-size: 0.75rem; color: var(--primary); font-weight: 700; margin-bottom: 0.25rem; letter-spacing: 0.05em;">신청 상품</div>
           <div style="font-size: 1.15rem; font-weight: 700; color: #fff;">${options.productTitle}</div>
-          <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.25rem;">천명원 원천 명리 팩트 기반 맞춤 감정서 즉시 열람 및 영구 보관</div>
+          <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.25rem;">천명원 원천 명리 팩트 기반 맞춤 리포트 즉시 열람 및 영구 보관</div>
         </div>
 
         <!-- 가격 정산 내역 (900원 참 프라이싱) -->

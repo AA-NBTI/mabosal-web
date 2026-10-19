@@ -4,7 +4,7 @@
  */
 import { AuthService } from '../../state/auth-service.js';
 import { UserOrderService } from './user-order-service.js';
-import { OFFICIAL_BANK_ACCOUNT } from '../../extensions/commerce-store/store-service.js';
+import { OFFICIAL_BANK_ACCOUNT, getMyStoreOrders } from '../../extensions/commerce-store/store-service.js';
 import { UserSajuStore } from '../../state/user-saju-store.js';
 import { ProductReviewStore } from '../../state/product-review-store.js';
 
@@ -27,15 +27,10 @@ export function renderUserOrderHistoryWidget(): string {
   let userOrders: any[] = [];
   let userTransfers: any[] = [];
   try {
-    const rawOrders = JSON.parse(localStorage.getItem('mabosal_store_orders') || '[]');
-    userOrders = rawOrders.filter((o: any) => 
-      o.userId === user.id || o.buyerEmail === user.email || o.buyerName === user.name
-    );
+    userOrders = getMyStoreOrders();
 
     const rawTransfers = JSON.parse(localStorage.getItem('mabosal_bank_transfers') || '[]');
-    userTransfers = rawTransfers.filter((t: any) =>
-      t.depositorName === user.name || (t.orderId && userOrders.some(o => o.orderId === t.orderId))
-    );
+    userTransfers = rawTransfers.filter((t: any) => t.orderId && userOrders.some(o => o.orderId === t.orderId));
   } catch (e) {
     console.warn('[UserOrderHistoryWidget] local read error:', e);
   }
@@ -161,12 +156,12 @@ export function renderUserOrderHistoryWidget(): string {
             const defaultProfile = UserSajuStore.getProfileOrDefault();
             const rawTargetName = (o.sajuInput?.userName && o.sajuInput.userName !== '의뢰인')
               ? o.sajuInput.userName
-              : (o.buyerName && o.buyerName !== '의뢰인' ? o.buyerName : (user.name || defaultProfile.userName || '김서연'));
+              : (o.buyerName && o.buyerName !== '의뢰인' ? o.buyerName : (user.name || defaultProfile.userName || '의뢰인'));
             
             // 본인 사주 여부 판별 (이용자 본인의 주문인 경우 이름 반복 도배 방지)
             const isSelf = !o.sajuInput?.userName || o.sajuInput.userName === '의뢰인' || o.sajuInput.userName === user.name;
 
-            // 개인정보 보호 성명 마스킹 (김서연 -> 김*연)
+            // 개인정보 보호 성명 마스킹 (홍길동 -> 홍*동)
             const cleanTargetName = rawTargetName.replace(/\s*\(.*\)/, '').trim();
             let maskedName = cleanTargetName;
             if (cleanTargetName.length === 2) {

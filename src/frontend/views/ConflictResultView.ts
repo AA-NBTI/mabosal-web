@@ -130,7 +130,7 @@ export function renderConflictResultView(state: AppStateData): string {
  </div>
  </div>
  <button type="button" class="btn-cta-primary btn-trigger-checkout" data-tier="PREMIUM" data-title="마보살 프리미엄 정밀 사주 진단" data-price="149900" data-original="250000" style="padding: 0.65rem 1.25rem; font-weight: 700; font-size: 0.88rem;">
- 프리미엄 신청 (149,900원) →
+ 구매하기
  </button>
  </div>
 

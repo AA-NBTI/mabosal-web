@@ -1427,7 +1427,7 @@ function renderTableBlock(lines: string[]): string {
 // ============================================================================
 export function generateDownloadableReportText(state: AppStateData): string {
   const savedProfile = UserSajuStore.getProfile();
-  const userName = state.userName || savedProfile?.userName || (state.userTroubleText ? '의뢰인' : '김서연');
+  const userName = state.userName || savedProfile?.userName || '의뢰인';
   const currentGender = state.gender || savedProfile?.gender || 'female';
   const genderTag = currentGender === 'female' ? '곤명(坤命 · 陰)' : '건명(乾命 · 陽)';
   const birthDateStr = state.sessionState?.request?.birthDate || savedProfile?.solarBirthDate || '1995-04-12';
@@ -1452,7 +1452,7 @@ export function generateDownloadableReportText(state: AppStateData): string {
 
   if (activeTier === 'PREMIUM') {
     rawMarkdown = getPremiumReportMarkdown(reportCtx);
-    reportTypeName = '마보살 프리미엄 정밀 사주 감정서 (VIP 29장 완결본)';
+    reportTypeName = '마보살 프리미엄 정밀 사주 리포트 (VIP 29장 완결본)';
   } else if ((activeTier as string) === 'CONFLICT' || activeTier === 'CONFLICT_MALSAL') {
     rawMarkdown = getConflictMalSalReportMarkdown(reportCtx);
     reportTypeName = '마보살 상충·마·살 특화 분석서 (20장 완결본)';

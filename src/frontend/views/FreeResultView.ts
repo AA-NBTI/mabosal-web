@@ -134,7 +134,7 @@ export function renderFreeResultView(state: AppStateData): string {
  <!-- [천명원 12번 & 3번 규격] 대길 황금 결실 수호 부적 카드 (갤러리 저장 & 공유) -->
  <!-- [유료/무료 차별화]: 무료 사주에서는 결실부적 제거 완료 -->
 
- <!-- [천명원 6번 & 4번 규격] 감정서 디지털 금고(보관함) & 백업 시스템 -->
+ <!-- [천명원 6번 & 4번 규격] 사주 리포트 마이페이지 [주문내역] 단일 확인 시스템 -->
  ${ModuleRegistry.isEnabled('archive_digital_vault') ? renderCheonmyeongwonArchiveVault({
  userName,
  totalRecordsCount: 1,

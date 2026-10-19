@@ -107,17 +107,17 @@ export const ROUTE_SEO_CONFIG: Record<string, SeoMetadata> = {
   },
   'member-dashboard': {
     title: '마이페이지 | 마보살',
-    description: '내 사주 원국 정보, 구매 내역, 발급된 감정서 리포트 보관함.',
+    description: '내 사주 원국 정보, 구매 내역, 발급된 사주 분석 리포트 보관함.',
     canonicalPath: '/member-dashboard',
   },
   cart: {
     title: '장바구니 | 마보살',
-    description: '선택하신 상품 및 감정서 목록입니다.',
+    description: '선택하신 상품 및 리포트 목록입니다.',
     canonicalPath: '/cart',
   },
   checkout: {
     title: '주문 및 결제 | 마보살',
-    description: '안전한 결제 시스템을 통해 마보살 감정서를 주문하세요.',
+    description: '안전한 결제 시스템을 통해 마보살 리포트를 주문하세요.',
     canonicalPath: '/checkout',
   },
   analyze: {

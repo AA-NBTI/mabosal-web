@@ -46,7 +46,7 @@ export const INITIAL_MASTER_TOGGLES: MasterServiceToggle[] = [
     title: '엽전(葉錢) 지갑 & 충전 결제 시스템',
     category: '금융/화폐',
     icon: 'paid',
-    description: '상단 헤더 잔액 표시, 충전 모달, 유료 감정서 엽전 결제 기능 전역 제어',
+    description: '상단 헤더 잔액 표시, 충전 모달, 유료 리포트 엽전 결제 기능 전역 제어',
     enabled: true,
     subModuleIds: ['feature_yeop_wallet', 'talisman_harvest_card'],
   },

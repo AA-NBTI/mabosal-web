@@ -24,6 +24,7 @@ import { CartStore } from '../state/cart-store.js';
 
 import { appState, AppStateData } from '../state/app-state.js';
 import { AuthService } from '../state/auth-service.js';
+import { UserSajuStore } from '../state/user-saju-store.js';
 import { ModuleRegistry } from '../state/module-registry.js';
 import { MABOSAL_PRODUCTS } from '../../modules/phase17_25/product-system.js';
 import {
@@ -36,6 +37,8 @@ import {
 } from './tier-templates.js';
 import { renderTodayFortuneAndMagiWidget } from '../views/TodayFortuneAndMagiWidget.js';
 import { renderFreeResultView } from '../views/FreeResultView.js';
+import { renderEntitlementLockView } from '../views/EntitlementLockView.js';
+import { canViewTier } from '../modules/entitlement/index.js';
 import { renderPaidResultView } from '../views/PaidResultView.js';
 import { renderConflictResultView } from '../views/ConflictResultView.js';
 import { renderPremiumResultView } from '../views/PremiumResultView.js';
@@ -159,9 +162,9 @@ export function renderHeader(state: AppStateData): string {
  <!-- 우측: 장바구니, 엽전 지갑, 파트너스, 관리자, 로그인/로그아웃 버튼 -->
  <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
         <!-- 장바구니 버튼: 사용한 경우(1개 이상)에만 노출, 아이콘만 표기 -->
-        <button type="button" class="btn-open-cart" id="header-btn-cart" style="background: rgba(38, 42, 53, 0.85); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 0.35rem 0.5rem; color: #ffffff; font-size: 0.76rem; font-weight: 700; cursor: pointer; display: ${CartStore.getCount() > 0 ? 'inline-flex' : 'none'}; align-items: center; justify-content: center; position: relative; transition: all 0.2s ease;" title="장바구니 열기">
+        <button type="button" class="btn-open-cart" id="header-btn-cart" style="background: rgba(38, 42, 53, 0.85); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 0.35rem 0.5rem; color: #ffffff; font-size: 0.76rem; font-weight: 700; cursor: pointer; display: ${(AuthService.getCurrentUser().role !== 'guest' && CartStore.getCount() > 0) ? 'inline-flex' : 'none'}; align-items: center; justify-content: center; position: relative; transition: all 0.2s ease;" title="장바구니 열기">
           <span class="material-symbols-outlined" style="font-size: 18px; color: #ffffff;">shopping_cart</span>
-          <span class="cart-badge-count" style="position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 9999px; padding: 1px 5px; font-size: 0.65rem; font-weight: 800; display: ${CartStore.getCount() > 0 ? 'inline-block' : 'none'};">${CartStore.getCount()}</span>
+          <span class="cart-badge-count" style="position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 9999px; padding: 1px 5px; font-size: 0.65rem; font-weight: 800; display: ${(AuthService.getCurrentUser().role !== 'guest' && CartStore.getCount() > 0) ? 'inline-block' : 'none'};">${CartStore.getCount()}</span>
         </button>
 
         <!-- 모바일 카테고리 햄버거 버튼 (화면폭 768px 미만 노출) -->
@@ -379,7 +382,7 @@ ${(() => {
           <div class="product-action-box">
             <div class="product-price-label">0원</div>
             <button type="button" class="btn-cta-secondary btn-select-product" data-tier="FREE" style="background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary);">
-              무료 시작 →
+              무료 체험
             </button>
           </div>
         </div>
@@ -403,7 +406,7 @@ ${(() => {
           <div class="product-action-box">
             <div class="product-price-label">39,900원</div>
             <button type="button" class="btn-cta-primary btn-select-product" data-tier="PAID" style="background: var(--primary); color: #241a00; border: none;">
-              신청 →
+              구매하기
             </button>
           </div>
         </div>
@@ -427,7 +430,7 @@ ${(() => {
           <div class="product-action-box">
             <div class="product-price-label">79,900원</div>
             <button type="button" class="btn-cta-primary btn-select-product" data-tier="CONFLICT_MALSAL" style="background: var(--primary); color: #241a00; border: none;">
-              신청 →
+              구매하기
             </button>
           </div>
         </div>
@@ -451,7 +454,7 @@ ${(() => {
           <div class="product-action-box">
             <div class="product-price-label">149,900원</div>
             <button type="button" class="btn-cta-primary btn-select-product" data-tier="PREMIUM" style="background: var(--primary); color: #241a00; border: none;">
-              신청 →
+              구매하기
             </button>
           </div>
         </div>
@@ -488,7 +491,7 @@ ${(() => {
           <div class="product-action-box">
             <div class="product-price-label">19,900원</div>
             <button type="button" class="btn-cta-primary btn-select-product" data-tier="YEAR_2027" style="background: var(--primary); color: #241a00; border: none;">
-              신청 →
+              구매하기
             </button>
           </div>
         </div>
@@ -512,7 +515,7 @@ ${(() => {
           <div class="product-action-box">
             <div class="product-price-label">19,900원</div>
             <button type="button" class="btn-cta-primary btn-select-product" data-tier="CAREER" style="background: var(--primary); color: #241a00; border: none;">
-              신청 →
+              구매하기
             </button>
           </div>
         </div>
@@ -536,7 +539,7 @@ ${(() => {
           <div class="product-action-box">
             <div class="product-price-label">19,900원</div>
             <button type="button" class="btn-cta-primary btn-select-product" data-tier="WEALTH" style="background: var(--primary); color: #241a00; border: none;">
-              신청 →
+              구매하기
             </button>
           </div>
         </div>
@@ -560,7 +563,7 @@ ${(() => {
           <div class="product-action-box">
             <div class="product-price-label">19,900원</div>
             <button type="button" class="btn-cta-primary btn-select-product" data-tier="REUNION" style="background: var(--primary); color: #241a00; border: none;">
-              신청 →
+              구매하기
             </button>
           </div>
         </div>
@@ -584,7 +587,7 @@ ${(() => {
           <div class="product-action-box">
             <div class="product-price-label">29,900원</div>
             <button type="button" class="btn-cta-primary btn-select-product" data-tier="CHEMISTRY" style="background: var(--primary); color: #241a00; border: none;">
-              신청 →
+              구매하기
             </button>
           </div>
         </div>
@@ -698,7 +701,20 @@ ${(() => {
 // 3. 출생정보 및 고민 입력 뷰 (Phase 30 순서 완벽 준수)
 // ==========================================
 export function renderBirthInputView(state: AppStateData): string {
- const isOnboarding = Boolean(state.isOnboarding || (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mode') === 'onboarding'));
+  const isOnboarding = Boolean(state.isOnboarding || (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mode') === 'onboarding'));
+  const currentUser = AuthService.getCurrentUser();
+  const isMember = currentUser && currentUser.role !== 'guest';
+
+  // [철칙] 비로그인(게스트) 상태에서는 타인의 사주 정보나 하드코딩된 기본값을 일체 채우지 않고 깨끗한 빈칸으로 제공!
+  const savedProfile = isMember ? UserSajuStore.getProfile(currentUser.username || currentUser.id) : null;
+  const hasExistingSaju = isMember && Boolean(savedProfile?.solarBirthDate || currentUser.birthDate);
+
+  const defaultName = isMember ? (state.userName || savedProfile?.userName || currentUser.name || '') : '';
+  const rawBirth = isMember ? (savedProfile?.solarBirthDate || currentUser.birthDate || '') : '';
+  const defaultBirth = rawBirth ? rawBirth.replace(/[^0-9]/g, '') : '';
+  const defaultTime = isMember ? (savedProfile?.birthTime || currentUser.birthTime || '') : '';
+  const effectiveCal = (isMember && (savedProfile?.calendarType || currentUser.calendarType)) || state.calendarType || 'solar';
+  const effectiveLeap = isMember && savedProfile?.isLeapMonth !== undefined ? savedProfile.isLeapMonth : (state.isLeapMonth || false);
  return `
  <div class="input-view-container">
   ${isOnboarding ? `
@@ -724,7 +740,20 @@ export function renderBirthInputView(state: AppStateData): string {
  </div>
  ` : ''}
 
- <form id="form-birth-input" novalidate>
+ ${hasExistingSaju && !isOnboarding ? `
+  <div class="saju-autofill-banner" style="background: rgba(74, 222, 128, 0.1); border: 1px solid rgba(74, 222, 128, 0.35); border-radius: 12px; padding: 0.85rem 1.15rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
+    <div style="display: flex; align-items: center; gap: 0.6rem;">
+      <span class="material-symbols-outlined" style="color: #4ade80; font-size: 20px;">account_circle</span>
+      <div style="font-size: 0.85rem; color: #fff;">
+        <strong style="color: #4ade80;">${defaultName || '회원'}</strong> 님의 등록된 사주 정보가 자동으로 적용되었습니다.
+        <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.15rem;">다른 분의 사주를 보시려면 내용을 수정하신 후 진행하세요.</div>
+      </div>
+    </div>
+    <span style="font-size: 0.72rem; background: rgba(74, 222, 128, 0.2); color: #4ade80; padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 700; white-space: nowrap;">자동 완성됨</span>
+  </div>
+  ` : ''}
+
+  <form id="form-birth-input" novalidate>
  <!-- 0. 이름 -->
  <div class="form-group" style="margin-bottom: 1.25rem;">
  <label class="form-label" for="input-user-name" style="display: flex; align-items: center; justify-content: space-between;">
@@ -736,7 +765,7 @@ export function renderBirthInputView(state: AppStateData): string {
  id="input-user-name" 
  class="form-input" 
  placeholder="예: 홍길동 (이름을 입력해 주세요)" 
- value="${state.userName || ''}" 
+ value="${defaultName}" 
  autocomplete="name"
  />
  </div>
@@ -745,14 +774,14 @@ export function renderBirthInputView(state: AppStateData): string {
  <div class="form-group">
  <label class="form-label">1. 역법 선택 (양력 / 음력)</label>
  <div class="calendar-toggle-group">
- <button type="button" class="calendar-btn ${state.calendarType === 'solar' ? 'active' : ''}" id="btn-calendar-solar" data-cal="solar">양력 (Solar)</button>
- <button type="button" class="calendar-btn ${state.calendarType === 'lunar' ? 'active' : ''}" id="btn-calendar-lunar" data-cal="lunar">음력 (Lunar)</button>
+ <button type="button" class="calendar-btn ${effectiveCal === 'solar' ? 'active' : ''}" id="btn-calendar-solar" data-cal="solar">양력 (Solar)</button>
+ <button type="button" class="calendar-btn ${effectiveCal === 'lunar' ? 'active' : ''}" id="btn-calendar-lunar" data-cal="lunar">음력 (Lunar)</button>
  </div>
  </div>
 
- <div class="form-group" id="group-leap-month" style="${state.calendarType === 'lunar' ? 'display:block;' : 'display:none;'}">
+ <div class="form-group" id="group-leap-month" style="${effectiveCal === 'lunar' ? 'display:block;' : 'display:none;'}">
  <label class="form-checkbox-row">
- <input type="checkbox" id="check-leap-month" ${state.isLeapMonth ? 'checked' : ''} />
+ <input type="checkbox" id="check-leap-month" ${effectiveLeap ? 'checked' : ''} />
  <span>윤달(Leap Month)에 태어났습니다</span>
  </label>
  </div>
@@ -767,7 +796,7 @@ export function renderBirthInputView(state: AppStateData): string {
  maxlength="10" 
  inputmode="numeric" 
  placeholder="예: 19751102 또는 1975-11-02" 
- value="19920515" 
+ value="${defaultBirth}" 
  autocomplete="off"
  />
  <span style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem; display: block;">
@@ -784,7 +813,7 @@ export function renderBirthInputView(state: AppStateData): string {
  class="form-input" 
  maxlength="5" 
  placeholder="예: 13:30 또는 1330 (24시간 기준)" 
- value="13:30" 
+ value="${defaultTime}" 
  autocomplete="off"
  />
  <span style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem; display: block;">
@@ -877,13 +906,13 @@ export function renderBirthInputView(state: AppStateData): string {
  <!-- 상대방 생년월일 -->
  <div class="form-group" style="margin-bottom: 1rem;">
  <label class="form-label" for="input-partner-birth-date">상대방 생년월일 (8자리 또는 YYYY-MM-DD)</label>
- <input type="text" id="input-partner-birth-date" class="form-input" maxlength="10" placeholder="예: 19930821 또는 1993-08-21" value="${state.partnerInfo?.birthDate || '19930821'}" />
+ <input type="text" id="input-partner-birth-date" class="form-input" maxlength="10" placeholder="예: 19930821 또는 1993-08-21" value="${state.partnerInfo?.birthDate || ''}" />
  </div>
 
  <!-- 상대방 출생시간 -->
  <div class="form-group">
  <label class="form-label" for="input-partner-birth-time">상대방 출생시간 (24시간 기준)</label>
- <input type="text" id="input-partner-birth-time" class="form-input" maxlength="5" placeholder="예: 08:30" value="${state.partnerInfo?.birthTime || '08:30'}" />
+ <input type="text" id="input-partner-birth-time" class="form-input" maxlength="5" placeholder="예: 08:30" value="${state.partnerInfo?.birthTime || ''}" />
  <label class="form-checkbox-row" style="margin-top: 0.45rem;">
  <input type="checkbox" id="check-partner-missing-hour" ${state.partnerInfo?.isHourUnknown ? 'checked' : ''} />
  <span>상대방 출생시간을 정확히 모릅니다 (3주 안전 궁합 분석)</span>
@@ -910,7 +939,7 @@ export function renderBirthInputView(state: AppStateData): string {
  `).join('')}
  </div>
 
- <textarea id="input-trouble-text" class="form-textarea" rows="3" placeholder="직접 겪고 계신 상황이나 질문을 적어주세요.">${state.userTroubleText || '올해 전반적인 운의 흐름과 기회를 알고 싶습니다.'}</textarea>
+ <textarea id="input-trouble-text" class="form-textarea" rows="3" placeholder="직접 겪고 계신 상황이나 질문을 적어주세요.">${state.userTroubleText || ''}</textarea>
  </div>
  ` : ''}
 
@@ -1279,6 +1308,11 @@ function renderPhase83ProductView(state: AppStateData): string {
  // ========================================================
  let activeViewHtml = '';
 
+ // [중앙 권한 게이트] 유료 티어는 본인 결제 완료 주문이 있을 때만 열람 (티어별 개별 가드 누락 방지)
+ if (activeTier !== 'FREE' && !canViewTier(activeTier as string)) {
+ return renderEntitlementLockView(activeTier);
+ }
+
  if (activeTier === 'FREE') {
  activeViewHtml = renderFreeResultView(state);
  } else if (activeTier === 'PAID') {
@@ -1426,11 +1460,11 @@ export function renderResultView(state: AppStateData): string {
      <span class="material-symbols-outlined" style="font-size: 52px; color: var(--primary); margin-bottom: 1rem;">auto_stories</span>
      <h2 style="font-size: 1.35rem; font-weight: 800; color: #fff; margin: 0 0 0.5rem 0;">사주 분석 정보가 필요합니다</h2>
      <p style="font-size: 0.9rem; color: #94a3b8; line-height: 1.6; margin: 0 0 1.75rem 0;">
-      결제하신 감정서 열람을 위해 분석할 사주 정보(생년월일시)가 필요합니다.<br/>
-      생년월일시를 입력하시면 맞춤 사주 감정서가 즉시 생성되어 열람할 수 있습니다.
+      결제하신 리포트 열람을 위해 분석할 사주 정보(생년월일시)가 필요합니다.<br/>
+      생년월일시를 입력하시면 맞춤 사주 리포트가 즉시 생성되어 열람할 수 있습니다.
      </p>
      <button type="button" id="btn-goto-start-saju" class="btn-cta-primary" style="padding: 0.8rem 1.8rem; font-size: 0.95rem; font-weight: 800; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 16px rgba(242, 202, 80, 0.35);">
-      사주 정보 입력하고 감정서 열람하기 →
+      사주 정보 입력하고 리포트 열람하기 →
      </button>
      <div style="display: none !important;" aria-hidden="true">마보살에게 직접 질문하기 근거 보기 🔍</div>
     </div>
@@ -2202,11 +2236,11 @@ export function renderReportView(state: AppStateData): string {
      <span class="material-symbols-outlined" style="font-size: 52px; color: var(--primary); margin-bottom: 1rem;">fact_check</span>
      <h2 style="font-size: 1.35rem; font-weight: 800; color: #fff; margin: 0 0 0.5rem 0;">사주 분석 정보가 필요합니다</h2>
      <p style="font-size: 0.9rem; color: #94a3b8; line-height: 1.6; margin: 0 0 1.75rem 0;">
-      결제하신 맞춤 감정서를 생성하고 열람하려면 생년월일시 정보가 필요합니다.<br/>
+      결제하신 맞춤 리포트를 생성하고 열람하려면 생년월일시 정보가 필요합니다.<br/>
       생년월일시를 입력하시면 결제 완료된 정밀 리포트가 즉시 잠금 해제되어 발급됩니다.
      </p>
      <button type="button" id="btn-goto-start-saju" class="btn-cta-primary" style="padding: 0.8rem 1.8rem; font-size: 0.95rem; font-weight: 800; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 16px rgba(242, 202, 80, 0.35);">
-      사주 정보 입력하고 감정서 받기 →
+      사주 정보 입력하고 리포트 받기 →
      </button>
     </div>
    </div>
