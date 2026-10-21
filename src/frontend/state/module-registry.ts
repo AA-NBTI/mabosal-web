@@ -86,6 +86,15 @@ export const INITIAL_MASTER_TOGGLES: MasterServiceToggle[] = [
     enabled: true,
     subModuleIds: ['feature_today_fortune', 'feature_today_magi'],
   },
+  {
+    key: 'cro_funnel_ab_test',
+    title: '구매 전환 전용 단일 퍼널 (A/B 테스트 B안)',
+    category: '전환/CRO',
+    icon: 'conversion_path',
+    description: '랜딩(고객 고민 타격) ➔ 무료 6대 진단 ➔ 유료 39,900원 결제 ➔ 8대 정밀 처방 단일 퍼널로 즉시 전환 (OFF시 기존 종합 대시보드형 A안)',
+    enabled: false,
+    subModuleIds: [],
+  },
 ];
 
 export const INITIAL_MODULES: SystemModuleItem[] = [
@@ -515,6 +524,10 @@ export class ModuleRegistry {
     this.init();
     const item = this.masterToggles.get(key);
     return item ? item.enabled : true;
+  }
+
+  public static isMasterEnabled(key: string): boolean {
+    return this.isMasterFeatureEnabled(key);
   }
 
   /** 중간 단계 마스터 서비스 토글 변경 (하위 관련 모듈 일괄 반영) */

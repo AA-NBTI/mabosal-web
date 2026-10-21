@@ -87,12 +87,7 @@ export function renderFreeResultView(state: AppStateData): string {
  </p>
  </div>
 
- <!-- [천명원 10번 규격 완전체] 의뢰인 정보 맞춤형 일진 대시보드 (마보살 엔진 동적 연동) -->
- ${ModuleRegistry.isEnabled('daily_celestial_dashboard') ? renderCheonmyeongwonDailyDashboard({
- userName,
- gender: state.gender,
- calcResult: state.calcResult,
- }) : ''}
+
 
  <!-- 공통 1: 사주 4주 8자 만세력 정통 원국표 & 천문 태극 엠블럼 (천명원 _5 규격) -->
  ${renderMiniSajuPillarsCard({
@@ -100,7 +95,6 @@ export function renderFreeResultView(state: AppStateData): string {
  month: pillars.month,
  day: pillars.day,
  hour: pillars.hour,
- dayMasterDesc: `${pillars.day.stem}토(土) 일원 (현실적 판단과 내실의 기운)`,
  })}
 
  <!-- 천명원 _5 규격 1: 오행(五行) 에너지 분포도 (Segmented Multi-Bar + 5대 뱃지 + 진단 메시지) -->

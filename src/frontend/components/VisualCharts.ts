@@ -523,56 +523,56 @@ export function renderCheonmyeongwonFiveElementsMultiBar(options?: Cheonmyeongwo
 
  return `
  <!-- 천명원 5번 규격: 오행(五行) 에너지 분포도 -->
- <section class="cheonmyeongwon-ohaeng-card" style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.22); border-radius: 16px; padding: 1.25rem 1.35rem; box-shadow: 0 8px 24px rgba(0,0,0,0.4); margin-bottom: 1.5rem;">
+ <section class="cheonmyeongwon-ohaeng-card" style="background: var(--surface-container); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.25rem 1.35rem; box-shadow: 0 8px 24px rgba(0,0,0,0.4); margin-bottom: 1.5rem;">
  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem;">
  <div style="display: flex; align-items: center; gap: 0.5rem;">
- <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">pie_chart</span>
+ <span class="material-symbols-outlined" style="font-size: 20px; color: var(--text-muted);">pie_chart</span>
  <h3 style="font-size: 1.05rem; font-weight: 700; color: #dfe2f1; margin: 0;">오행(五行) 에너지 분포도</h3>
  </div>
  <div style="display: flex; align-items: center; gap: 0.4rem;">
- <span style="font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 9999px; background: rgba(255, 51, 133, 0.12); color: var(--tertiary); font-weight: 600;">8개 글자 기준</span>
- <span style="font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 9999px; background: rgba(242, 202, 80, 0.12); color: var(--primary); font-weight: 600;">마보살 정밀 분석</span>
+ <span style="font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 9999px; background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.08); font-weight: 500;">8개 글자 기준</span>
+ <span style="font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 9999px; background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.08); font-weight: 500;">마보살 정밀 분석</span>
  </div>
  </div>
 
- <!-- Segmented Multi-Bar Visualizer -->
+ <!-- Segmented Multi-Bar Visualizer (오행 글자 컬러와 100% 동일하게 일치) -->
  <div style="width: 100%; height: 12px; border-radius: 9999px; overflow: hidden; display: flex; background: var(--surface-container-lowest); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); margin-bottom: 1rem;">
- <div style="height: 100%; width: ${wPct}%; background: #ff3385; transition: width 0.6s ease;" title="목(木) ${wPct}%"></div>
- <div style="height: 100%; width: ${fPct}%; background: #ffb4ab; transition: width 0.6s ease;" title="화(火) ${fPct}%"></div>
- <div style="height: 100%; width: ${ePct}%; background: #f2ca50; transition: width 0.6s ease;" title="토(土) ${ePct}%"></div>
- <div style="height: 100%; width: ${mPct}%; background: #bec6dd; transition: width 0.6s ease;" title="금(金) ${mPct}%"></div>
- <div style="height: 100%; width: ${waPct}%; background: #3e475a; transition: width 0.6s ease;" title="수(水) ${waPct}%"></div>
+ <div style="height: 100%; width: ${wPct}%; background: #22c55e; transition: width 0.6s ease;" title="목(木) ${wPct}%"></div>
+ <div style="height: 100%; width: ${fPct}%; background: #ef4444; transition: width 0.6s ease;" title="화(火) ${fPct}%"></div>
+ <div style="height: 100%; width: ${ePct}%; background: #f59e0b; transition: width 0.6s ease;" title="토(土) ${ePct}%"></div>
+ <div style="height: 100%; width: ${mPct}%; background: #94a3b8; transition: width 0.6s ease;" title="금(金) ${mPct}%"></div>
+ <div style="height: 100%; width: ${waPct}%; background: #3b82f6; transition: width 0.6s ease;" title="수(水) ${waPct}%"></div>
  </div>
 
- <!-- Elemental Detail Badges Grid (5열) -->
+ <!-- Elemental Detail Badges Grid (오행 글자/라인 외 모든 구성 컬러 기본 컬러로 통일) -->
  <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.4rem; text-align: center; margin-bottom: 1rem;">
  <!-- Wood -->
- <div style="display: flex; flex-direction: column; align-items: center; padding: 0.55rem 0.2rem; border-radius: 10px; background: var(--surface-container-low); border: 1px solid rgba(255, 51, 133,0.15);">
+ <div style="display: flex; flex-direction: column; align-items: center; padding: 0.55rem 0.2rem; border-radius: 10px; background: var(--surface-container-low); border: 1px solid rgba(255, 255, 255, 0.06);">
  <span style="font-family: var(--font-display); font-size: 0.72rem; color: #22c55e; font-weight: 700;">목(木)</span>
  <span style="font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0.15rem 0 0.1rem;">${wPct}%</span>
  <span style="font-size: 0.68rem; color: var(--text-muted);">성장 · 온화</span>
  </div>
  <!-- Fire -->
- <div style="display: flex; flex-direction: column; align-items: center; padding: 0.55rem 0.2rem; border-radius: 10px; background: var(--surface-container-low); border: 1px solid rgba(255,180,171,0.15);">
+ <div style="display: flex; flex-direction: column; align-items: center; padding: 0.55rem 0.2rem; border-radius: 10px; background: var(--surface-container-low); border: 1px solid rgba(255, 255, 255, 0.06);">
  <span style="font-family: var(--font-display); font-size: 0.72rem; color: #ef4444; font-weight: 700;">화(火)</span>
  <span style="font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0.15rem 0 0.1rem;">${fPct}%</span>
  <span style="font-size: 0.68rem; color: var(--text-muted);">열정 · 표현</span>
  </div>
- <!-- Earth (Dominant) -->
- <div style="display: flex; flex-direction: column; align-items: center; padding: 0.55rem 0.2rem; border-radius: 10px; background: var(--surface-container-highest); border: 1px solid rgba(242,202,80,0.4); box-shadow: 0 2px 8px rgba(242,202,80,0.15);">
+ <!-- Earth -->
+ <div style="display: flex; flex-direction: column; align-items: center; padding: 0.55rem 0.2rem; border-radius: 10px; background: var(--surface-container-low); border: 1px solid rgba(255, 255, 255, 0.06);">
  <span style="font-family: var(--font-display); font-size: 0.72rem; color: #f59e0b; font-weight: 700;">토(土)</span>
- <span style="font-size: 0.95rem; font-weight: 800; color: var(--primary); margin: 0.15rem 0 0.1rem;">${ePct}%</span>
- <span style="font-size: 0.68rem; color: var(--primary); font-weight: 600;">포용 · 신용</span>
+ <span style="font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0.15rem 0 0.1rem;">${ePct}%</span>
+ <span style="font-size: 0.68rem; color: var(--text-muted);">포용 · 신용</span>
  </div>
  <!-- Metal -->
- <div style="display: flex; flex-direction: column; align-items: center; padding: 0.55rem 0.2rem; border-radius: 10px; background: var(--surface-container-low); border: 1px solid rgba(190,198,221,0.15);">
+ <div style="display: flex; flex-direction: column; align-items: center; padding: 0.55rem 0.2rem; border-radius: 10px; background: var(--surface-container-low); border: 1px solid rgba(255, 255, 255, 0.06);">
  <span style="font-family: var(--font-display); font-size: 0.72rem; color: #94a3b8; font-weight: 700;">금(金)</span>
  <span style="font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0.15rem 0 0.1rem;">${mPct}%</span>
  <span style="font-size: 0.68rem; color: var(--text-muted);">결단 · 의리</span>
  </div>
- <!-- Water (Deficient) -->
- <div style="display: flex; flex-direction: column; align-items: center; padding: 0.55rem 0.2rem; border-radius: 10px; background: var(--surface-container-low); border: 1px solid rgba(62,71,90,0.4);">
- <span style="font-family: var(--font-display); font-size: 0.72rem; color: #3b82f6; font-weight: 700;">수(水) ▼</span>
+ <!-- Water -->
+ <div style="display: flex; flex-direction: column; align-items: center; padding: 0.55rem 0.2rem; border-radius: 10px; background: var(--surface-container-low); border: 1px solid rgba(255, 255, 255, 0.06);">
+ <span style="font-family: var(--font-display); font-size: 0.72rem; color: #3b82f6; font-weight: 700;">수(水)</span>
  <span style="font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0.15rem 0 0.1rem;">${waPct}%</span>
  <span style="font-size: 0.68rem; color: var(--text-muted);">지혜 · 유연</span>
  </div>
@@ -580,11 +580,11 @@ export function renderCheonmyeongwonFiveElementsMultiBar(options?: Cheonmyeongwo
 
  <!-- Elemental Balance Diagnostic Message -->
  <div style="display: flex; align-items: flex-start; gap: 0.65rem; padding: 0.85rem 1rem; border-radius: 12px; background: var(--surface-container-high); border: 1px solid rgba(255,255,255,0.06); margin-bottom: 0.85rem;">
- <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary); margin-top: 2px; flex-shrink: 0;">balance</span>
+ <span class="material-symbols-outlined" style="font-size: 20px; color: var(--text-muted); margin-top: 2px; flex-shrink: 0;">balance</span>
  <div style="display: flex; flex-direction: column; gap: 0.25rem;">
  <div style="font-size: 0.85rem; color: #dfe2f1; font-weight: 600; line-height: 1.5;">
- <strong style="color: var(--primary);">${dominant}</strong> 기운이 가장 왕성하고, 
- <strong style="color: #93c5fd;">${deficient}</strong> 기운이 다소 부족하여 균형이 필요한 사주입니다.
+ <strong style="color: #ffffff;">${dominant}</strong> 기운이 가장 왕성하고, 
+ <strong style="color: #ffffff;">${deficient}</strong> 기운이 다소 부족하여 균형이 필요한 사주입니다.
  </div>
  <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.45;">
  포용력과 현실적 신뢰감이 뛰어난 반면, 유연한 소통과 감정적 환기를 채우는 것이 운세 상승의 핵심입니다.
@@ -592,19 +592,19 @@ export function renderCheonmyeongwonFiveElementsMultiBar(options?: Cheonmyeongwo
  </div>
  </div>
 
- <!-- 마보살만의 독보적 심층 명리 메트릭 (천명원 초월 지표) -->
- <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; background: var(--surface-container-lowest); border-radius: 10px; padding: 0.65rem 0.85rem; border: 1px solid rgba(242, 202, 80, 0.18);">
+ <!-- 마보살 심층 명리 메트릭 (기본 컬러 구성) -->
+ <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; background: var(--surface-container-lowest); border-radius: 10px; padding: 0.65rem 0.85rem; border: 1px solid rgba(255, 255, 255, 0.08);">
  <div style="display: flex; flex-direction: column; align-items: center; border-right: 1px solid rgba(255,255,255,0.06);">
  <span style="font-size: 0.68rem; color: var(--text-muted);">명리 신강약</span>
- <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary); margin-top: 0.15rem;">${shingangStatus}</span>
+ <span style="font-size: 0.82rem; font-weight: 700; color: #dfe2f1; margin-top: 0.15rem;">${shingangStatus}</span>
  </div>
  <div style="display: flex; flex-direction: column; align-items: center; border-right: 1px solid rgba(255,255,255,0.06);">
  <span style="font-size: 0.68rem; color: var(--text-muted);">길신 용신(用神)</span>
- <span style="font-size: 0.82rem; font-weight: 700; color: #ff3385; margin-top: 0.15rem;">${yongshin}</span>
+ <span style="font-size: 0.82rem; font-weight: 700; color: #dfe2f1; margin-top: 0.15rem;">${yongshin}</span>
  </div>
  <div style="display: flex; flex-direction: column; align-items: center;">
  <span style="font-size: 0.68rem; color: var(--text-muted);">마보살 RSI 안정도</span>
- <span style="font-size: 0.82rem; font-weight: 700; color: #50c878; margin-top: 0.15rem;">${rsiScore}점 (최상급)</span>
+ <span style="font-size: 0.82rem; font-weight: 700; color: #dfe2f1; margin-top: 0.15rem;">${rsiScore}점</span>
  </div>
  </div>
  </section>

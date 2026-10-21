@@ -119,7 +119,6 @@ export function renderPremiumResultView(state: AppStateData): string {
  month: pillars.month,
  day: pillars.day,
  hour: pillars.hour,
- dayMasterDesc: `${pillars.day.stem}토(土) 일원 (VIP 전수 정밀 감정)`,
  })}
 
  <!-- 천명원 5번 규격: 오행 에너지 분포도 (Multi-Bar) -->

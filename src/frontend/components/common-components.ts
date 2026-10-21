@@ -24,25 +24,37 @@ export interface MiniPillarsData {
   dayMasterDesc?: string;
 }
 
-// 12지지별 지장간 한자 테이블
+// 12지지별 지장간 한글/한자 병기 매핑 테이블
 const HIDDEN_STEMS_MAP: Record<string, string> = {
-  자: '壬 癸',
-  축: '癸 辛 己',
-  인: '戊 丙 甲',
-  묘: '甲 乙',
-  진: '乙 癸 戊',
-  사: '戊 庚 丙',
-  오: '丙 己 丁',
-  미: '丁 乙 己',
-  신: '戊 壬 庚',
-  유: '庚 辛',
-  술: '辛 丁 戊',
-  해: '戊 甲 壬',
+  자: '임·계 (壬·癸)',
+  축: '계·신·기 (癸·辛·己)',
+  인: '무·병·갑 (戊·丙·甲)',
+  묘: '갑·을 (甲·乙)',
+  진: '을·계·무 (乙·癸·戊)',
+  사: '무·경·병 (戊·庚·丙)',
+  오: '병·기·정 (丙·己·丁)',
+  미: '정·을·기 (丁·乙·己)',
+  신: '무·임·경 (戊·壬·庚)',
+  유: '경·신 (庚·辛)',
+  술: '신·정·무 (辛·丁·戊)',
+  해: '무·갑·임 (戊·甲·壬)',
 };
 
-// 천간/지지별 오행 색상 스타일 클래스 및 텍스트 매핑
+export const DAY_MASTER_DEFAULT_DESC: Record<string, string> = {
+  갑: '갑목(甲木) 일원 (개척과 당당한 리더의 기운)',
+  을: '을목(乙木) 일원 (유연함과 끈기 있는 생명력)',
+  병: '병화(丙火) 일원 (열정과 세상을 비추는 밝은 기운)',
+  정: '정화(丁火) 일원 (따뜻한 온기와 섬세한 집중력)',
+  무: '무토(戊土) 일원 (듬직한 포용력과 신뢰의 기운)',
+  기: '기토(己土) 일원 (현실적 판단과 내실의 기운)',
+  경: '경금(庚金) 일원 (결단력과 단단한 의지의 기운)',
+  신: '신금(辛金) 일원 (섬세한 완성도와 예리한 지혜)',
+  임: '임수(壬水) 일원 (깊은 지혜와 포용하는 유연함)',
+  계: '계수(癸水) 일원 (맑은 통찰과 촉촉한 생명수)',
+};
+
+// 천간/지지별 오행 색상 스타일 클래스 및 텍스트 매핑 (배경 컬러 제거 및 단일 기본 구성 컬러로 통일)
 function getStemTileStyle(stem: string): { bg: string; color: string; desc: string } {
-  // 사주 원국 배경 컬러 제거 -> 기본 컬러 투명 표면 및 고대비 화이트 적용
   const descMap: Record<string, string> = {
     갑: '갑 (양목)', 을: '을 (음목)', 병: '병 (양화)', 정: '정 (음화)',
     무: '무 (양토)', 기: '기 (음토)', 경: '경 (양금)', 신: '신 (음금)',
@@ -56,47 +68,52 @@ function getStemTileStyle(stem: string): { bg: string; color: string; desc: stri
 }
 
 function getBranchTileStyle(branch: string): { bg: string; color: string; desc: string } {
-  switch (branch) {
-    case '인': return { bg: 'rgba(242, 202, 80, 0.12)', color: '#f2ca50', desc: '인 (양목)' };
-    case '묘': return { bg: 'rgba(242, 202, 80, 0.12)', color: '#f2ca50', desc: '묘 (음목)' };
-    case '사': return { bg: 'rgba(255, 180, 171, 0.15)', color: '#ffb4ab', desc: '사 (음화)' };
-    case '오': return { bg: 'rgba(255, 180, 171, 0.15)', color: '#ffb4ab', desc: '오 (양화)' };
-    case '진': return { bg: 'rgba(242, 202, 80, 0.16)', color: '#f2ca50', desc: '진 (양토)' };
-    case '술': return { bg: 'rgba(242, 202, 80, 0.16)', color: '#f2ca50', desc: '술 (양토)' };
-    case '축': return { bg: 'rgba(242, 202, 80, 0.16)', color: '#f2ca50', desc: '축 (음토)' };
-    case '미': return { bg: 'rgba(242, 202, 80, 0.16)', color: '#f2ca50', desc: '미 (음토)' };
-    case '신': return { bg: 'rgba(218, 226, 250, 0.12)', color: '#bec6dd', desc: '신 (양금)' };
-    case '유': return { bg: 'rgba(218, 226, 250, 0.12)', color: '#bec6dd', desc: '유 (음금)' };
-    case '해': return { bg: 'rgba(45, 195, 225, 0.15)', color: '#acedff', desc: '해 (음수)' };
-    case '자': return { bg: 'rgba(45, 195, 225, 0.15)', color: '#acedff', desc: '자 (양수)' };
-    default: return { bg: 'rgba(255, 255, 255, 0.05)', color: '#dfe2f1', desc: branch };
-  }
+  const descMap: Record<string, string> = {
+    자: '자 (양수)', 축: '축 (음토)', 인: '인 (양목)', 묘: '묘 (음목)',
+    진: '진 (양토)', 사: '사 (음화)', 오: '오 (양화)', 미: '미 (음토)',
+    신: '신 (양금)', 유: '유 (음금)', 술: '술 (양토)', 해: '해 (음수)'
+  };
+  return {
+    bg: 'rgba(255, 255, 255, 0.03)',
+    color: '#ffffff',
+    desc: descMap[branch] || branch
+  };
 }
 
 /**
  * 1. 천명원(Stitch _5) 정통 사주팔자(四柱八字) 원국표 & 천문 태극 엠블럼 컴포넌트
  */
 export function renderMiniSajuPillarsCard(pillars: MiniPillarsData): string {
-  const yStemH = STEM_HANJA[pillars.year.stem] || pillars.year.stem;
-  const yBranchH = BRANCH_HANJA[pillars.year.branch] || pillars.year.branch;
-  const mStemH = STEM_HANJA[pillars.month.stem] || pillars.month.stem;
-  const mBranchH = BRANCH_HANJA[pillars.month.branch] || pillars.month.branch;
-  const dStemH = STEM_HANJA[pillars.day.stem] || pillars.day.stem;
-  const dBranchH = BRANCH_HANJA[pillars.day.branch] || pillars.day.branch;
-  const hStemH = pillars.hour ? (STEM_HANJA[pillars.hour.stem] || pillars.hour.stem) : '辛';
-  const hBranchH = pillars.hour ? (BRANCH_HANJA[pillars.hour.branch] || pillars.hour.branch) : '未';
+  const yStem = pillars.year.stem;
+  const yBranch = pillars.year.branch;
+  const mStem = pillars.month.stem;
+  const mBranch = pillars.month.branch;
+  const dStem = pillars.day.stem;
+  const dBranch = pillars.day.branch;
+  const hStem = pillars.hour ? pillars.hour.stem : '신';
+  const hBranch = pillars.hour ? pillars.hour.branch : '미';
 
-  const yStemStyle = getStemTileStyle(pillars.year.stem);
-  const yBranchStyle = getBranchTileStyle(pillars.year.branch);
-  const mStemStyle = getStemTileStyle(pillars.month.stem);
-  const mBranchStyle = getBranchTileStyle(pillars.month.branch);
-  const dStemStyle = getStemTileStyle(pillars.day.stem);
-  const dBranchStyle = getBranchTileStyle(pillars.day.branch);
-  const hStemStyle = pillars.hour ? getStemTileStyle(pillars.hour.stem) : getStemTileStyle('신');
-  const hBranchStyle = pillars.hour ? getBranchTileStyle(pillars.hour.branch) : getBranchTileStyle('미');
+  const yStemH = STEM_HANJA[yStem] || yStem;
+  const yBranchH = BRANCH_HANJA[yBranch] || yBranch;
+  const mStemH = STEM_HANJA[mStem] || mStem;
+  const mBranchH = BRANCH_HANJA[mBranch] || mBranch;
+  const dStemH = STEM_HANJA[dStem] || dStem;
+  const dBranchH = BRANCH_HANJA[dBranch] || dBranch;
+  const hStemH = pillars.hour ? (STEM_HANJA[hStem] || hStem) : '辛';
+  const hBranchH = pillars.hour ? (BRANCH_HANJA[hBranch] || hBranch) : '未';
 
-  const kanjiSummary = `${yStemH}${yBranchH}年 ${mStemH}${mBranchH}月 ${dStemH}${dBranchH}日 ${hStemH}${hBranchH}時`;
-  const dayDesc = pillars.dayMasterDesc || `${pillars.day.stem}토(土) 일원 (현실적 판단과 내실의 기운)`;
+  const yStemStyle = getStemTileStyle(yStem);
+  const yBranchStyle = getBranchTileStyle(yBranch);
+  const mStemStyle = getStemTileStyle(mStem);
+  const mBranchStyle = getBranchTileStyle(mBranch);
+  const dStemStyle = getStemTileStyle(dStem);
+  const dBranchStyle = getBranchTileStyle(dBranch);
+  const hStemStyle = getStemTileStyle(hStem);
+  const hBranchStyle = getBranchTileStyle(hBranch);
+
+  // 상단 간지 요약: 한자만 있는 부분에 한글 병기
+  const koreanHanjaSummary = `${yStem}${yBranch}(${yStemH}${yBranchH})년 ${mStem}${mBranch}(${mStemH}${mBranchH})월 ${dStem}${dBranch}(${dStemH}${dBranchH})일 ${hStem}${hBranch}(${hStemH}${hBranchH})시`;
+  const dayDesc = pillars.dayMasterDesc || DAY_MASTER_DEFAULT_DESC[pillars.day.stem] || `${pillars.day.stem} 일원`;
 
   return `
     <div class="mini-pillars-card cheonmyeongwon-wonkook-wrapper" style="width: 100%; max-width: 480px; margin: 0 auto 1.75rem;">
@@ -136,28 +153,28 @@ export function renderMiniSajuPillarsCard(pillars: MiniPillarsData): string {
       </div>
 
       <!-- Four Pillars Matrix Section (사주원국표) -->
-      <section style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 16px; padding: 1.15rem; box-shadow: 0 12px 36px rgba(0,0,0,0.5);">
-        <!-- 상단 헤더 & 간지 요약 -->
+      <section style="background: var(--surface-container); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.15rem; box-shadow: 0 12px 36px rgba(0,0,0,0.5);">
+        <!-- 상단 헤더 & 한글/한자 병기 간지 요약 -->
         <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.65rem; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 0.75rem;">
           <div style="display: flex; align-items: center; gap: 0.4rem;">
-            <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">calendar_view_week</span>
+            <span class="material-symbols-outlined" style="font-size: 18px; color: var(--text-muted);">calendar_view_week</span>
             <span style="font-size: 0.95rem; font-weight: 700; color: #dfe2f1;">사주원국표</span>
           </div>
-          <span style="font-family: var(--font-serif); font-size: 0.76rem; color: rgba(242, 202, 80, 0.9); font-weight: 600;">${kanjiSummary}</span>
+          <span style="font-family: var(--font-serif); font-size: 0.76rem; color: #dfe2f1; font-weight: 600;">${koreanHanjaSummary}</span>
         </div>
 
-        <!-- 4열 헤더: 시주 | 일주(本) | 월주 | 년주 -->
+        <!-- 4열 헤더: 시주 | 일주(本) | 월주 | 년주 (한글 및 한자 병기) -->
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; text-align: center; margin-bottom: 0.5rem;">
           <div style="background: var(--surface-container-low); padding: 0.4rem 0.2rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">
-            <div style="font-size: 0.85rem; font-weight: 700; color: var(--primary);">시주</div>
+            <div style="font-size: 0.85rem; font-weight: 700; color: #dfe2f1;">시주</div>
             <div style="font-family: var(--font-serif); font-size: 0.65rem; color: var(--text-muted);">時柱</div>
           </div>
-          <div style="background: var(--surface-container-highest); padding: 0.4rem 0.2rem; border-radius: 6px; border: 1px solid rgba(242, 202, 80, 0.4); box-shadow: 0 0 10px rgba(242, 202, 80, 0.15);">
+          <div style="background: var(--surface-container-low); padding: 0.4rem 0.2rem; border-radius: 6px; border: 1px solid rgba(242, 202, 80, 0.35);">
             <div style="display: flex; align-items: center; justify-content: center; gap: 0.25rem;">
               <span style="font-size: 0.85rem; font-weight: 700; color: var(--primary);">일주</span>
-              <span class="pulse-node" style="width: 6px; height: 6px; border-radius: 50%; background: var(--primary); display: inline-block;"></span>
+              <span class="pulse-node" style="width: 5px; height: 5px; border-radius: 50%; background: var(--primary); display: inline-block;"></span>
             </div>
-            <div style="font-family: var(--font-serif); font-size: 0.65rem; color: rgba(242, 202, 80, 0.9); font-weight: 600;">日柱(本)</div>
+            <div style="font-family: var(--font-serif); font-size: 0.65rem; color: var(--primary); font-weight: 600;">日柱(本)</div>
           </div>
           <div style="background: var(--surface-container-low); padding: 0.4rem 0.2rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">
             <div style="font-size: 0.85rem; font-weight: 700; color: #dfe2f1;">월주</div>
@@ -172,73 +189,93 @@ export function renderMiniSajuPillarsCard(pillars: MiniPillarsData): string {
         <!-- 천간 십신(十神) -->
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; text-align: center; margin-bottom: 0.5rem; font-size: 0.72rem;">
           <div style="background: var(--surface-container-low); padding: 0.3rem 0.1rem; border-radius: 4px; color: var(--text-secondary);">정관 (正官)</div>
-          <div style="background: rgba(242, 202, 80, 0.15); padding: 0.3rem 0.1rem; border-radius: 4px; color: var(--primary); font-weight: 700;">일원 (我)</div>
+          <div style="background: var(--surface-container-low); padding: 0.3rem 0.1rem; border-radius: 4px; color: var(--primary); font-weight: 700; border: 1px solid rgba(242, 202, 80, 0.25);">일원 (我)</div>
           <div style="background: var(--surface-container-low); padding: 0.3rem 0.1rem; border-radius: 4px; color: var(--text-secondary);">편관 (七殺)</div>
           <div style="background: var(--surface-container-low); padding: 0.3rem 0.1rem; border-radius: 4px; color: var(--text-secondary);">정인 (正印)</div>
         </div>
 
-        <!-- 천간(天干) 글자 타일 매트릭스 -->
+        <!-- 천간(天干) 글자 타일 매트릭스 (배경 컬러 통일 및 한자 옆 한글 병기) -->
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; text-align: center; margin-bottom: 0.5rem;">
           <!-- 시주 천간 -->
           <div style="background: ${hStemStyle.bg}; border: 1px solid rgba(255,255,255,0.06); padding: 0.85rem 0.25rem; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-            <span style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; color: ${hStemStyle.color}; line-height: 1.1;">${hStemH}</span>
-            <span style="font-size: 0.7rem; color: ${hStemStyle.color}; opacity: 0.9; margin-top: 0.25rem;">${hStemStyle.desc}</span>
+            <div style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; color: ${hStemStyle.color}; line-height: 1.1;">
+              ${hStemH}<span style="font-size: 0.95rem; font-family: var(--font-sans); color: var(--text-muted); font-weight: 600; margin-left: 2px;">(${hStem})</span>
+            </div>
+            <span style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">${hStemStyle.desc}</span>
           </div>
           <!-- 일주 천간 (나/本) -->
-          <div style="background: ${dStemStyle.bg}; border: 1.5px solid var(--primary); padding: 0.85rem 0.25rem; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 16px rgba(242, 202, 80, 0.25);">
-            <span style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; color: ${dStemStyle.color}; line-height: 1.1;">${dStemH}</span>
-            <span style="font-size: 0.7rem; color: ${dStemStyle.color}; font-weight: 700; margin-top: 0.25rem;">${dStemStyle.desc}</span>
+          <div style="background: ${dStemStyle.bg}; border: 1.5px solid var(--primary); padding: 0.85rem 0.25rem; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; color: ${dStemStyle.color}; line-height: 1.1;">
+              ${dStemH}<span style="font-size: 0.95rem; font-family: var(--font-sans); color: var(--primary); font-weight: 700; margin-left: 2px;">(${dStem})</span>
+            </div>
+            <span style="font-size: 0.7rem; color: var(--primary); font-weight: 700; margin-top: 0.25rem;">${dStemStyle.desc}</span>
           </div>
           <!-- 월주 천간 -->
           <div style="background: ${mStemStyle.bg}; border: 1px solid rgba(255,255,255,0.06); padding: 0.85rem 0.25rem; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-            <span style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; color: ${mStemStyle.color}; line-height: 1.1;">${mStemH}</span>
-            <span style="font-size: 0.7rem; color: ${mStemStyle.color}; opacity: 0.9; margin-top: 0.25rem;">${mStemStyle.desc}</span>
+            <div style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; color: ${mStemStyle.color}; line-height: 1.1;">
+              ${mStemH}<span style="font-size: 0.95rem; font-family: var(--font-sans); color: var(--text-muted); font-weight: 600; margin-left: 2px;">(${mStem})</span>
+            </div>
+            <span style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">${mStemStyle.desc}</span>
           </div>
           <!-- 년주 천간 -->
           <div style="background: ${yStemStyle.bg}; border: 1px solid rgba(255,255,255,0.06); padding: 0.85rem 0.25rem; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-            <span style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; color: ${yStemStyle.color}; line-height: 1.1;">${yStemH}</span>
-            <span style="font-size: 0.7rem; color: ${yStemStyle.color}; opacity: 0.9; margin-top: 0.25rem;">${yStemStyle.desc}</span>
+            <div style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; color: ${yStemStyle.color}; line-height: 1.1;">
+              ${yStemH}<span style="font-size: 0.95rem; font-family: var(--font-sans); color: var(--text-muted); font-weight: 600; margin-left: 2px;">(${yStem})</span>
+            </div>
+            <span style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">${yStemStyle.desc}</span>
           </div>
         </div>
 
-        <!-- 지지(地支) 글자 타일 매트릭스 -->
+        <!-- 지지(地支) 글자 타일 매트릭스 (배경 컬러 통일 및 한자 옆 한글 병기) -->
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; text-align: center; margin-bottom: 0.5rem;">
           <!-- 시주 지지 -->
           <div style="background: ${hBranchStyle.bg}; border: 1px solid rgba(255,255,255,0.06); padding: 0.85rem 0.25rem; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-            <span style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; color: ${hBranchStyle.color}; line-height: 1.1;">${hBranchH}</span>
-            <span style="font-size: 0.7rem; color: ${hBranchStyle.color}; opacity: 0.9; margin-top: 0.25rem;">${hBranchStyle.desc}</span>
+            <div style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; color: ${hBranchStyle.color}; line-height: 1.1;">
+              ${hBranchH}<span style="font-size: 0.95rem; font-family: var(--font-sans); color: var(--text-muted); font-weight: 600; margin-left: 2px;">(${hBranch})</span>
+            </div>
+            <span style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">${hBranchStyle.desc}</span>
           </div>
           <!-- 일주 지지 -->
-          <div style="background: ${dBranchStyle.bg}; border: 1.5px solid rgba(242, 202, 80, 0.5); padding: 0.85rem 0.25rem; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 12px rgba(242, 202, 80, 0.15);">
-            <span style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; color: ${dBranchStyle.color}; line-height: 1.1;">${dBranchH}</span>
-            <span style="font-size: 0.7rem; color: ${dBranchStyle.color}; font-weight: 700; margin-top: 0.25rem;">${dBranchStyle.desc}</span>
+          <div style="background: ${dBranchStyle.bg}; border: 1.5px solid rgba(242, 202, 80, 0.4); padding: 0.85rem 0.25rem; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; color: ${dBranchStyle.color}; line-height: 1.1;">
+              ${dBranchH}<span style="font-size: 0.95rem; font-family: var(--font-sans); color: var(--primary); font-weight: 700; margin-left: 2px;">(${dBranch})</span>
+            </div>
+            <span style="font-size: 0.7rem; color: var(--primary); font-weight: 700; margin-top: 0.25rem;">${dBranchStyle.desc}</span>
           </div>
           <!-- 월주 지지 -->
           <div style="background: ${mBranchStyle.bg}; border: 1px solid rgba(255,255,255,0.06); padding: 0.85rem 0.25rem; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-            <span style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; color: ${mBranchStyle.color}; line-height: 1.1;">${mBranchH}</span>
-            <span style="font-size: 0.7rem; color: ${mBranchStyle.color}; opacity: 0.9; margin-top: 0.25rem;">${mBranchStyle.desc}</span>
+            <div style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; color: ${mBranchStyle.color}; line-height: 1.1;">
+              ${mBranchH}<span style="font-size: 0.95rem; font-family: var(--font-sans); color: var(--text-muted); font-weight: 600; margin-left: 2px;">(${mBranch})</span>
+            </div>
+            <span style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">${mBranchStyle.desc}</span>
           </div>
           <!-- 년주 지지 -->
           <div style="background: ${yBranchStyle.bg}; border: 1px solid rgba(255,255,255,0.06); padding: 0.85rem 0.25rem; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-            <span style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; color: ${yBranchStyle.color}; line-height: 1.1;">${yBranchH}</span>
-            <span style="font-size: 0.7rem; color: ${yBranchStyle.color}; opacity: 0.9; margin-top: 0.25rem;">${yBranchStyle.desc}</span>
+            <div style="font-family: var(--font-serif); font-size: 1.85rem; font-weight: 700; color: ${yBranchStyle.color}; line-height: 1.1;">
+              ${yBranchH}<span style="font-size: 0.95rem; font-family: var(--font-sans); color: var(--text-muted); font-weight: 600; margin-left: 2px;">(${yBranch})</span>
+            </div>
+            <span style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">${yBranchStyle.desc}</span>
           </div>
         </div>
 
         <!-- 지지 십신(十神) -->
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; text-align: center; margin-bottom: 0.4rem; font-size: 0.72rem;">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; text-align: center; margin-bottom: 0.65rem; font-size: 0.72rem;">
           <div style="background: var(--surface-container-low); padding: 0.3rem 0.1rem; border-radius: 4px; color: var(--text-secondary);">정재 (正財)</div>
-          <div style="background: rgba(242, 202, 80, 0.15); padding: 0.3rem 0.1rem; border-radius: 4px; color: var(--primary); font-weight: 700;">편재 (偏財)</div>
+          <div style="background: var(--surface-container-low); padding: 0.3rem 0.1rem; border-radius: 4px; color: var(--primary); font-weight: 700; border: 1px solid rgba(242, 202, 80, 0.25);">편재 (偏財)</div>
           <div style="background: var(--surface-container-low); padding: 0.3rem 0.1rem; border-radius: 4px; color: var(--text-secondary);">편관 (七殺)</div>
           <div style="background: var(--surface-container-low); padding: 0.3rem 0.1rem; border-radius: 4px; color: var(--text-secondary);">정관 (正官)</div>
         </div>
 
-        <!-- 지장간(Hidden Stems 支藏干) -->
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; text-align: center; font-size: 0.7rem;">
-          <div style="background: var(--surface-container-lowest); padding: 0.25rem 0.1rem; border-radius: 4px; color: var(--text-muted); font-family: var(--font-serif);">${HIDDEN_STEMS_MAP[pillars.hour?.branch || '미'] || '丁 乙 己'}</div>
-          <div style="background: var(--surface-container-lowest); padding: 0.25rem 0.1rem; border-radius: 4px; color: var(--text-muted); font-family: var(--font-serif);">${HIDDEN_STEMS_MAP[pillars.day.branch] || '乙 癸 戊'}</div>
-          <div style="background: var(--surface-container-lowest); padding: 0.25rem 0.1rem; border-radius: 4px; color: var(--text-muted); font-family: var(--font-serif);">${HIDDEN_STEMS_MAP[pillars.month.branch] || '戊 壬 庚'}</div>
-          <div style="background: var(--surface-container-lowest); padding: 0.25rem 0.1rem; border-radius: 4px; color: var(--text-muted); font-family: var(--font-serif);">${HIDDEN_STEMS_MAP[pillars.year.branch] || '庚 辛'}</div>
+        <!-- 지장간(Hidden Stems 支藏干) 라벨 및 한글/한자 병기 매트릭스 -->
+        <div style="display: flex; align-items: center; gap: 0.3rem; margin-bottom: 0.35rem; padding-left: 0.2rem;">
+          <span class="material-symbols-outlined" style="font-size: 14px; color: var(--text-muted);">vpn_key</span>
+          <span style="font-size: 0.72rem; font-weight: 600; color: var(--text-muted);">지장간 (支藏干)</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; text-align: center; font-size: 0.72rem;">
+          <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.04); padding: 0.35rem 0.1rem; border-radius: 6px; color: var(--text-secondary); font-family: var(--font-sans);">${HIDDEN_STEMS_MAP[hBranch] || '정·을·기 (丁·乙·己)'}</div>
+          <div style="background: var(--surface-container-low); border: 1px solid rgba(242,202,80,0.25); padding: 0.35rem 0.1rem; border-radius: 6px; color: var(--primary); font-weight: 600; font-family: var(--font-sans);">${HIDDEN_STEMS_MAP[dBranch] || '을·계·무 (乙·癸·戊)'}</div>
+          <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.04); padding: 0.35rem 0.1rem; border-radius: 6px; color: var(--text-secondary); font-family: var(--font-sans);">${HIDDEN_STEMS_MAP[mBranch] || '무·임·경 (戊·壬·庚)'}</div>
+          <div style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.04); padding: 0.35rem 0.1rem; border-radius: 6px; color: var(--text-secondary); font-family: var(--font-sans);">${HIDDEN_STEMS_MAP[yBranch] || '경·신 (庚·辛)'}</div>
         </div>
       </section>
     </div>

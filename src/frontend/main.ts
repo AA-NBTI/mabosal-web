@@ -77,6 +77,26 @@ import {
   expandSpecificInquiry,
 } from './views/AdminInquiriesPanel.js';
 import {
+  executeLifeAnalysis,
+  getActiveWarehouse,
+  setSelectedDaewoonOrder,
+  setSelectedLifeSewoonYear,
+  setSelectedLifeMonth,
+  setSelectedWikiFactor,
+  getSelectedWikiFactor,
+  getLifeChartViewMode,
+  setLifeChartViewMode,
+  toggleLifeChartViewMode,
+  toggleLifeChartFullscreen,
+  setLifeChartFullscreen,
+  getLifeChartFullscreen,
+  toggleSajuInputExpanded,
+  renderAdminLifeAnalysisPanel,
+} from './views/AdminLifeAnalysisPanel.js';
+import { findSajuFactorWiki } from './data/saju-factor-wiki.js';
+import { LifeAnalysisWarehouseBuilder } from '../modules/life-analysis/life-analysis-warehouse.js';
+import { normalizeBirthTime } from './modules/saju-profile/profile-core.js';
+import {
   renderCommerceStoreView,
   setStoreActiveCategory,
   getStoreProductById,
@@ -119,6 +139,8 @@ import { renderAuthModal } from './components/AuthModal.js';
 import { renderCharmPricingCheckoutModal } from './components/common-components.js';
 import { generateDownloadableReportText } from './components/tier-templates.js';
 import { renderCheonmyeongwonShareModal } from './components/VisualCharts.js';
+import { FunnelCheckoutHelper } from './views/pages/FunnelCheckoutHelper.js';
+import { AbTestService } from './modules/ab-test/ab-test-service.js';
 
 function compressImageFile(file: File, maxDimension = 900, quality = 0.85): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -155,6 +177,137 @@ function compressImageFile(file: File, maxDimension = 900, quality = 0.85): Prom
     reader.readAsDataURL(file);
   });
 }
+
+// 인생분석 관제실 전역 리렌더링 및 모드 전환 안전 헬퍼
+function refreshLifeAnalysisView(): void {
+  setAdminActiveTab('tab-life-analysis');
+  const lifeContainer = document.getElementById('tab-life-analysis');
+  if (lifeContainer) {
+    lifeContainer.innerHTML = renderAdminLifeAnalysisPanel();
+  }
+}
+
+(window as any).__setLifeViewMode = (mode: '100years' | '10years' | '12months') => {
+  setLifeChartViewMode(mode);
+  refreshLifeAnalysisView();
+};
+
+(window as any).__openLifeFullscreen = () => {
+  setLifeChartFullscreen(true);
+  refreshLifeAnalysisView();
+};
+
+(window as any).__closeLifeFullscreen = () => {
+  setLifeChartFullscreen(false);
+  const overlay = document.getElementById('life-chart-fullscreen-overlay');
+  if (overlay) {
+    overlay.remove();
+  }
+  refreshLifeAnalysisView();
+};
+
+(window as any).__toggleLifeFullscreen = () => {
+  if (getLifeChartFullscreen()) {
+    (window as any).__closeLifeFullscreen();
+  } else {
+    (window as any).__openLifeFullscreen();
+  }
+};
+
+// 명리 요인 위키 팝업 모달 열기 글로벌 헬퍼
+(window as any).__openSajuFactorWiki = (factorName: string) => {
+  const item = findSajuFactorWiki(factorName);
+  const modal = document.getElementById('saju-factor-wiki-modal');
+  const content = document.getElementById('saju-factor-wiki-modal-content');
+  if (!modal || !content) return;
+
+  if (!item) {
+    content.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="color: #fff; margin: 0;">${factorName}</h3>
+        <button type="button" class="btn-close-factor-wiki-modal" style="background: none; border: none; color: #94a3b8; font-size: 20px; cursor: pointer;">✕</button>
+      </div>
+      <p style="color: #cbd5e1; font-size: 0.85rem;">해당 요인의 상세 해설 위키 자료를 준비 중입니다.</p>
+    `;
+  } else {
+    content.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.85rem; margin-bottom: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+            <span style="font-size: 1.25rem; font-weight: 900; color: #fff;">${item.name}</span>
+            <span style="font-size: 0.95rem; color: #94a3b8;">(${item.hanja})</span>
+            <span style="background: ${item.badgeColor}22; color: ${item.badgeColor}; border: 1px solid ${item.badgeColor}66; font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 4px;">
+              ${item.category} · ${item.nature}
+            </span>
+          </div>
+          <div style="font-size: 0.76rem; color: #64748b;">마보살 명리 인과 원천 데이터 지식창고 (위키)</div>
+        </div>
+        <button type="button" class="btn-close-factor-wiki-modal" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 6px; width: 32px; height: 32px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
+      </div>
+
+      <div style="background: rgba(0,0,0,0.35); border-left: 4px solid ${item.badgeColor}; padding: 0.85rem 1rem; border-radius: 6px; font-size: 0.88rem; color: #f8fafc; line-height: 1.6; margin-bottom: 1rem;">
+        ${item.summary}
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <div style="font-size: 0.8rem; font-weight: 700; color: #94a3b8; margin-bottom: 0.4rem;">작용 메커니즘 (명리 원리)</div>
+        <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.55; background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">
+          ${item.mechanism}
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <div style="font-size: 0.8rem; font-weight: 700; color: #94a3b8; margin-bottom: 0.4rem;">4대 생애 영역 영향 (길흉 해석)</div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; font-size: 0.78rem;">
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 0.6rem 0.75rem; border-radius: 6px;">
+            <strong style="color: #60a5fa; display: block; margin-bottom: 0.2rem;">🏢 직업·사업 영향</strong>
+            <span style="color: #cbd5e1;">${item.lifeImpact.career}</span>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 0.6rem 0.75rem; border-radius: 6px;">
+            <strong style="color: #34d399; display: block; margin-bottom: 0.2rem;">💰 재물·투자 영향</strong>
+            <span style="color: #cbd5e1;">${item.lifeImpact.wealth}</span>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 0.6rem 0.75rem; border-radius: 6px;">
+            <strong style="color: #f472b6; display: block; margin-bottom: 0.2rem;">❤️ 인간관계·애정</strong>
+            <span style="color: #cbd5e1;">${item.lifeImpact.relationship}</span>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 0.6rem 0.75rem; border-radius: 6px;">
+            <strong style="color: #fca5a5; display: block; margin-bottom: 0.2rem;">🩺 건강·신체 영향</strong>
+            <span style="color: #cbd5e1;">${item.lifeImpact.health}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.3); padding: 0.85rem 1rem; border-radius: 6px; font-size: 0.82rem; color: #e2e8f0; margin-bottom: 1.25rem;">
+        <strong style="color: #38bdf8; display: block; margin-bottom: 0.25rem;">💡 실전 처세 및 대처 가이드:</strong>
+        ${item.strategy}
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.6rem;">
+        <button type="button" class="btn-close-factor-wiki-modal" style="background: #334155; color: #fff; font-weight: 700; border: none; border-radius: 6px; padding: 0.45rem 1rem; font-size: 0.82rem; cursor: pointer;">
+          확인 완료
+        </button>
+      </div>
+    `;
+  }
+  modal.style.zIndex = '999999';
+  modal.style.display = 'flex';
+};
+
+// 키보드 ESC 키 단일 글로벌 이벤트 리스너 등록
+window.addEventListener('keydown', (e: KeyboardEvent) => {
+  if (e.key === 'Escape' || e.key === 'Esc') {
+    const wikiModal = document.getElementById('saju-factor-wiki-modal');
+    if (wikiModal && wikiModal.style.display !== 'none') {
+      wikiModal.style.display = 'none';
+      return;
+    }
+    if (getLifeChartFullscreen()) {
+      e.preventDefault();
+      (window as any).__closeLifeFullscreen();
+    }
+  }
+});
 
 class MabosalApp {
  private rootEl: HTMLElement;
@@ -342,7 +495,7 @@ class MabosalApp {
  if (typeof window !== 'undefined' && state.currentView !== prevNavView) {
    let targetUrl = getViewPath(state.currentView);
    if (state.currentView === 'result' && appState.getActiveTierTab()) {
-     targetUrl += `?tier=${appState.getActiveTierTab()}`;
+     targetUrl += `?tier=${appState.getActiveTierTab()}${AbTestService.isFunnelVariantB() ? '&ab=b' : ''}`;
    }
    window.history.pushState({ view: state.currentView }, '', targetUrl);
    updateSeoForView(state.currentView);
@@ -2029,7 +2182,221 @@ ${content}
       return;
     }
 
- // [1:1 문의 관리] 상태 필터 (전체/대기/완료)
+    // [인생분석: 사주 엔진 객관화 중간 데이터 창고] 상호작용 이벤트 처리
+    // 1. 인생분석 계산 실행 버튼
+    const runLaBtn = target.closest('#btn-run-life-analysis');
+    if (runLaBtn) {
+      const g = ((document.getElementById('la-gender') as HTMLSelectElement)?.value as 'male' | 'female') || 'female';
+      const y = parseInt((document.getElementById('la-year') as HTMLInputElement)?.value || '1998', 10);
+      const m = parseInt((document.getElementById('la-month') as HTMLInputElement)?.value || '4', 10);
+      const d = parseInt((document.getElementById('la-day') as HTMLInputElement)?.value || '12', 10);
+      const timeInputVal = (document.getElementById('la-time-input') as HTMLInputElement)?.value || '09:20';
+      const c = ((document.getElementById('la-calendar') as HTMLSelectElement)?.value as 'solar' | 'lunar') || 'solar';
+
+      executeLifeAnalysis({
+        birthYear: y,
+        birthMonth: m,
+        birthDay: d,
+        birthTimeRaw: timeInputVal,
+        gender: g,
+        calendarType: c,
+      });
+      this.render(appState.getState());
+      return;
+    }
+
+    // 2. 사주 프리셋 버튼 클릭
+    const laPresetBtn = target.closest('.btn-preset-saju') as HTMLElement | null;
+    if (laPresetBtn) {
+      const y = parseInt(laPresetBtn.dataset.year || '1998', 10);
+      const m = parseInt(laPresetBtn.dataset.month || '4', 10);
+      const d = parseInt(laPresetBtn.dataset.day || '12', 10);
+      const h = parseInt(laPresetBtn.dataset.hour || '12', 10);
+      const g = (laPresetBtn.dataset.gender || 'female') as 'male' | 'female';
+
+      executeLifeAnalysis({
+        birthYear: y,
+        birthMonth: m,
+        birthDay: d,
+        birthHour: h,
+        gender: g,
+        calendarType: 'solar',
+      });
+      this.render(appState.getState());
+      return;
+    }
+
+    // 3. 현재 유저 사주 로드
+    const loadCurUserBtn = target.closest('#btn-load-current-user-saju');
+    if (loadCurUserBtn) {
+      const st = appState.getState();
+      const req = st.sessionState?.request as any;
+      let bYear = 1998, bMonth = 4, bDay = 12, bHour = 12;
+      if (req?.birthDate) {
+        const parts = req.birthDate.split('-').map(Number);
+        if (parts.length >= 3) {
+          bYear = parts[0];
+          bMonth = parts[1];
+          bDay = parts[2];
+        }
+      }
+      if (req?.birthTime) {
+        bHour = parseInt(req.birthTime.split(':')[0], 10) || 12;
+      }
+      const gender = (st.gender === 'male' || st.gender === 'female') ? st.gender : 'female';
+      const calType = st.calendarType === 'lunar' ? 'lunar' : 'solar';
+
+      executeLifeAnalysis({
+        birthYear: bYear,
+        birthMonth: bMonth,
+        birthDay: bDay,
+        birthHour: bHour,
+        gender,
+        calendarType: calType,
+      });
+      this.render(appState.getState());
+      return;
+    }
+
+    // 4. 대운 행/포인트/조회 버튼 클릭 시 선택 대운 변경
+    const selectDwBtn = target.closest('.btn-select-daewoon-row, .btn-select-daewoon-point, .btn-inspect-sewoon') as HTMLElement | null;
+    if (selectDwBtn && selectDwBtn.dataset.order) {
+      const order = parseInt(selectDwBtn.dataset.order, 10);
+      setSelectedDaewoonOrder(order);
+      this.render(appState.getState());
+      return;
+    }
+
+    // 4-1-0. [최우선] 상충마살/신살 등 요인 클릭 시 명리 지식 백과(위키) 모달 팝업 & 하단 카드 갱신
+    const wikiBtn = (target.closest('.btn-open-factor-wiki') || target.closest('[data-factor]')) as HTMLElement | SVGElement | null;
+    if (wikiBtn) {
+      const factorName = wikiBtn.getAttribute('data-factor') || (wikiBtn as any).dataset?.factor;
+      if (factorName) {
+        setSelectedWikiFactor(factorName);
+        // 1. 하단 위키 카드 및 인스펙터 패널을 먼저 갱신
+        refreshLifeAnalysisView();
+        // 2. 갱신된 DOM의 위키 모달을 띄움 (화면 전면 팝업 보장)
+        if ((window as any).__openSajuFactorWiki) {
+          (window as any).__openSajuFactorWiki(factorName);
+        }
+        // 3. 하단 위키 카드로 스크롤 연결
+        setTimeout(() => {
+          const wikiCard = document.getElementById('saju-factor-wiki-card');
+          if (wikiCard) {
+            wikiCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 50);
+        return;
+      }
+    }
+
+    // 4-1-0b. 위키 모달 닫기
+    const closeWikiBtn = target.closest('.btn-close-factor-wiki-modal') || (target.id === 'saju-factor-wiki-modal' ? target : null);
+    if (closeWikiBtn) {
+      const modal = document.getElementById('saju-factor-wiki-modal');
+      if (modal) modal.style.display = 'none';
+      return;
+    }
+
+    // 4-1-1. 세운 연도(상단 헤더 박스 상단부/스텝/테이블 행) 클릭 시 해당 연도 선택 & 12개월 드릴다운
+    const selectSewoonYearBtn = target.closest('.btn-select-sewoon-year-hdr, .btn-select-sewoon-year, .btn-select-sewoon-row') as HTMLElement | null;
+    if (selectSewoonYearBtn && selectSewoonYearBtn.dataset.year) {
+      const yr = parseInt(selectSewoonYearBtn.dataset.year, 10);
+      setSelectedLifeSewoonYear(yr);
+      if (getLifeChartViewMode() === '10years') {
+        setLifeChartViewMode('12months');
+      }
+      refreshLifeAnalysisView();
+      return;
+    }
+
+    // 4-1-1b. 월운(상단 헤더 상단부/12개월 스텝 차트/테이블 행) 클릭 시 해당 월 선택 & 월운 인스펙터 갱신
+    const selectMonthWoonBtn = target.closest('.btn-select-month-woon-hdr, .btn-select-month-woon') as HTMLElement | null;
+    if (selectMonthWoonBtn && selectMonthWoonBtn.dataset.month) {
+      const m = parseInt(selectMonthWoonBtn.dataset.month, 10);
+      setSelectedLifeMonth(m);
+      refreshLifeAnalysisView();
+      return;
+    }
+
+    // 4-1-2. 대운 헤더 칩 또는 대운 행 클릭 시 해당 대운으로 즉시 10년 확대(Zoom) 전환
+    const selectDaewoonBtn = target.closest('.btn-select-daewoon-header, .btn-select-daewoon-row') as HTMLElement | null;
+    if (selectDaewoonBtn && selectDaewoonBtn.dataset.order) {
+      const order = parseInt(selectDaewoonBtn.dataset.order, 10);
+      setSelectedDaewoonOrder(order);
+      setLifeChartViewMode('10years');
+      refreshLifeAnalysisView();
+      return;
+    }
+
+    // 4-2. 100년 전체 ↔ 10년 대운 ↔ 12개월 세운 3단계 뷰모드 전환
+    const viewModeBtn = target.closest('.btn-toggle-life-view-mode') as HTMLElement | null;
+    if (viewModeBtn && viewModeBtn.dataset.mode) {
+      setLifeChartViewMode(viewModeBtn.dataset.mode as any);
+      refreshLifeAnalysisView();
+      return;
+    }
+
+    // 4-3. 전체화면 열기 (명시적)
+    const openFsBtn = target.closest('.btn-open-life-fullscreen');
+    if (openFsBtn) {
+      (window as any).__openLifeFullscreen();
+      return;
+    }
+
+    // 4-3-1. 전체화면 닫기 (명시적)
+    const closeFsBtn = target.closest('.btn-close-life-fullscreen');
+    if (closeFsBtn) {
+      (window as any).__closeLifeFullscreen();
+      return;
+    }
+
+    // 4-3-2. 전체화면 토글 (호환성)
+    const fsBtn = target.closest('.btn-toggle-life-fullscreen');
+    if (fsBtn) {
+      (window as any).__toggleLifeFullscreen();
+      return;
+    }
+
+    // 4-4. 사주 입력 폼 열기/닫기 토글
+    const sajuToggleBtn = target.closest('.btn-toggle-saju-input');
+    if (sajuToggleBtn) {
+      toggleSajuInputExpanded();
+      setAdminActiveTab('tab-life-analysis');
+      const lifeContainer = document.getElementById('tab-life-analysis');
+      if (lifeContainer) {
+        lifeContainer.innerHTML = renderAdminLifeAnalysisPanel();
+      } else {
+        this.render(appState.getState());
+      }
+      return;
+    }
+
+    // 5. AI(안프로) 전달용 정량 프롬프트 복사
+    const copyAiBtn = target.closest('#btn-copy-ai-prompt');
+    if (copyAiBtn) {
+      const wh = getActiveWarehouse();
+      const promptText = LifeAnalysisWarehouseBuilder.exportToMarkdownPrompt(wh);
+      navigator.clipboard.writeText(promptText).then(() => {
+        alert('🤖 [AI(안프로) 전달용 정량 프롬프트]가 클립보드에 복사되었습니다!\n\nAI와의 대화창에 바로 붙여넣으면, AI와 대표님이 0~100세 원천 데이터를 단 1의 오차도 없이 동일하게 공유하며 사주를 풀이할 수 있습니다.');
+      }).catch(err => {
+        console.error('클립보드 복사 실패:', err);
+      });
+      return;
+    }
+
+    // 6. 원천 JSON 덤프 복사
+    const copyJsonBtn = target.closest('#btn-copy-json-warehouse');
+    if (copyJsonBtn) {
+      const wh = getActiveWarehouse();
+      const jsonText = JSON.stringify(wh, null, 2);
+      navigator.clipboard.writeText(jsonText).then(() => {
+        alert('📋 [인생분석 원천 JSON 덤프]가 클립보드에 복사되었습니다.');
+      }).catch(err => {
+        console.error('클립보드 복사 실패:', err);
+      });
+      return;
+    }
  const inqFilterBtn = target.closest('.btn-inquiry-filter') as HTMLElement | null;
  if (inqFilterBtn) {
  const filter = inqFilterBtn.dataset.filter as any;
@@ -2503,6 +2870,88 @@ ${content}
     // [잠금 화면: 비로그인 로그인 유도]
     if (target.closest('#btn-entitlement-login')) {
       requireLogin();
+      return;
+    }
+
+    // [B안 구매 전환 퍼널: 성별 토글 버튼]
+    const funnelGenderBtn = target.closest('.btn-funnel-gender') as HTMLElement;
+    if (funnelGenderBtn) {
+      const g = funnelGenderBtn.dataset.gender as 'male' | 'female';
+      if (g) {
+        this.selectedGender = g;
+        document.querySelectorAll('.btn-funnel-gender').forEach(btn => {
+          const el = btn as HTMLElement;
+          const isSelected = el.dataset.gender === g;
+          el.style.borderColor = isSelected ? 'var(--primary)' : 'rgba(255,255,255,0.15)';
+          el.style.background = isSelected ? 'rgba(242,202,80,0.15)' : '#0c0f18';
+          el.style.color = isSelected ? 'var(--primary)' : '#94a3b8';
+        });
+      }
+      return;
+    }
+
+    // [B안 구매 전환 퍼널: 고민 카테고리 칩 선택]
+    const funnelTroubleChip = target.closest('.chip-funnel-trouble') as HTMLElement;
+    if (funnelTroubleChip) {
+      const defaultText = funnelTroubleChip.dataset.text || '';
+      document.querySelectorAll('.chip-funnel-trouble').forEach(chip => {
+        const el = chip as HTMLElement;
+        el.style.background = 'rgba(255,255,255,0.06)';
+        el.style.color = '#cbd5e1';
+        el.style.borderColor = 'rgba(255,255,255,0.12)';
+      });
+      funnelTroubleChip.style.background = 'var(--primary)';
+      funnelTroubleChip.style.color = '#1c1500';
+      funnelTroubleChip.style.borderColor = 'var(--primary)';
+      const troubleInput = document.getElementById('input-funnel-trouble-text') as HTMLTextAreaElement;
+      if (troubleInput && defaultText) {
+        troubleInput.value = defaultText;
+      }
+      return;
+    }
+
+    // [B안 구매 전환 퍼널: 결과 페이지에서 다시 진단하기]
+    if (target.closest('.btn-funnel-retest')) {
+      appState.setView('landing');
+      this.render(appState.getState());
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // [B안 구매 전환 퍼널: 유료 전환 결제 확인 모달 열기]
+    if (target.closest('#btn-open-funnel-checkout')) {
+      AbTestService.trackEvent('paid_click');
+      const slot = document.getElementById('funnel-checkout-modal-slot');
+      if (slot) {
+        slot.innerHTML = FunnelCheckoutHelper.renderCheckoutModal();
+      }
+      return;
+    }
+
+    // [B안 구매 전환 퍼널: 결제 확인 모달 닫기]
+    if (target.closest('.btn-close-funnel-modal')) {
+      const slot = document.getElementById('funnel-checkout-modal-slot');
+      if (slot) slot.innerHTML = '';
+      return;
+    }
+
+    // [B안 구매 전환 퍼널: 결제 승인 실행 및 8대 리포트 해금]
+    if (target.closest('#btn-confirm-funnel-pay')) {
+      const btn = target.closest('#btn-confirm-funnel-pay') as HTMLButtonElement;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">sync</span> 처리 중...`;
+      
+      FunnelCheckoutHelper.executePayment().then(result => {
+        const slot = document.getElementById('funnel-checkout-modal-slot');
+        if (slot) slot.innerHTML = '';
+        alert(result.message);
+        this.render(appState.getState());
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }).catch(err => {
+        alert('결제 처리 중 오류가 발생했습니다: ' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = `₩ 39,900 결제 및 즉시 해금하기`;
+      });
       return;
     }
 
@@ -4020,6 +4469,99 @@ ${content}
  // 에러는 appState.setError()에서 관리
  }
  return;
+ }
+
+ // [B안 구매 전환 퍼널: 무료 사주 진단 폼 제출]
+ if (form.id === 'form-funnel-birth-input') {
+   const nameInput = document.getElementById('input-funnel-name') as HTMLInputElement;
+   const dateInput = document.getElementById('input-funnel-birth-date') as HTMLInputElement;
+   const timeInput = document.getElementById('input-funnel-birth-time') as HTMLInputElement;
+   const missingHourCheck = document.getElementById('check-funnel-missing-hour') as HTMLInputElement;
+   const troubleTextarea = document.getElementById('input-funnel-trouble-text') as HTMLTextAreaElement;
+   const leapCheck = document.getElementById('check-funnel-leap') as HTMLInputElement;
+   const calendarRadio = document.querySelector('input[name="funnel-calendar-type"]:checked') as HTMLInputElement;
+
+   const userName = nameInput?.value?.trim() || '의뢰인';
+   appState.setUserName(userName);
+
+   const rawDate = dateInput?.value?.trim() || '';
+   let cleanDate = rawDate.replace(/[^0-9]/g, '');
+   if (cleanDate.length === 6) {
+     const yy = parseInt(cleanDate.slice(0, 2), 10);
+     const century = yy <= 26 ? '20' : '19';
+     cleanDate = `${century}${cleanDate}`;
+   }
+
+   if (cleanDate.length !== 8) {
+     alert('생년월일을 8자리 숫자(예: 19950515) 또는 YYYY-MM-DD 형식으로 입력해 주세요.');
+     return;
+   }
+
+   const y = parseInt(cleanDate.slice(0, 4), 10);
+   const m = parseInt(cleanDate.slice(4, 6), 10);
+   const d = parseInt(cleanDate.slice(6, 8), 10);
+
+   let birthTime: string | null = null;
+   if (!missingHourCheck?.checked) {
+     const rawTime = timeInput?.value?.trim() || '14:30';
+     birthTime = normalizeBirthTime(rawTime) || '14:30';
+   }
+
+   const troubleText = troubleTextarea?.value?.trim() || '특별한 문제는 없고 내 사주의 핵심 위험과 즉시 해결책을 알고 싶습니다.';
+   appState.setUserTroubleText(troubleText);
+
+   const calendarType = (calendarRadio?.value === 'lunar' ? 'lunar' : 'solar') as 'solar' | 'lunar';
+   const isLeap = leapCheck?.checked ?? false;
+
+   // 사용자 사주 정보 저장
+   const solarDateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+   UserSajuStore.saveProfile({
+     userName,
+     solarBirthDate: solarDateStr,
+     birthYear: y,
+     birthMonth: m,
+     birthDay: d,
+     birthTime,
+     isUnknownTime: missingHourCheck?.checked ?? false,
+     gender: this.selectedGender,
+     calendarType,
+     isLeapMonth: isLeap,
+     birthRegion: 'Seoul',
+     userTroubleText: troubleText,
+   });
+
+   // 통합 분석 파이프라인 호출
+   appState.setActiveTierTab('FREE');
+   appState.setView('loading');
+   this.render(appState.getState());
+
+   try {
+     await frontendAdapter.analyzeIntegrated({
+       birthInput: {
+         calendar_type: calendarType,
+         is_leap_month: isLeap,
+         birth_year: y,
+         birth_month: m,
+         birth_day: d,
+         birth_time: birthTime,
+         is_time_unknown: missingHourCheck?.checked ?? false,
+         birth_city: 'Seoul',
+         gender: this.selectedGender,
+       },
+       troubleText,
+       tier: 'free_diagnosis',
+     });
+
+     AbTestService.trackEvent('free_submit');
+     appState.setView('result');
+     this.render(appState.getState());
+     window.scrollTo({ top: 0, behavior: 'smooth' });
+   } catch (err: any) {
+     alert('사주 분석 중 오류가 발생했습니다: ' + (err?.message || '잠시 후 다시 시도해 주세요.'));
+     appState.setView('landing');
+     this.render(appState.getState());
+   }
+   return;
  }
 
  // 상담 질문 제출
