@@ -63,6 +63,11 @@ function extractDaewoonFactors(d: any): { upwardFactors: Array<{ name: string; w
  */
 
 import { LifeAnalysisWarehouseBuilder, CanonicalLifeDataWarehouse, DaewoonWarehouseRecord, SewoonWarehouseRecord } from '../../modules/life-analysis/life-analysis-warehouse.js';
+import { buildEvidencePacket, scopeEvidencePacket } from '../../modules/life-analysis/evidence/evidence-packet-builder.js';
+import { DOMAIN_GLOSSARY, PALACE_GLOSSARY } from '../../modules/life-analysis/evidence/evidence-glossary.js';
+import { SajuEvidencePacket, EvidenceItem, DomainSignal } from '../../modules/life-analysis/evidence/evidence-schema.js';
+import { getEnrichedFreeReportMarkdown } from '../modules/result-v2/enriched-report-builder.js';
+import { extractReportContext, getFreeReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
 import { appState } from '../state/app-state.js';
 import { findSajuFactorWiki, SAJU_FACTOR_WIKI_DB, SajuFactorWikiItem } from '../data/saju-factor-wiki.js';
 
@@ -120,6 +125,47 @@ let isLifeChartFullscreen: boolean = false;
 let isSajuInputExpanded: boolean = false;
 export type LifeChartViewMode = '100years' | '10years' | '12months';
 let lifeChartViewMode: LifeChartViewMode = '100years';
+
+// [대분류/소분류 단계별 관제 상태]
+export type LifeAnalysisStage = 'all' | 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4';
+let activeLifeStage: LifeAnalysisStage = 'all';
+
+let stageExpandedMap: Record<string, boolean> = {
+  'stage-1': true, // 1단계: 원국 진단
+  'stage-2': true, // 2단계: 100년 라이프사이클 & 9대 영역
+  'stage-3': true, // 3단계: 시간축 대운·세운·월운 심층 인과
+  'stage-4': false, // 4단계: B2B 패킷 및 결과지 대조실 (기본은 접힘, 클릭 시 펼침)
+};
+
+export function setActiveLifeStage(stage: LifeAnalysisStage): void {
+  activeLifeStage = stage;
+  if (stage !== 'all') {
+    stageExpandedMap[stage] = true;
+  }
+}
+
+export function getActiveLifeStage(): LifeAnalysisStage {
+  return activeLifeStage;
+}
+
+export function toggleLifeStage(stageId: string): void {
+  stageExpandedMap[stageId] = !stageExpandedMap[stageId];
+}
+
+export function isLifeStageExpanded(stageId: string): boolean {
+  if (activeLifeStage !== 'all') {
+    return activeLifeStage === stageId;
+  }
+  return !!stageExpandedMap[stageId];
+}
+
+export function setAllLifeStagesExpanded(expanded: boolean): void {
+  activeLifeStage = 'all';
+  stageExpandedMap['stage-1'] = expanded;
+  stageExpandedMap['stage-2'] = expanded;
+  stageExpandedMap['stage-3'] = expanded;
+  stageExpandedMap['stage-4'] = expanded;
+}
 
 export function setSelectedLifeSewoonYear(year: number): void {
   selectedYear = year;
@@ -862,6 +908,12 @@ function renderSewoonFactorInspector(wh: CanonicalLifeDataWarehouse): string {
   const net = upSum + downSum;
   const isPos = curSewoon.stepHeight >= 0;
 
+  // [신규 L1/L2 구조화 데이터 패킷 연동]
+  const evidencePacket = buildEvidencePacket(wh, { wolwoonYears: [curSewoon.year] });
+  const sewoonNode = evidencePacket.timeline.sewoon.find(s => s.year === curSewoon.year);
+  const sewoonFactors = evidencePacket.evidence.filter(e => e.scope.type === 'sewoon' && e.scope.year === curSewoon.year);
+  const domainSignals = sewoonNode?.domainSignals || [];
+
   return `
   <div style="margin-top: 1rem; background: #0f172a; border: 1.5px solid ${isPos ? 'rgba(56, 189, 248, 0.3)' : 'rgba(248, 113, 113, 0.3)'}; border-radius: 10px; padding: 1.15rem;">
     <!-- 인스펙터 상단 헤더 -->
@@ -872,6 +924,7 @@ function renderSewoonFactorInspector(wh: CanonicalLifeDataWarehouse): string {
           세운 인과 요인: ${curSewoon.year}년 (${curSewoon.age}세·<span style="font-family: var(--font-serif, 'Noto Serif KR', serif); font-size: 0.95rem;">${curSewoon.ganji}</span>)
         </span>
         ${curSewoon.isCurrentYear ? '<span style="font-size: 0.65rem; background: #334155; color: #f8fafc; border: 1px solid #64748b; font-weight: 800; padding: 0.1rem 0.35rem; border-radius: 3px;">올해</span>' : ''}
+        <span style="font-size: 0.7rem; background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 0.1rem 0.4rem; border-radius: 3px; font-weight: 700;">L1/L2 구조화 창고 팩트 연동</span>
       </div>
 
       <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.76rem;">
@@ -884,6 +937,37 @@ function renderSewoonFactorInspector(wh: CanonicalLifeDataWarehouse): string {
         <span style="background: rgba(0,0,0,0.4); padding: 0.2rem 0.55rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); font-family: var(--font-display, 'Space Grotesk', sans-serif); letter-spacing: 0.2px;">
           환산 점수: <strong style="color: ${isPos ? '#38bdf8' : '#fca5a5'}; font-size: 0.88rem;">${toConvertedLifeScore(curSewoon.stepHeight).text}</strong>
         </span>
+      </div>
+    </div>
+
+    <!-- [신규 L2 시각화] 1. 9대 생활 영역 신호등 (Domain Matrix) 배너 -->
+    <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 0.65rem 0.85rem; margin-bottom: 0.85rem;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.45rem;">
+        <span style="font-size: 0.78rem; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 0.3rem;">
+          <span class="material-symbols-outlined" style="font-size: 15px; color: #38bdf8;">hub</span>
+          [L2 영역 매트릭스] ${curSewoon.year}년 생활 영역별 기운 영향도 (사주 비전문가용 신호등)
+        </span>
+        <span style="font-size: 0.68rem; color: #94a3b8;">구조화 데이터가 자동으로 분류한 9대 생활 영역</span>
+      </div>
+      
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        ${domainSignals.map((ds: DomainSignal) => {
+          const domLabel = DOMAIN_GLOSSARY[ds.domain] || ds.domain;
+          const isNetPos = ds.net > 0;
+          const isNetNeg = ds.net < 0;
+          const badgeBg = isNetPos ? 'rgba(56, 189, 248, 0.12)' : isNetNeg ? 'rgba(248, 113, 113, 0.12)' : 'rgba(255, 255, 255, 0.05)';
+          const badgeBorder = isNetPos ? 'rgba(56, 189, 248, 0.35)' : isNetNeg ? 'rgba(248, 113, 113, 0.35)' : 'rgba(255, 255, 255, 0.1)';
+          const badgeColor = isNetPos ? '#38bdf8' : isNetNeg ? '#fca5a5' : '#cbd5e1';
+          return `
+            <div style="background: ${badgeBg}; border: 1px solid ${badgeBorder}; border-radius: 6px; padding: 0.3rem 0.55rem; font-size: 0.73rem; display: flex; align-items: center; gap: 0.35rem;">
+              <span style="font-weight: 700; color: ${badgeColor};">${domLabel}</span>
+              <span style="font-family: var(--font-display, 'Space Grotesk', sans-serif); font-size: 0.76rem; font-weight: 800; color: #fff;">
+                ${ds.net > 0 ? '+' + ds.net : ds.net}점
+              </span>
+              <span style="font-size: 0.65rem; color: #94a3b8;">(${ds.evidenceIds.length}건)</span>
+            </div>
+          `;
+        }).join('')}
       </div>
     </div>
 
@@ -908,13 +992,14 @@ function renderSewoonFactorInspector(wh: CanonicalLifeDataWarehouse): string {
     <!-- 하강 요인 vs 상승 요인 2단 그리드 -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.85rem;">
       
-      <!-- 1. 하강 요인 -->
+      <!-- 1. 하강 요인 (L1 지장간 기전 및 궁위 세부 팩트 포함) -->
       <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.75rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
           <span style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; display: flex; align-items: center; gap: 0.3rem;">
             <span class="material-symbols-outlined" style="font-size: 15px; color: #94a3b8;">trending_down</span>
             하강 요인 (${downCount})
           </span>
+          <span style="font-size: 0.68rem; color: #fca5a5;">* L1 궁위·지장간 충돌 기전 연동</span>
         </div>
 
         ${downCount === 0 ? `
@@ -925,12 +1010,18 @@ function renderSewoonFactorInspector(wh: CanonicalLifeDataWarehouse): string {
           <div style="display: flex; flex-direction: column; gap: 0.4rem;">
             ${curSewoon.downwardFactors.map(f => {
               const weightText = f.weight < 0 ? `${f.weight}점` : `-${f.weight}점`;
+              const matchedL1 = sewoonFactors.find(e => e.legacyLabel.includes(f.name) || f.name.includes(e.key));
+              const palaceInfo = matchedL1?.palace ? PALACE_GLOSSARY[matchedL1.palace] : null;
+              const hiddenInteractions = matchedL1?.hiddenStemInteractions || [];
+              const domainTags = matchedL1?.domains.map(d => DOMAIN_GLOSSARY[d] || d).join(', ') || '';
+
               return `
                 <details class="factor-accordion-item" style="background: rgba(0,0,0,0.28); border: 1px solid rgba(248,113,113,0.18); border-radius: 6px; overflow: hidden; transition: all 0.2s ease;">
                   <summary style="display: flex; justify-content: space-between; align-items: center; padding: 0.48rem 0.65rem; cursor: pointer; user-select: none; list-style: none;">
                     <div style="display: flex; align-items: center; gap: 0.45rem;">
                       <span class="btn-open-factor-wiki" data-factor="${f.name}" style="background: rgba(248,113,113,0.15); color: #fca5a5; font-size: 0.65rem; padding: 0.08rem 0.35rem; border-radius: 3px; font-weight: 700; cursor: pointer;" title="${f.name} 위키 보기">${f.category}</span>
                       <span class="btn-open-factor-wiki" data-factor="${f.name}" style="font-size: 0.78rem; font-weight: 800; color: #f8fafc; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;" title="${f.name} 위키 보기">${f.name}</span>
+                      ${matchedL1 ? `<span style="font-size: 0.63rem; color: #94a3b8; font-family: monospace; background: rgba(255,255,255,0.06); padding: 0.05rem 0.3rem; border-radius: 2px;">[${matchedL1.id}]</span>` : ''}
                       <button type="button" class="btn-open-factor-wiki" data-factor="${f.name}" style="background: rgba(248,113,113,0.18); border: 1px solid rgba(248,113,113,0.35); color: #fca5a5; font-size: 0.63rem; font-weight: 800; padding: 0.08rem 0.35rem; border-radius: 3px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.15rem;" title="${f.name} 명리 지식 백과 팝업">
                         <span class="material-symbols-outlined" style="font-size: 12px;">menu_book</span>위키
                       </button>
@@ -943,6 +1034,19 @@ function renderSewoonFactorInspector(wh: CanonicalLifeDataWarehouse): string {
                     </div>
                   </summary>
                   <div style="padding: 0.55rem 0.75rem 0.65rem; font-size: 0.73rem; color: #cbd5e1; border-top: 1px dashed rgba(255,255,255,0.08); background: rgba(0,0,0,0.2); line-height: 1.55;">
+                    <!-- [신규 L1 명리 팩트 뱃지] -->
+                    <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.45rem;">
+                      ${palaceInfo ? `<span style="background: rgba(248,113,113,0.15); color: #fca5a5; border: 1px solid rgba(248,113,113,0.3); padding: 0.1rem 0.4rem; border-radius: 3px;">영향 궁위: <strong>${palaceInfo.label}</strong></span>` : ''}
+                      ${domainTags ? `<span style="background: rgba(255,255,255,0.06); color: #94a3b8; border: 1px solid rgba(255,255,255,0.1); padding: 0.1rem 0.4rem; border-radius: 3px;">생활 영역: <strong>${domainTags}</strong></span>` : ''}
+                    </div>
+
+                    ${hiddenInteractions.length > 0 ? `
+                      <div style="background: rgba(0,0,0,0.3); border-radius: 4px; padding: 0.35rem 0.5rem; margin-bottom: 0.4rem; border-left: 2px solid #f87171;">
+                        <strong style="color: #fca5a5;">지장간 미세 충돌 기전:</strong>
+                        ${hiddenInteractions.map(hi => `<span style="color: #fff; margin-left: 0.3rem;">${hi.incoming} ↔ ${hi.natal} (${hi.type === 'STEM_CHUNG' ? '천간충' : '암합'})</span>`).join(', ')}
+                      </div>
+                    ` : ''}
+
                     <div style="font-weight: 700; color: #fca5a5; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.3rem;">
                       <span class="material-symbols-outlined" style="font-size: 14px;">info</span>
                       명리 인과 작용 및 대처 가이드
@@ -974,12 +1078,17 @@ function renderSewoonFactorInspector(wh: CanonicalLifeDataWarehouse): string {
           <div style="display: flex; flex-direction: column; gap: 0.4rem;">
             ${curSewoon.upwardFactors.map(f => {
               const weightText = f.weight > 0 ? `+${f.weight}점` : `${f.weight}점`;
+              const matchedL1 = sewoonFactors.find(e => e.legacyLabel.includes(f.name) || f.name.includes(e.key));
+              const palaceInfo = matchedL1?.palace ? PALACE_GLOSSARY[matchedL1.palace] : null;
+              const domainTags = matchedL1?.domains.map(d => DOMAIN_GLOSSARY[d] || d).join(', ') || '';
+
               return `
                 <details class="factor-accordion-item" style="background: rgba(0,0,0,0.28); border: 1px solid rgba(56,189,248,0.18); border-radius: 6px; overflow: hidden; transition: all 0.2s ease;">
                   <summary style="display: flex; justify-content: space-between; align-items: center; padding: 0.48rem 0.65rem; cursor: pointer; user-select: none; list-style: none;">
                     <div style="display: flex; align-items: center; gap: 0.45rem;">
                       <span class="btn-open-factor-wiki" data-factor="${f.name}" style="background: rgba(56,189,248,0.15); color: #38bdf8; font-size: 0.65rem; padding: 0.08rem 0.35rem; border-radius: 3px; font-weight: 700; cursor: pointer;" title="${f.name} 위키 보기">${f.category}</span>
                       <span class="btn-open-factor-wiki" data-factor="${f.name}" style="font-size: 0.78rem; font-weight: 800; color: #f8fafc; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;" title="${f.name} 위키 보기">${f.name}</span>
+                      ${matchedL1 ? `<span style="font-size: 0.63rem; color: #94a3b8; font-family: monospace; background: rgba(255,255,255,0.06); padding: 0.05rem 0.3rem; border-radius: 2px;">[${matchedL1.id}]</span>` : ''}
                       <button type="button" class="btn-open-factor-wiki" data-factor="${f.name}" style="background: rgba(56,189,248,0.18); border: 1px solid rgba(56,189,248,0.35); color: #38bdf8; font-size: 0.63rem; font-weight: 800; padding: 0.08rem 0.35rem; border-radius: 3px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.15rem;" title="${f.name} 명리 지식 백과 팝업">
                         <span class="material-symbols-outlined" style="font-size: 12px;">menu_book</span>위키
                       </button>
@@ -992,6 +1101,12 @@ function renderSewoonFactorInspector(wh: CanonicalLifeDataWarehouse): string {
                     </div>
                   </summary>
                   <div style="padding: 0.55rem 0.75rem 0.65rem; font-size: 0.73rem; color: #cbd5e1; border-top: 1px dashed rgba(255,255,255,0.08); background: rgba(0,0,0,0.2); line-height: 1.55;">
+                    <!-- [신규 L1 명리 팩트 뱃지] -->
+                    <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.45rem;">
+                      ${palaceInfo ? `<span style="background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 0.1rem 0.4rem; border-radius: 3px;">영향 궁위: <strong>${palaceInfo.label}</strong></span>` : ''}
+                      ${domainTags ? `<span style="background: rgba(255,255,255,0.06); color: #94a3b8; border: 1px solid rgba(255,255,255,0.1); padding: 0.1rem 0.4rem; border-radius: 3px;">생활 영역: <strong>${domainTags}</strong></span>` : ''}
+                    </div>
+
                     <div style="font-weight: 700; color: #38bdf8; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.3rem;">
                       <span class="material-symbols-outlined" style="font-size: 14px;">insights</span>
                       명리 인과 작용 및 기회 활용 가이드
@@ -1761,25 +1876,24 @@ export function renderAdminLifeAnalysisPanel(): string {
   const isFullscreen = getLifeChartFullscreen();
   const currentViewMode = getLifeChartViewMode();
   const isSajuOpen = getSajuInputExpanded();
+  const activeStage = getActiveLifeStage();
 
-  // 선택된 연도 레코드 도출 (상단 HUD용)
+  // 선택된 연도 레코드 도출
   const allSewoons = sewoon.records;
   const curSewoon = allSewoons.find(s => s.year === (selectedYear || new Date().getFullYear())) || allSewoons[0];
   const targetDw = daewoon.records.find(d => d.order === selectedDaewoonOrder) || daewoon.records[0];
   const downTags = curSewoon.downwardFactors.map(f => f.name).join(', ') || '없음';
   const upTags = curSewoon.upwardFactors.map(f => f.name).join(', ') || '없음';
 
-  // 12개월 주기표 렌더링 HTML (선택된 연도 기준)
+  // 12개월 주기표 렌더링 데이터
   const monthsData = calculate12MonthsWoon(wh, curSewoon.year);
   const curMonthRecord = monthsData.find(m => m.month === (selectedMonth || 5)) || monthsData[4] || monthsData[0];
   const curMonthUpTags = curMonthRecord.upwardFactors.map(f => `${f.name}(+${f.weight})`).join(', ') || '없음';
   const curMonthDownTags = curMonthRecord.downwardFactors.map(f => `${f.name}(${f.weight})`).join(', ') || '없음';
-  const monthCycleViewHtml = render12MonthsCycleView(wh, curSewoon.year);
 
-  // 계층형 브레드크럼 네비게이션 렌더러 (백년운세 클릭으로 직관적 이동 가능하므로 복구 버튼 불필요)
+  // 계층형 브레드크럼 네비게이션 렌더러
   const renderBreadcrumbNav = (compact: boolean = false) => `
     <div style="display: inline-flex; align-items: center; gap: 0.4rem; flex-wrap: nowrap;">
-      <!-- 3단계 계층 탭 그룹 (백년운세 - 십년대운 - 일년세운) -->
       <div style="display: inline-flex; align-items: center; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.15rem 0.3rem; gap: 0.2rem; flex-shrink: 0;">
         <button type="button" class="btn-toggle-life-view-mode" data-mode="100years"
           style="background: ${currentViewMode === '100years' ? '#0284c7' : 'transparent'}; color: ${currentViewMode === '100years' ? '#ffffff' : '#94a3b8'}; font-weight: 700; border: none; border-radius: 4px; padding: ${compact ? '0.2rem 0.45rem' : '0.28rem 0.6rem'}; font-size: 0.72rem; cursor: pointer; transition: all 0.15s ease;">
@@ -1799,49 +1913,30 @@ export function renderAdminLifeAnalysisPanel(): string {
     </div>
   `;
 
-  // 1. 일반 대시보드 뷰용 히어로 카드
+  // 1. 일반 대시보드 뷰용 히어로 카드 (2단계 내부 소분류 2-A)
   const regularHeroCardHtml = `
     <div class="life-cycle-chart-hero-card" style="background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 1.25rem;">
-      
-      <!-- 상단 컨트롤 툴바 -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.6rem;">
-        
-        <!-- 좌측: 핵심 프로필 요약 칩 -->
         <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
           <div style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.65rem; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);">
-            <span class="material-symbols-outlined" style="font-size: 1rem; color: #94a3b8;">ssid_chart</span>
-            <span style="font-size: 0.82rem; font-weight: 700; color: #f8fafc;">라이프사이클 궤적</span>
+            <span class="material-symbols-outlined" style="font-size: 1rem; color: #38bdf8;">ssid_chart</span>
+            <span style="font-size: 0.82rem; font-weight: 700; color: #f8fafc;">0~100세 생애 에너지 궤적</span>
           </div>
-          <span style="font-size: 0.86rem; font-weight: 700; color: #e2e8f0;">
-            ${inp.birthDate} (${inp.gender === 'female' ? '여' : '남'}) · 일간 <strong>${natal.dayMaster.stem}${natal.dayMaster.element}</strong>
-          </span>
-          <span style="font-size: 0.75rem; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 0.15rem 0.45rem; border-radius: 4px;">
-            대운수 ${daewoon.daewoonNumber} (${daewoon.direction})
+          <span style="font-size: 0.82rem; color: #94a3b8;">
+            현재 기준: <strong style="color: #38bdf8;">${curSewoon.year}년 (${curSewoon.age}세 · ${curSewoon.ganji}년)</strong>
           </span>
         </div>
 
-        <!-- 우측: 컨트롤 버튼 그룹 (3단계 계층 네비게이션, 전체화면, 복사) -->
         <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-          <!-- 3단계 계층 네비게이션 & 복구 버튼 -->
           ${renderBreadcrumbNav(false)}
-
-          <!-- 전체화면 열기 버튼 (명시적 열기 전용) -->
           <button type="button" class="btn-open-life-fullscreen" onclick="window.__openLifeFullscreen && window.__openLifeFullscreen()"
             style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #dfe2f1; border-radius: 6px; padding: 0.35rem 0.65rem; font-size: 0.74rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
             <span class="material-symbols-outlined" style="font-size: 16px; color: #94a3b8;">fullscreen</span>
             전체화면
           </button>
-
-          <!-- AI 프롬프트 복사 -->
-          <button type="button" id="btn-copy-ai-prompt" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; font-weight: 600; border-radius: 6px; padding: 0.35rem 0.65rem; font-size: 0.74rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
-            <span class="material-symbols-outlined" style="font-size: 16px; color: #94a3b8;">smart_toy</span>
-            프롬프트 복사
-          </button>
         </div>
-
       </div>
 
-      <!-- [대시보드 컴팩트 캔버스: 250px 고정 규격으로 한눈에 전체 흐름 파악] -->
       <div class="life-chart-canvas-container" style="width: 100%; height: 250px; min-height: 250px; max-height: 250px; position: relative;">
         ${currentViewMode === '100years' ? `
           ${renderLifeCycleStepLineSvg(wh, false)}
@@ -1852,7 +1947,6 @@ export function renderAdminLifeAnalysisPanel(): string {
         `}
       </div>
 
-      <!-- [요구사항 3번 구현] 2. 하단 추가 설명 영역 (그래프와 명확히 구분되어 모드별 인스펙터 및 위키 카드가 안정적으로 표시) -->
       <div class="life-analysis-bottom-explanation-container" style="margin-top: 1.25rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.25rem;">
         ${currentViewMode === '100years' ? `
           ${renderBaeknyeonSummaryInspector(wh, selectedYear)}
@@ -1862,12 +1956,16 @@ export function renderAdminLifeAnalysisPanel(): string {
           ${render12MonthsExplanationArea(wh, curSewoon.year)}
         `}
 
-        <!-- [요구사항 4번 연동] 추가 점수 요인(상충마살 등) 클릭 시 펼쳐지는 위키 지식 백과 카드 -->
         ${renderSelectedFactorWikiCard(selectedWikiFactor)}
       </div>
-
     </div>
   `;
+
+  // 각 단계별 펼침 여부 확인
+  const isStage1Open = isLifeStageExpanded('stage-1');
+  const isStage2Open = isLifeStageExpanded('stage-2');
+  const isStage3Open = isLifeStageExpanded('stage-3');
+  const isStage4Open = isLifeStageExpanded('stage-4');
 
   return `
   <!-- 명리 요인 위키 백과 모달 레이어 -->
@@ -1876,14 +1974,8 @@ export function renderAdminLifeAnalysisPanel(): string {
   <!-- 전체화면 오버레이: 스크롤 없는 100vh 싱글 뷰포트 & 클릭 핀포인트 HUD -->
   ${isFullscreen ? `
     <div id="life-chart-fullscreen-overlay" style="position: fixed; inset: 0; z-index: 99999; background: #070a13; overflow: hidden; width: 100vw; height: 100vh; max-height: 100vh; padding: 0.65rem 1.25rem 0.5rem; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; gap: 0.45rem;">
-      
-      <!-- 상단 컨트롤 & 헤더 바 (1단: 네비/창 제어, 2단: 선택 연도 HUD 띠) -->
       <div style="background: #070a13; display: flex; flex-direction: column; gap: 0.4rem; flex-shrink: 0; padding-bottom: 0.35rem; border-bottom: 1px solid rgba(255,255,255,0.08);">
-        
-        <!-- 1단: 프로필 + 복구 & 계층 네비게이션 + 닫기 버튼 -->
         <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 0.5rem 1.15rem; gap: 0.75rem; flex-wrap: nowrap; overflow-x: auto;">
-          
-          <!-- 좌측: 프로필 칩 -->
           <div style="display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0;">
             <div style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.55rem; border-radius: 5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);">
               <span class="material-symbols-outlined" style="font-size: 0.95rem; color: #38bdf8;">fullscreen</span>
@@ -1894,12 +1986,10 @@ export function renderAdminLifeAnalysisPanel(): string {
             </span>
           </div>
 
-          <!-- 중앙: 3단계 계층 네비게이션 & 복구 버튼 -->
           <div style="display: flex; align-items: center; flex-shrink: 0;">
             ${renderBreadcrumbNav(true)}
           </div>
 
-          <!-- 우측: 닫기 버튼 -->
           <button type="button" class="btn-close-life-fullscreen" onclick="window.__closeLifeFullscreen && window.__closeLifeFullscreen()"
             style="background: #ef4444; color: #ffffff; font-weight: 800; border: none; border-radius: 6px; padding: 0.45rem 1.05rem; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; box-shadow: 0 2px 8px rgba(239,68,68,0.4); flex-shrink: 0; z-index: 10; transition: all 0.15s ease;">
             <span class="material-symbols-outlined" style="font-size: 16px;">close</span>
@@ -1907,7 +1997,6 @@ export function renderAdminLifeAnalysisPanel(): string {
           </button>
         </div>
 
-        <!-- 2단: 독립된 선택 연도/월운 상세 지표 HUD 가로 띠 바 -->
         <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.35rem 1rem; font-size: 0.8rem; flex-wrap: nowrap; overflow-x: auto; gap: 0.6rem;">
           ${currentViewMode === '12months' ? `
             <div style="display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0;">
@@ -1945,10 +2034,8 @@ export function renderAdminLifeAnalysisPanel(): string {
             </div>
           `}
         </div>
-
       </div>
 
-      <!-- 메인 캔버스: 남은 뷰포트 높이에 정확히 Fit되어 스크롤 0px 전면 그래프 제공 -->
       <div style="flex: 1; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; overflow: hidden;">
         ${currentViewMode === '100years' ? `
           ${renderLifeCycleStepLineSvg(wh, true)}
@@ -1959,7 +2046,6 @@ export function renderAdminLifeAnalysisPanel(): string {
         `}
       </div>
 
-      <!-- 하단 설명 바 -->
       <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.4rem 1rem; display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; flex-shrink: 0; flex-wrap: nowrap; overflow-x: auto; gap: 0.75rem;">
         ${currentViewMode === '12months' ? `
           <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
@@ -1994,33 +2080,82 @@ export function renderAdminLifeAnalysisPanel(): string {
         `}
       </div>
 
-      <!-- 하단 상태 바 (흐름 안내) -->
       <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: #64748b; padding: 0 0.5rem; flex-shrink: 0;">
         <span>* 백년운세에서 대운 칩 클릭 시 십년대운 확대 ➔ 세운 클릭 시 일년세운 확대 (상단 네비게이션으로 복구 가능)</span>
         <span>키보드 ESC 키 또는 빨간색 닫기 버튼으로 즉시 복귀</span>
       </div>
-
     </div>
   ` : ''}
 
-  <div class="admin-life-analysis-container" style="display: ${isFullscreen ? 'none' : 'flex'}; flex-direction: column; gap: 1.5rem;">
+  <!-- [메인 관제 레이아웃] 단계별 4대 관제 대분류/소분류 접이식 타워 -->
+  <div class="admin-life-analysis-container" style="display: ${isFullscreen ? 'none' : 'flex'}; flex-direction: column; gap: 1.25rem;">
     
-    <!-- 1. [최상단 전진 배치] 0~100세 생애 기운 스텝 라인 히어로 카드 & 명리 인스펙터 -->
-    ${regularHeroCardHtml}
+    <!-- ======================================================== -->
+    <!-- [관제 헤더 0]: 분석 사주 요약 HUD & 컨트롤 툴바 -->
+    <!-- ======================================================== -->
+    <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+      
+      <!-- 좌측: 현재 분석 중인 사주 프로필 칩 -->
+      <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
+        <div style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.75rem; border-radius: 8px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3);">
+          <span class="material-symbols-outlined" style="font-size: 1.1rem; color: #38bdf8;">warehouse</span>
+          <span style="font-size: 0.85rem; font-weight: 800; color: #f8fafc;">백세인생 원천 창고</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.86rem; color: #e2e8f0;">
+          <strong style="color: #fff;">${inp.birthDate}</strong>
+          <span style="color: #94a3b8;">(${inp.gender === 'female' ? '여성' : '남성'}, ${inp.calendarType === 'solar' ? '양력' : '음력'} ${inp.birthTime || '시간미상'})</span>
+          <span style="color: #64748b;">·</span>
+          <span>일간: <strong style="color: var(--primary); font-size: 0.95rem;">${natal.dayMaster.stem}${natal.dayMaster.element}</strong> (${natal.strength.classification})</span>
+          <span style="color: #64748b;">·</span>
+          <span style="background: rgba(255,255,255,0.06); padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; color: #cbd5e1;">
+            대운수 ${daewoon.daewoonNumber} (${daewoon.direction})
+          </span>
+        </div>
+      </div>
 
-    <!-- 2. 사주 입력 및 프리셋 바 (토글 가능) -->
-    <div id="saju-input-section" style="${isSajuOpen ? 'display: block;' : 'display: none;'} background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.15rem; transition: all 0.2s ease;">
+      <!-- 우측: 액션 툴바 (사주 변경 토글, 프롬프트 복사, B2B 패킷 복사, 전체 펼치기/접기) -->
+      <div style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
+        <!-- 사주 변경 토글 -->
+        <button type="button" class="btn-toggle-saju-input"
+          style="background: ${isSajuOpen ? 'var(--primary)' : 'rgba(255,255,255,0.06)'}; color: ${isSajuOpen ? '#1c1500' : '#cbd5e1'}; font-weight: 700; border: 1px solid ${isSajuOpen ? 'var(--primary)' : 'rgba(255,255,255,0.15)'}; border-radius: 6px; padding: 0.35rem 0.7rem; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">tune</span>
+          ${isSajuOpen ? '입력창 닫기' : '사주 변경/프리셋'}
+        </button>
+
+        <!-- 전체 펼치기 / 접기 토글 -->
+        <button type="button" class="btn-toggle-all-life-stages" data-action="${(isStage1Open && isStage2Open && isStage3Open) ? 'collapse' : 'expand'}"
+          style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; font-weight: 600; border-radius: 6px; padding: 0.35rem 0.7rem; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">${(isStage1Open && isStage2Open && isStage3Open) ? 'unfold_less' : 'unfold_more'}</span>
+          ${(isStage1Open && isStage2Open && isStage3Open) ? '모두 접기' : '모두 펼치기'}
+        </button>
+
+        <!-- AI 프롬프트 복사 -->
+        <button type="button" id="btn-copy-ai-prompt" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; font-weight: 600; border-radius: 6px; padding: 0.35rem 0.65rem; font-size: 0.74rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
+          <span class="material-symbols-outlined" style="font-size: 16px; color: #94a3b8;">smart_toy</span>
+          프롬프트 복사
+        </button>
+
+        <!-- B2B 패킷 복사 -->
+        <button type="button" id="btn-copy-evidence-packet" style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; font-weight: 700; border-radius: 6px; padding: 0.35rem 0.65rem; font-size: 0.74rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
+          <span class="material-symbols-outlined" style="font-size: 16px; color: #38bdf8;">dataset</span>
+          B2B 패킷 복사
+        </button>
+      </div>
+    </div>
+
+    <!-- [숨은 사주 입력 폼] 토글 시 노출 -->
+    <div id="saju-input-section" style="${isSajuOpen ? 'display: block;' : 'display: none;'} background: #0b0f19; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.15rem; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
         <span style="font-size: 0.82rem; font-weight: 700; color: #dfe2f1; display: flex; align-items: center; gap: 0.35rem;">
           <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">tune</span>
-          사주 입력 및 프리셋
+          사주 입력 및 빠른 프리셋
         </span>
         <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
           <button type="button" id="btn-load-current-user-saju" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; font-size: 0.72rem; padding: 0.35rem 0.65rem; border-radius: 6px; cursor: pointer;">
-            유저 사주 로드
+            현재 유저 사주 로드
           </button>
           <button type="button" class="btn-preset-saju" data-year="1998" data-month="4" data-day="12" data-hour="9" data-gender="female" style="background: rgba(242,202,80,0.12); border: 1px solid rgba(242,202,80,0.3); color: var(--primary); font-size: 0.72rem; padding: 0.35rem 0.65rem; border-radius: 6px; cursor: pointer;">
-            1998년 기축 女 (토다)
+            1998년 기축 女 (토다자)
           </button>
           <button type="button" class="btn-preset-saju" data-year="1985" data-month="2" data-day="15" data-hour="14" data-gender="male" style="background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.3); color: #60a5fa; font-size: 0.72rem; padding: 0.35rem 0.65rem; border-radius: 6px; cursor: pointer;">
             1985년 갑목 男 (신강)
@@ -2068,306 +2203,616 @@ export function renderAdminLifeAnalysisPanel(): string {
       </form>
     </div>
 
-    <!-- 3. 원국 레이어 -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1rem;">
+    <!-- ======================================================== -->
+    <!-- [핵심 UI 개편]: 단계별 4대 관제 대분류 내비게이션 바 -->
+    <!-- 관리자가 '단계별로 뭘 눌러서 무엇을 알 수 있는지' 1초 만에 인지 -->
+    <!-- ======================================================== -->
+    <div style="background: #0b0f19; border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 0.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
       
-      <!-- 4주 8글자 테이블 -->
-      <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.25rem;">
-        <h3 style="font-size: 0.95rem; font-weight: 700; color: #dfe2f1; margin: 0 0 0.85rem; display: flex; align-items: center; gap: 0.35rem;">
-          <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">grid_4x4</span>
-          사주 원국표
-        </h3>
-        <div style="overflow-x: auto;">
-          <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.82rem;">
-            <thead>
-              <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 0.74rem;">
-                <th style="padding: 0.5rem;">구분</th>
-                <th style="padding: 0.5rem;">시주(時柱)</th>
-                <th style="padding: 0.5rem;">일주(日柱)</th>
-                <th style="padding: 0.5rem;">월주(月柱)</th>
-                <th style="padding: 0.5rem;">년주(年柱)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- 천간 십신 -->
-              <tr style="color: #94a3b8; font-size: 0.72rem;">
-                <td style="padding: 0.4rem; font-weight: 700;">천간 십신</td>
-                <td>${natal.pillars[3].stemTenGod}</td>
-                <td style="color: var(--primary); font-weight: 800;">일간(나)</td>
-                <td>${natal.pillars[1].stemTenGod}</td>
-                <td>${natal.pillars[0].stemTenGod}</td>
-              </tr>
-              <!-- 천간 글자 -->
-              <tr style="font-size: 1.25rem; font-weight: 900; font-family: var(--font-serif); color: #fff;">
-                <td style="font-size: 0.72rem; color: var(--text-muted); font-weight: normal;">천간</td>
-                <td style="padding: 0.4rem;">${natal.pillars[3].stem} <span style="font-size: 0.85rem; color: #94a3b8;">(${natal.pillars[3].stemHanja})</span></td>
-                <td style="padding: 0.4rem; color: var(--primary);">${natal.pillars[2].stem} <span style="font-size: 0.85rem; color: var(--primary);">(${natal.pillars[2].stemHanja})</span></td>
-                <td style="padding: 0.4rem;">${natal.pillars[1].stem} <span style="font-size: 0.85rem; color: #94a3b8;">(${natal.pillars[1].stemHanja})</span></td>
-                <td style="padding: 0.4rem;">${natal.pillars[0].stem} <span style="font-size: 0.85rem; color: #94a3b8;">(${natal.pillars[0].stemHanja})</span></td>
-              </tr>
-              <!-- 지지 글자 -->
-              <tr style="font-size: 1.25rem; font-weight: 900; font-family: var(--font-serif); color: #fff; border-top: 1px dashed rgba(255,255,255,0.06);">
-                <td style="font-size: 0.72rem; color: var(--text-muted); font-weight: normal;">지지</td>
-                <td style="padding: 0.4rem;">${natal.pillars[3].branch} <span style="font-size: 0.85rem; color: #94a3b8;">(${natal.pillars[3].branchHanja})</span></td>
-                <td style="padding: 0.4rem; color: var(--primary);">${natal.pillars[2].branch} <span style="font-size: 0.85rem; color: var(--primary);">(${natal.pillars[2].branchHanja})</span></td>
-                <td style="padding: 0.4rem;">${natal.pillars[1].branch} <span style="font-size: 0.85rem; color: #94a3b8;">(${natal.pillars[1].branchHanja})</span></td>
-                <td style="padding: 0.4rem;">${natal.pillars[0].branch} <span style="font-size: 0.85rem; color: #94a3b8;">(${natal.pillars[0].branchHanja})</span></td>
-              </tr>
-              <!-- 지지 십신 -->
-              <tr style="color: #94a3b8; font-size: 0.72rem;">
-                <td style="padding: 0.4rem; font-weight: 700;">지지 십신</td>
-                <td>${natal.pillars[3].branchTenGod}</td>
-                <td style="color: var(--primary);">${natal.pillars[2].branchTenGod}</td>
-                <td>${natal.pillars[1].branchTenGod}</td>
-                <td>${natal.pillars[0].branchTenGod}</td>
-              </tr>
-              <!-- 지장간 -->
-              <tr style="color: #64748b; font-size: 0.68rem; border-top: 1px solid rgba(255,255,255,0.06);">
-                <td style="padding: 0.4rem;">지장간</td>
-                <td>${natal.pillars[3].hiddenStems.join(',') || '-'}</td>
-                <td>${natal.pillars[2].hiddenStems.join(',') || '-'}</td>
-                <td>${natal.pillars[1].hiddenStems.join(',') || '-'}</td>
-                <td>${natal.pillars[0].hiddenStems.join(',') || '-'}</td>
-              </tr>
-              <!-- 12운성 (포태법) -->
-              <tr style="color: #cbd5e1; font-size: 0.72rem; border-top: 1px dashed rgba(255,255,255,0.06);">
-                <td style="padding: 0.4rem; font-weight: 700; color: #94a3b8;">12운성</td>
-                <td><span style="background: rgba(255,255,255,0.06); padding: 0.15rem 0.4rem; border-radius: 4px;">${natal.pillars[3].twelveStage}</span></td>
-                <td><span style="background: rgba(242,202,80,0.18); color: var(--primary); font-weight: 800; padding: 0.15rem 0.4rem; border-radius: 4px;">${natal.pillars[2].twelveStage}</span></td>
-                <td><span style="background: rgba(255,255,255,0.06); padding: 0.15rem 0.4rem; border-radius: 4px;">${natal.pillars[1].twelveStage}</span></td>
-                <td><span style="background: rgba(255,255,255,0.06); padding: 0.15rem 0.4rem; border-radius: 4px;">${natal.pillars[0].twelveStage}</span></td>
-              </tr>
-              <!-- 공망 및 통근 점수 -->
-              <tr style="color: #94a3b8; font-size: 0.68rem; border-top: 1px dashed rgba(255,255,255,0.04);">
-                <td style="padding: 0.4rem;">공망 / 통근</td>
-                <td>${natal.pillars[3].isGongmang ? '<span style="color: #f87171; font-weight: 700;">★공망</span>' : '유효'} <span style="color: #64748b;">(${natal.pillars[3].rootingScore}점)</span></td>
-                <td><span style="color: var(--primary);">[기준]</span> <span style="color: #64748b;">(${natal.pillars[2].rootingScore}점)</span></td>
-                <td>${natal.pillars[1].isGongmang ? '<span style="color: #f87171; font-weight: 700;">★공망</span>' : '유효'} <span style="color: #64748b;">(${natal.pillars[1].rootingScore}점)</span></td>
-                <td>${natal.pillars[0].isGongmang ? '<span style="color: #f87171; font-weight: 700;">★공망</span>' : '유효'} <span style="color: #64748b;">(${natal.pillars[0].rootingScore}점)</span></td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- ALL: 전체 보기 탭 -->
+      <button type="button" class="btn-select-life-stage" data-stage="all"
+        style="background: ${activeStage === 'all' ? '#1e293b' : 'rgba(255,255,255,0.02)'}; border: 1.5px solid ${activeStage === 'all' ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; border-radius: 8px; padding: 0.65rem 0.85rem; text-align: left; cursor: pointer; transition: all 0.15s ease;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+          <span style="font-size: 0.68rem; font-weight: 800; color: ${activeStage === 'all' ? '#38bdf8' : '#94a3b8'}; text-transform: uppercase;">MASTER VIEW</span>
+          <span class="material-symbols-outlined" style="font-size: 16px; color: ${activeStage === 'all' ? '#38bdf8' : '#64748b'};">view_stream</span>
         </div>
-      </div>
+        <div style="font-size: 0.84rem; font-weight: 800; color: #fff;">전체 단계 한눈에 보기</div>
+        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 0.2rem;">1~4단계 전체를 스크롤로 조망</div>
+      </button>
 
-      <!-- 오행 에너지 & 용신 확정 지표 -->
-      <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
-        <div>
-          <h3 style="font-size: 0.95rem; font-weight: 700; color: #dfe2f1; margin: 0 0 0.85rem; display: flex; align-items: center; gap: 0.35rem;">
-            <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">analytics</span>
-            신강약 및 용신 체계
-          </h3>
-          
-          <!-- 일간 및 신강약 배지 -->
-          <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.85rem; background: rgba(0,0,0,0.25); border-radius: 8px; margin-bottom: 0.85rem;">
-            <div>
-              <span style="font-size: 0.72rem; color: var(--text-muted);">일간: </span>
-              <span style="font-weight: 800; color: var(--primary); font-size: 0.95rem;">${natal.dayMaster.stem}${natal.dayMaster.element}(${natal.dayMaster.hanja})</span>
-              <span style="font-size: 0.72rem; color: #94a3b8; margin-left: 0.3rem;">[${natal.dayMaster.nature}]</span>
-            </div>
-            <div>
-              <span style="font-size: 0.75rem; font-weight: 800; background: ${natal.strength.classification.includes('강') ? 'rgba(242,202,80,0.2)' : 'rgba(96,165,250,0.2)'}; color: ${natal.strength.classification.includes('강') ? 'var(--primary)' : '#60a5fa'}; padding: 0.2rem 0.55rem; border-radius: 4px;">
-                ${natal.strength.classification} (${natal.strength.score}점)
-              </span>
-            </div>
-          </div>
-
-          <!-- 용신/희신/기신 카드 -->
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.45rem; text-align: center; margin-bottom: 0.85rem;">
-            <div style="background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25); padding: 0.45rem 0.2rem; border-radius: 6px;">
-              <div style="font-size: 0.65rem; color: #34d399; font-weight: 700;">용신</div>
-              <div style="font-size: 0.85rem; font-weight: 800; color: #fff; margin-top: 0.15rem;">${natal.yongshin.yongshin}</div>
-            </div>
-            <div style="background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.25); padding: 0.45rem 0.2rem; border-radius: 6px;">
-              <div style="font-size: 0.65rem; color: #60a5fa; font-weight: 700;">희신</div>
-              <div style="font-size: 0.85rem; font-weight: 800; color: #fff; margin-top: 0.15rem;">${natal.yongshin.heeshin}</div>
-            </div>
-            <div style="background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25); padding: 0.45rem 0.2rem; border-radius: 6px;">
-              <div style="font-size: 0.65rem; color: #f87171; font-weight: 700;">기신</div>
-              <div style="font-size: 0.85rem; font-weight: 800; color: #fff; margin-top: 0.15rem;">${natal.yongshin.gishin}</div>
-            </div>
-            <div style="background: rgba(251,146,60,0.1); border: 1px solid rgba(251,146,60,0.25); padding: 0.45rem 0.2rem; border-radius: 6px;">
-              <div style="font-size: 0.65rem; color: #fb923c; font-weight: 700;">조후</div>
-              <div style="font-size: 0.85rem; font-weight: 800; color: #fff; margin-top: 0.15rem;">${natal.yongshin.johuYongshin}</div>
-            </div>
-          </div>
+      <!-- 1단계: 사주 원국 정밀 진단실 -->
+      <button type="button" class="btn-select-life-stage" data-stage="stage-1"
+        style="background: ${activeStage === 'stage-1' ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255,255,255,0.02)'}; border: 1.5px solid ${activeStage === 'stage-1' ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; border-radius: 8px; padding: 0.65rem 0.85rem; text-align: left; cursor: pointer; transition: all 0.15s ease;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+          <span style="font-size: 0.68rem; font-weight: 800; color: #38bdf8;">STEP 01</span>
+          <span class="material-symbols-outlined" style="font-size: 16px; color: #38bdf8;">grid_4x4</span>
         </div>
+        <div style="font-size: 0.84rem; font-weight: 800; color: #fff;">1. 사주 원국 정밀 진단</div>
+        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 0.2rem;">선천 기질 · 4주 8글자 · 4대 유통</div>
+      </button>
 
-        <!-- 오행 분포 바 -->
-        <div>
-          <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-            <span>오행 정량 분포 (목·화·토·금·수)</span>
-            <span>최다: <strong style="color: var(--primary);">${natal.fiveElements.dominant}</strong> / 결핍: <strong style="color: #f87171;">${natal.fiveElements.lacking.join(',') || '없음'}</strong></span>
-          </div>
-          <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.35rem; text-align: center;">
-            ${[
-              { label: '목', val: natal.fiveElements.wood, color: '#94a3b8', bg: 'rgba(255,255,255,0.04)' },
-              { label: '화', val: natal.fiveElements.fire, color: '#94a3b8', bg: 'rgba(255,255,255,0.04)' },
-              { label: '토', val: natal.fiveElements.earth, color: '#94a3b8', bg: 'rgba(255,255,255,0.04)' },
-              { label: '금', val: natal.fiveElements.metal, color: '#94a3b8', bg: 'rgba(255,255,255,0.04)' },
-              { label: '수', val: natal.fiveElements.water, color: '#94a3b8', bg: 'rgba(255,255,255,0.04)' }
-            ].map(elem => {
-              const isDominant = natal.fiveElements.dominant === elem.label;
-              const borderStyle = isDominant ? '1px solid #f8fafc' : '1px solid transparent';
-              return `<div style="background: ${elem.bg}; border: ${borderStyle}; padding: 0.35rem; border-radius: 4px; font-size: 0.75rem; color: ${isDominant ? '#fff' : '#cbd5e1'}; font-weight: ${isDominant ? '800' : 'normal'};">
-                ${elem.label}: ${elem.val}${isDominant ? ' (최다)' : ''}
-              </div>`;
-            }).join('')}
-          </div>
+      <!-- 2단계: 100년 라이프사이클 궤적 & 영역 관제실 -->
+      <button type="button" class="btn-select-life-stage" data-stage="stage-2"
+        style="background: ${activeStage === 'stage-2' ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255,255,255,0.02)'}; border: 1.5px solid ${activeStage === 'stage-2' ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; border-radius: 8px; padding: 0.65rem 0.85rem; text-align: left; cursor: pointer; transition: all 0.15s ease;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+          <span style="font-size: 0.68rem; font-weight: 800; color: #38bdf8;">STEP 02</span>
+          <span class="material-symbols-outlined" style="font-size: 16px; color: #38bdf8;">ssid_chart</span>
         </div>
-      </div>
+        <div style="font-size: 0.84rem; font-weight: 800; color: #fff;">2. 100년 궤적 & 9대 영역</div>
+        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 0.2rem;">0~100세 파동 · 영역별 신호등</div>
+      </button>
+
+      <!-- 3단계: 시간축 심층 인과 드릴다운실 -->
+      <button type="button" class="btn-select-life-stage" data-stage="stage-3"
+        style="background: ${activeStage === 'stage-3' ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255,255,255,0.02)'}; border: 1.5px solid ${activeStage === 'stage-3' ? '#38bdf8' : 'rgba(255,255,255,0.08)'}; border-radius: 8px; padding: 0.65rem 0.85rem; text-align: left; cursor: pointer; transition: all 0.15s ease;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+          <span style="font-size: 0.68rem; font-weight: 800; color: #38bdf8;">STEP 03 (클릭 드릴다운)</span>
+          <span class="material-symbols-outlined" style="font-size: 16px; color: #38bdf8;">alt_route</span>
+        </div>
+        <div style="font-size: 0.84rem; font-weight: 800; color: #fff;">3. 대운 ➔ 세운 ➔ 월운 추적</div>
+        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 0.2rem;">10년 대운 ➔ 1년 세운 ➔ 12월 월운</div>
+      </button>
+
+      <!-- 4단계: B2B 패킷 & 결과지 품질 대조실 -->
+      <button type="button" class="btn-select-life-stage" data-stage="stage-4"
+        style="background: ${activeStage === 'stage-4' ? 'rgba(242, 202, 80, 0.12)' : 'rgba(255,255,255,0.02)'}; border: 1.5px solid ${activeStage === 'stage-4' ? 'var(--primary)' : 'rgba(255,255,255,0.08)'}; border-radius: 8px; padding: 0.65rem 0.85rem; text-align: left; cursor: pointer; transition: all 0.15s ease;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+          <span style="font-size: 0.68rem; font-weight: 800; color: var(--primary);">STEP 04</span>
+          <span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary);">compare_arrows</span>
+        </div>
+        <div style="font-size: 0.84rem; font-weight: 800; color: #fff;">4. 패킷 & 결과지 대조실</div>
+        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 0.2rem;">AI 표준 패킷 · 기존 vs V2 비교</div>
+      </button>
+
     </div>
 
-    <!-- 3-1. 심층 구조 분석 레이어 (4대 유통 · 공망 · 궁위) -->
-    <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.25rem;">
-      <h3 style="font-size: 0.95rem; font-weight: 700; color: #dfe2f1; margin: 0 0 1rem; display: flex; align-items: center; gap: 0.35rem;">
-        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">account_tree</span>
-        생극제화 유통 · 공망 · 궁위
-      </h3>
 
-      <!-- 4대 유통 통로 게이지 -->
-      <div style="margin-bottom: 1.25rem;">
-        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 700;">
-          4대 유통 통로 강도 (0 ~ 100점)
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
-          <!-- 식상생재 -->
-          <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.65rem 0.85rem;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.74rem; margin-bottom: 0.3rem;">
-              <span style="color: #34d399; font-weight: 700;">식상생재</span>
-              <span style="font-weight: 800; color: #fff;">${wh.deepStructure.flowChannels.shiksangSaengJae}점</span>
-            </div>
-            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
-              <div style="width: ${wh.deepStructure.flowChannels.shiksangSaengJae}%; height: 100%; background: #34d399;"></div>
-            </div>
+    <!-- ======================================================== -->
+    <!-- [대분류 1]: STEP 01. 사주 원국 정밀 진단실 (The Foundation) -->
+    <!-- ======================================================== -->
+    ${(activeStage === 'all' || activeStage === 'stage-1') ? `
+      <div id="section-stage-1" style="background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 14px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        
+        <!-- 대분류 1 헤더 (클릭 시 토글) -->
+        <div class="btn-toggle-life-stage-header" data-stage="stage-1"
+          style="padding: 1rem 1.25rem; background: rgba(255,255,255,0.02); border-bottom: ${isStage1Open ? '1px solid rgba(255,255,255,0.08)' : 'none'}; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+          <div style="display: flex; align-items: center; gap: 0.65rem;">
+            <span style="background: #0284c7; color: #fff; font-size: 0.7rem; font-weight: 800; padding: 0.2rem 0.55rem; border-radius: 4px;">STEP 01</span>
+            <span class="material-symbols-outlined" style="font-size: 20px; color: #38bdf8;">grid_4x4</span>
+            <h3 style="font-size: 1.02rem; font-weight: 800; color: #f8fafc; margin: 0;">사주 원국 정밀 진단실</h3>
+            <span style="font-size: 0.76rem; color: #94a3b8; display: inline-block; margin-left: 0.4rem;">
+              — 선천 기질, 오행 불균형, 신강약, 용신(무기), 4대 유통 통로 판정
+            </span>
           </div>
-          <!-- 재생관 -->
-          <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.65rem 0.85rem;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.74rem; margin-bottom: 0.3rem;">
-              <span style="color: #60a5fa; font-weight: 700;">재생관</span>
-              <span style="font-weight: 800; color: #fff;">${wh.deepStructure.flowChannels.jaeSaengGwan}점</span>
-            </div>
-            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
-              <div style="width: ${wh.deepStructure.flowChannels.jaeSaengGwan}%; height: 100%; background: #60a5fa;"></div>
-            </div>
-          </div>
-          <!-- 관인상생 -->
-          <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.65rem 0.85rem;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.74rem; margin-bottom: 0.3rem;">
-              <span style="color: #f2ca50; font-weight: 700;">관인상생</span>
-              <span style="font-weight: 800; color: #fff;">${wh.deepStructure.flowChannels.gwanInSaeng}점</span>
-            </div>
-            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
-              <div style="width: ${wh.deepStructure.flowChannels.gwanInSaeng}%; height: 100%; background: #f2ca50;"></div>
-            </div>
-          </div>
-          <!-- 군겁쟁재 압력 -->
-          <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.65rem 0.85rem;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.74rem; margin-bottom: 0.3rem;">
-              <span style="color: #f87171; font-weight: 700;">비겁분산</span>
-              <span style="font-weight: 800; color: #fff;">${wh.deepStructure.flowChannels.biGeopBunsan}점</span>
-            </div>
-            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
-              <div style="width: ${wh.deepStructure.flowChannels.biGeopBunsan}%; height: 100%; background: #f87171;"></div>
-            </div>
+
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 0.72rem; color: #64748b; background: rgba(255,255,255,0.05); padding: 0.15rem 0.5rem; border-radius: 4px;">소분류 3개</span>
+            <span class="material-symbols-outlined" style="font-size: 20px; color: #94a3b8; transition: transform 0.2s ease; transform: ${isStage1Open ? 'rotate(180deg)' : 'rotate(0deg)'};">expand_more</span>
           </div>
         </div>
+
+        <!-- 대분류 1 본문 (펼침 상태일 때만 노출) -->
+        ${isStage1Open ? `
+          <div style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem;">
+            
+            <!-- 인지 가이드 배너 -->
+            <div style="background: rgba(56, 189, 248, 0.06); border-left: 3px solid #38bdf8; border-radius: 0 8px 8px 0; padding: 0.65rem 0.95rem; font-size: 0.78rem; color: #cbd5e1; line-height: 1.5;">
+              <strong style="color: #38bdf8;">💡 [1단계에서 무엇을 보고 알 수 있나?]</strong><br/>
+              사주의 기본 설계도입니다. 일간(나)의 기운이 강한지 약한지(<strong style="color: #fff;">신강/신약</strong>), 삶의 균형을 잡아주는 핵심 무기(<strong style="color: #fff;">용신·희신</strong>), 비어있는 기운(<strong style="color: #f87171;">공망</strong>), 그리고 재물과 관직으로 에너지가 흐르는 길(<strong style="color: #34d399;">4대 유통 통로</strong>)을 확인합니다.
+            </div>
+
+            <!-- [소분류 1-A & 1-B 그리드] -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1rem;">
+              
+              <!-- [소분류 1-A] 4주 8글자 사주 원국표 -->
+              <div style="background: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1.15rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                  <strong style="font-size: 0.88rem; color: #dfe2f1; display: flex; align-items: center; gap: 0.35rem;">
+                    <span style="color: #38bdf8; font-size: 0.74rem; font-weight: 800;">1-A</span>
+                    사주 4주 8글자 만세력 & 통근·공망
+                  </strong>
+                  <span style="font-size: 0.72rem; color: #64748b;">뿌리(통근) 및 비어있는 기운(공망)</span>
+                </div>
+
+                <div style="overflow-x: auto;">
+                  <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.82rem;">
+                    <thead>
+                      <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 0.74rem;">
+                        <th style="padding: 0.45rem;">구분</th>
+                        <th style="padding: 0.45rem;">시주(時柱)</th>
+                        <th style="padding: 0.45rem;">일주(日柱)</th>
+                        <th style="padding: 0.45rem;">월주(月柱)</th>
+                        <th style="padding: 0.45rem;">년주(年柱)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr style="color: #94a3b8; font-size: 0.72rem;">
+                        <td style="padding: 0.35rem; font-weight: 700;">천간 십신</td>
+                        <td>${natal.pillars[3].stemTenGod}</td>
+                        <td style="color: var(--primary); font-weight: 800;">일간(나)</td>
+                        <td>${natal.pillars[1].stemTenGod}</td>
+                        <td>${natal.pillars[0].stemTenGod}</td>
+                      </tr>
+                      <tr style="font-size: 1.25rem; font-weight: 900; font-family: var(--font-serif); color: #fff;">
+                        <td style="font-size: 0.72rem; color: var(--text-muted); font-weight: normal;">천간</td>
+                        <td style="padding: 0.35rem;">${natal.pillars[3].stem} <span style="font-size: 0.85rem; color: #94a3b8;">(${natal.pillars[3].stemHanja})</span></td>
+                        <td style="padding: 0.35rem; color: var(--primary);">${natal.pillars[2].stem} <span style="font-size: 0.85rem; color: var(--primary);">(${natal.pillars[2].stemHanja})</span></td>
+                        <td style="padding: 0.35rem;">${natal.pillars[1].stem} <span style="font-size: 0.85rem; color: #94a3b8;">(${natal.pillars[1].stemHanja})</span></td>
+                        <td style="padding: 0.35rem;">${natal.pillars[0].stem} <span style="font-size: 0.85rem; color: #94a3b8;">(${natal.pillars[0].stemHanja})</span></td>
+                      </tr>
+                      <tr style="font-size: 1.25rem; font-weight: 900; font-family: var(--font-serif); color: #fff; border-top: 1px dashed rgba(255,255,255,0.06);">
+                        <td style="font-size: 0.72rem; color: var(--text-muted); font-weight: normal;">지지</td>
+                        <td style="padding: 0.35rem;">${natal.pillars[3].branch} <span style="font-size: 0.85rem; color: #94a3b8;">(${natal.pillars[3].branchHanja})</span></td>
+                        <td style="padding: 0.35rem; color: var(--primary);">${natal.pillars[2].branch} <span style="font-size: 0.85rem; color: var(--primary);">(${natal.pillars[2].branchHanja})</span></td>
+                        <td style="padding: 0.35rem;">${natal.pillars[1].branch} <span style="font-size: 0.85rem; color: #94a3b8;">(${natal.pillars[1].branchHanja})</span></td>
+                        <td style="padding: 0.35rem;">${natal.pillars[0].branch} <span style="font-size: 0.85rem; color: #94a3b8;">(${natal.pillars[0].branchHanja})</span></td>
+                      </tr>
+                      <tr style="color: #94a3b8; font-size: 0.72rem;">
+                        <td style="padding: 0.35rem; font-weight: 700;">지지 십신</td>
+                        <td>${natal.pillars[3].branchTenGod}</td>
+                        <td style="color: var(--primary);">${natal.pillars[2].branchTenGod}</td>
+                        <td>${natal.pillars[1].branchTenGod}</td>
+                        <td>${natal.pillars[0].branchTenGod}</td>
+                      </tr>
+                      <tr style="color: #64748b; font-size: 0.68rem; border-top: 1px solid rgba(255,255,255,0.06);">
+                        <td style="padding: 0.35rem;">지장간</td>
+                        <td>${natal.pillars[3].hiddenStems.join(',') || '-'}</td>
+                        <td>${natal.pillars[2].hiddenStems.join(',') || '-'}</td>
+                        <td>${natal.pillars[1].hiddenStems.join(',') || '-'}</td>
+                        <td>${natal.pillars[0].hiddenStems.join(',') || '-'}</td>
+                      </tr>
+                      <tr style="color: #cbd5e1; font-size: 0.72rem; border-top: 1px dashed rgba(255,255,255,0.06);">
+                        <td style="padding: 0.35rem; font-weight: 700; color: #94a3b8;">12운성</td>
+                        <td><span style="background: rgba(255,255,255,0.06); padding: 0.12rem 0.35rem; border-radius: 4px;">${natal.pillars[3].twelveStage}</span></td>
+                        <td><span style="background: rgba(242,202,80,0.18); color: var(--primary); font-weight: 800; padding: 0.12rem 0.35rem; border-radius: 4px;">${natal.pillars[2].twelveStage}</span></td>
+                        <td><span style="background: rgba(255,255,255,0.06); padding: 0.12rem 0.35rem; border-radius: 4px;">${natal.pillars[1].twelveStage}</span></td>
+                        <td><span style="background: rgba(255,255,255,0.06); padding: 0.12rem 0.35rem; border-radius: 4px;">${natal.pillars[0].twelveStage}</span></td>
+                      </tr>
+                      <tr style="color: #94a3b8; font-size: 0.68rem; border-top: 1px dashed rgba(255,255,255,0.04);">
+                        <td style="padding: 0.35rem;">공망/통근</td>
+                        <td>${natal.pillars[3].isGongmang ? '<span style="color: #f87171; font-weight: 700;">★공망</span>' : '유효'} <span style="color: #64748b;">(${natal.pillars[3].rootingScore}점)</span></td>
+                        <td><span style="color: var(--primary);">[기준]</span> <span style="color: #64748b;">(${natal.pillars[2].rootingScore}점)</span></td>
+                        <td>${natal.pillars[1].isGongmang ? '<span style="color: #f87171; font-weight: 700;">★공망</span>' : '유효'} <span style="color: #64748b;">(${natal.pillars[1].rootingScore}점)</span></td>
+                        <td>${natal.pillars[0].isGongmang ? '<span style="color: #f87171; font-weight: 700;">★공망</span>' : '유효'} <span style="color: #64748b;">(${natal.pillars[0].rootingScore}점)</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- [소분류 1-B] 신강약 및 억부·조후 용신 체계 & 오행 분포 -->
+              <div style="background: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1.15rem; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <strong style="font-size: 0.88rem; color: #dfe2f1; display: flex; align-items: center; gap: 0.35rem;">
+                      <span style="color: #38bdf8; font-size: 0.74rem; font-weight: 800;">1-B</span>
+                      신강약 판정 및 억부·조후 용신
+                    </strong>
+                    <span style="font-size: 0.72rem; color: #64748b;">삶의 균형과 핵심 무기</span>
+                  </div>
+
+                  <!-- 일간 및 신강약 배지 -->
+                  <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.8rem; background: rgba(0,0,0,0.35); border-radius: 8px; margin-bottom: 0.75rem;">
+                    <div>
+                      <span style="font-size: 0.72rem; color: var(--text-muted);">일간(나): </span>
+                      <strong style="color: var(--primary); font-size: 0.95rem;">${natal.dayMaster.stem}${natal.dayMaster.element}(${natal.dayMaster.hanja})</strong>
+                      <span style="font-size: 0.72rem; color: #94a3b8; margin-left: 0.25rem;">[${natal.dayMaster.nature}]</span>
+                    </div>
+                    <div>
+                      <span style="font-size: 0.75rem; font-weight: 800; background: ${natal.strength.classification.includes('강') ? 'rgba(242,202,80,0.2)' : 'rgba(96,165,250,0.2)'}; color: ${natal.strength.classification.includes('강') ? 'var(--primary)' : '#60a5fa'}; padding: 0.2rem 0.55rem; border-radius: 4px;">
+                        ${natal.strength.classification} (${natal.strength.score}점)
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- 용신 카드 -->
+                  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.45rem; text-align: center; margin-bottom: 0.85rem;">
+                    <div style="background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25); padding: 0.45rem 0.2rem; border-radius: 6px;">
+                      <div style="font-size: 0.65rem; color: #34d399; font-weight: 700;">용신(핵심)</div>
+                      <div style="font-size: 0.85rem; font-weight: 800; color: #fff; margin-top: 0.15rem;">${natal.yongshin.yongshin}</div>
+                    </div>
+                    <div style="background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.25); padding: 0.45rem 0.2rem; border-radius: 6px;">
+                      <div style="font-size: 0.65rem; color: #60a5fa; font-weight: 700;">희신(보조)</div>
+                      <div style="font-size: 0.85rem; font-weight: 800; color: #fff; margin-top: 0.15rem;">${natal.yongshin.heeshin}</div>
+                    </div>
+                    <div style="background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25); padding: 0.45rem 0.2rem; border-radius: 6px;">
+                      <div style="font-size: 0.65rem; color: #f87171; font-weight: 700;">기신(방해)</div>
+                      <div style="font-size: 0.85rem; font-weight: 800; color: #fff; margin-top: 0.15rem;">${natal.yongshin.gishin}</div>
+                    </div>
+                    <div style="background: rgba(251,146,60,0.1); border: 1px solid rgba(251,146,60,0.25); padding: 0.45rem 0.2rem; border-radius: 6px;">
+                      <div style="font-size: 0.65rem; color: #fb923c; font-weight: 700;">조후(온도)</div>
+                      <div style="font-size: 0.85rem; font-weight: 800; color: #fff; margin-top: 0.15rem;">${natal.yongshin.johuYongshin}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 오행 분포 바 -->
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.35rem;">
+                    <span>오행 정량 분포 (목·화·토·금·수)</span>
+                    <span>최다: <strong style="color: var(--primary);">${natal.fiveElements.dominant}</strong> / 결핍: <strong style="color: #f87171;">${natal.fiveElements.lacking.join(',') || '없음'}</strong></span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.35rem; text-align: center;">
+                    ${[
+                      { label: '목', val: natal.fiveElements.wood, color: '#94a3b8', bg: 'rgba(255,255,255,0.04)' },
+                      { label: '화', val: natal.fiveElements.fire, color: '#94a3b8', bg: 'rgba(255,255,255,0.04)' },
+                      { label: '토', val: natal.fiveElements.earth, color: '#94a3b8', bg: 'rgba(255,255,255,0.04)' },
+                      { label: '금', val: natal.fiveElements.metal, color: '#94a3b8', bg: 'rgba(255,255,255,0.04)' },
+                      { label: '수', val: natal.fiveElements.water, color: '#94a3b8', bg: 'rgba(255,255,255,0.04)' }
+                    ].map(elem => {
+                      const isDominant = natal.fiveElements.dominant === elem.label;
+                      const borderStyle = isDominant ? '1px solid #f8fafc' : '1px solid transparent';
+                      return `<div style="background: ${elem.bg}; border: ${borderStyle}; padding: 0.35rem; border-radius: 4px; font-size: 0.75rem; color: ${isDominant ? '#fff' : '#cbd5e1'}; font-weight: ${isDominant ? '800' : 'normal'};">
+                        ${elem.label}: ${elem.val}${isDominant ? ' (최다)' : ''}
+                      </div>`;
+                    }).join('')}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- [소분류 1-C] 생극제화 4대 유통 통로 & 4궁위 생애 환경 -->
+            <div style="background: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1.15rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+                <strong style="font-size: 0.88rem; color: #dfe2f1; display: flex; align-items: center; gap: 0.35rem;">
+                  <span style="color: #38bdf8; font-size: 0.74rem; font-weight: 800;">1-C</span>
+                  생극제화 4대 유통 통로 게이지 & 4궁위 생애 환경
+                </strong>
+                <span style="font-size: 0.72rem; color: #64748b;">에너지가 막힘없이 돈을 버는 길인가?</span>
+              </div>
+
+              <!-- 4대 유통 통로 게이지 -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+                <!-- 식상생재 -->
+                <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.65rem 0.85rem;">
+                  <div style="display: flex; justify-content: space-between; font-size: 0.74rem; margin-bottom: 0.3rem;">
+                    <span style="color: #34d399; font-weight: 700;">식상생재 (재물 창출력)</span>
+                    <span style="font-weight: 800; color: #fff;">${wh.deepStructure.flowChannels.shiksangSaengJae}점</span>
+                  </div>
+                  <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
+                    <div style="width: ${wh.deepStructure.flowChannels.shiksangSaengJae}%; height: 100%; background: #34d399;"></div>
+                  </div>
+                </div>
+                <!-- 재생관 -->
+                <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.65rem 0.85rem;">
+                  <div style="display: flex; justify-content: space-between; font-size: 0.74rem; margin-bottom: 0.3rem;">
+                    <span style="color: #60a5fa; font-weight: 700;">재생관 (사회적 성취)</span>
+                    <span style="font-weight: 800; color: #fff;">${wh.deepStructure.flowChannels.jaeSaengGwan}점</span>
+                  </div>
+                  <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
+                    <div style="width: ${wh.deepStructure.flowChannels.jaeSaengGwan}%; height: 100%; background: #60a5fa;"></div>
+                  </div>
+                </div>
+                <!-- 관인상생 -->
+                <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.65rem 0.85rem;">
+                  <div style="display: flex; justify-content: space-between; font-size: 0.74rem; margin-bottom: 0.3rem;">
+                    <span style="color: #f2ca50; font-weight: 700;">관인상생 (명예·조직 안정)</span>
+                    <span style="font-weight: 800; color: #fff;">${wh.deepStructure.flowChannels.gwanInSaeng}점</span>
+                  </div>
+                  <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
+                    <div style="width: ${wh.deepStructure.flowChannels.gwanInSaeng}%; height: 100%; background: #f2ca50;"></div>
+                  </div>
+                </div>
+                <!-- 비겁분산 -->
+                <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.65rem 0.85rem;">
+                  <div style="display: flex; justify-content: space-between; font-size: 0.74rem; margin-bottom: 0.3rem;">
+                    <span style="color: #f87171; font-weight: 700;">비겁분산 (재물 누수 위험)</span>
+                    <span style="font-weight: 800; color: #fff;">${wh.deepStructure.flowChannels.biGeopBunsan}점</span>
+                  </div>
+                  <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
+                    <div style="width: ${wh.deepStructure.flowChannels.biGeopBunsan}%; height: 100%; background: #f87171;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 공망 & 4궁위 생애 주기 -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.85rem;">
+                <div style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.85rem;">
+                  <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; margin-bottom: 0.3rem;">공망 판정</div>
+                  <div style="font-size: 0.8rem; color: #dfe2f1; line-height: 1.45;">
+                    - 일주 기준 공망: <strong style="color: var(--primary);">${wh.deepStructure.gongmang.dayBased.join('·')}</strong> / 년주 기준: <strong style="color: #94a3b8;">${wh.deepStructure.gongmang.yearBased.join('·')}</strong><br/>
+                    - 원국 작용: <span style="color: ${wh.deepStructure.gongmang.affectedPillars.length > 0 ? '#f87171' : '#34d399'}; font-weight: 700;">${wh.deepStructure.gongmang.affectedPillars.join(', ') || '없음(온전함)'}</span>
+                  </div>
+                </div>
+
+                <div style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.85rem;">
+                  <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; margin-bottom: 0.3rem;">4궁위 주기 (시기별 환경)</div>
+                  <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.4rem; font-size: 0.72rem;">
+                    <div style="background: rgba(255,255,255,0.04); padding: 0.3rem; border-radius: 4px;">
+                      <strong style="color: #94a3b8;">년주(0~19세)</strong>: ${wh.deepStructure.palaces.year.theme}
+                    </div>
+                    <div style="background: rgba(255,255,255,0.04); padding: 0.3rem; border-radius: 4px;">
+                      <strong style="color: #94a3b8;">월주(20~39세)</strong>: ${wh.deepStructure.palaces.month.theme}
+                    </div>
+                    <div style="background: rgba(255,255,255,0.04); padding: 0.3rem; border-radius: 4px;">
+                      <strong style="color: var(--primary);">일주(40~59세)</strong>: ${wh.deepStructure.palaces.day.theme}
+                    </div>
+                    <div style="background: rgba(255,255,255,0.04); padding: 0.3rem; border-radius: 4px;">
+                      <strong style="color: #94a3b8;">시주(60세~)</strong>: ${wh.deepStructure.palaces.hour.theme}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        ` : ''}
+
       </div>
+    ` : ''}
 
-      <!-- 공망 & 4궁위 생애 환경 그리드 -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.85rem;">
-        <!-- 공망 판정 배너 -->
-        <div style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.85rem;">
-          <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; margin-bottom: 0.3rem;">공망 판정</div>
-          <div style="font-size: 0.82rem; color: #dfe2f1; line-height: 1.45;">
-            - 일주 기준 공망: <strong style="color: var(--primary);">${wh.deepStructure.gongmang.dayBased.join('·')}</strong> / 년주 기준: <strong style="color: #94a3b8;">${wh.deepStructure.gongmang.yearBased.join('·')}</strong><br/>
-            - 원국 작용: <span style="color: ${wh.deepStructure.gongmang.affectedPillars.length > 0 ? '#f87171' : '#34d399'}; font-weight: 700;">${wh.deepStructure.gongmang.affectedPillars.join(', ') || '없음(온전함)'}</span>
-          </div>
-          <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 0.35rem;">
-            ${wh.deepStructure.gongmang.description}
-          </div>
-        </div>
 
-        <!-- 4궁위 생애 주기 -->
-        <div style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.85rem;">
-          <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; margin-bottom: 0.3rem;">4궁위 주기</div>
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.4rem; font-size: 0.72rem;">
-            <div style="background: rgba(255,255,255,0.04); padding: 0.35rem; border-radius: 4px;">
-              <strong style="color: #94a3b8;">년주(0~19세)</strong>: ${wh.deepStructure.palaces.year.theme}
-            </div>
-            <div style="background: rgba(255,255,255,0.04); padding: 0.35rem; border-radius: 4px;">
-              <strong style="color: #94a3b8;">월주(20~39세)</strong>: ${wh.deepStructure.palaces.month.theme}
-            </div>
-            <div style="background: rgba(255,255,255,0.04); padding: 0.35rem; border-radius: 4px;">
-              <strong style="color: var(--primary);">일주(40~59세)</strong>: ${wh.deepStructure.palaces.day.theme}
-            </div>
-            <div style="background: rgba(255,255,255,0.04); padding: 0.35rem; border-radius: 4px;">
-              <strong style="color: #94a3b8;">시주(60세~)</strong>: ${wh.deepStructure.palaces.hour.theme}
-            </div>
+    <!-- ======================================================== -->
+    <!-- [대분류 2]: STEP 02. 100년 라이프사이클 궤적 & 9대 영역 관제실 (The Life Arc) -->
+    <!-- ======================================================== -->
+    ${(activeStage === 'all' || activeStage === 'stage-2') ? `
+      <div id="section-stage-2" style="background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 14px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        
+        <!-- 대분류 2 헤더 (클릭 시 토글) -->
+        <div class="btn-toggle-life-stage-header" data-stage="stage-2"
+          style="padding: 1rem 1.25rem; background: rgba(255,255,255,0.02); border-bottom: ${isStage2Open ? '1px solid rgba(255,255,255,0.08)' : 'none'}; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+          <div style="display: flex; align-items: center; gap: 0.65rem;">
+            <span style="background: #0284c7; color: #fff; font-size: 0.7rem; font-weight: 800; padding: 0.2rem 0.55rem; border-radius: 4px;">STEP 02</span>
+            <span class="material-symbols-outlined" style="font-size: 20px; color: #38bdf8;">ssid_chart</span>
+            <h3 style="font-size: 1.02rem; font-weight: 800; color: #f8fafc; margin: 0;">100년 라이프사이클 & 9대 영역 관제실</h3>
+            <span style="font-size: 0.76rem; color: #94a3b8; display: inline-block; margin-left: 0.4rem;">
+              — 0~100세 인생 굴곡(황금기 vs 고비)과 9대 생활 영역(재물·직업·건강 등) 신호등 조망
+            </span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 0.72rem; color: #64748b; background: rgba(255,255,255,0.05); padding: 0.15rem 0.5rem; border-radius: 4px;">소분류 3개</span>
+            <span class="material-symbols-outlined" style="font-size: 20px; color: #94a3b8; transition: transform 0.2s ease; transform: ${isStage2Open ? 'rotate(180deg)' : 'rotate(0deg)'};">expand_more</span>
           </div>
         </div>
+
+        <!-- 대분류 2 본문 (펼침 상태일 때만 노출) -->
+        ${isStage2Open ? `
+          <div style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem;">
+            
+            <!-- 인지 가이드 배너 -->
+            <div style="background: rgba(56, 189, 248, 0.06); border-left: 3px solid #38bdf8; border-radius: 0 8px 8px 0; padding: 0.65rem 0.95rem; font-size: 0.78rem; color: #cbd5e1; line-height: 1.5;">
+              <strong style="color: #38bdf8;">💡 [2단계에서 무엇을 보고 알 수 있나?]</strong><br/>
+              0세부터 100세까지 내 인생의 전성기(Peak)와 침체기(Trough)가 언제 찾아오는지 그래프로 한눈에 보고, 재물운·직업운·건강운 등 9대 영역별 신호등 상태와 명리 요인(상충마살, 귀인 등)의 지식 해설을 파악합니다.
+            </div>
+
+            <!-- [소분류 2-A, 2-B, 2-C 통합 히어로 카드 렌더링] -->
+            ${regularHeroCardHtml}
+
+          </div>
+        ` : ''}
+
       </div>
-    </div>
+    ` : ''}
 
-    <!-- 4. 대운별 구체적 현황 보드 (전체 10개 대운 한눈에 파악) -->
-    <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.25rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-        <div>
-          <h3 style="font-size: 0.95rem; font-weight: 700; color: #f8fafc; margin: 0; display: flex; align-items: center; gap: 0.4rem;">
-            <span class="material-symbols-outlined" style="font-size: 18px; color: #94a3b8;">view_carousel</span>
-            대운별 구체적 현황 (10개 대운 연속 전개)
-          </h3>
+
+    <!-- ======================================================== -->
+    <!-- [대분류 3]: STEP 03. 시간축 심층 인과 드릴다운실 (The Deep Dive) -->
+    <!-- ======================================================== -->
+    ${(activeStage === 'all' || activeStage === 'stage-3') ? `
+      <div id="section-stage-3" style="background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 14px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        
+        <!-- 대분류 3 헤더 (클릭 시 토글) -->
+        <div class="btn-toggle-life-stage-header" data-stage="stage-3"
+          style="padding: 1rem 1.25rem; background: rgba(255,255,255,0.02); border-bottom: ${isStage3Open ? '1px solid rgba(255,255,255,0.08)' : 'none'}; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+          <div style="display: flex; align-items: center; gap: 0.65rem;">
+            <span style="background: #0284c7; color: #fff; font-size: 0.7rem; font-weight: 800; padding: 0.2rem 0.55rem; border-radius: 4px;">STEP 03</span>
+            <span class="material-symbols-outlined" style="font-size: 20px; color: #38bdf8;">alt_route</span>
+            <h3 style="font-size: 1.02rem; font-weight: 800; color: #f8fafc; margin: 0;">시간축 심층 인과 드릴다운실 (대운 ➔ 세운 ➔ 월운)</h3>
+            <span style="font-size: 0.76rem; color: #94a3b8; display: inline-block; margin-left: 0.4rem;">
+              — 클릭하여 10년 대운 ➔ 1년 세운 ➔ 12개월 월운으로 사건 기전 추적
+            </span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 0.72rem; color: #64748b; background: rgba(255,255,255,0.05); padding: 0.15rem 0.5rem; border-radius: 4px;">소분류 3개</span>
+            <span class="material-symbols-outlined" style="font-size: 20px; color: #94a3b8; transition: transform 0.2s ease; transform: ${isStage3Open ? 'rotate(180deg)' : 'rotate(0deg)'};">expand_more</span>
+          </div>
         </div>
-        <span style="font-size: 0.74rem; color: #94a3b8;">
-          선택: <strong style="color: #f8fafc;">제${selectedDw.order}대운(${selectedDw.ganji}) (${selectedDw.startYear}~${selectedDw.endYear})</strong>
-        </span>
+
+        <!-- 대분류 3 본문 (펼침 상태일 때만 노출) -->
+        ${isStage3Open ? `
+          <div style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem;">
+            
+            <!-- 조작 프로세스 가이드 배너 -->
+            <div style="background: rgba(2, 132, 199, 0.08); border: 1.5px solid rgba(56, 189, 248, 0.3); border-radius: 10px; padding: 0.85rem 1.15rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.65rem;">
+              <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <span class="material-symbols-outlined" style="font-size: 22px; color: #38bdf8;">ads_click</span>
+                <div style="font-size: 0.82rem; color: #e2e8f0; line-height: 1.45;">
+                  <strong style="color: #38bdf8;">👉 [클릭 드릴다운 추천 순서]:</strong><br/>
+                  <span style="color: #fff; font-weight: 700;">① 10개 대운 카드 중 하나 클릭</span> ➔ 
+                  <span style="color: #fff; font-weight: 700;">② 아래 10년 세운표에서 특정 연도 행 클릭</span> ➔ 
+                  <span style="color: #38bdf8; font-weight: 800;">③ 하단 12개월 월운 주기표와 지장간 인과 자동 전개!</span>
+                </div>
+              </div>
+              <div style="font-size: 0.75rem; color: #94a3b8; background: rgba(0,0,0,0.3); padding: 0.3rem 0.65rem; border-radius: 6px;">
+                현재 선택: <strong style="color: #f8fafc;">제${selectedDw.order}대운(${selectedDw.ganji})</strong> · <strong style="color: #38bdf8;">${curSewoon.year}년(${curSewoon.ganji}년)</strong>
+              </div>
+            </div>
+
+            <!-- [소분류 3-A]: 10개 대운 파노라마 (10년 주기 조망) -->
+            <div style="background: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1.15rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+                <strong style="font-size: 0.88rem; color: #dfe2f1; display: flex; align-items: center; gap: 0.35rem;">
+                  <span style="color: #38bdf8; font-size: 0.74rem; font-weight: 800;">3-A</span>
+                  대운별 구체적 현황 (10개 대운 파노라마 — 카드 클릭 시 하위 세운 변경)
+                </strong>
+                <span style="font-size: 0.72rem; color: #64748b;">원하는 대운 카드를 클릭하세요</span>
+              </div>
+
+              <!-- 10개 대운 카드 그리드 -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.65rem;">
+                ${renderDaewoonPanoramaCards(daewoon, currentOrder)}
+              </div>
+            </div>
+
+            <!-- [소분류 3-B]: 선택 대운의 10년 세운 매트릭스 (1년 주기 조망) -->
+            <div style="background: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1.15rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+                <strong style="font-size: 0.88rem; color: #dfe2f1; display: flex; align-items: center; gap: 0.35rem;">
+                  <span style="color: #38bdf8; font-size: 0.74rem; font-weight: 800;">3-B</span>
+                  제${selectedDw.order}대운(${selectedDw.ganji}) (${selectedDw.startYear}~${selectedDw.endYear}) 10년 세운 상세 매트릭스
+                </strong>
+                <span style="font-size: 0.72rem; color: #38bdf8; font-weight: 700;">★ 연도 행을 클릭하면 하단 12개월 월운이 즉시 연동됩니다</span>
+              </div>
+
+              <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.8rem; color: #e2e8f0;">
+                  <thead>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-size: 0.73rem;">
+                      <th style="padding: 0.5rem;">연도</th>
+                      <th style="padding: 0.5rem;">간지</th>
+                      <th style="padding: 0.5rem;">십신</th>
+                      <th style="padding: 0.5rem;">12운성</th>
+                      <th style="padding: 0.5rem;">계단</th>
+                      <th style="padding: 0.5rem;">판정</th>
+                      <th style="padding: 0.5rem;">하강 요인</th>
+                      <th style="padding: 0.5rem;">상승 요인</th>
+                      <th style="padding: 0.5rem; text-align: center;">선택</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${renderSewoonMatrixTable(dwSewoon, selectedYear)}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- [소분류 3-C]: 선택 연도의 12개월(월운) 정밀 주기표 및 지장간 충돌 기전 (1개월 주기 조망) -->
+            <div style="background: #0b0f19; border: 1.5px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 1.15rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                  <strong style="font-size: 0.88rem; color: #dfe2f1; display: flex; align-items: center; gap: 0.35rem;">
+                    <span style="color: #38bdf8; font-size: 0.74rem; font-weight: 800;">3-C</span>
+                    ${curSewoon.year}년 (${curSewoon.ganji}년) 12개월(월운) 정밀 주기표 & 지장간 인과 산식
+                  </strong>
+                  <div style="font-size: 0.74rem; color: #94a3b8; margin-top: 0.2rem;">
+                    1월부터 12월까지의 월별 길흉 궤적과 "몇 월에 계약하고, 몇 월에 조심해야 하는가?"의 타이밍을 확인합니다.
+                  </div>
+                </div>
+
+                <span style="font-size: 0.75rem; color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 0.25rem 0.6rem; border-radius: 6px;">
+                  기준: ${curSewoon.year}년
+                </span>
+              </div>
+
+              <!-- 12개월 주기표 렌더링 -->
+              <div style="margin-top: 0.5rem;">
+                ${render12MonthsCycleView(wh, curSewoon.year, false)}
+              </div>
+
+              <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem;">
+                ${render12MonthsExplanationArea(wh, curSewoon.year)}
+              </div>
+            </div>
+
+          </div>
+        ` : ''}
+
       </div>
+    ` : ''}
 
-      <!-- 10개 대운 파노라마 카드 그리드 (대운별 전체 흐름과 구체적 현황 한눈 조망) -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.65rem; margin-bottom: 1.25rem;">
-        ${renderDaewoonPanoramaCards(daewoon, currentOrder)}
+
+    <!-- ======================================================== -->
+    <!-- [대분류 4]: STEP 04. B2B 패킷 & 결과지 품질 대조실 (Verification & Export) -->
+    <!-- ======================================================== -->
+    ${(activeStage === 'all' || activeStage === 'stage-4') ? `
+      <div id="section-stage-4" style="background: #0f172a; border: 1.5px solid rgba(242, 202, 80, 0.35); border-radius: 14px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        
+        <!-- 대분류 4 헤더 (클릭 시 토글) -->
+        <div class="btn-toggle-life-stage-header" data-stage="stage-4"
+          style="padding: 1rem 1.25rem; background: rgba(255,255,255,0.02); border-bottom: ${isStage4Open ? '1px solid rgba(255,255,255,0.08)' : 'none'}; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+          <div style="display: flex; align-items: center; gap: 0.65rem;">
+            <span style="background: var(--primary); color: #1c1500; font-size: 0.7rem; font-weight: 800; padding: 0.2rem 0.55rem; border-radius: 4px;">STEP 04</span>
+            <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">compare_arrows</span>
+            <h3 style="font-size: 1.02rem; font-weight: 800; color: #f8fafc; margin: 0;">B2B 근거 패킷 & 결과지 품질 대조실</h3>
+            <span style="font-size: 0.76rem; color: #94a3b8; display: inline-block; margin-left: 0.4rem;">
+              — AI 표준 JSON 패킷 덤프 & [기존 vs V2 백세인생 팩트 연동] Side-by-Side 비교
+            </span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 0.72rem; color: #64748b; background: rgba(255,255,255,0.05); padding: 0.15rem 0.5rem; border-radius: 4px;">소분류 2개</span>
+            <span class="material-symbols-outlined" style="font-size: 20px; color: #94a3b8; transition: transform 0.2s ease; transform: ${isStage4Open ? 'rotate(180deg)' : 'rotate(0deg)'};">expand_more</span>
+          </div>
+        </div>
+
+        <!-- 대분류 4 본문 (펼침 상태일 때만 노출) -->
+        ${isStage4Open ? `
+          <div style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem;">
+            
+            <!-- 인지 가이드 배너 -->
+            <div style="background: rgba(242, 202, 80, 0.08); border-left: 3px solid var(--primary); border-radius: 0 8px 8px 0; padding: 0.65rem 0.95rem; font-size: 0.78rem; color: #cbd5e1; line-height: 1.5;">
+              <strong style="color: var(--primary);">💡 [4단계에서 무엇을 보고 알 수 있나?]</strong><br/>
+              외부 AI 및 파트너사에 전달되는 문장 없는 순수 팩트 패킷(<strong style="color: #fff;">Saju Evidence Packet v1</strong>)의 정합성을 검증하고, 실제 고객에게 서비스되는 결과지가 백세인생 팩트와 결합되었을 때 문맥과 디테일이 어떻게 극대화되는지 나란히 대조합니다.
+            </div>
+
+            <!-- [소분류 4-A]: [B2B / AI 표준] Saju Evidence Packet v1 (JSON 아코디언) -->
+            <div style="background: #0b0f19; border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 10px; padding: 1.15rem;">
+              <details>
+                <summary style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between;">
+                  <div style="display: flex; align-items: center; gap: 0.4rem;">
+                    <span style="font-size: 0.74rem; font-weight: 800; color: #38bdf8;">4-A</span>
+                    <span class="material-symbols-outlined" style="font-size: 18px;">dataset</span>
+                    [B2B / AI 표준] Saju Evidence Packet v1 (문장 없는 순수 팩트 데이터 JSON 프리뷰)
+                  </div>
+                  <span style="font-size: 0.72rem; color: #64748b;">클릭하여 JSON 펼치기</span>
+                </summary>
+                <div style="margin-top: 0.85rem; padding: 1rem; background: #070a13; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; max-height: 320px; overflow-y: auto;">
+                  <pre style="margin: 0; font-family: monospace; font-size: 0.73rem; color: #7dd3fc; white-space: pre-wrap;">${JSON.stringify(buildEvidencePacket(wh, { wolwoonYears: [curSewoon.year] }), null, 2)}</pre>
+                </div>
+              </details>
+            </div>
+
+            <!-- [소분류 4-B]: 기존 결과지 vs V2 백세인생 연동 결과지 Side-by-Side 대조 -->
+            <div id="section-report-comparison" style="background: #0b0f19; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                  <strong style="font-size: 0.95rem; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 0.4rem;">
+                    <span style="color: var(--primary); font-size: 0.76rem; font-weight: 800;">4-B</span>
+                    [품질 검증 안전망] 기존 결과지 vs V2 백세인생 팩트 연동 결과지 나란히 대조
+                  </strong>
+                  <p style="font-size: 0.78rem; color: #94a3b8; margin: 0.25rem 0 0; line-height: 1.45;">
+                    기존 서술 문체의 유려함은 100% 보존하면서, 뜬구름 잡는 일반론 자리에 백세인생의 100년 대운과 2026년 축오해(지장간 정계충), 12개월 최고/최저 시기가 어떻게 구체적으로 주입되었는지 양쪽을 직접 대조할 수 있습니다.
+                  </p>
+                </div>
+                <span style="font-size: 0.74rem; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 0.2rem 0.55rem; border-radius: 4px;">
+                  대표님 승인 전까지 실제 배포 없음 (Zero-Risk)
+                </span>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                <!-- 좌측: 기존 원본 결과지 -->
+                <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1.15rem; max-height: 520px; overflow-y: auto;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.45rem;">
+                    <strong style="font-size: 0.85rem; color: #94a3b8;">[A. 기존 원본 무료 결과지]</strong>
+                    <span style="font-size: 0.7rem; color: #64748b;">일반 템플릿 서술</span>
+                  </div>
+                  <div style="font-size: 0.8rem; line-height: 1.7; color: #cbd5e1;">
+                    ${renderNarrativeReport(getFreeReportMarkdown(extractReportContext(appState.getState())))}
+                  </div>
+                </div>
+
+                <!-- 우측: V2 백세인생 팩트 주입 결과지 -->
+                <div style="background: rgba(56, 189, 248, 0.04); border: 1.5px solid rgba(56, 189, 248, 0.4); border-radius: 8px; padding: 1.15rem; max-height: 520px; overflow-y: auto;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(56, 189, 248, 0.3); padding-bottom: 0.45rem;">
+                    <strong style="font-size: 0.85rem; color: #38bdf8;">[B. V2 백세인생 정밀 팩트 연동 결과지]</strong>
+                    <span style="font-size: 0.7rem; color: #38bdf8; font-weight: 700;">대운수·축오해·월별 타이밍 보강</span>
+                  </div>
+                  <div style="font-size: 0.8rem; line-height: 1.7; color: #e2e8f0;">
+                    ${renderNarrativeReport(getEnrichedFreeReportMarkdown(appState.getState(), wh))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        ` : ''}
+
       </div>
-
-      <!-- 선택 대운의 10년 세운 상세 매트릭스 (인라인 연동) -->
-      <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
-        <div style="font-size: 0.85rem; font-weight: 700; color: #f8fafc; margin-bottom: 0.65rem;">
-          제${selectedDw.order}대운(${selectedDw.ganji}) (${selectedDw.startYear}~${selectedDw.endYear}) 10년 세운 상세
-        </div>
-
-        <div style="overflow-x: auto;">
-          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.8rem; color: #e2e8f0;">
-            <thead>
-              <tr style="border-bottom: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-size: 0.73rem;">
-                <th style="padding: 0.5rem;">연도</th>
-                <th style="padding: 0.5rem;">간지</th>
-                <th style="padding: 0.5rem;">십신</th>
-                <th style="padding: 0.5rem;">12운성</th>
-                <th style="padding: 0.5rem;">계단</th>
-                <th style="padding: 0.5rem;">판정</th>
-                <th style="padding: 0.5rem;">하강 요인</th>
-                <th style="padding: 0.5rem;">상승 요인</th>
-                <th style="padding: 0.5rem; text-align: center;">선택</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${renderSewoonMatrixTable(dwSewoon, selectedYear)}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- 7. 원천 데이터 덤프 프리뷰 아코디언 (AI 연동용) -->
-    <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.15rem;">
-      <details>
-        <summary style="font-size: 0.85rem; font-weight: 700; color: #cbd5e1; cursor: pointer; user-select: none;">
-          ▶ AI 모델(안프로) 전달용 정규 마크다운 프롬프트 미리보기 (클릭하여 펼치기)
-        </summary>
-        <div style="margin-top: 0.85rem; padding: 1rem; background: #0b0f19; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; max-height: 280px; overflow-y: auto;">
-          <pre style="margin: 0; font-family: monospace; font-size: 0.75rem; color: #94a3b8; white-space: pre-wrap;">${LifeAnalysisWarehouseBuilder.exportToMarkdownPrompt(wh)}</pre>
-        </div>
-      </details>
-    </div>
+    ` : ''}
 
   </div>
   `;

@@ -19,6 +19,7 @@ import { SajuCoreEngine } from '../saju-core/saju-core-engine.js';
 import { SajuDynamicAnalyzer, DynamicSajuAnalysis } from '../production/saju-dynamic-analyzer.js';
 import { TenGodsEngine } from '../saju-core/ten-gods.js';
 import { normalizeBirthTime } from '../../frontend/modules/saju-profile/profile-core.js';
+import { standardizeBirthDate } from '../phase17_25/lunar-calendar.js';
 import { SIX_CLASHES } from '../relationship/branch-clash.js';
 import { SIX_DESTRUCTIONS, SIX_HARMS } from '../relationship/branch-harm-destruction.js';
 
@@ -254,6 +255,34 @@ export function calculateGongmang(stem: string, branch: string): [string, string
   return map[diff] || ['?', '?'];
 }
 
+/**
+ * 지지 신살 발동 판정 (역마·도화·화개: 일지/년지 기준, 천을귀인: 일간 기준)
+ * - 창고(LifeAnalysisWarehouseBuilder)와 근거 패킷(Evidence Packet)이 동일 규칙을 공유하기 위한 공용 함수
+ */
+export function detectBranchSinsals(b: string, dayStem: string, dayBranch: string, yearBranch: string): string[] {
+  const sins: string[] = [];
+
+  const yeokmaMap: Record<string, string> = { '인': '신', '오': '신', '술': '신', '사': '해', '유': '해', '축': '해', '신': '인', '자': '인', '진': '인', '해': '사', '묘': '사', '미': '사' };
+  if (yeokmaMap[dayBranch] === b || yeokmaMap[yearBranch] === b) sins.push('역마살(驛馬)');
+
+  const dohwaMap: Record<string, string> = { '인': '묘', '오': '묘', '술': '묘', '사': '오', '유': '오', '축': '오', '신': '유', '자': '유', '진': '유', '해': '자', '묘': '자', '미': '자' };
+  if (dohwaMap[dayBranch] === b || dohwaMap[yearBranch] === b) sins.push('도화살(桃花)');
+
+  const hwagaeMap: Record<string, string> = { '인': '술', '오': '술', '술': '술', '사': '축', '유': '축', '축': '축', '신': '진', '자': '진', '진': '진', '해': '미', '묘': '미', '미': '미' };
+  if (hwagaeMap[dayBranch] === b || hwagaeMap[yearBranch] === b) sins.push('화개살(華蓋)');
+
+  const guiinMap: Record<string, string[]> = {
+    '갑': ['축', '미'], '무': ['축', '미'], '경': ['축', '미'],
+    '을': ['자', '신'], '기': ['자', '신'],
+    '병': ['해', '유'], '정': ['해', '유'],
+    '임': ['사', '묘'], '계': ['사', '묘'],
+    '신': ['오', '인']
+  };
+  if (guiinMap[dayStem]?.includes(b)) sins.push('천을귀인(天乙貴人)');
+
+  return sins;
+}
+
 export class LifeAnalysisWarehouseBuilder {
   private calendarEngine = new CalendarEngine();
   private pillarEngine = new PillarEngine();
@@ -272,9 +301,9 @@ export class LifeAnalysisWarehouseBuilder {
     birthMinute?: number | null;
     gender: 'male' | 'female';
     calendarType?: 'solar' | 'lunar';
+    isLeapMonth?: boolean;
   }): CanonicalLifeDataWarehouse {
     const pad = (n: number) => String(n).padStart(2, '0');
-    const birthDateStr = `${params.birthYear}-${pad(params.birthMonth)}-${pad(params.birthDay)}`;
 
     // 1. [공인 시간 정규화 모듈 normalizeBirthTime 적용]
     // 4자리 숫자('0920' -> '09:20'), 숫자 1~2자리('9' -> '09:00') 등 완벽 정규화
@@ -285,9 +314,26 @@ export class LifeAnalysisWarehouseBuilder {
       normalizedTime = normalizeBirthTime(`${pad(params.birthHour)}:${pad(params.birthMinute ?? 0)}`);
     }
 
-    // 2. 공인 역법 및 기둥 엔진 실행
+    // 2. [공인 역법 표준화 레이어 Phase 18 standardizeBirthDate 직결]
+    // 음력(lunar)/윤달 여부를 판별하여 KASI 천문 양력 일자로 정확히 표준화 (SSOT 준수)
+    const calType = params.calendarType || 'solar';
+    const standardDate = standardizeBirthDate({
+      calendar_type: calType,
+      is_leap_month: params.isLeapMonth || false,
+      birth_year: params.birthYear,
+      birth_month: params.birthMonth,
+      birth_day: params.birthDay,
+      birth_time: normalizedTime,
+      is_time_unknown: normalizedTime === null,
+      gender: params.gender,
+      birth_city: '서울',
+    });
+
+    const effectiveSolarDateStr = standardDate.solar_date_string;
+
+    // 3. 공인 역법 및 기둥 엔진 실행 (표준화된 양력 일자 투입)
     const cal = this.calendarEngine.execute({
-      birth_date: birthDateStr,
+      birth_date: effectiveSolarDateStr,
       birth_time: normalizedTime,
       region: '서울',
     });
@@ -406,12 +452,12 @@ export class LifeAnalysisWarehouseBuilder {
     const geokgukInfo = dynamicAnalysis.geokguk;
     const yongshinInfo = dynamicAnalysis.yongshin;
 
-    // 8. 10대운(100년) 계산 (공인 DaewoonEngine)
+    // 8. 10대운(100년) 계산 (공인 DaewoonEngine: 표준화된 양력 절기 일수 기준)
     const currentYear = new Date().getFullYear();
     const dwResult: DaewoonResult = daewoonEngine.calculateDaewoon({
-      birthYear: params.birthYear,
-      birthMonth: params.birthMonth,
-      birthDay: params.birthDay,
+      birthYear: standardDate.solar_year,
+      birthMonth: standardDate.solar_month,
+      birthDay: standardDate.solar_day,
       birthHour: normalizedTime ? parseInt(normalizedTime.split(':')[0], 10) : 12,
       birthMinute: normalizedTime ? parseInt(normalizedTime.split(':')[1], 10) : 0,
       gender: params.gender,
@@ -474,9 +520,9 @@ export class LifeAnalysisWarehouseBuilder {
       };
     });
 
-    // 9. 100년 세운 매트릭스 계산 (0세부터 100세까지)
+    // 9. 100년 세운 매트릭스 계산 (0세부터 100세까지: 표준화된 출생 연도 기준)
     const sewoonRecords: SewoonWarehouseRecord[] = [];
-    const birthYr = params.birthYear;
+    const birthYr = standardDate.solar_year;
 
     for (let age = 0; age <= 100; age++) {
       const yr = birthYr + age;
@@ -758,7 +804,7 @@ export class LifeAnalysisWarehouseBuilder {
         engineVersion: '2026.1-MabosalTruthEngine (Unified)',
         ruleSet: 'KASI_ASTRONOMICAL_STANDARD',
         input: {
-          birthDate: birthDateStr,
+          birthDate: params.calendarType === 'lunar' ? `${params.birthYear}-${pad(params.birthMonth)}-${pad(params.birthDay)} (양력 ${effectiveSolarDateStr})` : effectiveSolarDateStr,
           birthTime: normalizedTime,
           gender: params.gender,
           calendarType: params.calendarType || 'solar',
@@ -844,32 +890,9 @@ export class LifeAnalysisWarehouseBuilder {
     return list;
   }
 
-  // 지지 신살 발동 식별 (천을귀인, 역마, 도화, 화개)
+  // 지지 신살 발동 식별 (천을귀인, 역마, 도화, 화개) - 공용 함수 detectBranchSinsals 위임
   private findDaeunSinsals(b: string, fourPillars: FourPillars): string[] {
-    const sins: string[] = [];
-    const dayB = fourPillars.day.branch;
-    const yearB = fourPillars.year.branch;
-
-    const yeokmaMap: Record<string, string> = { '인': '신', '오': '신', '술': '신', '사': '해', '유': '해', '축': '해', '신': '인', '자': '인', '진': '인', '해': '사', '묘': '사', '미': '사' };
-    if (yeokmaMap[dayB] === b || yeokmaMap[yearB] === b) sins.push('역마살(驛馬)');
-
-    const dohwaMap: Record<string, string> = { '인': '묘', '오': '묘', '술': '묘', '사': '오', '유': '오', '축': '오', '신': '유', '자': '유', '진': '유', '해': '자', '묘': '자', '미': '자' };
-    if (dohwaMap[dayB] === b || dohwaMap[yearB] === b) sins.push('도화살(桃花)');
-
-    const hwagaeMap: Record<string, string> = { '인': '술', '오': '술', '술': '술', '사': '축', '유': '축', '축': '축', '신': '진', '자': '진', '진': '진', '해': '미', '묘': '미', '미': '미' };
-    if (hwagaeMap[dayB] === b || hwagaeMap[yearB] === b) sins.push('화개살(華蓋)');
-
-    const dayS = fourPillars.day.stem;
-    const guiinMap: Record<string, string[]> = {
-      '갑': ['축', '미'], '무': ['축', '미'], '경': ['축', '미'],
-      '을': ['자', '신'], '기': ['자', '신'],
-      '병': ['해', '유'], '정': ['해', '유'],
-      '임': ['사', '묘'], '계': ['사', '묘'],
-      '신': ['오', '인']
-    };
-    if (guiinMap[dayS]?.includes(b)) sins.push('천을귀인(天乙貴人)');
-
-    return sins;
+    return detectBranchSinsals(b, fourPillars.day.stem, fourPillars.day.branch, fourPillars.year.branch);
   }
 
   // 연도별 60갑자 계산기

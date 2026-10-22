@@ -91,10 +91,14 @@ import {
   setLifeChartFullscreen,
   getLifeChartFullscreen,
   toggleSajuInputExpanded,
+  setActiveLifeStage,
+  toggleLifeStage,
+  setAllLifeStagesExpanded,
   renderAdminLifeAnalysisPanel,
 } from './views/AdminLifeAnalysisPanel.js';
 import { findSajuFactorWiki } from './data/saju-factor-wiki.js';
 import { LifeAnalysisWarehouseBuilder } from '../modules/life-analysis/life-analysis-warehouse.js';
+import { buildEvidencePacket } from '../modules/life-analysis/evidence/evidence-packet-builder.js';
 import { normalizeBirthTime } from './modules/saju-profile/profile-core.js';
 import {
   renderCommerceStoreView,
@@ -2362,13 +2366,34 @@ ${content}
     const sajuToggleBtn = target.closest('.btn-toggle-saju-input');
     if (sajuToggleBtn) {
       toggleSajuInputExpanded();
-      setAdminActiveTab('tab-life-analysis');
-      const lifeContainer = document.getElementById('tab-life-analysis');
-      if (lifeContainer) {
-        lifeContainer.innerHTML = renderAdminLifeAnalysisPanel();
-      } else {
-        this.render(appState.getState());
-      }
+      refreshLifeAnalysisView();
+      return;
+    }
+
+    // 4-5. 백세인생 단계별 4대 관제 대분류 탭 선택 (ALL / STEP 01 / STEP 02 / STEP 03 / STEP 04)
+    const stageSelectBtn = target.closest('.btn-select-life-stage') as HTMLElement | null;
+    if (stageSelectBtn && stageSelectBtn.dataset.stage) {
+      const stage = stageSelectBtn.dataset.stage as any;
+      setActiveLifeStage(stage);
+      refreshLifeAnalysisView();
+      return;
+    }
+
+    // 4-6. 백세인생 각 대분류 카드 헤더 클릭 시 개별 접기/펼치기 토글
+    const stageToggleHdr = target.closest('.btn-toggle-life-stage-header') as HTMLElement | null;
+    if (stageToggleHdr && stageToggleHdr.dataset.stage) {
+      const stage = stageToggleHdr.dataset.stage;
+      toggleLifeStage(stage);
+      refreshLifeAnalysisView();
+      return;
+    }
+
+    // 4-7. 백세인생 4대 관제 전체 펼치기 / 전체 접기 토글
+    const toggleAllStagesBtn = target.closest('.btn-toggle-all-life-stages') as HTMLElement | null;
+    if (toggleAllStagesBtn) {
+      const action = toggleAllStagesBtn.dataset.action;
+      setAllLifeStagesExpanded(action === 'expand');
+      refreshLifeAnalysisView();
       return;
     }
 
@@ -2379,6 +2404,20 @@ ${content}
       const promptText = LifeAnalysisWarehouseBuilder.exportToMarkdownPrompt(wh);
       navigator.clipboard.writeText(promptText).then(() => {
         alert('🤖 [AI(안프로) 전달용 정량 프롬프트]가 클립보드에 복사되었습니다!\n\nAI와의 대화창에 바로 붙여넣으면, AI와 대표님이 0~100세 원천 데이터를 단 1의 오차도 없이 동일하게 공유하며 사주를 풀이할 수 있습니다.');
+      }).catch(err => {
+        console.error('클립보드 복사 실패:', err);
+      });
+      return;
+    }
+
+    // 5-2. [신규] B2B / AI 표준 사주 근거 패킷(JSON) 복사
+    const copyEvidenceBtn = target.closest('#btn-copy-evidence-packet');
+    if (copyEvidenceBtn) {
+      const wh = getActiveWarehouse();
+      const packet = buildEvidencePacket(wh);
+      const jsonText = JSON.stringify(packet, null, 2);
+      navigator.clipboard.writeText(jsonText).then(() => {
+        alert('📦 [B2B / AI 표준] Saju Evidence Packet v1 (JSON)이 클립보드에 복사되었습니다!\n\n문장 없는 순수 명리 인과 코드, 100년 대운·세운·월운 요인, 참여자(기둥·궁위), 가중치가 표준 규격으로 패키징되어 외부 AI 및 협력업체 서비스에 즉시 연동 가능합니다.');
       }).catch(err => {
         console.error('클립보드 복사 실패:', err);
       });
