@@ -20,6 +20,7 @@ import { renderAdminStorePanel, getAllStoreOrders } from '../extensions/commerce
 import { renderAdminInquiriesPanel, expandSpecificInquiry } from './AdminInquiriesPanel.js';
 import { renderAdminReviewsPanel } from './AdminReviewsPanel.js';
 import { renderAdminLifeAnalysisPanel } from './AdminLifeAnalysisPanel.js';
+import { renderAdminSeoWikiHubPanel } from './AdminSeoWikiHubPanel.js';
 
 
 let activeEditingStudyArticleId: string | null = null;
@@ -130,6 +131,10 @@ export function renderAdminDashboardView(): string {
             { id: 'tab-study-categories', label: '카테고리 관리' },
           ]
         },
+        {
+          id: 'tab-seo-wiki-hub',
+          label: 'SEO 키워드 웹서비스',
+        }
       ]
     },
     {
@@ -169,7 +174,7 @@ export function renderAdminDashboardView(): string {
   );
   if (!activeGroup) {
     if (['tab-store', 'tab-store-register', 'tab-store-orders', 'tab-orders', 'tab-vouchers'].includes(currentTab)) activeGroup = adminGroups[1];
-    else if (['tab-study-articles', 'tab-study-write', 'tab-study-categories', 'tab-study'].includes(currentTab)) activeGroup = adminGroups[2];
+    else if (['tab-study-articles', 'tab-study-write', 'tab-study-categories', 'tab-study', 'tab-seo-wiki-hub'].includes(currentTab)) activeGroup = adminGroups[2];
     else if (currentTab === 'tab-products') activeGroup = adminGroups[5];
     else activeGroup = adminGroups[0];
   }
@@ -206,8 +211,8 @@ export function renderAdminDashboardView(): string {
 
   <!-- [좌측 1차 대주제 사이드바] -->
   <aside class="wp-admin-sidebar" id="wp-admin-sidebar">
-    <!-- 사이드바 상단 브랜딩 (유일하게 아이콘 유지) -->
-    <div class="wp-admin-sidebar-header">
+    <!-- 사이드바 상단 브랜딩 & 모바일 닫기 버튼 -->
+    <div class="wp-admin-sidebar-header" style="display: flex; justify-content: space-between; align-items: center;">
       <div style="display: flex; align-items: center; gap: 0.65rem; cursor: pointer;" class="btn-admin-header-home">
         <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); display: flex; align-items: center; justify-content: center; color: #fff;">
           <span class="material-symbols-outlined" style="font-size: 20px;">admin_panel_settings</span>
@@ -215,11 +220,15 @@ export function renderAdminDashboardView(): string {
         <div>
           <div style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 800; color: #dfe2f1; line-height: 1.15; display: flex; align-items: center; gap: 0.45rem;">
             마보살 관리자
-            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v1.6.1</span>
+            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v1.7.0</span>
           </div>
           <div style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.05em;">ADMIN CONTROL TOWER</div>
         </div>
       </div>
+      <!-- 모바일 드로어 전용 닫기 버튼 (모바일 화면에서만 노출) -->
+      <button type="button" class="wp-admin-drawer-close" id="btn-admin-drawer-close" aria-label="메뉴 닫기" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; width: 32px; height: 32px; display: none; align-items: center; justify-content: center; color: #cbd5e1; cursor: pointer;">
+        <span class="material-symbols-outlined" style="font-size: 20px;">close</span>
+      </button>
     </div>
 
     <!-- 좌측 상위 대주제 및 서브 카테고리 아코디언 메뉴 리스트 (클릭 시 펼침/닫힘) -->
@@ -304,53 +313,43 @@ export function renderAdminDashboardView(): string {
       }).join('')}
     </ul>
 
-    <!-- 사이드바 하단 바로가기 -->
-    <div style="padding: 1rem 1.15rem; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.2); margin-top: auto;">
-      <button type="button" id="btn-admin-to-service" class="btn-cta-primary" style="width: 100%; padding: 0.6rem 0.8rem; font-size: 0.82rem; font-weight: 700; border-radius: 8px; justify-content: center; gap: 0.35rem;">
-        <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
+    <!-- 사이드바 하단 바로가기 및 유틸리티 버튼 -->
+    <div style="padding: 0.85rem 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.25); margin-top: auto; display: flex; flex-direction: column; gap: 0.45rem;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem;">
+        <a href="/?view=store" target="_blank" style="background: rgba(242,202,80,0.1); border: 1px solid rgba(242,202,80,0.25); color: var(--primary); padding: 0.4rem 0.5rem; border-radius: 6px; font-size: 0.72rem; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.25rem;">
+          <span class="material-symbols-outlined" style="font-size: 14px;">storefront</span>
+          스토어
+        </a>
+        <button type="button" id="btn-admin-reset-defaults" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; border-radius: 6px; padding: 0.4rem 0.5rem; font-size: 0.72rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.25rem;">
+          <span class="material-symbols-outlined" style="font-size: 14px;">refresh</span>
+          초기화
+        </button>
+      </div>
+
+      <button type="button" id="btn-admin-to-service" class="btn-cta-primary" style="width: 100%; padding: 0.55rem 0.8rem; font-size: 0.8rem; font-weight: 700; border-radius: 6px; justify-content: center; gap: 0.35rem;">
+        <span class="material-symbols-outlined" style="font-size: 15px;">visibility</span>
         사용자 화면
       </button>
-      <div style="font-size: 0.68rem; color: var(--text-muted); text-align: center; margin-top: 0.65rem;">
+
+      <div style="font-size: 0.65rem; color: var(--text-muted); text-align: center;">
         Core Engine v2.4 <span style="color: #f2ca50;">● Online</span>
       </div>
     </div>
   </aside>
 
-  <!-- [우측 메인 워크스페이스] -->
+  <!-- [우측 메인 워크스페이스: 불필요한 상단 topbar 완전 제거] -->
   <main class="wp-admin-workspace">
-    <!-- 상단 툴바 (모바일 햄버거 토글 + 깔끔한 단일 브레드크럼) -->
-    <div class="wp-admin-topbar" style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 1.25rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
-      <div style="display: flex; align-items: center; gap: 0.75rem;">
-        <!-- 모바일 전용 햄버거 버튼 -->
-        <button type="button" class="wp-admin-hamburger" id="btn-admin-hamburger" aria-label="메뉴 열기">
-          <span class="material-symbols-outlined" style="font-size: 22px;">menu</span>
-        </button>
-        <div>
-          <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap;">
-            <span>관리자</span> &gt; <span style="color: #cbd5e1;">${activeGroup.label}</span>
-            ${matchedSubGroup ? `&gt; <span style="color: #cbd5e1;">${matchedSubGroup.label}</span>` : ''}
-            ${matchedLeafTab ? `&gt; <strong style="color: #ffffff;">${matchedLeafTab.label}</strong>` : ''}
-          </div>
-          <div style="font-size: 1.05rem; font-weight: 800; color: #dfe2f1; margin-top: 0.15rem;">
-            ${currentTabLabel}
-          </div>
-        </div>
-      </div>
-
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <a href="/?view=store" target="_blank" style="background: rgba(242,202,80,0.12); border: 1px solid rgba(242,202,80,0.3); color: var(--primary); padding: 0.4rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 0.3rem;">
-          <span class="material-symbols-outlined" style="font-size: 14px;">storefront</span>
-          스토어 보기
-        </a>
-        <button type="button" id="btn-admin-reset-defaults" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); color: #dfe2f1; border-radius: 8px; padding: 0.4rem 0.75rem; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
-          <span class="material-symbols-outlined" style="font-size: 14px;">refresh</span>
-          초기화
-        </button>
-      </div>
+    <!-- 모바일 전용 좌측 슬라이딩 메뉴 오픈 바 (모바일에서만 보이고 데스크톱에서는 완전 숨김) -->
+    <div class="admin-mobile-floating-bar">
+      <button type="button" class="admin-mobile-drawer-btn" id="btn-admin-hamburger" aria-label="카테고리 메뉴 열기">
+        <span class="material-symbols-outlined" style="font-size: 18px;">menu</span>
+        <span>카테고리</span>
+      </button>
+      <span class="admin-mobile-current-tab-label">${currentTabLabel}</span>
     </div>
 
- <!-- 내부 콘텐츠 영역 (스크롤 가능) -->
- <div style="padding: 1.5rem; flex: 1; overflow-y: auto;">
+    <!-- 내부 콘텐츠 영역 (상단 topbar 제거로 본문 작업 공간 극대화) -->
+    <div class="wp-admin-content-area" style="padding: 1.25rem; flex: 1; overflow-y: auto;">
  
         <!-- [패널 -1] 마보살관리자 기본 대시보드 (종합 관제 및 실시간 고객 문의 즉시 대응 센터) -->
         <div id="tab-overview" class="admin-tab-panel" style="display: ${currentTab === 'tab-overview' ? 'block' : 'none'};">
@@ -1078,6 +1077,11 @@ export function renderAdminDashboardView(): string {
           <!-- [패널 5-2] 인생분석 (사주 엔진 객관화 중간 데이터 창고) -->
           <div id="tab-life-analysis" class="admin-tab-panel" style="display: ${currentTab === 'tab-life-analysis' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
             ${renderAdminLifeAnalysisPanel()}
+          </div>
+
+          <!-- [신규 패널] SEO 키워드 웹서비스 & 위키 메쉬 관제탑 -->
+          <div id="tab-seo-wiki-hub" class="admin-tab-panel" style="display: ${currentTab === 'tab-seo-wiki-hub' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+            ${renderAdminSeoWikiHubPanel()}
           </div>
 
           <div id="tab-solutions" class="admin-tab-panel" style="display: ${currentTab === 'tab-solutions' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">

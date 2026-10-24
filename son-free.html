@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <!-- SEO 최적화 메타태그 (손없는날 전용) -->
+  <title>이번 달 손없는날 달력 - 이사·개업 길일 실시간 계산 | 마보살 엔진</title>
+  <meta name="description" content="2026년 월별 손없는날 실시간 달력. 이사, 개업, 혼례에 최적인 악귀(손) 없는 날짜와 동서남북 방위별 안전 가이드를 KASI 천문 역법으로 회원가입 없이 무료로 확인하세요." />
+  <meta name="keywords" content="손없는날, 손없는날달력, 이번달손없는날, 이사손없는날, 손없는날이사, 개업길일, 2026손없는날" />
+  <link rel="canonical" href="https://mabosal.com/fortune/son-free/" />
+  <meta http-equiv="refresh" content="0; url=/fortune/son-free/" />
+  <script>location.replace('/fortune/son-free/');</script>
+  
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ko_KR" />
+  <meta property="og:site_name" content="마보살 손없는날 달력" />
+  <meta property="og:title" content="이번 달 손없는날 달력 - 이사·개업 길일 실시간 계산 | 마보살 엔진" />
+  <meta property="og:description" content="한국천문연구원(KASI) 표준 음양력 역법으로 실시간 산출하는 손없는날 달력과 방위별 길흉 분석." />
+  <meta property="og:url" content="https://mabosal.com/son-free" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#1a2238" />
+
+  <!-- 폰트 프리커넥트 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Noto+Serif+KR:wght@600;700;900&display=swap" rel="stylesheet" />
+
+  <!-- Schema.org JSON-LD 구조화 데이터 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://mabosal.com/#site",
+        "name": "마보살",
+        "url": "https://mabosal.com/",
+        "inLanguage": "ko-KR"
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://mabosal.com/son-free#page",
+        "url": "https://mabosal.com/son-free",
+        "name": "이번 달 손없는날 달력 - 이사·개업 길일 실시간 계산",
+        "description": "2026년 월별 손없는날 실시간 달력 및 방위별 이사 가이드",
+        "inLanguage": "ko-KR"
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "홈", "item": "https://mabosal.com/" },
+          { "@type": "ListItem", "position": 2, "name": "손없는날", "item": "https://mabosal.com/son-free" }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "손없는날이란 정확히 무슨 뜻인가요?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "‘손(損)’은 날짜와 방향을 따라다니며 인간의 일을 훼방 놓고 해코지하는 귀신을 뜻합니다. 음력 끝자리가 9와 0인 날(음력 9, 10, 19, 20, 29, 30일)은 귀신이 하늘로 올라가 지상에 악귀가 없으므로 이사, 혼례, 개업에 가장 좋은 길일로 전해집니다."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "손없는날이 아닌 날에 이사하면 어떻게 하나요?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "손(귀신)은 날짜에 따라 특정 방위(동, 남, 서, 북)에만 머뭅니다. 본인의 현재 집에서 이사 갈 집의 방향이 그날 손이 머무는 방위와 겹치지 않는다면 손없는날이 아니어도 안전하게 이사하실 수 있습니다."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "방위별 손이 있는 날은 어떻게 되나요?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "음력 일자 끝자리 기준으로 1·2일은 동쪽, 3·4일은 남쪽, 5·6일은 서쪽, 7·8일은 북쪽에 귀신이 머뭅니다. 9·0일은 모든 방위가 안전한 손없는날입니다."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #131b2e;
+      --card-inner: #19243c;
+      --ink: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --primary: #38bdf8;
+      --gold: #f59e0b;
+      --gold-light: #fde68a;
+      --line: rgba(255, 255, 255, 0.1);
+      --line-subtle: rgba(255, 255, 255, 0.05);
+      color-scheme: dark;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 400 16px/1.7 "Noto Sans KR", system-ui, -apple-system, sans-serif;
+      word-break: keep-all;
+    }
+
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+    }
+
+    /* 위키형 크로스 내비게이션 바 */
+    .wiki-cross-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .wiki-cross-links a {
+      color: #38bdf8;
+      text-decoration: none;
+      margin-left: 12px;
+      font-weight: 600;
+    }
+    .wiki-cross-links a:hover { text-decoration: underline; }
+
+    /* 헤더 */
+    header.hero {
+      padding: 30px 0 20px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(45, 212, 191, 0.15);
+      border: 1px solid rgba(45, 212, 191, 0.35);
+      color: #2dd4bf;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 9999px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-family: "Noto Serif KR", serif;
+      font-size: clamp(26px, 5.5vw, 40px);
+      font-weight: 900;
+      margin: 0 0 10px;
+      color: #fff;
+    }
+    .hero-lead {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    /* 카드 */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 22px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+    h2 {
+      font-family: "Noto Serif KR", serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 0 0 14px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    h2::before {
+      content: '';
+      width: 4px;
+      height: 16px;
+      background: var(--gold);
+      border-radius: 2px;
+    }
+
+    /* 달력 컨트롤 */
+    .cal-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .cal-month-title {
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: #fff;
+      font-family: "Noto Serif KR", serif;
+    }
+    .cal-nav-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.15s ease;
+    }
+    .cal-nav-btn:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--primary);
+    }
+
+    /* 달력 그리드 */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+    .cal-head {
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .cal-head.sun { color: #fb7185; }
+    .cal-head.sat { color: #38bdf8; }
+
+    .cal-cell {
+      min-height: 86px;
+      background: #151d30;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.15s ease;
+    }
+    .cal-cell.empty {
+      background: transparent;
+      border-color: transparent;
+    }
+    .cal-cell.son-free {
+      background: rgba(245, 158, 11, 0.09);
+      border: 1.5px solid var(--gold);
+      box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.15);
+    }
+    .cal-cell.today {
+      border-color: var(--primary);
+    }
+    .cell-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .solar-num {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+    }
+    .solar-num.sun { color: #fb7185; }
+    .solar-num.sat { color: #38bdf8; }
+    .badge-son-free {
+      background: var(--gold);
+      color: #1c1500;
+      font-size: 0.65rem;
+      font-weight: 900;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    .lunar-text {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin: 2px 0;
+    }
+    .dir-text {
+      font-size: 0.66rem;
+      color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dir-text.free-safe {
+      color: var(--gold-light);
+      font-weight: 700;
+    }
+
+    /* 요약 박스 */
+    .summary-pills-wrap {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+    }
+    .son-free-pill-card {
+      background: var(--card-inner);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .pill-date { font-size: 0.95rem; color: #fff; }
+    .pill-date b { color: var(--gold); }
+    .pill-lunar { font-size: 0.75rem; color: var(--text-muted); }
+    .pill-tag { font-size: 0.72rem; color: #2dd4bf; font-weight: 700; }
+
+    /* 방위별 가이드 */
+    .direction-guide-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .dir-guide-card {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .dir-guide-card strong { font-size: 0.88rem; color: #fff; display: block; margin-bottom: 4px; }
+    .dir-guide-card p { margin: 0; font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* 위키 메쉬 푸터 박스 */
+    .wiki-mesh-footer-box {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    .wiki-chip-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .wiki-chip-link {
+      background: var(--card-inner);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 10px 14px;
+      text-decoration: none;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.15s ease;
+    }
+    .wiki-chip-link:hover {
+      border-color: var(--primary);
+      background: rgba(56, 189, 248, 0.08);
+    }
+    .wiki-chip-link b { font-size: 0.88rem; color: #fff; }
+    .wiki-chip-link span { font-size: 0.72rem; color: var(--primary); }
+
+    /* FAQ */
+    details { border-bottom: 1px solid var(--line); padding: 12px 0; }
+    summary { cursor: pointer; font-weight: 700; color: #e2e8f0; font-size: 0.92rem; list-style: none; display: flex; justify-content: space-between; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: '+'; color: var(--gold); font-size: 1.2rem; }
+    details[open] summary::after { content: '−'; }
+    details p { margin: 8px 0 0; font-size: 0.85rem; color: var(--text-muted); }
+
+    footer.son-footer {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      color: var(--text-dim);
+      font-size: 0.78rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- 위키형 상단 크로스 내비게이션 -->
+    <nav class="wiki-cross-bar" aria-label="연관 서비스 바로가기">
+      <div><b>마보살 생활역학 위키</b> › 손없는날 달력</div>
+      <div class="wiki-cross-links">
+        <a href="/today.html">오늘의운세</a>
+        <a href="/ddi.html">띠별운세</a>
+        <a href="/">마보살 정통사주</a>
+      </div>
+    </nav>
+
+    <!-- 히어로 섹션 -->
+    <header class="hero">
+      <div class="hero-badge">KASI 공식 역서 음양력 표준 연동</div>
+      <h1>손없는날 실시간 달력</h1>
+      <p class="hero-lead">
+        이사, 개업, 혼례에 최적인 악귀(손) 없는 날짜와 방위별 피해야 할 날을 실시간으로 확인하세요.
+      </p>
+    </header>
+
+    <main>
+      <!-- 달력 섹션 -->
+      <section class="card">
+        <div class="cal-header-bar">
+          <button type="button" id="btn-prev-month" class="cal-nav-btn">◀ 이전 달</button>
+          <div class="cal-month-title" id="cal-month-title">2026년 10월</div>
+          <button type="button" id="btn-next-month" class="cal-nav-btn">다음 달 ▶</button>
+        </div>
+
+        <div id="calendar-grid" class="calendar-grid">
+          <!-- 달력 그리드 동적 주입 -->
+        </div>
+      </section>
+
+      <!-- 이번 달 손없는날 모아보기 -->
+      <section class="card">
+        <h2>이번 달 손없는날 모아보기</h2>
+        <div id="son-free-summary-list"></div>
+      </section>
+
+      <!-- 방위별 손(귀신) 위치 가이드 -->
+      <section class="card">
+        <h2>방위별 손(귀신) 위치와 이사 요령</h2>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 10px;">
+          손없는날에 이사 일정을 잡기 어렵다면, 내가 이사 갈 방향에 손이 머무르지 않는 날을 선택하시면 안전합니다.
+        </p>
+        <div class="direction-guide-grid">
+          <div class="dir-guide-card">
+            <strong>동쪽 (음력 끝자리 1, 2일)</strong>
+            <p>음력 1일, 2일, 11일, 12일, 21일, 22일에는 동쪽 방향으로의 이사나 큰 수리를 피하세요.</p>
+          </div>
+          <div class="dir-guide-card">
+            <strong>남쪽 (음력 끝자리 3, 4일)</strong>
+            <p>음력 3일, 4일, 13일, 14일, 23일, 24일에는 남쪽 방향으로의 이동이나 개업을 피하세요.</p>
+          </div>
+          <div class="dir-guide-card">
+            <strong>서쪽 (음력 끝자리 5, 6일)</strong>
+            <p>음력 5일, 6일, 15일, 16일, 25일, 26일에는 서쪽 방향으로의 이동을 피하세요.</p>
+          </div>
+          <div class="dir-guide-card">
+            <strong>북쪽 (음력 끝자리 7, 8일)</strong>
+            <p>음력 7일, 8일, 17일, 18일, 27일, 28일에는 북쪽 방향으로의 이동을 피하세요.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 위키 상호 연결 메쉬 추천 박스 (SEO 핵심) -->
+      <section class="wiki-mesh-footer-box">
+        <div style="font-size: 0.95rem; font-weight: 800; color: #fff; margin-bottom: 12px;">
+          🔗 함께 많이 찾는 사주 명리 서비스
+        </div>
+        <div class="wiki-chip-grid">
+          <a href="/today.html" class="wiki-chip-link">
+            <div>
+              <b>오늘의 운세 (사주형)</b>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">생년월일 기반 천기지수</div>
+            </div>
+            <span>바로가기 →</span>
+          </a>
+          <a href="/ddi.html" class="wiki-chip-link">
+            <div>
+              <b>띠별 오늘의 운세</b>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">12간지 나이대별 운세</div>
+            </div>
+            <span>바로가기 →</span>
+          </a>
+          <a href="/" class="wiki-chip-link">
+            <div>
+              <b>마보살 평생 사주</b>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">원국·100년 대운 심층 분석</div>
+            </div>
+            <span>바로가기 →</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq-section" class="card">
+        <h2>자주 묻는 질문 (FAQ)</h2>
+        <details>
+          <summary>손없는날이란 정확히 무슨 뜻인가요?</summary>
+          <p>‘손(損)’은 날짜와 방향을 따라다니며 인간의 일을 훼방 놓고 해코지하는 귀신을 뜻합니다. 음력 끝자리가 9와 0인 날(음력 9, 10, 19, 20, 29, 30일)은 귀신이 하늘로 올라가 지상에 악귀가 없으므로 이사, 혼례, 개업에 가장 좋은 길일로 전해집니다.</p>
+        </details>
+        <details>
+          <summary>손없는날이 아닌 날에 이사하면 어떻게 하나요?</summary>
+          <p>손(귀신)은 날짜에 따라 특정 방위(동, 남, 서, 북)에만 머뭅니다. 본인의 현재 집에서 이사 갈 집의 방향이 그날 손이 머무는 방위와 겹치지 않는다면 손없는날이 아니어도 안전하게 이사하실 수 있습니다.</p>
+        </details>
+        <details>
+          <summary>방위별 손이 있는 날은 어떻게 되나요?</summary>
+          <p>음력 일자 끝자리 기준으로 1·2일은 동쪽, 3·4일은 남쪽, 5·6일은 서쪽, 7·8일은 북쪽에 귀신이 머뭅니다. 9·0일은 모든 방위가 안전한 손없는날입니다.</p>
+        </details>
+      </section>
+    </main>
+
+    <footer class="son-footer">
+      <p>
+        본 손없는날 달력 서비스는 KASI 표준 천문 역법 알고리즘을 기반으로 제공됩니다.<br>
+        © 2026 마보살. All rights reserved.
+      </p>
+    </footer>
+  </div>
+
+  <script type="module" src="/src/today/son-free-main.ts"></script>
+</body>
+</html>

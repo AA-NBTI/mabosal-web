@@ -130,3 +130,47 @@ export function standardizeBirthDate(raw: RawBirthInput): StandardBirthDate {
     original_input: { ...raw },
   };
 }
+
+export function convertSolarToLunar(solarYear: number, solarMonth: number, solarDay: number): {
+  lunarYear: number;
+  lunarMonth: number;
+  lunarDay: number;
+  isLeapMonth: boolean;
+} {
+  const solarDate = new Date(Date.UTC(solarYear, solarMonth - 1, solarDay));
+  let offset = Math.floor((solarDate.getTime() - BASE_SOLAR_DATE.getTime()) / 86400000);
+
+  if (offset < 0) {
+    return { lunarYear: 1900, lunarMonth: 1, lunarDay: 1, isLeapMonth: false };
+  }
+
+  let iYear = 1900;
+  for (; iYear < 1900 + LUNAR_INFO.length && offset > 0; iYear++) {
+    const daysOfYear = getLunarYearDays(iYear);
+    if (offset < daysOfYear) break;
+    offset -= daysOfYear;
+  }
+
+  const lunarYear = iYear;
+  const leap = getLeapMonth(lunarYear);
+  let isLeap = false;
+  let iMonth = 1;
+
+  for (; iMonth <= 12 && offset >= 0; iMonth++) {
+    let daysOfMonth = getLunarMonthDays(lunarYear, iMonth);
+    if (leap > 0 && iMonth === (leap + 1) && !isLeap) {
+      --iMonth;
+      isLeap = true;
+      daysOfMonth = getLeapMonthDays(lunarYear);
+    }
+
+    if (offset < daysOfMonth) break;
+    offset -= daysOfMonth;
+    if (isLeap && iMonth === (leap + 1)) isLeap = false;
+  }
+
+  const lunarMonth = iMonth;
+  const lunarDay = offset + 1;
+
+  return { lunarYear, lunarMonth, lunarDay, isLeapMonth: isLeap };
+}

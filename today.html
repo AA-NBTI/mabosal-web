@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <!-- SEO 최적화 메타태그 (up 폴더 SEO 구조 완벽 반영) -->
+  <title>오늘의 운세 - 사주로 보는 무료 오늘의 운세 | 마보살 엔진</title>
+  <meta name="description" content="오늘의 일진과 생년월일 사주 명리 분석으로 확인하는 무료 오늘의 운세. 천기지수, 금전운, 애정운, 건강운 및 12띠별 년생별 상세 운세와 길한 시간을 회원가입 없이 즉시 확인하세요." />
+  <meta name="keywords" content="오늘의운세, 오늘의 운세, 사주 오늘의 운세, 띠별 오늘의 운세, 오늘의 일진, 무료 사주, 마보살 엔진" />
+  <link rel="canonical" href="https://mabosal.com/fortune/today/" />
+  <meta http-equiv="refresh" content="0; url=/fortune/today/" />
+  <script>location.replace('/fortune/today/');</script>
+  
+  <!-- Open Graph / 소셜 메타 -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ko_KR" />
+  <meta property="og:site_name" content="오늘의 운세" />
+  <meta property="og:title" content="오늘의 운세 - 사주로 보는 무료 오늘의 운세 | 마보살 엔진" />
+  <meta property="og:description" content="사주 명리 기반 천기지수와 1:1 맞춤 오늘의 운세. 금전·애정·건강 지수와 길한 시간, 12간지 띠별 운세를 한눈에 확인하세요." />
+  <meta property="og:url" content="https://mabosal.com/today" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#1a2238" />
+
+  <!-- 폰트 프리커넥트 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Noto+Serif+KR:wght@600;700;900&display=swap" rel="stylesheet" />
+
+  <!-- Schema.org JSON-LD 구조화 데이터 (SEO 최적화) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://mabosal.com/#site",
+        "name": "오늘의 운세",
+        "url": "https://mabosal.com/today",
+        "inLanguage": "ko-KR"
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://mabosal.com/today#page",
+        "url": "https://mabosal.com/today",
+        "name": "오늘의 운세 - 사주로 보는 무료 오늘의 운세",
+        "description": "생년월일 사주 기반 맞춤 오늘의 운세 및 12간지 띠별 운세",
+        "inLanguage": "ko-KR"
+      },
+      {
+        "@type": "WebApplication",
+        "name": "오늘의 운세 사주 계산기",
+        "applicationCategory": "LifestyleApplication",
+        "operatingSystem": "All",
+        "url": "https://mabosal.com/today",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "KRW"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "오늘의 운세는 언제 갱신되나요?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "당일 일진은 날짜가 바뀌는 자정(00시)을 기준으로 자동 갱신됩니다."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "태어난 시간을 몰라도 오늘의 운세를 볼 수 있나요?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "네, 가능합니다. 본 서비스는 백세인생 사주 엔진의 삼주(연·월·일) 안전 추명 로직을 적용하여 출생시간 입력 없이도 일간 본원과 일진의 명리적 상호작용을 정밀하게 풀이합니다."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "음력 생일도 지원되나요?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "네, 양력/음력 선택 옵션을 제공하며 한국천문연구원(KASI) 역서 표준 알고리즘으로 양력 환산 후 정확하게 분석합니다."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "오늘의 운세는 무료인가요?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "네, 오늘의 일진 해설, 개인 사주 맞춤 운세, 12간지 띠별 운세 모두 회원가입 없이 100% 무료입니다."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #131b2e;
+      --card-inner: #19243c;
+      --ink: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --jade: #2dd4bf;
+      --jade-dark: #0f766e;
+      --gold: #f59e0b;
+      --gold-light: #fde68a;
+      --line: rgba(255, 255, 255, 0.1);
+      --line-subtle: rgba(255, 255, 255, 0.05);
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      color-scheme: dark;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 400 16px/1.7 "Noto Sans KR", system-ui, -apple-system, sans-serif;
+      word-break: keep-all;
+    }
+
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+    }
+
+    /* 헤더 (마보살 헤더 제거 & 오늘의운세 단독 헤더) */
+    header.today-hero {
+      padding: 40px 0 24px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 14px;
+      border-radius: 9999px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-family: "Noto Serif KR", serif;
+      font-size: clamp(28px, 6vw, 44px);
+      font-weight: 900;
+      line-height: 1.3;
+      margin: 0 0 10px;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+    .today-date {
+      color: var(--gold);
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 0 0 12px;
+    }
+    .today-lead {
+      color: var(--text-muted);
+      max-width: 620px;
+      margin: 0 auto;
+      font-size: 0.95rem;
+    }
+
+    /* 카드 공통 */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    /* 섹션 타이틀 */
+    h2 {
+      font-family: "Noto Serif KR", serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin: 0 0 16px;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    h2::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 18px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    /* 백세인생 사주입력 폼 (시간 입력 제외) */
+    .saju-form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .saju-form-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #dfe2f1;
+    }
+    .preset-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .btn-preset {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: #38bdf8;
+      color: #fff;
+    }
+
+    .saju-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      align-items: flex-end;
+    }
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    select, input {
+      font: inherit;
+      width: 100%;
+      background: #182236;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: #fff;
+      font-size: 0.9rem;
+      transition: border-color 0.2s ease;
+    }
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
+    }
+    .btn-submit {
+      width: 100%;
+      background: var(--primary);
+      color: #0b0f19;
+      font-weight: 800;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 16px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-submit:hover {
+      background: #7dd3fc;
+      transform: translateY(-1px);
+    }
+
+    /* 개인 맞춤 운세 결과 카드 (초기 숨김) */
+    #personal-result-card {
+      display: none;
+      background: #101a30;
+      border: 2px solid var(--primary);
+      animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 20px;
+    }
+    .result-profile {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .result-profile-badge {
+      background: rgba(45, 212, 191, 0.15);
+      color: var(--jade);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(45, 212, 191, 0.3);
+    }
+    .result-profile-info {
+      font-size: 0.88rem;
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+    .result-pillars {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+    .result-daymaster-pill {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 3px 8px;
+      border-radius: 4px;
+      color: #fff;
+    }
+    .result-daymaster-pill b {
+      color: var(--primary);
+    }
+
+    .score-hero {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .score-circle-box {
+      width: 104px;
+      height: 104px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #0284c7 0%, #0369a1 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.35);
+      flex-shrink: 0;
+    }
+    .score-number {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1;
+    }
+    .score-unit {
+      font-size: 0.75rem;
+      color: #e0f2fe;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .score-summary-box {
+      flex: 1;
+      min-width: 250px;
+    }
+    .score-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .celestial-badge {
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 6px;
+    }
+    .badge-high {
+      background: rgba(245, 158, 11, 0.18);
+      color: var(--gold);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+    .badge-normal {
+      background: rgba(56, 189, 248, 0.18);
+      color: var(--primary);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+    .badge-caution {
+      background: rgba(244, 63, 94, 0.18);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.4);
+    }
+    .score-date {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+    .score-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 0 0 6px;
+      font-family: "Noto Serif KR", serif;
+    }
+    .score-desc {
+      color: #cbd5e1;
+      font-size: 0.92rem;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    /* 3대 세부 지수 */
+    .sub-scores-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .sub-score-item {
+      background: var(--card-inner);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .sub-score-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .sub-icon { font-size: 1.1rem; }
+    .sub-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-left: 6px;
+      margin-right: auto;
+    }
+    .sub-val {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .sub-bar {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .sub-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      border-radius: 3px;
+    }
+    .sub-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    /* 실전 가이드 */
+    .action-guide-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .action-guide-box h4 {
+      margin: 0 0 12px;
+      font-size: 0.92rem;
+      color: var(--gold);
+    }
+    .action-guide-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .guide-item {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 8px 12px;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .guide-item b {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    .guide-item span {
+      font-size: 0.85rem;
+      color: #fff;
+      font-weight: 700;
+    }
+    .guide-bottom-tip {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* 12간지 띠별 운세 */
+    .ddi-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .ddi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .ddi-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .ddi-card-header h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 0;
+      color: #f8fafc;
+      font-family: "Noto Serif KR", serif;
+    }
+    .ddi-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .ddi-badge-hap {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--gold);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .ddi-badge-chung {
+      background: rgba(244, 63, 94, 0.15);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+    .ddi-badge-py {
+      background: rgba(148, 163, 184, 0.12);
+      color: #94a3b8;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+    .ddi-meta {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin: 0 0 10px;
+    }
+    .ddi-score-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.82rem;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .ddi-score-pill {
+      background: rgba(56, 189, 248, 0.12);
+      color: #38bdf8;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .ddi-sub-score {
+      color: var(--text-muted);
+    }
+    .ddi-sub-score b {
+      color: #fff;
+    }
+    .ddi-year-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      border-top: 1px solid var(--line-subtle);
+    }
+    .ddi-year-list li {
+      padding: 6px 0;
+      font-size: 0.84rem;
+      color: #cbd5e1;
+      border-bottom: 1px dashed var(--line-subtle);
+      line-height: 1.5;
+    }
+    .ddi-year-list li:last-child {
+      border-bottom: none;
+    }
+    .ddi-year-list li b {
+      color: var(--gold-light);
+      margin-right: 6px;
+      font-size: 0.82rem;
+    }
+
+    /* FAQ 아코디언 */
+    details {
+      border-bottom: 1px solid var(--line);
+      padding: 12px 0;
+    }
+    details:last-child {
+      border-bottom: none;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #e2e8f0;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::after {
+      content: '+';
+      color: var(--primary);
+      font-size: 1.2rem;
+      font-weight: 400;
+    }
+    details[open] summary::after {
+      content: '−';
+    }
+    details p {
+      margin: 8px 0 0;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* 푸터 (마보살 푸터 제거 & 심플 미니 푸터) */
+    footer.today-footer {
+      text-align: center;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- 위키형 상단 크로스 내비게이션 -->
+    <nav class="wiki-cross-bar" aria-label="연관 서비스 바로가기" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 0.82rem; color: var(--text-muted); flex-wrap: wrap; gap: 8px;">
+      <div><b>마보살 운세 위키</b> › 오늘의운세</div>
+      <div class="wiki-cross-links">
+        <a href="/ddi.html" style="color: #38bdf8; text-decoration: none; margin-left: 12px; font-weight: 600;">띠별운세</a>
+        <a href="/son-free.html" style="color: #38bdf8; text-decoration: none; margin-left: 12px; font-weight: 600;">손없는날 달력</a>
+        <a href="/" style="color: #38bdf8; text-decoration: none; margin-left: 12px; font-weight: 600;">마보살 정통사주</a>
+      </div>
+    </nav>
+
+    <!-- 헤더: 오로지 오늘의 운세 자체에 집중한 심플 히어로 (헤더/네비게이션 제거) -->
+    <header class="today-hero">
+      <div class="hero-badge">정통 사주 명리 일진 분석</div>
+      <h1>오늘의 운세</h1>
+      <p class="today-date" id="today-date-text">오늘의 일진을 계산 중입니다...</p>
+      <p class="today-lead">
+        생년월일 기반 사주 명리 알고리즘을 통해 오늘의 천기지수와 1:1 맞춤 운세를 확인하세요.
+        시간 입력 없이도 일간 본원과 당일 일진의 상호작용을 정밀하게 분석합니다.
+      </p>
+    </header>
+
+    <main>
+      <!-- 섹션 1: 오늘의 일진 기운 해설 (up 폴더 SEO 구조) -->
+      <section id="iljin-overview" class="card">
+        <h2>오늘의 일진 및 천기 기운</h2>
+        <p id="iljin-summary-text" style="margin: 0; line-height: 1.7; color: #cbd5e1;">
+          오늘의 간지와 천기 오행을 계산하고 있습니다.
+        </p>
+        <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line); font-size: 0.88rem; color: var(--text-muted);">
+          <span id="lucky-meta-text">길한 시간과 행운 요소를 산출 중입니다.</span>
+        </div>
+      </section>
+
+      <!-- 섹션 2: 백세인생 사주입력창 (시간 입력 구간 완벽 제거!) -->
+      <section id="saju-input-section" class="card">
+        <div class="saju-form-header">
+          <div class="saju-form-title">
+            <span style="color: var(--primary); margin-right: 4px;">●</span> 내 사주로 오늘의 운세 맞춤 보기
+          </div>
+          <div class="preset-group">
+            <button type="button" class="btn-preset" data-year="1998" data-month="4" data-day="12" data-gender="female">98년생(여)</button>
+            <button type="button" class="btn-preset" data-year="1985" data-month="2" data-day="15" data-gender="male">85년생(남)</button>
+            <button type="button" class="btn-preset" data-year="1992" data-month="7" data-day="20" data-gender="female">92년생(여)</button>
+            <button type="button" class="btn-preset" data-year="1975" data-month="10" data-day="8" data-gender="male">75년생(남)</button>
+          </div>
+        </div>
+
+        <form id="form-today-saju" onsubmit="return false;">
+          <div class="saju-grid">
+            <div class="field-group">
+              <label for="input-gender">성별</label>
+              <select id="input-gender">
+                <option value="female" selected>여성</option>
+                <option value="male">남성</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label for="input-year">출생 연도</label>
+              <select id="input-year"></select>
+            </div>
+
+            <div class="field-group">
+              <label for="input-month">출생 월</label>
+              <select id="input-month"></select>
+            </div>
+
+            <div class="field-group">
+              <label for="input-day">출생 일</label>
+              <select id="input-day"></select>
+            </div>
+
+            <div class="field-group">
+              <label for="input-calendar">양력/음력</label>
+              <select id="input-calendar">
+                <option value="solar" selected>양력</option>
+                <option value="lunar">음력</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label>&nbsp;</label>
+              <button type="submit" id="btn-submit-saju" class="btn-submit">
+                <span>오늘의 운세 보기</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <!-- 섹션 3: 개인 맞춤 운세 결과 카드 (마보살 엔진 실시간 연산 결과) -->
+      <section id="personal-result-card" class="card"></section>
+
+      <!-- 섹션 4: 12간지 띠별 오늘의 운세 (SEO 아티클 구조) -->
+      <section id="zodiac-section" class="card">
+        <h2>12간지 띠별 오늘의 운세</h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0 0 18px;">
+          오늘의 일지와 각 12간지 지지의 합(合)·충(沖)·평(平) 작용을 바탕으로 한 연령대별 상세 운세입니다.
+        </p>
+        <div id="zodiac-fortune-list" class="ddi-grid">
+          <!-- 12간지 카드가 동적으로 주입됩니다 -->
+        </div>
+      </section>
+
+      <!-- 섹션 5: 오늘의 운세 보는 법 (명리 원리 해설) -->
+      <section id="guide-section" class="card">
+        <h2>오늘의 운세 보는 법</h2>
+        <div style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7;">
+          <h3 style="font-size: 1rem; color: var(--gold); margin: 0 0 4px;">1. 일진(日辰)과 합·충의 이해</h3>
+          <p style="margin: 0 0 14px; color: var(--text-muted);">
+            일진은 하루를 지배하는 천간과 지지의 조합(60갑자)입니다.
+            합(合)은 화합과 원조의 기운으로 일이 순조롭게 풀리고 조력자가 생김을 의미하며,
+            충(沖)은 역동적인 변화와 충돌의 기운으로 즉흥적인 결정이나 감정 대립을 경계하는 것이 좋습니다.
+          </p>
+
+          <h3 style="font-size: 1rem; color: var(--gold); margin: 0 0 4px;">2. 천기지수와 3대 운세 지표</h3>
+          <p style="margin: 0 0 14px; color: var(--text-muted);">
+            마보살 엔진은 귀하의 사주 원국 일간(본원)과 오늘의 일진 간의 오행 상생·상극, 용신·희신 관계를 연산하여
+            천기지수(종합 운세 점수)와 금전운, 애정운, 건강·활력 지수를 0~100점 척도로 객관화하여 제공합니다.
+          </p>
+
+          <h3 style="font-size: 1rem; color: var(--gold); margin: 0 0 4px;">3. 시간 입력이 없어도 정확한 이유</h3>
+          <p style="margin: 0; color: var(--text-muted);">
+            일일 운세의 핵심은 태어난 날의 천간(일간)과 당일 일진의 관계입니다.
+            백세인생 사주 엔진의 삼주(연·월·일) 안전 추명 로직이 적용되어, 출생시간 없이도 안정적이고 신뢰도 높은 명리 분석을 경험하실 수 있습니다.
+          </p>
+        </div>
+      </section>
+
+      <!-- 섹션 6: 자주 묻는 질문 FAQ (SEO 최적화) -->
+      <section id="faq-section" class="card">
+        <h2>자주 묻는 질문 (FAQ)</h2>
+        <details>
+          <summary>오늘의 운세는 언제 바뀌나요?</summary>
+          <p>날짜가 바뀌는 매일 자정(00시 00분)에 당일 일진이 갱신되어 새로운 하루의 운세를 확인하실 수 있습니다.</p>
+        </details>
+        <details>
+          <summary>사주 오늘의 운세와 단순 띠별 운세는 무엇이 다른가요?</summary>
+          <p>띠별 운세는 태어난 해의 지지(연지) 1글자만 대조하지만, 사주 오늘의 운세는 생년월일 전체(연·월·일 삼주)와 일간 본원을 정밀 분석하므로 훨씬 개인화된 결과를 제공합니다.</p>
+        </details>
+        <details>
+          <summary>태어난 시간을 몰라도 신뢰할 수 있나요?</summary>
+          <p>네. 오늘의 운세는 본인의 일간(태어난 날의 기운)과 당일 일진 간의 오행 상생상극이 80% 이상의 비중을 차지합니다. 시주가 없어도 삼주 안전 추명 알고리즘을 통해 왜곡 없는 명리적 조언을 드립니다.</p>
+        </details>
+        <details>
+          <summary>음력 생일은 어떻게 입력하나요?</summary>
+          <p>입력창에서 '음력'을 선택하고 생년월일을 그대로 입력하시면 됩니다. KASI(한국천문연구원) 공식 역서 알고리즘을 통해 천문 양력으로 정밀 변환되어 계산됩니다.</p>
+        </details>
+        <details>
+          <summary>오늘의 운세 이용료나 회원가입이 필요한가요?</summary>
+          <p>회원가입, 로그인, 결제 없이 누구나 무료로 오늘의 운세를 매일 이용하실 수 있습니다.</p>
+        </details>
+      </section>
+
+      <!-- 위키 상호 연결 메쉬 추천 박스 (SEO 핵심) -->
+      <section class="card" style="margin-top: 24px; padding: 20px;">
+        <div style="font-size: 0.95rem; font-weight: 800; color: #fff; margin-bottom: 12px;">
+          🔗 함께 많이 찾는 사주 명리 서비스
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+          <a href="/ddi.html" style="background: var(--card-inner); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 14px; text-decoration: none; color: #fff; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <b style="font-size: 0.88rem;">띠별 오늘의 운세</b>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">12간지 나이대별 운세</div>
+            </div>
+            <span style="font-size: 0.72rem; color: var(--primary);">바로가기 →</span>
+          </a>
+          <a href="/son-free.html" style="background: var(--card-inner); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 14px; text-decoration: none; color: #fff; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <b style="font-size: 0.88rem;">손없는날 이사 달력</b>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">동티 없는 길일 실시간 계산</div>
+            </div>
+            <span style="font-size: 0.72rem; color: var(--primary);">바로가기 →</span>
+          </a>
+          <a href="/" style="background: var(--card-inner); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 14px; text-decoration: none; color: #fff; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <b style="font-size: 0.88rem;">마보살 평생 사주</b>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">원국·100년 대운 심층 분석</div>
+            </div>
+            <span style="font-size: 0.72rem; color: var(--primary);">바로가기 →</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <!-- 푸터: 복잡한 마보살 푸터 제거 & 심플 면책 안내 -->
+    <footer class="today-footer">
+      <p>
+        본 오늘의 운세 서비스는 마보살 정통 사주 명리 계산 엔진을 기반으로 제공됩니다.<br>
+        운세 결과는 하루를 지혜롭고 긍정적으로 가꾸기 위한 조언과 참고 자료로 활용해 주세요.<br>
+        © 2026 오늘의 운세. All rights reserved.
+      </p>
+    </footer>
+  </div>
+
+  <!-- 마보살 엔진 연동 스크립트 -->
+  <script type="module" src="/src/today/today-main.ts"></script>
+</body>
+</html>

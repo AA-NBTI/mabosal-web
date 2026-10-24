@@ -96,6 +96,15 @@ import {
   setAllLifeStagesExpanded,
   renderAdminLifeAnalysisPanel,
 } from './views/AdminLifeAnalysisPanel.js';
+import {
+  openAddSeoPageModal,
+  closeAddSeoPageModal,
+  getSeoKeywordPages,
+  saveSeoKeywordPages,
+  deleteSeoKeywordPage,
+  normalizeFirstTierSlug,
+  resetToFirstTierDefaults,
+} from './views/AdminSeoWikiHubPanel.js';
 import { findSajuFactorWiki } from './data/saju-factor-wiki.js';
 import { LifeAnalysisWarehouseBuilder } from '../modules/life-analysis/life-analysis-warehouse.js';
 import { buildEvidencePacket } from '../modules/life-analysis/evidence/evidence-packet-builder.js';
@@ -145,6 +154,7 @@ import { generateDownloadableReportText } from './components/tier-templates.js';
 import { renderCheonmyeongwonShareModal } from './components/VisualCharts.js';
 import { FunnelCheckoutHelper } from './views/pages/FunnelCheckoutHelper.js';
 import { AbTestService } from './modules/ab-test/ab-test-service.js';
+
 
 function compressImageFile(file: File, maxDimension = 900, quality = 0.85): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -2186,6 +2196,111 @@ ${content}
       return;
     }
 
+    // SEO 위키 허브 1순위 프리셋 초기화
+    const resetSeoBtn = target.closest('#btn-reset-seo-defaults');
+    if (resetSeoBtn) {
+      if (confirm('1순위 계층형 구조(/fortune/...) 표준 프리셋 데이터로 복원하시겠습니까?')) {
+        resetToFirstTierDefaults();
+        this.render(appState.getState());
+      }
+      return;
+    }
+
+    // SEO 위키 허브 모달 열기
+    const openSeoModalBtn = target.closest('.btn-open-seo-modal') as HTMLElement | null;
+    if (openSeoModalBtn) {
+      const pageId = openSeoModalBtn.dataset.pageId;
+      openAddSeoPageModal(pageId);
+      this.render(appState.getState());
+      return;
+    }
+
+    // SEO 위키 허브 모달 닫기
+    const closeSeoModalBtn = target.closest('.btn-close-seo-modal, #modal-seo-page-backdrop');
+    if (closeSeoModalBtn && (target === closeSeoModalBtn || (closeSeoModalBtn as HTMLElement).classList.contains('btn-close-seo-modal'))) {
+      closeAddSeoPageModal();
+      this.render(appState.getState());
+      return;
+    }
+
+    // SEO 위키 허브 삭제
+    const delSeoPageBtn = target.closest('.btn-delete-seo-page') as HTMLElement | null;
+    if (delSeoPageBtn && delSeoPageBtn.dataset.pageId) {
+      const kw = delSeoPageBtn.dataset.keyword || '이 페이지';
+      if (confirm(`'${kw}' 키워드 웹서비스 설정을 삭제하시겠습니까?`)) {
+        deleteSeoKeywordPage(delSeoPageBtn.dataset.pageId);
+        this.render(appState.getState());
+      }
+      return;
+    }
+
+    // SEO 위키 허브 저장 (1순위 계층형 구조 /fortune/... 정규화)
+    const saveSeoPageBtn = target.closest('#btn-save-seo-page-submit');
+    if (saveSeoPageBtn) {
+      const pageIdInput = (document.getElementById('seo-page-id') as HTMLInputElement)?.value;
+      const kw = (document.getElementById('seo-input-keyword') as HTMLInputElement)?.value.trim();
+      const rawSlug = (document.getElementById('seo-input-slug') as HTMLInputElement)?.value.trim();
+      const sajuType = (document.getElementById('seo-input-saju-type') as HTMLSelectElement)?.value as any;
+      const status = (document.getElementById('seo-input-status') as HTMLSelectElement)?.value as any;
+      const volPc = parseInt((document.getElementById('seo-input-vol-pc') as HTMLInputElement)?.value || '0', 10);
+      const volMo = parseInt((document.getElementById('seo-input-vol-mo') as HTMLInputElement)?.value || '0', 10);
+      const engine = (document.getElementById('seo-input-engine') as HTMLInputElement)?.value.trim();
+      const metaTitle = (document.getElementById('seo-input-meta-title') as HTMLInputElement)?.value.trim();
+      const metaDesc = (document.getElementById('seo-input-meta-desc') as HTMLTextAreaElement)?.value.trim();
+
+      // 체크박스에서 선택된 위키 상호 연결 대상 목록 수집
+      const checkedBoxes = Array.from(document.querySelectorAll<HTMLInputElement>('input[name="seo-crosslink-item"]:checked'));
+      const crossLinks = checkedBoxes.map(cb => cb.value);
+
+      if (!kw || !rawSlug) {
+        alert('타겟 키워드와 슬러그는 필수 입력 항목입니다.');
+        return;
+      }
+
+      // 1순위 계층형 슬러그 표준 (/fortune/[slug]/) 자동 정규화
+      const normalizedSlug = normalizeFirstTierSlug(rawSlug);
+
+      const pages = getSeoKeywordPages();
+      const nowStr = new Date().toISOString().split('T')[0];
+
+      if (pageIdInput) {
+        const existing = pages.find(p => p.id === pageIdInput);
+        if (existing) {
+          existing.keyword = kw;
+          existing.slug = normalizedSlug;
+          existing.sajuFormType = sajuType;
+          existing.status = status;
+          existing.monthlySearchVolume = { pc: volPc, mobile: volMo, total: volPc + volMo };
+          existing.engineModule = engine;
+          existing.metaTitle = metaTitle;
+          existing.metaDescription = metaDesc;
+          existing.crossLinks = crossLinks;
+          existing.lastUpdated = nowStr;
+        }
+      } else {
+        const newId = `page-${rawSlug.replace(/[^a-zA-Z0-9_-]/g, '') || Date.now()}`;
+        pages.push({
+          id: newId,
+          keyword: kw,
+          slug: normalizedSlug,
+          monthlySearchVolume: { pc: volPc, mobile: volMo, total: volPc + volMo },
+          competition: '중간',
+          sajuFormType: sajuType,
+          engineModule: engine || 'DailyFortuneEngine',
+          status: status || 'draft',
+          crossLinks: crossLinks.length > 0 ? crossLinks : ['page-today'],
+          metaTitle: metaTitle || `${kw} - 마보살 무료 웹서비스`,
+          metaDescription: metaDesc || `${kw} 무료 확인 서비스입니다.`,
+          lastUpdated: nowStr,
+        });
+      }
+
+      saveSeoKeywordPages(pages);
+      closeAddSeoPageModal();
+      this.render(appState.getState());
+      return;
+    }
+
     // [인생분석: 사주 엔진 객관화 중간 데이터 창고] 상호작용 이벤트 처리
     // 1. 인생분석 계산 실행 버튼
     const runLaBtn = target.closest('#btn-run-life-analysis');
@@ -2634,7 +2749,7 @@ ${content}
  }
  return;
  }
- if (target.closest('#wp-admin-backdrop')) {
+ if (target.closest('#wp-admin-backdrop, #btn-admin-drawer-close')) {
  const sidebar = document.getElementById('wp-admin-sidebar');
  const backdrop = document.getElementById('wp-admin-backdrop');
  if (sidebar && backdrop) {
@@ -2642,6 +2757,14 @@ ${content}
  backdrop.classList.remove('open');
  }
  return;
+ }
+ if (target.closest('.admin-tab-btn') && window.innerWidth <= 1024) {
+ const sidebar = document.getElementById('wp-admin-sidebar');
+ const backdrop = document.getElementById('wp-admin-backdrop');
+ if (sidebar && backdrop) {
+ sidebar.classList.remove('open');
+ backdrop.classList.remove('open');
+ }
  }
 
  // 0. 천명원 플로팅 바텀 독 탭 전환

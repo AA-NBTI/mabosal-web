@@ -353,37 +353,92 @@ html, body {
   box-sizing: border-box !important;
 }
 
+.admin-mobile-floating-bar {
+  display: none !important;
+}
+
+.wp-admin-drawer-close {
+  display: none !important;
+}
+
 .wp-admin-backdrop {
   display: none;
 }
 
 @media (max-width: 1024px) {
   .admin-dashboard-container {
-    padding: 1rem 0.75rem 4rem !important;
+    padding: 0.75rem 0.5rem 4rem !important;
   }
 
   .wp-admin-wrapper {
     flex-direction: column !important;
-    gap: 1rem !important;
+    gap: 0.75rem !important;
   }
 
+  /* 모바일 상단 콤팩트 카테고리 트리거 바 */
+  .admin-mobile-floating-bar {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 0.85rem !important;
+    background: rgba(15, 23, 42, 0.65) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .admin-mobile-drawer-btn {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    color: #f8fafc !important;
+    padding: 0.35rem 0.65rem !important;
+    border-radius: 6px !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: background 0.15s ease;
+  }
+
+  .admin-mobile-drawer-btn:active {
+    background: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  .admin-mobile-current-tab-label {
+    font-size: 0.82rem !important;
+    font-weight: 800 !important;
+    color: #dfe2f1 !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 60%;
+  }
+
+  /* 모바일 좌측 오프캔버스 슬라이딩 사이드바 */
   .wp-admin-sidebar {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     bottom: 0 !important;
-    width: 280px !important;
+    width: 285px !important;
     height: 100vh !important;
     border-radius: 0 !important;
     z-index: 9999 !important;
+    display: flex !important;
+    flex-direction: column !important;
     transform: translateX(-100%) !important;
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.75) !important;
-    background: #111420 !important;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.85) !important;
+    background: #0f131f !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
   }
 
   .wp-admin-sidebar.open {
     transform: translateX(0) !important;
+  }
+
+  .wp-admin-drawer-close {
+    display: flex !important;
   }
 
   .wp-admin-backdrop.active,
@@ -392,13 +447,17 @@ html, body {
     display: block !important;
     position: fixed !important;
     inset: 0 !important;
-    background: rgba(0, 0, 0, 0.65) !important;
+    background: rgba(0, 0, 0, 0.7) !important;
     backdrop-filter: blur(4px) !important;
     z-index: 9998 !important;
   }
 
   .wp-admin-workspace {
     width: 100% !important;
+  }
+
+  .wp-admin-content-area {
+    padding: 0.85rem !important;
   }
 }
 
