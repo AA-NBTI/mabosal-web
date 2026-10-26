@@ -944,11 +944,11 @@ export function renderCommerceStoreView(state: AppStateData): string {
           </button>
         </nav>
 
-        <!-- [모바일 전용: 상단 카테고리 필터 바] -->
-        <div class="store-mobile-filter-bar">
+        <!-- [모바일 전용: 햄버거 카테고리 바] -->
+        <div class="store-mobile-hamburger-bar">
           <button type="button" class="btn-toggle-store-drawer" id="btn-open-store-drawer">
-            <span class="material-symbols-outlined" style="font-size: 20px;">menu_open</span>
-            <span>카테고리: ${esc(activeCatLabel)}</span>
+            <span class="material-symbols-outlined" style="font-size: 20px;">menu</span>
+            <span>스토어 카테고리 (${esc(activeCatLabel)})</span>
           </button>
           <button type="button" id="btn-open-cart-modal-m" class="btn-store-cart-pill" style="display: ${AuthService.getCurrentUser().role !== 'guest' && CartStore.getCount() > 0 ? 'inline-flex' : 'none'};">
             <span class="material-symbols-outlined" style="font-size: 18px;">shopping_bag</span>

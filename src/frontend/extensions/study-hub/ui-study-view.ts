@@ -14,6 +14,14 @@ let activeCategory: string = 'all';
 let currentArticleSlug: string | null = null;
 let editingArticleId: string | null = null;
 
+function esc(text: string): string {
+  return (text || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 export function resetStudyCategory(): void {
   activeCategory = 'all';
   currentArticleSlug = null;
@@ -215,7 +223,7 @@ export function renderStudyView(): string {
           </button>
 
           <!-- 동적 카테고리 탭 목록 -->
-          ${categories.map(c => {
+          ${categories.filter(c => Boolean(c && c.id && c.name)).map(c => {
             const isActive = activeCategory === c.id && !selectedArticle;
             return `
               <button type="button" class="btn-study-category ${isActive ? 'active' : ''}" data-cat="${c.id}">
@@ -227,11 +235,11 @@ export function renderStudyView(): string {
         </div>
       </nav>
 
-      <!-- [모바일 전용: 상단 카테고리 필터 바] -->
-      <div class="study-mobile-filter-bar">
-        <button type="button" class="btn-toggle-study-drawer" id="btn-open-study-drawer">
-          <span class="material-symbols-outlined" style="font-size: 20px;">menu_open</span>
-          <span>주제 분류: ${esc(activeCatLabel)}</span>
+      <!-- [모바일 전용: 햄버거 카테고리 바] -->
+      <div class="study-mobile-hamburger-bar">
+        <button type="button" class="btn-toggle-study-drawer" id="btn-open-study-drawer" aria-label="스터디 카테고리 열기">
+          <span class="material-symbols-outlined" style="font-size: 20px;">menu</span>
+          <span>스터디 주제 (${esc(activeCatLabel)})</span>
         </button>
       </div>
 
@@ -252,7 +260,7 @@ export function renderStudyView(): string {
             <span class="material-symbols-outlined" style="font-size: 20px; color: ${activeCategory === 'all' && !selectedArticle ? 'var(--primary)' : '#94a3b8'};">apps</span>
             <span>전체 글</span>
           </button>
-          ${categories.map(c => {
+          ${categories.filter(c => Boolean(c && c.id && c.name)).map(c => {
             const isActive = activeCategory === c.id && !selectedArticle;
             return `
               <button type="button" class="btn-study-category study-drawer-cat-item ${isActive ? 'active' : ''}" data-cat="${c.id}">
@@ -421,12 +429,36 @@ export function bindStudyHubEvents(): void {
     const target = e.target as HTMLElement;
     if (!target) return;
 
+    // 스터디 모바일 햄버거 드로어 토글
+    if (target.closest('#btn-open-study-drawer') || target.closest('.btn-toggle-study-drawer')) {
+      e.preventDefault();
+      e.stopPropagation();
+      const sidebar = document.getElementById('study-sidebar-drawer');
+      const backdrop = document.getElementById('study-drawer-backdrop');
+      if (sidebar) sidebar.classList.add('drawer-open');
+      if (backdrop) backdrop.classList.add('active');
+      return;
+    }
+    if (target.closest('#btn-close-study-drawer') || target.closest('#study-drawer-backdrop')) {
+      e.preventDefault();
+      e.stopPropagation();
+      const sidebar = document.getElementById('study-sidebar-drawer');
+      const backdrop = document.getElementById('study-drawer-backdrop');
+      if (sidebar) sidebar.classList.remove('drawer-open');
+      if (backdrop) backdrop.classList.remove('active');
+      return;
+    }
+
     // 카테고리 탭 클릭
     const catBtn = target.closest('.btn-study-category') as HTMLElement | null;
     if (catBtn) {
       const cat = catBtn.dataset.cat;
       if (cat) {
         setStudyCategory(cat);
+        const sidebar = document.getElementById('study-sidebar-drawer');
+        const backdrop = document.getElementById('study-drawer-backdrop');
+        if (sidebar) sidebar.classList.remove('drawer-open');
+        if (backdrop) backdrop.classList.remove('active');
         triggerAppRerender();
       }
       return;
