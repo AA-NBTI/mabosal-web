@@ -46,18 +46,36 @@ export class ReportRouterMapper {
       return 'LOVE_REUNION';
     }
 
+    // 전자책, 도서, 바우처, 굿즈, VOD 등 비리포트 상품은 사주 분석 리포트로 변환하지 않음
+    if (pId.includes('book') || pId.includes('voucher') || pId.includes('goods') || pId.includes('vod') || pId.includes('lecture')) {
+      return (tier as ProductTierTab) || 'FREE';
+    }
+
     // 7. VIP 14.9만원 정밀 리포트 (prod-paid-saju-vip)
     if (tier === 'PREMIUM' || pId.includes('vip') || pId === 'prod-paid-saju-vip') {
       return 'PREMIUM';
     }
 
     // 8. 3.9만원 대표 플래그십 정통 유료 사주 (prod-paid-saju-premium)
-    if (tier === 'PAID' || tier === 'COMPREHENSIVE' || tier === 'ENTRY' || pId === 'prod-paid-saju-premium' || pId.includes('flagship') || pId.includes('saju')) {
+    if (tier === 'PAID' || tier === 'COMPREHENSIVE' || tier === 'ENTRY' || pId === 'prod-paid-saju-premium' || pId.includes('flagship') || (pId.includes('saju') && !pId.includes('book'))) {
       return 'PAID';
     }
 
     // 기본값: PAID
     return 'PAID';
+  }
+
+  /**
+   * 해당 상품이 사주풀이 분석 리포트인지 판별 (전자책, 도서, 바우처, 실물 상품 제외)
+   */
+  public static isSajuReportProduct(productId?: string, category?: string, deliveryType?: string): boolean {
+    if (category && category !== 'report') return false;
+    if (deliveryType && deliveryType !== 'saju_report') return false;
+    const pId = (productId || '').toLowerCase();
+    if (pId.includes('book') || pId.includes('voucher') || pId.includes('goods') || pId.includes('vod') || pId.includes('lecture')) {
+      return false;
+    }
+    return true;
   }
 
   /**

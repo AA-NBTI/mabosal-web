@@ -3,6 +3,7 @@
  * - 사용자 문의 접수, 관리자 답변 등록, 상태 추적 (접수대기/답변완료)
  * - LocalStorage 기반 영구 보존 및 실시간 화면 반응형 연동
  */
+import { supabase } from '../modules/supabase/supabase-client.js';
 
 export interface CustomerInquiry {
   id: string;               // 예: INQ-20261015-8921
@@ -98,6 +99,28 @@ export class CustomerInquiryStore {
     list.unshift(newInquiry);
     this.inquiries = list;
     this.save();
+
+    // Supabase 온라인 DB 실시간 동기화
+    try {
+      supabase.from('customer_inquiries').insert({
+        id: newInquiry.id,
+        user_id: newInquiry.userId || null,
+        user_name: newInquiry.userName,
+        reply_email: newInquiry.replyEmail,
+        phone: newInquiry.phone || null,
+        order_id: newInquiry.orderId || null,
+        category: newInquiry.category,
+        title: newInquiry.title,
+        content: newInquiry.content,
+        status: newInquiry.status,
+        created_at: newInquiry.createdAt,
+      }).then(({ error }) => {
+        if (error) console.warn('[CustomerInquiryStore] Supabase insert deferred:', error.message);
+      });
+    } catch (e) {
+      console.warn('[CustomerInquiryStore] Supabase sync skipped:', e);
+    }
+
     return newInquiry;
   }
 
@@ -111,7 +134,66 @@ export class CustomerInquiryStore {
     target.answeredAt = new Date().toISOString();
     this.inquiries = list;
     this.save();
+
+    // Supabase 답변 동기화
+    try {
+      supabase.from('customer_inquiries').update({
+        admin_answer: target.adminAnswer,
+        status: 'answered',
+        answered_at: target.answeredAt,
+      }).eq('id', id).then(({ error }) => {
+        if (error) console.warn('[CustomerInquiryStore] Supabase answer update deferred:', error.message);
+      });
+    } catch (e) {
+      console.warn('[CustomerInquiryStore] Supabase answer sync skipped:', e);
+    }
+
     return true;
+  }
+
+  /**
+   * Supabase 중앙 DB로부터 최신 문의 목록을 가져와 로컬 캐시와 병합
+   */
+  public static async syncFromSupabase(): Promise<CustomerInquiry[]> {
+    try {
+      const { data, error } = await supabase
+        .from('customer_inquiries')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error || !data) return this.getInquiries();
+
+      const remoteInquiries: CustomerInquiry[] = data.map((row: any) => ({
+        id: row.id,
+        userId: row.user_id || undefined,
+        userName: row.user_name || '의뢰인',
+        replyEmail: row.reply_email || '',
+        phone: row.phone || undefined,
+        orderId: row.order_id || undefined,
+        category: row.category || '기타',
+        title: row.title || '문의',
+        content: row.content || '',
+        status: (row.status === 'answered' ? 'answered' : 'pending'),
+        createdAt: row.created_at || new Date().toISOString(),
+        adminAnswer: row.admin_answer || undefined,
+        answeredAt: row.answered_at || undefined,
+      }));
+
+      // 로컬 항목과 병합 (원격 우선)
+      const local = this.getInquiries();
+      const map = new Map<string, CustomerInquiry>();
+      local.forEach(item => map.set(item.id, item));
+      remoteInquiries.forEach(item => map.set(item.id, item));
+
+      this.inquiries = Array.from(map.values()).sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      this.save();
+      return this.inquiries;
+    } catch (e) {
+      console.warn('[CustomerInquiryStore] Supabase pull deferred:', e);
+      return this.getInquiries();
+    }
   }
 
   public static deleteInquiry(id: string): boolean {

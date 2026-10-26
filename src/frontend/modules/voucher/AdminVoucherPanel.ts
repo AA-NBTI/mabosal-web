@@ -122,7 +122,7 @@ export function renderAdminBankTransferPanel(): string {
                   <span style="color: #94a3b8;">${at.targetProduct}</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                  <span style="color: #4ade80; font-size: 0.74rem; font-weight: 700;">${at.appliedCouponCode}</span>
+                  <span style="font-size: 0.74rem; font-weight: 700; ${at.appliedCouponCode ? 'color: #4ade80;' : 'color: #38bdf8;'}">${at.appliedCouponCode ? `쿠폰: ${at.appliedCouponCode}` : '결제완료 승인됨'}</span>
                   <span style="color: #64748b; font-size: 0.72rem;">${at.approvedAt || ''}</span>
                 </div>
               </div>

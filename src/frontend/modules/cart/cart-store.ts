@@ -38,15 +38,23 @@ export class CartStore {
   }
 
   /**
-   * 장바구니에 상품 추가 (동일 상품이라도 사주 대상자 이름이 다르면 별도 항목으로 분리)
+   * 장바구니에 상품 추가 (옵션 및 사주 대상자별 분리)
    */
-  public static addItem(product: StoreProduct, quantity: number = 1, sajuProfile?: UserSajuProfile): CartItem {
+  public static addItem(
+    product: StoreProduct,
+    quantity: number = 1,
+    sajuProfile?: UserSajuProfile,
+    selectedOption?: { id?: string; name: string; price?: number; originalPrice?: number; deliveryType?: any }
+  ): CartItem {
     const items = this.getItems();
     const sajuSnap = sajuProfile || UserSajuStore.getProfileOrDefault();
+    const optName = selectedOption?.name;
 
-    // 동일 상품 & 동일 사주 대상자명인 경우 수량 증가
+    // 동일 상품 & 동일 사주 대상자명 & 동일 옵션인 경우 수량 증가
     const existingIndex = items.findIndex(
-      it => it.productId === product.id && it.sajuSnapshot.userName === sajuSnap.userName
+      it => it.productId === product.id &&
+            it.sajuSnapshot.userName === sajuSnap.userName &&
+            it.selectedOptionName === optName
     );
 
     if (existingIndex >= 0) {
@@ -56,19 +64,24 @@ export class CartStore {
       return items[existingIndex];
     }
 
+    const itemPrice = selectedOption?.price ?? product.price;
+    const itemOrigPrice = selectedOption?.originalPrice ?? product.originalPrice;
+    const itemDelivery = selectedOption?.deliveryType ?? product.deliveryType;
+
     const newItem: CartItem = {
       id: `cart_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       productId: product.id,
       title: product.title,
-      price: product.price,
-      originalPrice: product.originalPrice,
+      price: itemPrice,
+      originalPrice: itemOrigPrice,
       quantity: Math.max(1, quantity),
-      deliveryType: product.deliveryType,
+      deliveryType: itemDelivery,
       thumbnailUrl: product.thumbnailUrl,
       category: product.category,
       reportTier: product.reportTier,
       contentPayload: product.contentPayload,
       sajuSnapshot: sajuSnap,
+      selectedOptionName: optName,
       selected: true,
       addedAt: new Date().toISOString(),
     };

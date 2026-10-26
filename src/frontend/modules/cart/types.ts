@@ -15,6 +15,8 @@ export interface CartItem {
   contentPayload?: string;
   /** 품목별로 지정된 사주 대상자 스냅샷 */
   sajuSnapshot: UserSajuProfile;
+  /** 선택된 옵션명 */
+  selectedOptionName?: string;
   /** 체크박스 선택 여부 */
   selected: boolean;
   addedAt: string;

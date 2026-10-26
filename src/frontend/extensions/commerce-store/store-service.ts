@@ -13,11 +13,14 @@ import type { StoreCategory, StoreCategoryType, StoreOrder, StoreProduct } from 
 import { UserSajuStore } from '../../state/user-saju-store.js';
 import { getIdentity, ownsRecord } from '../../modules/identity/index.js';
 import { getStorage } from '../../modules/persistence/index.js';
+import { SAJU_BOOK_VOL1_PRODUCT } from './saju-book-data.js';
+import { VoucherStore } from '../../modules/voucher/voucher-store.js';
 
-const STORAGE_PRODUCTS_KEY = 'mabosal_store_products_v4';
+const STORAGE_PRODUCTS_KEY = 'mabosal_store_products_v6';
 const STORAGE_ORDERS_KEY = 'mabosal_store_orders';
+const STORAGE_CATEGORIES_KEY = 'mabosal_store_categories_v1';
 
-export const STORE_CATEGORIES: StoreCategory[] = [
+export const INITIAL_STORE_CATEGORIES: StoreCategory[] = [
   { id: 'all', label: '전체 상품', icon: 'apps' },
   { id: 'report', label: '4대 정밀 감정 리포트', icon: 'auto_awesome' },
   { id: 'voucher', label: '상품권 · 바우처', icon: 'confirmation_number' },
@@ -27,7 +30,114 @@ export const STORE_CATEGORIES: StoreCategory[] = [
   { id: 'goods', label: '부적 · 굿즈', icon: 'token' },
 ];
 
+/** 등록된 동적 스토어 카테고리 목록 조회 */
+export function getStoreCategories(): StoreCategory[] {
+  if (typeof window === 'undefined' || !window.localStorage) return [...INITIAL_STORE_CATEGORIES];
+  try {
+    const raw = localStorage.getItem(STORAGE_CATEGORIES_KEY);
+    if (!raw) {
+      localStorage.setItem(STORAGE_CATEGORIES_KEY, JSON.stringify(INITIAL_STORE_CATEGORIES));
+      return [...INITIAL_STORE_CATEGORIES];
+    }
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+  } catch (e) {
+    console.warn('[store-service] getStoreCategories load error:', e);
+  }
+  return [...INITIAL_STORE_CATEGORIES];
+}
+
+/** 동적 스토어 카테고리 영구 저장 */
+export function saveStoreCategories(categories: StoreCategory[]): void {
+  if (typeof window === 'undefined' || !window.localStorage) return;
+  try {
+    localStorage.setItem(STORAGE_CATEGORIES_KEY, JSON.stringify(categories));
+  } catch (e) {
+    console.warn('[store-service] saveStoreCategories error:', e);
+  }
+}
+
+/** 신규 스토어 카테고리 추가 */
+export function addStoreCategory(cat: { id: string; label: string; icon?: string }): { success: boolean; message: string } {
+  const cleanId = cat.id.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+  const cleanLabel = cat.label.trim();
+  if (!cleanId || !cleanLabel) {
+    return { success: false, message: '카테고리 영문 ID와 표시 명칭을 모두 입력해주세요.' };
+  }
+  const current = getStoreCategories();
+  if (current.some(c => c.id === cleanId)) {
+    return { success: false, message: '이미 존재하는 카테고리 ID입니다.' };
+  }
+  current.push({
+    id: cleanId,
+    label: cleanLabel,
+    icon: cat.icon?.trim() || 'category',
+  });
+  saveStoreCategories(current);
+  return { success: true, message: `[${cleanLabel}] 카테고리가 등록되었습니다.` };
+}
+
+/** 스토어 카테고리 수정 (표시 명칭 및 아이콘 수정) */
+export function updateStoreCategory(id: string, updates: { label: string; icon?: string }): { success: boolean; message: string } {
+  const cleanLabel = (updates.label || '').trim();
+  if (!cleanLabel) {
+    return { success: false, message: '카테고리 표시 명칭을 입력해주세요.' };
+  }
+  const current = getStoreCategories();
+  const targetCat = current.find(c => c.id === id);
+  if (!targetCat) {
+    return { success: false, message: '수정할 카테고리를 찾을 수 없습니다.' };
+  }
+  targetCat.label = cleanLabel;
+  if (updates.icon && updates.icon.trim()) {
+    targetCat.icon = updates.icon.trim();
+  }
+  saveStoreCategories(current);
+  return { success: true, message: `[${cleanLabel}] 카테고리가 성공적으로 수정되었습니다.` };
+}
+
+/** 스토어 카테고리 삭제 (A방식: 등록된 상품이 있을 경우 기본 카테고리로 안전 자동 이전) */
+export function deleteStoreCategory(id: string): { success: boolean; message: string; migratedCount: number } {
+  if (id === 'all') {
+    return { success: false, message: '[전체 상품] 기본 카테고리는 삭제할 수 없습니다.', migratedCount: 0 };
+  }
+  const current = getStoreCategories();
+  const next = current.filter(c => c.id !== id);
+  if (next.length === current.length) {
+    return { success: false, message: '삭제할 카테고리를 찾을 수 없습니다.', migratedCount: 0 };
+  }
+
+  // [A 방식] 삭제 대상 카테고리에 속한 모든 상품을 기본 카테고리('report')로 안전하게 자동 이전
+  const allProducts = getAllStoreProducts();
+  let migratedCount = 0;
+  allProducts.forEach(p => {
+    if (p.category === id) {
+      p.category = 'report';
+      migratedCount++;
+    }
+  });
+
+  if (migratedCount > 0 && typeof localStorage !== 'undefined') {
+    localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(allProducts));
+  }
+
+  saveStoreCategories(next);
+  return { 
+    success: true, 
+    message: migratedCount > 0
+      ? `[${id}] 카테고리가 삭제되었습니다.\n(소속 상품 ${migratedCount}건이 기본 '정밀 리포트' 카테고리로 안전하게 이전되었습니다.)`
+      : '카테고리가 삭제되었습니다.',
+    migratedCount
+  };
+}
+
+/** 하위 호환용 상수 */
+export const STORE_CATEGORIES: StoreCategory[] = INITIAL_STORE_CATEGORIES;
+
 export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
+  // [정통 사주명리학 원론 제1권: 음양오행과 간지 원론 (정식 마스터북)]
+  SAJU_BOOK_VOL1_PRODUCT,
+
   // [상품권 1. 마보살 50,000원 VIP 기프트 상품권]
   {
     id: 'prod-voucher-50k',
@@ -728,7 +838,7 @@ export function createStoreOrder(orderData: {
     userId: orderData.userId || getIdentity().userId || undefined,
     orderId: orderData.orderId || 'ORD-' + Date.now().toString(36).toUpperCase(),
     paidAt: new Date().toISOString(),
-    status: orderData.status || 'completed',
+    status: orderData.status || (orderData.paymentMethod === 'bank_transfer' ? 'pending' : 'completed'),
     ...(orderData.paymentKey ? { paymentKey: orderData.paymentKey } : {}),
     sajuInput: UserSajuStore.getProfile() || undefined,
     reportTier: prod?.reportTier || 'COMPREHENSIVE',
@@ -804,6 +914,53 @@ export function redeemStoreVoucher(rawCode: string, buyerInfo?: { name: string; 
     message: `[${discountDesc}] 쿠폰이 정상 승인되었습니다! 즉시 리포트를 열람하실 수 있습니다.`,
     order: newOrder,
   };
+}
+
+export interface CouponDiscountResult {
+  valid: boolean;
+  couponCode: string;
+  couponName: string;
+  discountAmount: number;
+  finalPrice: number;
+  message: string;
+}
+
+/** 결제 시 실시간 쿠폰 검증 및 차감 금액 계산 */
+export function calculateStoreCouponDiscount(rawCode: string, originalAmount: number): CouponDiscountResult {
+  const code = (rawCode || '').trim().toUpperCase();
+  if (!code) {
+    return { valid: false, couponCode: '', couponName: '', discountAmount: 0, finalPrice: originalAmount, message: '쿠폰 코드를 입력해 주세요.' };
+  }
+
+  // 1. 기본 탑재된 프로모션 쿠폰
+  if (code === 'WELCOME' || code === 'MABOSAL3K' || code === 'MABOSAL3000') {
+    const discount = Math.min(3000, originalAmount);
+    return { valid: true, couponCode: code, couponName: '신규 회원 3,000원 웰컴 쿠폰', discountAmount: discount, finalPrice: Math.max(0, originalAmount - discount), message: '3,000원 즉시 할인 쿠폰이 적용되었습니다.' };
+  }
+  if (code === 'BOOK5000' || code === 'MABOSAL5K' || code === 'EBOOK5K' || code === 'BOOK5K') {
+    const discount = Math.min(5000, originalAmount);
+    return { valid: true, couponCode: code, couponName: '원론 1권 출간기념 5,000원 특별 할인 쿠폰', discountAmount: discount, finalPrice: Math.max(0, originalAmount - discount), message: '5,000원 특별 할인 쿠폰이 적용되었습니다.' };
+  }
+  if (code === 'VIP10K' || code === 'SPECIAL10K') {
+    const discount = Math.min(10000, originalAmount);
+    return { valid: true, couponCode: code, couponName: 'VIP 10,000원 감사 할인 쿠폰', discountAmount: discount, finalPrice: Math.max(0, originalAmount - discount), message: '10,000원 할인 쿠폰이 적용되었습니다.' };
+  }
+  if (code === 'OPEN10' || code === 'DISCOUNT10') {
+    const discount = Math.round(originalAmount * 0.1);
+    return { valid: true, couponCode: code, couponName: '스토어 오픈 10% 추가 할인 쿠폰', discountAmount: discount, finalPrice: Math.max(0, originalAmount - discount), message: '10% 할인이 적용되었습니다.' };
+  }
+
+  // 2. 동적 쿠폰/바우처 목록 조회
+  try {
+    const dynamicCoupons = JSON.parse(localStorage.getItem('mabosal_voucher_coupons') || '[]');
+    const matched = dynamicCoupons.find((c: any) => c.code.toUpperCase() === code && c.enabled);
+    if (matched) {
+      const discount = matched.discountAmount ? Math.min(matched.discountAmount, originalAmount) : Math.round(originalAmount * ((matched.discountRate || 0) / 100));
+      return { valid: true, couponCode: code, couponName: matched.name, discountAmount: discount, finalPrice: Math.max(0, originalAmount - discount), message: `[${matched.name}] 쿠폰이 적용되었습니다.` };
+    }
+  } catch {}
+
+  return { valid: false, couponCode: code, couponName: '', discountAmount: 0, finalPrice: originalAmount, message: '유효하지 않거나 기간이 만료된 쿠폰 코드입니다.' };
 }
 
 /** 주문 상태 등 일부 필드 갱신 (입금 확인 시 pending → completed) */
@@ -905,6 +1062,57 @@ export function approveStoreOrderRefund(orderId: string): { success: boolean; me
   return {
     success: true,
     message: `[주문번호: ${orderId}] 환불 처리가 최종 승인되어 결제 취소되었습니다.`,
+  };
+}
+
+/**
+ * 최고 관리자의 무통장 입금 확인 및 주문 승인 처리
+ */
+export function approveStoreBankDeposit(orderId: string): { success: boolean; message: string } {
+  const target = updateStoreOrder(orderId, {
+    status: 'completed',
+    paidAt: new Date().toISOString(),
+  });
+
+  if (!target) {
+    return { success: false, message: '주문 정보를 찾을 수 없습니다.' };
+  }
+
+  // 1. 해당 상품 판매 수량 증가
+  if (target.productId) {
+    const prod = getStoreProductById(target.productId);
+    if (prod) {
+      updateStoreProduct(prod.id, { salesCount: (prod.salesCount || 0) + 1 });
+    }
+  }
+  if (target.items && target.items.length > 0) {
+    for (const it of target.items) {
+      const prod = getStoreProductById(it.productId);
+      if (prod) {
+        updateStoreProduct(prod.id, { salesCount: (prod.salesCount || 0) + (it.quantity || 1) });
+      }
+    }
+  }
+
+  // 2. VoucherStore 무통장 입금 대기 내역과 양방향 상태 동기화
+  try {
+    const transfers = VoucherStore.getBankTransfers();
+    const matchedTransfer = transfers.find(t => t.orderId === orderId);
+    if (matchedTransfer && matchedTransfer.status === 'pending') {
+      VoucherStore.approveBankTransfer(matchedTransfer.id);
+    }
+  } catch (e) {
+    console.warn('[approveStoreBankDeposit] VoucherStore sync deferred:', e);
+  }
+
+  // 3. 주문된 사주 리포트 즉시 열람 준비
+  try {
+    UserSajuStore.ensureAnalysisReadyFromOrder(target);
+  } catch (e) {}
+
+  return {
+    success: true,
+    message: `[주문번호: ${orderId}] 입금 확인이 완료되어 주문이 정상 승인되었습니다.`,
   };
 }
 

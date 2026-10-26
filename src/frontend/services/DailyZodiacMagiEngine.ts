@@ -60,6 +60,8 @@ export interface DailyReadingResult {
     firstHourAction: string;
     secondHour: string;
     secondHourAction: string;
+    riskArea: string;
+    riskDetail: string;
   };
   magi: {
     magiRate: number;             // 마기지수 (%)
@@ -331,6 +333,8 @@ export const dailyZodiacMagiEngine = {
         firstHourAction: firstHourAct,
         secondHour,
         secondHourAction: secondHourAct,
+        riskArea: magiType,
+        riskDetail: magiRisk,
       },
       magi: {
         magiRate,

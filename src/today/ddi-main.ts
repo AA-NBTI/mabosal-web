@@ -147,7 +147,7 @@ function renderResultCard() {
       </div>
       <div class="meta-card">
         <span class="m-label">단 하나의 방비책</span>
-        <span class="m-val" style="color: #fde68a;">[${fortune.defenseKeyword}]</span>
+        <span class="m-val" style="color: #fde68a;">[${reading.defense.defenseKeyword}]</span>
         <span class="m-sub">오늘 최우선 행동 지침</span>
       </div>
     </div>

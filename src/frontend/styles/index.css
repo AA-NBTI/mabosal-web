@@ -150,8 +150,7 @@ html, body {
   box-sizing: border-box !important;
 }
 
-/* Desktop Left-aligned Category Buttons */
-.btn-store-cat-nav,
+/* Desktop Left-aligned Category Buttons (사이드바 메뉴용) */
 .btn-study-category,
 .responsive-nav-btn {
   text-align: left !important;
@@ -170,12 +169,107 @@ html, body {
   color: #cbd5e1 !important;
 }
 
-.btn-store-cat-nav.active,
 .btn-study-category.active {
   background: rgba(242, 202, 80, 0.16) !important;
   border-color: var(--primary) !important;
   color: var(--primary) !important;
   font-weight: 800 !important;
+}
+
+/* ==========================================================================
+   스토어 & 스터디 공통 가로 카테고리 탭 바 (Desktop & Tablet)
+   ========================================================================== */
+.store-text-category-bar,
+.study-text-category-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.35rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.store-cat-scroll-inner,
+.study-cat-scroll-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.store-cat-scroll-inner::-webkit-scrollbar,
+.study-cat-scroll-inner::-webkit-scrollbar {
+  display: none;
+}
+
+.btn-store-cat-nav,
+.btn-study-category {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding: 0.65rem 1.15rem;
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: #94a3b8;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  letter-spacing: -0.01em;
+}
+
+.btn-store-cat-nav.active,
+.btn-study-category.active {
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.btn-store-cat-nav:hover,
+.btn-study-category:hover {
+  color: #ffffff;
+}
+
+.cat-active-line {
+  position: absolute;
+  bottom: -0.35rem;
+  left: 0.5rem;
+  right: 0.5rem;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(242, 202, 80, 0.5);
+}
+
+.btn-store-cart-pill {
+  background: rgba(242, 202, 80, 0.15);
+  border: 1px solid rgba(242, 202, 80, 0.4);
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.btn-store-cart-pill .cart-pill-count {
+  background: var(--primary);
+  color: #000;
+  font-size: 0.72rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 9999px;
+  font-weight: 900;
 }
 
 /* ==========================================================================
@@ -806,6 +900,55 @@ html, body {
     display: inline-flex !important;
   }
 
+  /* 모바일에서 상단 가로 탭 바 숨김 (모바일 시 좌측 슬라이딩 드로어 구조로 전환) */
+  .store-text-category-bar,
+  .study-text-category-bar {
+    display: none !important;
+  }
+
+  /* 좌측 슬라이딩 드로어 카테고리 항목 스타일 */
+  .store-drawer-cat-item,
+  .study-drawer-cat-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+    padding: 0.8rem 1rem !important;
+    border-radius: 10px !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    color: #cbd5e1 !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    text-align: left !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    white-space: normal !important;
+    height: auto !important;
+    min-height: 44px !important;
+    box-sizing: border-box !important;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .store-drawer-cat-item.active,
+  .study-drawer-cat-item.active {
+    background: rgba(242, 202, 80, 0.18) !important;
+    border-color: rgba(242, 202, 80, 0.5) !important;
+    color: var(--primary) !important;
+    font-weight: 800 !important;
+    box-shadow: 0 4px 14px rgba(242, 202, 80, 0.18) !important;
+  }
+
+  .store-drawer-cat-item:active,
+  .study-drawer-cat-item:active {
+    transform: scale(0.97) !important;
+  }
+
+  .cat-active-line {
+    display: none !important;
+  }
+
   /* 모바일에서 폰 하단 전체 폭(100%)을 채우는 프리미엄 다크 바텀 독 활성화 */
   .floating-bottom-dock {
     display: flex !important;
@@ -814,10 +957,10 @@ html, body {
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
-    height: 62px !important;
-    background: rgba(12, 15, 23, 0.95) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
+    height: 60px !important;
+    background: rgba(12, 15, 23, 0.96) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
     border-top: 1px solid rgba(242, 202, 80, 0.25) !important;
     z-index: 99990 !important;
     padding: 0 !important;
@@ -838,17 +981,19 @@ html, body {
     background: transparent !important;
     border: none !important;
     color: #94a3b8 !important;
-    font-size: 0.72rem !important;
+    font-size: 0.7rem !important;
     font-weight: 600 !important;
     cursor: pointer !important;
-    padding: 4px 0 !important;
+    padding: 4px 1px !important;
     margin: 0 !important;
     box-shadow: none !important;
     transition: color 0.18s ease !important;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .dock-tab-btn .dock-icon {
-    font-size: 22px !important;
+    font-size: 21px !important;
     margin-bottom: 2px !important;
     color: inherit !important;
   }

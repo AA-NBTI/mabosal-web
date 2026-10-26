@@ -18,6 +18,7 @@ import { renderCheonmyeongwonDailyDashboard, renderDailyAuspiciousHoursWidget } 
 import { toDashboardOptions } from '../modules/fortune-adapter/index.js';
 import { CustomerInquiryStore } from '../state/customer-inquiry-store.js';
 import { UserSajuStore } from '../state/user-saju-store.js';
+import { UserAddressStore } from '../state/user-address-store.js';
 import { renderMemberLuckyCalendarWidget, renderMemberMagiCalendarWidget } from './MemberCalendarWidgets.js';
 
 let activeMemberTabId = 'tab-daily';
@@ -36,13 +37,16 @@ export function renderMemberDashboardView(state: AppStateData): string {
   const summary = UserOrderService.getCurrentUserOrderSummarySync();
   const currentTab = activeMemberTabId;
 
-  // 내가 작성한 문의 조회
+  // 내가 작성한 문의 조회 (회원 ID, 사용자명, 이메일 다각도 포괄 매칭)
   const allInquiries = CustomerInquiryStore.getInquiries();
-  const myInquiries = allInquiries.filter(i => 
-    (user.role !== 'guest' && i.userId === user.username) || 
-    (user.role !== 'guest' && user.email && i.replyEmail.toLowerCase() === user.email.toLowerCase()) ||
-    (i.userName === userName)
-  );
+  const myInquiries = allInquiries.filter(i => {
+    if (user.role !== 'guest') {
+      if (i.userId && (i.userId === user.id || i.userId === user.username)) return true;
+      if (user.email && i.replyEmail && i.replyEmail.toLowerCase() === user.email.toLowerCase()) return true;
+      if (user.name && i.userName && i.userName.trim() === user.name.trim()) return true;
+    }
+    return i.userName === userName || i.userId === 'guest';
+  });
 
   // 카테고리 탭 목록 (홈화면 제거 -> 행운처방을 홈화면으로 설정, 리포트 탭 제거)
   const tabs = [
@@ -536,7 +540,56 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
             </form>
           </div>
 
-          <!-- 3. 회원 탈퇴 (바로 노출되지 않고 안전한 접이식 아코디언 설계) -->
+          <!-- 3. [회원정보] 회원 등록 배송지 주소록 현황 및 관리 -->
+          <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.85rem; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin: 0 0 0.25rem 0; display: flex; align-items: center; gap: 0.45rem;">
+                  <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">home_pin</span>
+                  회원 등록 배송지 주소록
+                </h3>
+                <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0;">실물 굿즈 및 도서 상품 주문 시 기본 배송지로 자동 입력되는 주소 목록입니다.</p>
+              </div>
+              <button type="button" id="btn-add-member-address" style="background: var(--primary); color: #1c1500; font-weight: 800; font-size: 0.78rem; border: none; padding: 0.45rem 0.85rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; box-shadow: 0 2px 8px rgba(242,202,80,0.25);">
+                <span class="material-symbols-outlined" style="font-size: 16px;">add_location_alt</span>
+                <span>+ 새 배송지 등록</span>
+              </button>
+            </div>
+
+            ${(() => {
+              const addrs = UserAddressStore.getAddresses();
+              if (addrs.length === 0) {
+                return '<div style="font-size: 0.82rem; color: #94a3b8; background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 10px; border: 1px dashed rgba(255,255,255,0.12); text-align: center;">등록된 기본 배송지가 없습니다. 위 [+ 새 배송지 등록] 버튼을 눌러 등록해주세요.</div>';
+              }
+              return `
+                <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+                  ${addrs.map(a => `
+                    <div class="member-address-card" data-address-id="${a.id}" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.9rem 1.1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; flex-wrap: wrap; gap: 0.65rem;">
+                      <div>
+                        <div style="display: flex; align-items: center; gap: 0.45rem; color: #fff; font-weight: 800;">
+                          ${a.isDefault ? '<span style="background: var(--primary); color: #000; font-size: 0.68rem; padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 900;">기본 배송지</span>' : ''}
+                          <span>${a.recipientName} (${a.recipientPhone})</span>
+                        </div>
+                        <div style="color: #cbd5e1; margin-top: 0.35rem; font-size: 0.83rem;">${a.address} ${a.detailAddress || ''}</div>
+                        ${a.deliveryMemo ? `<div style="color: #94a3b8; font-size: 0.78rem; margin-top: 0.2rem;">배송 메모: ${a.deliveryMemo}</div>` : ''}
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 0.75rem; color: #64748b; margin-right: 0.25rem;">${new Date(a.updatedAt).toLocaleDateString()}</span>
+                        <button type="button" class="btn-edit-member-address" data-address-id="${a.id}" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 6px; padding: 0.25rem 0.55rem; font-size: 0.75rem; cursor: pointer;">
+                          수정
+                        </button>
+                        <button type="button" class="btn-delete-member-address" data-address-id="${a.id}" style="background: none; border: 1px solid rgba(239,68,68,0.4); color: #f87171; border-radius: 6px; padding: 0.25rem 0.55rem; font-size: 0.75rem; cursor: pointer;">
+                          삭제
+                        </button>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              `;
+            })()}
+          </div>
+
+          <!-- 4. 회원 탈퇴 (바로 노출되지 않고 안전한 접이식 아코디언 설계) -->
           <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.25rem;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: 0.75rem; color: #64748b;">회원 탈퇴를 원하실 경우 아래 옵션을 열어주세요.</span>

@@ -17,6 +17,8 @@
 
 import { AppViewType, appState } from '../../state/app-state.js';
 import { getPageByPathname, PageModule } from '../../pages/index.js';
+import { resetStoreCategory } from '../../extensions/commerce-store/ui-store-view.js';
+import { resetStudyCategory, selectStudyArticle } from '../../extensions/study-hub/ui-study-view.js';
 
 export interface SeoMetadata {
   title: string;
@@ -363,6 +365,14 @@ export function navigateTo(target: AppViewType | string, options?: { replace?: b
     window.history.replaceState({ view: targetView }, '', targetPath);
   } else {
     window.history.pushState({ view: targetView }, '', targetPath);
+  }
+
+  // 스토어/스터디 진입 시 특정 쿼리가 없으면 항상 기본 전체 카테고리로 리셋
+  if (targetView === 'store' && (!options?.query?.category)) {
+    resetStoreCategory();
+  } else if (targetView === 'study' && (!options?.query?.category && !options?.query?.article)) {
+    resetStudyCategory();
+    selectStudyArticle(null, false);
   }
 
   updateSeoForView(targetView);

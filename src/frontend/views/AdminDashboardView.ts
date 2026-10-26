@@ -108,6 +108,7 @@ export function renderAdminDashboardView(): string {
             { id: 'tab-store', label: '상품목록' },
             { id: 'tab-store-register', label: '상품등록' },
             { id: 'tab-store-orders', label: '결제장부' },
+            { id: 'tab-store-categories', label: '카테고리 관리' },
           ]
         },
         { id: 'tab-reviews', label: '리뷰 관리' },
@@ -173,7 +174,7 @@ export function renderAdminDashboardView(): string {
     g.subTabs.some(st => st.id === currentTab || (st.children && st.children.some(c => c.id === currentTab)))
   );
   if (!activeGroup) {
-    if (['tab-store', 'tab-store-register', 'tab-store-orders', 'tab-orders', 'tab-vouchers'].includes(currentTab)) activeGroup = adminGroups[1];
+    if (['tab-store', 'tab-store-register', 'tab-store-orders', 'tab-store-categories', 'tab-orders', 'tab-vouchers'].includes(currentTab)) activeGroup = adminGroups[1];
     else if (['tab-study-articles', 'tab-study-write', 'tab-study-categories', 'tab-study', 'tab-seo-wiki-hub'].includes(currentTab)) activeGroup = adminGroups[2];
     else if (currentTab === 'tab-products') activeGroup = adminGroups[5];
     else activeGroup = adminGroups[0];
@@ -263,7 +264,7 @@ export function renderAdminDashboardView(): string {
                 // [3단 계층: 상품관리 -> 상품목록, 상품등록, 결제장부]
                 if (st.children && st.children.length > 0) {
                   const isSubGroupActive = st.children.some((c: any) => c.id === currentTab);
-                  const isSubGroupExpanded = subGroupToggleState.has(st.id) ? subGroupToggleState.get(st.id)! : (st.id === 'subgroup-store' || isSubGroupActive);
+                  const isSubGroupExpanded = subGroupToggleState.has(st.id) ? subGroupToggleState.get(st.id)! : (st.id === 'subgroup-store' || st.id === 'subgroup-study' || isSubGroupActive);
 
                   return `
                   <li style="display: flex; flex-direction: column; gap: 0.15rem;">
@@ -1349,8 +1350,8 @@ export function renderAdminDashboardView(): string {
             ${renderAdminVoucherPanel()}
           </div>
 
-          <div id="tab-store" class="admin-tab-panel" style="display: ${['tab-store', 'tab-store-register', 'tab-store-orders'].includes(currentTab) ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
-            ${renderAdminStorePanel(activeEditingStoreProductId, currentTab === 'tab-store-register' ? 'register' : (currentTab === 'tab-store-orders' ? 'orders' : 'products'))}
+          <div id="tab-store" class="admin-tab-panel" style="display: ${['tab-store', 'tab-store-register', 'tab-store-orders', 'tab-store-categories'].includes(currentTab) ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+            ${renderAdminStorePanel(activeEditingStoreProductId, currentTab === 'tab-store-register' ? 'register' : (currentTab === 'tab-store-orders' ? 'orders' : (currentTab === 'tab-store-categories' ? 'categories' : 'products')))}
           </div>
 
           <!-- [컨텐츠 > 스터디 3대 서브카테고리 독립 패널 워크스페이스] -->
@@ -1461,10 +1462,28 @@ function renderAdminStudyWorkspace(currentTab: string): string {
   const editingId = StudyService.getEditingArticleId() || getEditingStudyArticleId() || urlParamEditId;
   const editingArticle = editingId ? StudyService.getArticleById(editingId) : null;
 
+  const renderStudySubTabs = (activeTab: string) => `
+    <div class="study-admin-subtabs" style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.85rem; flex-wrap: wrap;">
+      <button type="button" class="admin-tab-btn" data-tab="tab-study-articles" style="background: ${activeTab === 'tab-study-articles' || activeTab === 'tab-study' ? 'var(--primary)' : 'rgba(255,255,255,0.06)'}; color: ${activeTab === 'tab-study-articles' || activeTab === 'tab-study' ? '#1c1500' : '#cbd5e1'}; font-weight: 800; font-size: 0.85rem; padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid ${activeTab === 'tab-study-articles' || activeTab === 'tab-study' ? 'transparent' : 'rgba(255,255,255,0.12)'}; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.15s ease;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">article</span>
+        아티클 목록 (${articles.length}편)
+      </button>
+      <button type="button" class="admin-tab-btn" data-tab="tab-study-write" style="background: ${activeTab === 'tab-study-write' ? 'var(--primary)' : 'rgba(255,255,255,0.06)'}; color: ${activeTab === 'tab-study-write' ? '#1c1500' : '#cbd5e1'}; font-weight: 800; font-size: 0.85rem; padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid ${activeTab === 'tab-study-write' ? 'transparent' : 'rgba(255,255,255,0.12)'}; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.15s ease;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">edit_document</span>
+        ${editingArticle ? '글 수정' : '+ 새 글 작성'}
+      </button>
+      <button type="button" class="admin-tab-btn" data-tab="tab-study-categories" style="background: ${activeTab === 'tab-study-categories' ? 'var(--primary)' : 'rgba(255,255,255,0.06)'}; color: ${activeTab === 'tab-study-categories' ? '#1c1500' : '#cbd5e1'}; font-weight: 800; font-size: 0.85rem; padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid ${activeTab === 'tab-study-categories' ? 'transparent' : 'rgba(255,255,255,0.12)'}; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.15s ease;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">category</span>
+        카테고리 관리 (${categories.length}개)
+      </button>
+    </div>
+  `;
+
   return `
     <!-- 1. 아티클 목록 패널 -->
     <div id="tab-study-articles" class="admin-tab-panel" style="display: ${currentTab === 'tab-study-articles' || currentTab === 'tab-study' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
       <div style="background: var(--surface-container); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
+        ${renderStudySubTabs(currentTab)}
         
         <!-- 상단 헤더 & 액션 -->
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">
@@ -1549,6 +1568,7 @@ function renderAdminStudyWorkspace(currentTab: string): string {
     <!-- 2. 글 작성 및 수정 전용 시스템 에디터 워크스페이스 패널 -->
     <div id="tab-study-write" class="admin-tab-panel" style="display: ${currentTab === 'tab-study-write' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
       <div style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1.75rem; display: flex; flex-direction: column; gap: 1.5rem;">
+        ${renderStudySubTabs(currentTab)}
         
         <!-- 상단 타이틀 바 -->
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">
@@ -1657,6 +1677,7 @@ function renderAdminStudyWorkspace(currentTab: string): string {
     <!-- 3. 카테고리 관리 전용 패널 -->
     <div id="tab-study-categories" class="admin-tab-panel" style="display: ${currentTab === 'tab-study-categories' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
       <div style="background: var(--surface-container); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
+        ${renderStudySubTabs(currentTab)}
         
         <!-- 상단 헤더 -->
         <div style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem;">

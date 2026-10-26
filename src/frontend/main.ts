@@ -4,7 +4,7 @@ import { savePaymentConfigFromDom } from './modules/payment/AdminPaymentPanel.js
 import { VoucherStore } from './modules/voucher/voucher-store.js';
 import { renderMagiCalendarView } from './views/MagiCalendarView.js';
 import { renderLuckyCalendarView } from './views/LuckyCalendarView.js';
-import { renderStudyView, setStudyCategory, selectStudyArticle, bindStudyHubEvents, StudyService, generateKoreanSlug } from './extensions/study-hub/index.js';
+import { renderStudyView, setStudyCategory, selectStudyArticle, resetStudyCategory, bindStudyHubEvents, StudyService, generateKoreanSlug } from './extensions/study-hub/index.js';
 import { SiteContentStore } from './state/site-content-store.js';
 import { navigateTo, parseRouteFromLocation, getViewPath, updateSeoForView, mountPageToOutlet, syncNavActiveState } from './modules/router/index.js';
 import {
@@ -122,13 +122,20 @@ import {
   updateStoreProduct,
   deleteStoreProduct,
   setAdminStoreFilter,
+  setAdminStoreStatusFilter,
   setAdminStoreSort,
   setAdminStoreSearch,
   setStoreProductStatus,
   setAdminStoreSubTab,
   isProductAlreadyPurchased,
+  calculateStoreCouponDiscount,
   requestStoreOrderRefund,
   approveStoreOrderRefund,
+  approveStoreBankDeposit,
+  addStoreCategory,
+  updateStoreCategory,
+  deleteStoreCategory,
+  resetStoreCategory,
   type StoreCategoryType,
   type DeliveryType,
 } from './extensions/commerce-store/index.js';
@@ -144,6 +151,7 @@ import { IntelligentSajuRouter } from './modules/router/intelligent-saju-router.
 import { CartStore } from './state/cart-store.js';
 import { CustomerInquiryStore } from './state/customer-inquiry-store.js';
 import { ProductReviewStore } from './state/product-review-store.js';
+import { UserAddressStore } from './state/user-address-store.js';
 import { renderCartBoardView } from './modules/cart/index.js';
 import { renderCheckoutBoardView, CheckoutService, ReportRouterMapper } from './modules/checkout/index.js';
 import { renderCartModal, renderOrderReviewModal } from './components/CartAndReviewModal.js';
@@ -154,6 +162,7 @@ import { generateDownloadableReportText } from './components/tier-templates.js';
 import { renderCheonmyeongwonShareModal } from './components/VisualCharts.js';
 import { FunnelCheckoutHelper } from './views/pages/FunnelCheckoutHelper.js';
 import { AbTestService } from './modules/ab-test/ab-test-service.js';
+import { PaymentConfigStore } from './modules/payment/payment-config.js';
 
 
 function compressImageFile(file: File, maxDimension = 900, quality = 0.85): Promise<string> {
@@ -643,6 +652,32 @@ class MabosalApp {
         return;
       }
 
+      // [관리자 CMS: 스토어 카테고리 신규 추가]
+      if (targetForm?.id === 'form-admin-add-store-category') {
+        e.preventDefault();
+        const idInput = document.getElementById('store-cat-id') as HTMLInputElement;
+        const labelInput = document.getElementById('store-cat-label') as HTMLInputElement;
+        const iconInput = document.getElementById('store-cat-icon') as HTMLInputElement;
+
+        const id = idInput?.value.trim().toLowerCase();
+        const label = labelInput?.value.trim();
+        const icon = iconInput?.value.trim() || 'category';
+
+        if (!id || !label) {
+          alert('카테고리 ID와 표시 명칭을 모두 입력해주세요.');
+          return;
+        }
+
+        const success = addStoreCategory({ id, label, icon });
+        if (success) {
+          alert(`새 스토어 카테고리 [${label}] 이(가) 등록되었습니다.`);
+          this.render(appState.getState());
+        } else {
+          alert(`이미 존재하는 카테고리 ID [${id}] 이거나 유효하지 않은 식별자입니다.`);
+        }
+        return;
+      }
+
       // [관리자 CMS: 네이버 쇼핑형 상품 등록 및 사진 저장]
       if (targetForm?.id === 'admin-product-cms-form') {
         e.preventDefault();
@@ -957,6 +992,25 @@ ${content}
       return;
     }
 
+    // [관리자 CMS: 상품 판매 상태 드롭다운 원클릭 즉시 저장 (판매중 / 숨김 / 품절)]
+    if (target && target.classList?.contains('select-product-status-quick')) {
+      const selectEl = target as unknown as HTMLSelectElement;
+      const prodId = selectEl.dataset.productId;
+      const title = selectEl.dataset.productTitle || '상품';
+      const newStatus = selectEl.value as 'active' | 'hidden' | 'soldout';
+      if (prodId && newStatus) {
+        updateStoreProduct(prodId, { status: newStatus });
+        const statusMap: Record<string, string> = {
+          active: '판매중 (스토어 노출)',
+          hidden: '숨김 (스토어 미노출)',
+          soldout: '품절',
+        };
+        alert(`[상품 판매 상태 저장]\n\n'${title}' 상품이 '${statusMap[newStatus] || newStatus}' 상태로 즉시 변경되어 저장되었습니다.`);
+        this.render(appState.getState());
+      }
+      return;
+    }
+
  // [관리자 CMS: PDF / 전자책 디지털 파일 직접 선택]
  if (target?.id === 'cms-digital-file-input' && target.files && target.files[0]) {
    const file = target.files[0];
@@ -1007,7 +1061,7 @@ ${content}
        if (dataInput?.value) currentList = JSON.parse(dataInput.value);
      } catch (err) {}
 
-     const updated = [...currentList, ...base64List].slice(0, 4); // 최대 4장
+     const updated = [...currentList, ...base64List].slice(0, 9); // 네이버 쇼핑 기준 추가 갤러리 최대 9장
      if (dataInput) dataInput.value = JSON.stringify(updated);
 
      if (container) {
@@ -1035,7 +1089,7 @@ ${content}
        if (dataInput?.value) currentList = JSON.parse(dataInput.value);
      } catch (err) {}
 
-     const updated = [...currentList, ...base64List].slice(0, 3); // 최대 3장
+     const updated = [...currentList, ...base64List].slice(0, 5); // 상세페이지 통이미지 최대 5장
      if (dataInput) dataInput.value = JSON.stringify(updated);
 
      if (container) {
@@ -1536,6 +1590,10 @@ ${content}
       if (cat) {
         setStoreActiveCategory(cat);
         selectStoreProduct(null); // Return to category product grid!
+        const storeDrawer = document.getElementById('store-sidebar-drawer');
+        const storeBackdrop = document.getElementById('store-drawer-backdrop');
+        if (storeDrawer) storeDrawer.classList.remove('drawer-open');
+        if (storeBackdrop) storeBackdrop.classList.remove('active');
         this.render(appState.getState());
       }
       return;
@@ -1673,6 +1731,10 @@ ${content}
       const cat = studyCatBtn.dataset.cat;
       if (cat) {
         setStudyCategory(cat);
+        const studyDrawer = document.getElementById('study-sidebar-drawer');
+        const studyBackdrop = document.getElementById('study-drawer-backdrop');
+        if (studyDrawer) studyDrawer.classList.remove('drawer-open');
+        if (studyBackdrop) studyBackdrop.classList.remove('active');
         this.render(appState.getState());
       }
       return;
@@ -1857,12 +1919,16 @@ ${content}
       return;
     }
     if (target.closest('#footer-nav-study')) {
+      resetStudyCategory();
+      selectStudyArticle(null, false);
       appState.setView('study');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       this.render(appState.getState());
       return;
     }
     if (target.closest('#footer-nav-store')) {
+      resetStoreCategory();
+      selectStoreProduct(null);
       appState.setView('store');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       this.render(appState.getState());
@@ -1936,6 +2002,17 @@ ${content}
       const cat = adminFilterBtn.dataset.cat as StoreCategoryType;
       if (cat) {
         setAdminStoreFilter(cat);
+        this.render(appState.getState());
+      }
+      return;
+    }
+
+    // [관리자 CMS] 상품 상태별 필터 탭 (전체 / 판매중 / 숨김 / 품절)
+    const statusFilterBtn = target.closest('.btn-admin-status-filter') as HTMLElement | null;
+    if (statusFilterBtn) {
+      const status = statusFilterBtn.dataset.status as 'all' | 'active' | 'hidden' | 'soldout';
+      if (status) {
+        setAdminStoreStatusFilter(status);
         this.render(appState.getState());
       }
       return;
@@ -2173,6 +2250,54 @@ ${content}
       return;
     }
 
+    // [관리자 CMS: 스토어 카테고리 수정]
+    const editStoreCatBtn = target.closest('.btn-admin-edit-store-category') as HTMLElement | null;
+    if (editStoreCatBtn) {
+      const catId = editStoreCatBtn.dataset.catId;
+      const currentName = editStoreCatBtn.dataset.catName || '';
+      const catIcon = editStoreCatBtn.dataset.catIcon || 'category';
+      if (catId) {
+        const newLabel = prompt(`[${catId}] 카테고리의 새로운 표시 명칭을 입력해주세요:`, currentName);
+        if (newLabel !== null) {
+          const trimmed = newLabel.trim();
+          if (!trimmed) {
+            alert('카테고리 표시 명칭은 비워둘 수 없습니다.');
+            return;
+          }
+          const res = updateStoreCategory(catId, { label: trimmed, icon: catIcon });
+          alert(res.message);
+          if (res.success) {
+            this.render(appState.getState());
+          }
+        }
+      }
+      return;
+    }
+
+    // [관리자 CMS: 스토어 카테고리 삭제]
+    const delStoreCatBtn = target.closest('.btn-admin-del-store-category') as HTMLElement | null;
+    if (delStoreCatBtn) {
+      const catId = delStoreCatBtn.dataset.catId;
+      const catName = delStoreCatBtn.dataset.catName || catId;
+      const prodCount = parseInt(delStoreCatBtn.dataset.productCount || '0', 10);
+
+      let confirmMsg = `[${catName}] 스토어 카테고리를 정말 삭제하시겠습니까?`;
+      if (prodCount > 0) {
+        confirmMsg = `[${catName}] 카테고리에 등록된 상품이 ${prodCount}건 있습니다.\n카테고리를 삭제하면 해당 상품들은 기본 카테고리('정밀 리포트')로 안전하게 자동 이전됩니다.\n\n정말 삭제하시겠습니까?`;
+      }
+
+      if (catId && confirm(confirmMsg)) {
+        const res = deleteStoreCategory(catId);
+        if (res.success) {
+          alert(res.message);
+          this.render(appState.getState());
+        } else {
+          alert(res.message || '기본 카테고리는 삭제할 수 없습니다.');
+        }
+      }
+      return;
+    }
+
     // 관리자 탭 전환
     const adminTabBtn = target.closest('.admin-tab-btn') as HTMLElement;
     if (adminTabBtn) {
@@ -2188,6 +2313,9 @@ ${content}
         } else if (targetTab === 'tab-store-orders' || targetTab === 'tab-orders') {
           setAdminActiveTab('tab-store-orders');
           setAdminStoreSubTab('orders');
+        } else if (targetTab === 'tab-store-categories') {
+          setAdminActiveTab('tab-store-categories');
+          setAdminStoreSubTab('categories');
         } else {
           setAdminActiveTab(targetTab);
         }
@@ -2785,6 +2913,22 @@ ${content}
  window.scrollTo({ top: 0, behavior: 'smooth' });
  return;
  }
+ if (target.closest('#dock-btn-study')) {
+ resetStudyCategory();
+ selectStudyArticle(null, false);
+ appState.setView('study');
+ window.scrollTo({ top: 0, behavior: 'smooth' });
+ this.render(appState.getState());
+ return;
+ }
+ if (target.closest('#dock-btn-store')) {
+ resetStoreCategory();
+ selectStoreProduct(null);
+ appState.setView('store');
+ window.scrollTo({ top: 0, behavior: 'smooth' });
+ this.render(appState.getState());
+ return;
+ }
  if (target.closest('#dock-btn-consult')) {
  appState.setView('consult');
  window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2899,6 +3043,125 @@ ${content}
 
       alert('회원 정보와 사주 프로필이 성공적으로 저장되었습니다.\n대시보드의 일진 처방이 갱신되었습니다.');
       this.render(appState.getState());
+      return;
+    }
+
+    // [이용자 대시보드: 회원 배송지 추가/수정 모달 열기 헬퍼]
+    const openAddressEditModal = (targetAddr?: any) => {
+      let modal = document.getElementById('modal-member-address-edit');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'modal-member-address-edit';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem;box-sizing:border-box;backdrop-filter:blur(6px);';
+        document.body.appendChild(modal);
+      }
+      modal.innerHTML = `
+        <div style="background:#131824;border:1.5px solid rgba(242,202,80,0.35);border-radius:14px;max-width:480px;width:100%;padding:1.5rem;box-shadow:0 12px 35px rgba(0,0,0,0.6);box-sizing:border-box;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:0.75rem;">
+            <div style="font-weight:800;color:#fff;font-size:1.05rem;display:flex;align-items:center;gap:0.4rem;">
+              <span class="material-symbols-outlined" style="color:var(--primary);font-size:20px;">home_pin</span>
+              <span>${targetAddr ? '배송지 정보 수정' : '신규 배송지 등록'}</span>
+            </div>
+            <button type="button" id="btn-close-addr-modal" style="background:none;border:none;color:#94a3b8;font-size:18px;cursor:pointer;">✕</button>
+          </div>
+          <form id="form-save-member-address" style="display:flex;flex-direction:column;gap:0.85rem;">
+            <input type="hidden" id="addr-input-id" value="${targetAddr?.id || ''}" />
+            <div>
+              <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">수령인 성명 *</label>
+              <input type="text" id="addr-input-name" required value="${targetAddr?.recipientName || ''}" placeholder="받으시는 분 성함" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.55rem;border-radius:6px;font-size:0.85rem;" />
+            </div>
+            <div>
+              <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">연락처 (휴대폰) *</label>
+              <input type="tel" id="addr-input-phone" required value="${targetAddr?.recipientPhone || ''}" placeholder="010-0000-0000" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.55rem;border-radius:6px;font-size:0.85rem;" />
+            </div>
+            <div>
+              <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">배송지 주소 (도로명 / 지번) *</label>
+              <input type="text" id="addr-input-address" required value="${targetAddr?.address || ''}" placeholder="예: 서울특별시 강남구 테헤란로 152" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.55rem;border-radius:6px;font-size:0.85rem;" />
+            </div>
+            <div>
+              <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">상세 주소 (동/호수/건물명)</label>
+              <input type="text" id="addr-input-detail" value="${targetAddr?.detailAddress || ''}" placeholder="예: 101동 1204호" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.55rem;border-radius:6px;font-size:0.85rem;" />
+            </div>
+            <div>
+              <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">배송 메모</label>
+              <input type="text" id="addr-input-memo" value="${targetAddr?.deliveryMemo || ''}" placeholder="예: 부재 시 문 앞에 놓아주세요" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.55rem;border-radius:6px;font-size:0.85rem;" />
+            </div>
+            <label style="display:flex;align-items:center;gap:0.45rem;font-size:0.8rem;color:#cbd5e1;cursor:pointer;margin-top:0.25rem;">
+              <input type="checkbox" id="addr-input-default" ${targetAddr?.isDefault ? 'checked' : ''} />
+              <span>이 배송지를 기본 배송지로 설정</span>
+            </label>
+            <div style="display:flex;gap:0.5rem;margin-top:0.75rem;">
+              <button type="button" id="btn-cancel-addr-modal" style="flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.6rem;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700;">취소</button>
+              <button type="submit" style="flex:2;background:var(--primary);border:none;color:#1c1500;padding:0.6rem;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:800;">${targetAddr ? '수정 완료' : '등록 완료'}</button>
+            </div>
+          </form>
+        </div>
+      `;
+      modal.style.display = 'flex';
+
+      const closeModal = () => { if (modal) modal.style.display = 'none'; };
+      modal.querySelector('#btn-close-addr-modal')?.addEventListener('click', closeModal);
+      modal.querySelector('#btn-cancel-addr-modal')?.addEventListener('click', closeModal);
+      modal.addEventListener('click', (ev) => { if (ev.target === modal) closeModal(); });
+
+      const form = modal.querySelector('#form-save-member-address') as HTMLFormElement;
+      form?.addEventListener('submit', (ev) => {
+        ev.preventDefault();
+        const id = (modal?.querySelector('#addr-input-id') as HTMLInputElement)?.value.trim() || undefined;
+        const name = (modal?.querySelector('#addr-input-name') as HTMLInputElement)?.value.trim();
+        const phone = (modal?.querySelector('#addr-input-phone') as HTMLInputElement)?.value.trim();
+        const address = (modal?.querySelector('#addr-input-address') as HTMLInputElement)?.value.trim();
+        const detail = (modal?.querySelector('#addr-input-detail') as HTMLInputElement)?.value.trim() || '';
+        const memo = (modal?.querySelector('#addr-input-memo') as HTMLInputElement)?.value.trim() || '';
+        const isDefault = (modal?.querySelector('#addr-input-default') as HTMLInputElement)?.checked;
+
+        if (!name || !phone || !address) {
+          alert('수령인 성명, 연락처, 배송지 주소를 모두 입력해주세요.');
+          return;
+        }
+
+        UserAddressStore.saveAddress({
+          id,
+          recipientName: name,
+          recipientPhone: phone,
+          address,
+          detailAddress: detail,
+          deliveryMemo: memo,
+          isDefault,
+        });
+
+        closeModal();
+        alert(id ? '배송지 정보가 수정되었습니다.' : '새 배송지가 등록되었습니다.');
+        this.render(appState.getState());
+      });
+    };
+
+    // [이용자 대시보드: 회원 배송지 신규 등록 클릭]
+    if (target.closest('#btn-add-member-address')) {
+      e.preventDefault();
+      openAddressEditModal();
+      return;
+    }
+
+    // [이용자 대시보드: 회원 배송지 수정 클릭]
+    const editAddressBtn = target.closest('.btn-edit-member-address') as HTMLElement | null;
+    if (editAddressBtn) {
+      e.preventDefault();
+      const addrId = editAddressBtn.dataset.addressId;
+      const targetAddr = UserAddressStore.getAddresses().find(a => a.id === addrId);
+      openAddressEditModal(targetAddr);
+      return;
+    }
+
+    // [이용자 대시보드: 회원 배송지 삭제]
+    const deleteAddressBtn = target.closest('.btn-delete-member-address') as HTMLElement | null;
+    if (deleteAddressBtn) {
+      e.preventDefault();
+      const addrId = deleteAddressBtn.dataset.addressId;
+      if (addrId && confirm('해당 배송지를 주소록에서 삭제하시겠습니까?')) {
+        UserAddressStore.deleteAddress(addrId);
+        this.render(appState.getState());
+      }
       return;
     }
 
@@ -3196,6 +3459,18 @@ ${content}
       return;
     }
 
+    // [최고 관리자 무통장 입금 승인 처리 클릭]
+    const approveDepositBtn = target.closest('.btn-admin-approve-bank-deposit') as HTMLElement;
+    if (approveDepositBtn) {
+      const orderId = approveDepositBtn.dataset.orderId;
+      if (orderId && confirm(`[주문번호: ${orderId}]\n\n해당 주문의 무통장 입금을 확인하셨습니까?\n승인 시 주문 상태가 즉시 '결제완료'로 처리되고 구매자에게 서비스가 제공됩니다.`)) {
+        const res = approveStoreBankDeposit(orderId);
+        alert(res.message);
+        this.render(appState.getState());
+      }
+      return;
+    }
+
     // [장바구니 전체 보드 뷰 이동]
     if (target.closest('#btn-cart-login-prompt, .btn-cart-trigger-login, #btn-checkout-login-prompt, .btn-checkout-trigger-login')) { this.openAuthModal('login'); return; }
     if (target.closest('#btn-open-cart-modal, #btn-header-cart, #header-btn-cart, .btn-open-cart, .btn-goto-cart')) {
@@ -3228,6 +3503,216 @@ ${content}
       return;
     }
 
+    // [주문서 작성 보드: 수량 증가 / 감소 / 삭제 실시간 반영]
+    const checkoutQtyPlusBtn = target.closest('.btn-checkout-qty-plus') as HTMLElement;
+    if (checkoutQtyPlusBtn) {
+      const cartId = checkoutQtyPlusBtn.dataset.cartId;
+      if (cartId) {
+        const item = CartStore.getItems().find(it => it.id === cartId);
+        if (item && item.quantity < 99) {
+          CartStore.updateQuantity(cartId, item.quantity + 1);
+          this.render(appState.getState());
+        }
+      }
+      return;
+    }
+    const checkoutQtyMinusBtn = target.closest('.btn-checkout-qty-minus') as HTMLElement;
+    if (checkoutQtyMinusBtn) {
+      const cartId = checkoutQtyMinusBtn.dataset.cartId;
+      if (cartId) {
+        const item = CartStore.getItems().find(it => it.id === cartId);
+        if (item && item.quantity > 1) {
+          CartStore.updateQuantity(cartId, item.quantity - 1);
+          this.render(appState.getState());
+        }
+      }
+      return;
+    }
+    const checkoutRemoveBtn = target.closest('.btn-checkout-remove-item') as HTMLElement;
+    if (checkoutRemoveBtn) {
+      const cartId = checkoutRemoveBtn.dataset.cartId;
+      if (cartId && confirm('해당 상품을 주문 목록에서 제외하시겠습니까?')) {
+        CartStore.removeItem(cartId);
+        this.render(appState.getState());
+      }
+      return;
+    }
+
+    // [주문서: 주문자 정보와 동일 체크박스]
+    const sameBuyerCheck = target.closest('#check-same-as-buyer') as HTMLInputElement;
+    if (sameBuyerCheck) {
+      const buyerNameInput = document.getElementById('checkout-buyer-name') as HTMLInputElement;
+      const buyerPhoneInput = document.getElementById('checkout-buyer-phone') as HTMLInputElement;
+      const receiverNameInput = document.getElementById('checkout-receiver-name') as HTMLInputElement;
+      const receiverPhoneInput = document.getElementById('checkout-receiver-phone') as HTMLInputElement;
+      if (sameBuyerCheck.checked && buyerNameInput && receiverNameInput) {
+        receiverNameInput.value = buyerNameInput.value;
+        if (buyerPhoneInput && receiverPhoneInput) receiverPhoneInput.value = buyerPhoneInput.value;
+      }
+    }
+
+    // [상품 상세: 수량 증가 / 감소 및 실시간 금액 갱신]
+    const updateDetailTotal = () => {
+      const qtyInput = document.getElementById('detail-qty-input') as HTMLInputElement;
+      const totalPriceEl = document.getElementById('detail-total-price') as HTMLElement;
+      const discountRow = document.getElementById('detail-coupon-discount-row');
+      const discountText = document.getElementById('detail-coupon-discount-text');
+      const discountValInput = document.getElementById('detail-coupon-discount-val') as HTMLInputElement;
+      if (!totalPriceEl) return;
+      const cur = parseInt(qtyInput?.value || '1', 10);
+      const unitPrice = parseInt(totalPriceEl.dataset.unitPrice || '0', 10);
+      const rawTotal = unitPrice * cur;
+      const discountVal = parseInt(discountValInput?.value || '0', 10);
+      const finalPrice = Math.max(0, rawTotal - discountVal);
+      if (discountVal > 0 && discountRow && discountText) {
+        discountRow.style.display = 'flex';
+        discountText.textContent = `- ₩ ${discountVal.toLocaleString()}`;
+      } else if (discountRow) {
+        discountRow.style.display = 'none';
+      }
+      totalPriceEl.textContent = `₩ ${finalPrice.toLocaleString()}`;
+    };
+
+    const qtyPlusBtn = target.closest('#btn-detail-qty-plus');
+    if (qtyPlusBtn) {
+      const qtyInput = document.getElementById('detail-qty-input') as HTMLInputElement;
+      const qtyDisplay = document.getElementById('detail-qty-display');
+      if (qtyInput && qtyDisplay) {
+        let cur = parseInt(qtyInput.value || '1', 10);
+        if (cur < 99) cur += 1;
+        qtyInput.value = String(cur);
+        qtyDisplay.textContent = String(cur);
+        updateDetailTotal();
+      }
+      return;
+    }
+    const qtyMinusBtn = target.closest('#btn-detail-qty-minus');
+    if (qtyMinusBtn) {
+      const qtyInput = document.getElementById('detail-qty-input') as HTMLInputElement;
+      const qtyDisplay = document.getElementById('detail-qty-display');
+      if (qtyInput && qtyDisplay) {
+        let cur = parseInt(qtyInput.value || '1', 10);
+        if (cur > 1) cur -= 1;
+        qtyInput.value = String(cur);
+        qtyDisplay.textContent = String(cur);
+        updateDetailTotal();
+      }
+      return;
+    }
+
+    // [상품 상세: 쿠폰 적용 버튼]
+    const detailApplyCouponBtn = target.closest('#btn-detail-apply-coupon');
+    if (detailApplyCouponBtn) {
+      const couponInput = document.getElementById('detail-coupon-input') as HTMLInputElement;
+      const couponMsg = document.getElementById('detail-coupon-msg');
+      const couponTag = document.getElementById('detail-coupon-tag');
+      const cancelBtn = document.getElementById('btn-detail-cancel-coupon');
+      const discountValInput = document.getElementById('detail-coupon-discount-val') as HTMLInputElement;
+      const codeValInput = document.getElementById('detail-coupon-code-val') as HTMLInputElement;
+      const totalPriceEl = document.getElementById('detail-total-price') as HTMLElement;
+      const qtyInput = document.getElementById('detail-qty-input') as HTMLInputElement;
+
+      const code = couponInput?.value?.trim() || '';
+      const unitPrice = parseInt(totalPriceEl?.dataset?.unitPrice || '0', 10);
+      const curQty = parseInt(qtyInput?.value || '1', 10);
+      const rawTotal = unitPrice * curQty;
+
+      const res = calculateStoreCouponDiscount(code, rawTotal);
+      if (couponMsg) {
+        couponMsg.style.display = 'block';
+        if (res.valid) {
+          couponMsg.style.color = '#4ade80';
+          couponMsg.textContent = `✓ ${res.message}`;
+          if (couponTag) couponTag.style.display = 'inline-block';
+          if (cancelBtn) cancelBtn.style.display = 'inline-block';
+          if (discountValInput) discountValInput.value = String(res.discountAmount);
+          if (codeValInput) codeValInput.value = res.couponCode;
+          updateDetailTotal();
+        } else {
+          couponMsg.style.color = '#f87171';
+          couponMsg.textContent = `✕ ${res.message}`;
+        }
+      }
+      return;
+    }
+
+    // [상품 상세: 쿠폰 취소 버튼]
+    const detailCancelCouponBtn = target.closest('#btn-detail-cancel-coupon');
+    if (detailCancelCouponBtn) {
+      const couponInput = document.getElementById('detail-coupon-input') as HTMLInputElement;
+      const couponMsg = document.getElementById('detail-coupon-msg');
+      const couponTag = document.getElementById('detail-coupon-tag');
+      const discountValInput = document.getElementById('detail-coupon-discount-val') as HTMLInputElement;
+      const codeValInput = document.getElementById('detail-coupon-code-val') as HTMLInputElement;
+      if (couponInput) couponInput.value = '';
+      if (couponMsg) { couponMsg.style.display = 'none'; couponMsg.textContent = ''; }
+      if (couponTag) couponTag.style.display = 'none';
+      if (detailCancelCouponBtn instanceof HTMLElement) detailCancelCouponBtn.style.display = 'none';
+      if (discountValInput) discountValInput.value = '0';
+      if (codeValInput) codeValInput.value = '';
+      updateDetailTotal();
+      return;
+    }
+
+    // [상세페이지 3단 탭 전환: 상품상세정보 / 상품고시&환불규정 / 구매후기]
+    const detailTabBtn = target.closest('.btn-store-detail-tab') as HTMLElement | null;
+    if (detailTabBtn) {
+      e.preventDefault();
+      const tabId = detailTabBtn.dataset.tabId;
+      if (tabId) {
+        document.querySelectorAll('.btn-store-detail-tab').forEach(b => {
+          b.classList.remove('active');
+          (b as HTMLElement).style.color = '#94a3b8';
+          (b as HTMLElement).style.borderBottom = '3px solid transparent';
+          (b as HTMLElement).style.fontWeight = '700';
+        });
+        detailTabBtn.classList.add('active');
+        detailTabBtn.style.color = 'var(--primary)';
+        detailTabBtn.style.borderBottom = '3px solid var(--primary)';
+        detailTabBtn.style.fontWeight = '800';
+
+        document.querySelectorAll('.store-detail-tab-pane').forEach(p => {
+          (p as HTMLElement).style.display = 'none';
+        });
+        const targetPane = document.getElementById(tabId);
+        if (targetPane) targetPane.style.display = 'block';
+      }
+      return;
+    }
+
+    // [상세정보 길이 접기 / 더보기 토글]
+    const toggleDetailFoldBtn = target.closest('#btn-toggle-detail-fold') as HTMLElement | null;
+    if (toggleDetailFoldBtn) {
+      e.preventDefault();
+      const contentEl = document.getElementById('store-detail-foldable-content');
+      const fadeOverlay = document.getElementById('store-detail-fade-overlay');
+      const btnText = document.getElementById('btn-toggle-detail-fold-text');
+      const btnIcon = document.getElementById('btn-toggle-detail-fold-icon');
+
+      if (contentEl) {
+        const isFolded = contentEl.classList.contains('store-detail-folded');
+        if (isFolded) {
+          // 펼치기
+          contentEl.classList.remove('store-detail-folded');
+          contentEl.classList.add('store-detail-unfolded');
+          contentEl.style.maxHeight = 'none';
+          if (fadeOverlay) fadeOverlay.style.display = 'none';
+          if (btnText) btnText.textContent = '상품 상세정보 접기';
+          if (btnIcon) btnIcon.textContent = 'expand_less';
+        } else {
+          // 접기
+          contentEl.classList.remove('store-detail-unfolded');
+          contentEl.classList.add('store-detail-folded');
+          contentEl.style.maxHeight = '540px';
+          if (fadeOverlay) fadeOverlay.style.display = 'block';
+          if (btnText) btnText.textContent = '상품 상세정보 더보기';
+          if (btnIcon) btnIcon.textContent = 'expand_more';
+          contentEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+      return;
+    }
+
     // [상세 페이지에서 장바구니 담기]
     const addToCartBtn = target.closest('.btn-add-to-cart-from-detail') as HTMLElement;
     if (addToCartBtn) {
@@ -3236,6 +3721,7 @@ ${content}
       if (prodId) {
         const prod = getStoreProductById(prodId);
         if (prod) {
+          const qty = parseInt((document.getElementById('detail-qty-input') as HTMLInputElement)?.value || '1', 10);
           let sajuSnap = UserSajuStore.getProfileOrDefault();
           const targetChoice = (document.querySelector('input[name="saju-target-choice"]:checked') as HTMLInputElement)?.value;
           if (targetChoice === 'custom') {
@@ -3251,8 +3737,20 @@ ${content}
               };
             }
           }
-          CartStore.addItem(prod, 1, sajuSnap);
-          alert(`[${prod.title}] 상품이 장바구니에 담겼습니다.\n장바구니 화면으로 이동합니다.`);
+          const optSelect = document.getElementById('store-product-option-select') as HTMLSelectElement | null;
+          let selectedOpt: any = undefined;
+          if (optSelect && optSelect.selectedOptions.length > 0) {
+            const sel = optSelect.selectedOptions[0];
+            selectedOpt = {
+              id: optSelect.value,
+              name: sel.dataset.name || sel.text.split(' - ')[0],
+              price: parseInt(sel.dataset.price || '0', 10) || prod.price,
+              originalPrice: parseInt(sel.dataset.originalPrice || '0', 10) || prod.originalPrice,
+              deliveryType: sel.dataset.deliveryType || prod.deliveryType,
+            };
+          }
+          CartStore.addItem(prod, qty, sajuSnap, selectedOpt);
+          alert(`[${prod.title}]${selectedOpt ? ` (${selectedOpt.name})` : ''} (${qty}개) 상품이 장바구니에 담겼습니다.\n장바구니 화면으로 이동합니다.`);
           appState.setView('cart');
           this.render(appState.getState());
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3729,11 +4227,11 @@ ${content}
       return;
     }
 
-    // 마보살 스토어 네비게이션 클릭
+    // 마보살 스터디 & 스토어 네비게이션 클릭
     // /* id-nav-study-handled */
     if (target.closest('#pc-nav-study') || target.closest('#m-nav-study')) {
-      selectStudyArticle(null);
-      setStudyCategory('all');
+      resetStudyCategory();
+      selectStudyArticle(null, false);
       appState.setView('study');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       const drawer = document.getElementById('mobile-nav-drawer');
@@ -3745,8 +4243,8 @@ ${content}
     }
 
     if (target.closest('#pc-nav-store') || target.closest('#m-nav-store')) {
+      resetStoreCategory();
       selectStoreProduct(null);
-      setStoreActiveCategory('all');
       appState.setView('store');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       const drawer = document.getElementById('mobile-nav-drawer');
@@ -4334,13 +4832,77 @@ ${content}
  }
  });
 
- // 입력 변경 이벤트 (사주 대상자 선택 라디오 토글 등)
+ // 입력 변경 이벤트 (사주 대상자 선택 라디오 토글, 상품 옵션 변경, 배송지 선택 등)
  this.rootEl.addEventListener('change', (e) => {
    const targetInput = e.target as HTMLInputElement;
    if (targetInput?.name === 'saju-target-choice') {
      const customDiv = document.getElementById('custom-saju-input-fields');
      if (customDiv) {
        customDiv.style.display = targetInput.value === 'custom' ? 'block' : 'none';
+     }
+   }
+
+   const targetSelect = e.target as HTMLSelectElement;
+   if (targetSelect?.id === 'store-product-option-select') {
+     const selectedOpt = targetSelect.selectedOptions[0];
+     if (selectedOpt) {
+       const optPrice = parseInt(selectedOpt.dataset.price || '0', 10);
+       const optOrigPrice = parseInt(selectedOpt.dataset.originalPrice || '0', 10);
+       const optDelivery = selectedOpt.dataset.deliveryType || 'digital_download';
+
+       const origPriceEl = document.getElementById('detail-original-price');
+       if (origPriceEl) origPriceEl.textContent = `₩ ${optOrigPrice.toLocaleString()}`;
+
+       const salePriceEl = document.getElementById('detail-sale-price');
+       if (salePriceEl) salePriceEl.textContent = `₩ ${optPrice.toLocaleString()}`;
+
+       const discountBadge = document.getElementById('detail-discount-badge');
+       if (discountBadge) {
+         if (optOrigPrice > optPrice) {
+           const rate = Math.round(((optOrigPrice - optPrice) / optOrigPrice) * 100);
+           discountBadge.textContent = `${rate}% 할인`;
+           discountBadge.style.display = 'inline-block';
+         } else {
+           discountBadge.style.display = 'none';
+         }
+       }
+
+       const totalEl = document.getElementById('detail-total-price');
+       if (totalEl) {
+         totalEl.dataset.unitPrice = optPrice.toString();
+         const qty = parseInt((document.getElementById('detail-qty-input') as HTMLInputElement)?.value || '1', 10);
+         const disc = parseInt((document.getElementById('detail-coupon-discount-val') as HTMLInputElement)?.value || '0', 10);
+         totalEl.textContent = `₩ ${Math.max(0, optPrice * qty - disc).toLocaleString()}`;
+       }
+
+       const deliveryBadge = document.getElementById('detail-delivery-badge-text');
+       if (deliveryBadge) {
+         if (optDelivery === 'shipping') {
+           deliveryBadge.innerHTML = `<span class="material-symbols-outlined" style="font-size: 16px; color: #38bdf8;">local_shipping</span><span>택배 무료 배송</span>`;
+         } else {
+           deliveryBadge.innerHTML = `<span class="material-symbols-outlined" style="font-size: 16px; color: #4ade80;">download_done</span><span>결제 즉시 PDF 다운로드 &amp; 영구 소장</span>`;
+         }
+       }
+     }
+   }
+
+   if (targetSelect?.id === 'select-saved-address') {
+     const selectedOpt = targetSelect.selectedOptions[0];
+     if (selectedOpt && targetSelect.value !== 'new') {
+       const rName = selectedOpt.dataset.recipient || '';
+       const rPhone = selectedOpt.dataset.phone || '';
+       const sAddr = selectedOpt.dataset.address || '';
+       const sMemo = selectedOpt.dataset.memo || '';
+
+       const nameInput = document.getElementById('checkout-receiver-name') as HTMLInputElement;
+       const phoneInput = document.getElementById('checkout-receiver-phone') as HTMLInputElement;
+       const addrInput = document.getElementById('checkout-shipping-address') as HTMLInputElement;
+       const memoInput = document.getElementById('checkout-shipping-memo') as HTMLInputElement;
+
+       if (nameInput) nameInput.value = rName;
+       if (phoneInput) phoneInput.value = rPhone;
+       if (addrInput) addrInput.value = sAddr;
+       if (memoInput) memoInput.value = sMemo;
      }
    }
  });
@@ -4371,17 +4933,34 @@ ${content}
       return;
     }
 
+    // 실물 배송 상품 포함 시 배송지 주소 필수 입력 검증
+    const cartSummary = CartStore.getSummary();
+    if (cartSummary.hasPhysicalItems && (!shippingInput || !shippingInput.value.trim())) {
+      alert('주문 상품 중 실물 배송 상품이 포함되어 있습니다. 배송받으실 주소를 정확히 입력해 주세요.');
+      shippingInput?.focus();
+      return;
+    }
+
     const submitBtn = document.getElementById('btn-submit-final-order') as HTMLButtonElement;
+    const selectedPayMethod = (payMethodInput?.value as any) || 'bank_transfer';
+
+    if (selectedPayMethod !== 'bank_transfer' && selectedPayMethod !== 'voucher' && !PaymentConfigStore.isCardEnabled()) {
+      alert('현재 카드사 및 간편결제 연동 심사 준비 중입니다. 결제 수단은 [무통장 입금]만 이용 가능합니다.');
+      const bankRadio = form.querySelector('input[name="checkout-pay-method"][value="bank_transfer"]') as HTMLInputElement | null;
+      if (bankRadio) bankRadio.checked = true;
+      return;
+    }
+
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.textContent = '결제 처리 중...';
+      submitBtn.textContent = '주문 처리 중...';
     }
 
     const checkoutRes = CheckoutService.executeCheckout({
       buyerName: nameInput?.value || '',
       buyerPhone: phoneInput?.value || '',
       buyerEmail: emailInput?.value || '',
-      paymentMethod: (payMethodInput?.value as any) || 'card',
+      paymentMethod: selectedPayMethod,
       shippingAddress: shippingInput?.value,
       shippingMemo: memoInput?.value,
       couponCode: couponInput?.value,
@@ -4395,12 +4974,39 @@ ${content}
         submitBtn.disabled = false;
         submitBtn.textContent = '결제하기';
       }
+      // 카드/페이 미지원 시 무통장 입금 라디오 버튼으로 자동 전환 안내
+      const bankRadio = form.querySelector('input[name="checkout-pay-method"][value="bank_transfer"]') as HTMLInputElement | null;
+      if (bankRadio) {
+        bankRadio.checked = true;
+        bankRadio.focus();
+      }
       return;
     }
 
-    // 성공 시: 주문된 전용 사주 리포트 동기 조립 및 상태 갱신
+    // 회원 기본 배송지 주소록 저장 체크 시 자동 등록
+    const chkSaveAddress = document.getElementById('check-save-to-address-book') as HTMLInputElement | null;
+    if (chkSaveAddress && chkSaveAddress.checked && AuthService.getCurrentUser().role !== 'guest') {
+      const rName = (document.getElementById('checkout-receiver-name') as HTMLInputElement)?.value?.trim();
+      const rPhone = (document.getElementById('checkout-receiver-phone') as HTMLInputElement)?.value?.trim();
+      const sAddr = shippingInput?.value?.trim();
+      const sMemo = memoInput?.value?.trim();
+      if (rName && sAddr) {
+        UserAddressStore.saveAddress({
+          recipientName: rName,
+          recipientPhone: rPhone || phoneInput?.value || '',
+          address: sAddr,
+          detailAddress: '',
+          deliveryMemo: sMemo,
+          isDefault: true,
+        });
+      }
+    }
+
+    // 성공 시: 결제 완료된 사주 리포트 주문인 경우에만 리포트 조립 (미입금 대기 및 전자책/상품권 주문은 리포트 생성 차단)
     if (checkoutRes.order) {
-      UserSajuStore.ensureAnalysisReadyFromOrder(checkoutRes.order);
+      if (checkoutRes.order.status === 'completed' && (checkoutRes.order.deliveryType === 'saju_report' || checkoutRes.order.category === 'report')) {
+        UserSajuStore.ensureAnalysisReadyFromOrder(checkoutRes.order);
+      }
       setLastStoreOrder(checkoutRes.order);
     }
 
@@ -4435,8 +5041,29 @@ ${content}
           }
         }
 
-        // 해당 상품 담기 후 주문서 작성 보드로 즉시 이동
-        CartStore.addItem(prod, 1, sajuSnap);
+        // 옵션 선택값 추출
+        const optSelect = document.getElementById('store-product-option-select') as HTMLSelectElement | null;
+        let selectedOpt: any = undefined;
+        if (optSelect && optSelect.selectedOptions.length > 0) {
+          const sel = optSelect.selectedOptions[0];
+          selectedOpt = {
+            id: optSelect.value,
+            name: sel.dataset.name || sel.text.split(' - ')[0],
+            price: parseInt(sel.dataset.price || '0', 10) || prod.price,
+            originalPrice: parseInt(sel.dataset.originalPrice || '0', 10) || prod.originalPrice,
+            deliveryType: sel.dataset.deliveryType || prod.deliveryType,
+          };
+        }
+
+        // 해당 상품 수량 및 쿠폰 정보 반영 후 결제 이동
+        const qty = parseInt((document.getElementById('detail-qty-input') as HTMLInputElement)?.value || '1', 10);
+        const couponCode = (document.getElementById('detail-coupon-code-val') as HTMLInputElement)?.value?.trim();
+        if (couponCode) {
+          sessionStorage.setItem('mabosal_applied_coupon', couponCode);
+        } else {
+          sessionStorage.removeItem('mabosal_applied_coupon');
+        }
+        CartStore.addItem(prod, qty, sajuSnap, selectedOpt);
         appState.setView('checkout');
         this.render(appState.getState());
         window.scrollTo({ top: 0, behavior: 'smooth' });

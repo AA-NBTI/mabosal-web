@@ -26,6 +26,11 @@ export function expandSpecificInquiry(inquiryId: string): void {
 }
 
 export function renderAdminInquiriesPanel(): string {
+  // Supabase 원격 문의 백그라운드 동기화 (최신 목록 유지)
+  try {
+    CustomerInquiryStore.syncFromSupabase();
+  } catch (e) {}
+
   const allInquiries = CustomerInquiryStore.getInquiries();
   const pendingCount = CustomerInquiryStore.getPendingCount();
   const answeredCount = allInquiries.length - pendingCount;

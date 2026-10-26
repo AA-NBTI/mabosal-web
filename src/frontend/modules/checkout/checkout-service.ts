@@ -4,9 +4,12 @@
 import { CartStore } from '../cart/cart-store.js';
 import { CartItem } from '../cart/types.js';
 import { StoreOrder, StoreOrderItem } from '../../extensions/commerce-store/types.js';
-import { getAllStoreOrders } from '../../extensions/commerce-store/store-service.js';
+import { getAllStoreOrders, updateStoreProduct, getStoreProductById } from '../../extensions/commerce-store/store-service.js';
+import { getStorage } from '../../modules/persistence/index.js';
 import { ReportRouterMapper } from './report-router-mapper.js';
 import { AuthService } from '../../state/auth-service.js';
+import { VoucherStore } from '../voucher/voucher-store.js';
+import { PaymentConfigStore } from '../payment/payment-config.js';
 
 export interface CheckoutPayload {
   buyerName: string;
@@ -121,6 +124,17 @@ export class CheckoutService {
     const totalPayAmount = Math.max(0, productAmount + shippingFee - couponDiscount - usedYeop);
     const isZeroPayment = totalPayAmount === 0;
 
+    // 0원 결제가 아닌 유상 결제에서 카드/간편결제 선택 시 PG 설정 상태 검증
+    if (!isZeroPayment && (payload.paymentMethod === 'card' || payload.paymentMethod === 'kakaopay' || payload.paymentMethod === 'tosspay')) {
+      const pCfg = PaymentConfigStore.get();
+      if (!PaymentConfigStore.isCardEnabled(pCfg)) {
+        return {
+          success: false,
+          message: '현재 카드/간편결제 모듈 설정 심사 준비 중입니다. 결제 수단에서 [무통장 입금]을 선택해 주시면 입금 확인 즉시 정상 승인됩니다.',
+        };
+      }
+    }
+
     // 대표 품목 및 타이틀 생성
     const primaryItem = items[0];
     const orderTitle = items.length === 1 
@@ -138,6 +152,7 @@ export class CheckoutService {
       sajuSnapshot: it.sajuSnapshot,
       reportTier: it.reportTier || ReportRouterMapper.resolveTier(it.productId, it.reportTier),
       contentPayload: it.contentPayload,
+      selectedOptionName: it.selectedOptionName,
     }));
 
     // 티어 결정 (첫 번째 리포트 아이템 기준)
@@ -151,15 +166,19 @@ export class CheckoutService {
       productId: primaryItem.productId,
       productTitle: orderTitle,
       category: primaryItem.category as any,
+      selectedOptionName: primaryItem.selectedOptionName,
       amount: totalPayAmount,
       buyerName: payload.buyerName.trim(),
       buyerPhone: payload.buyerPhone.trim(),
       buyerEmail: payload.buyerEmail?.trim() || (currentUser.role !== 'guest' ? currentUser.email : 'user@mabosal.com'),
       paymentMethod: payload.paymentMethod,
-      status: (isZeroPayment || payload.paymentMethod === 'card' || payload.paymentMethod === 'kakaopay' || payload.paymentMethod === 'tosspay') ? 'completed' : 'pending',
+      // 0원 결제만 즉시 완료 처리. 무통장 입금 및 결제창 승인 전 상태는 엄격히 pending(대기) 유지
+      status: isZeroPayment ? 'completed' : 'pending',
       paidAt: new Date().toISOString(),
       deliveryType: primaryItem.deliveryType,
-      accessUrl: '/?view=result',
+      accessUrl: (primaryItem.deliveryType === 'ebook' || primaryItem.deliveryType === 'digital_download' || primaryItem.category === 'ebook')
+        ? (primaryItem.contentPayload || '/?view=store')
+        : (primaryItem.deliveryType === 'voucher_code' ? '/?view=store' : '/?view=result'),
       sajuInput: primaryItem.sajuSnapshot,
       reportTier: primaryTier,
       items: orderItems,
@@ -175,8 +194,35 @@ export class CheckoutService {
     // 주문 저장
     const allOrders = getAllStoreOrders();
     allOrders.unshift(newOrder);
+    const serializedOrders = JSON.stringify(allOrders.slice(0, 500));
+    try {
+      getStorage().setItem(STORAGE_ORDERS_KEY, serializedOrders);
+    } catch {}
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(allOrders.slice(0, 500)));
+      try {
+        localStorage.setItem(STORAGE_ORDERS_KEY, serializedOrders);
+      } catch {}
+    }
+
+    // 무통장 입금 신청 건 자동 생성 (pending 상태인 경우 관리자 승인 대기열 및 마이페이지 연동)
+    if (newOrder.status === 'pending' && payload.paymentMethod === 'bank_transfer') {
+      VoucherStore.createBankTransferRequest(
+        newOrder.buyerName,
+        newOrder.amount,
+        newOrder.productTitle,
+        newOrder.buyerName,
+        newOrder.orderId
+      );
+    }
+
+    // 결제 완료된 품목들 판매 수량 증가 (+salesCount)
+    if (newOrder.status === 'completed') {
+      for (const item of items) {
+        const prod = getStoreProductById(item.productId);
+        if (prod) {
+          updateStoreProduct(prod.id, { salesCount: (prod.salesCount || 0) + item.quantity });
+        }
+      }
     }
 
     // 장바구니에서 주문된 품목들 삭제

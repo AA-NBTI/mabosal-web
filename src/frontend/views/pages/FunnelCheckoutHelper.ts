@@ -11,9 +11,10 @@
 import { appState } from '../../state/app-state.js';
 import { AuthService } from '../../state/auth-service.js';
 import { UserSajuStore } from '../../state/user-saju-store.js';
-import { createStoreOrder, getAllStoreOrders, isProductAlreadyPurchased } from '../../extensions/commerce-store/store-service.js';
+import { createStoreOrder, isProductAlreadyPurchased, OFFICIAL_BANK_ACCOUNT } from '../../extensions/commerce-store/store-service.js';
 import { frontendAdapter } from '../../adapter/engine-adapter.js';
 import { AbTestService } from '../../modules/ab-test/ab-test-service.js';
+import { VoucherStore } from '../../modules/voucher/voucher-store.js';
 
 export class FunnelCheckoutHelper {
   public static readonly PRODUCT_ID = 'prod-paid-saju-premium';
@@ -69,35 +70,48 @@ export class FunnelCheckoutHelper {
             결제 수단 선택
           </label>
           <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
-            <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; padding: 0.75rem 0.5rem; border-radius: 10px; background: rgba(242,202,80,0.1); border: 1.5px solid var(--primary); cursor: pointer; text-align: center;">
-              <input type="radio" name="funnel-pay-method" value="card" checked style="display: none;" />
-              <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">credit_card</span>
-              <span style="font-size: 0.78rem; font-weight: 800; color: #fff;">간편 카드</span>
+            <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; padding: 0.75rem 0.5rem; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); cursor: not-allowed; text-align: center; opacity: 0.45;" title="현재 카드사 심사 준비 중입니다.">
+              <input type="radio" name="funnel-pay-method" value="card" disabled style="display: none;" />
+              <span class="material-symbols-outlined" style="font-size: 20px; color: #94a3b8;">credit_card</span>
+              <span style="font-size: 0.78rem; font-weight: 700; color: #94a3b8;">신용/체크카드</span>
+              <span style="font-size: 0.65rem; color: #f87171; background: rgba(239, 68, 68, 0.15); padding: 0.05rem 0.3rem; border-radius: 3px; font-weight: 800;">심사 준비중</span>
             </label>
-            <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; padding: 0.75rem 0.5rem; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.12); cursor: pointer; text-align: center;">
-              <input type="radio" name="funnel-pay-method" value="tosspay" style="display: none;" />
-              <span class="material-symbols-outlined" style="font-size: 20px; color: #60a5fa;">wallet</span>
-              <span style="font-size: 0.78rem; font-weight: 700; color: #cbd5e1;">토스페이</span>
+            <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; padding: 0.75rem 0.5rem; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); cursor: not-allowed; text-align: center; opacity: 0.45;" title="현재 토스페이 심사 준비 중입니다.">
+              <input type="radio" name="funnel-pay-method" value="tosspay" disabled style="display: none;" />
+              <span class="material-symbols-outlined" style="font-size: 20px; color: #94a3b8;">wallet</span>
+              <span style="font-size: 0.78rem; font-weight: 700; color: #94a3b8;">토스페이</span>
+              <span style="font-size: 0.65rem; color: #f87171; background: rgba(239, 68, 68, 0.15); padding: 0.05rem 0.3rem; border-radius: 3px; font-weight: 800;">심사 준비중</span>
             </label>
-            <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; padding: 0.75rem 0.5rem; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.12); cursor: pointer; text-align: center;">
-              <input type="radio" name="funnel-pay-method" value="bank_transfer" style="display: none;" />
-              <span class="material-symbols-outlined" style="font-size: 20px; color: #cbd5e1;">account_balance</span>
-              <span style="font-size: 0.78rem; font-weight: 700; color: #cbd5e1;">계좌이체</span>
+            <label style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; padding: 0.75rem 0.5rem; border-radius: 10px; background: rgba(242,202,80,0.12); border: 1.5px solid var(--primary); cursor: pointer; text-align: center;">
+              <input type="radio" name="funnel-pay-method" value="bank_transfer" checked style="display: none;" />
+              <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">account_balance</span>
+              <span style="font-size: 0.78rem; font-weight: 800; color: #fff;">무통장 입금</span>
+              <span style="font-size: 0.65rem; color: #4ade80; background: rgba(74, 222, 128, 0.15); padding: 0.05rem 0.3rem; border-radius: 3px; font-weight: 800;">추천 · 접수</span>
             </label>
           </div>
         </div>
 
-        <!-- 안내 사항 및 보안 체크 -->
-        <div style="font-size: 0.74rem; color: #94a3b8; line-height: 1.5; margin-bottom: 1.25rem; background: rgba(0,0,0,0.2); padding: 0.65rem 0.85rem; border-radius: 8px;">
-          • 결제 완료 즉시 결과 화면에 8대 정밀 리포트가 즉시 해금됩니다.<br/>
-          • 주문 내역은 마보살 시스템에 안전하게 기록되며 언제든 재열람 가능합니다.<br/>
-          • 디지털 컨텐츠 특성상 열람 즉시 가치가 전달되나, 시스템 오류 시 100% 즉시 환불됩니다.
+        <!-- 무통장 공식 입금 계좌 안내 -->
+        <div style="background: rgba(12, 16, 26, 0.95); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1.25rem;">
+          <div style="font-size: 0.75rem; color: var(--primary); font-weight: 700; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.3rem;">
+            <span class="material-symbols-outlined" style="font-size: 15px;">account_balance</span>
+            공식 입금 계좌 안내
+          </div>
+          <div style="font-size: 0.95rem; font-weight: 800; color: #fff;">
+            ${OFFICIAL_BANK_ACCOUNT.bankName} <span style="color: var(--primary);">${OFFICIAL_BANK_ACCOUNT.accountNumber}</span>
+          </div>
+          <div style="font-size: 0.78rem; color: #cbd5e1; margin-top: 0.2rem;">
+            예금주: <strong style="color: #fff;">${OFFICIAL_BANK_ACCOUNT.holder}</strong>
+          </div>
+          <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 0.35rem; line-height: 1.4;">
+            ※ 입금 신청 후 관리자가 입금을 확인하면 8대 심층 리포트가 즉시 해금됩니다.
+          </div>
         </div>
 
-        <!-- 최종 결제 승인 버튼 -->
+        <!-- 최종 무통장 입금 신청 버튼 -->
         <button type="button" id="btn-confirm-funnel-pay" style="width: 100%; background: var(--primary); color: #1c1500; border: none; border-radius: 12px; padding: 1.1rem; font-size: 1.05rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 4px 20px rgba(242, 202, 80, 0.4); transition: transform 0.15s ease;">
-          <span class="material-symbols-outlined" style="font-size: 20px;">lock</span>
-          <span>₩ ${FunnelCheckoutHelper.PRICE.toLocaleString()} 결제 및 즉시 해금하기</span>
+          <span class="material-symbols-outlined" style="font-size: 20px;">send</span>
+          <span>₩ ${FunnelCheckoutHelper.PRICE.toLocaleString()} 무통장 입금 신청하기</span>
         </button>
 
       </div>
@@ -106,7 +120,7 @@ export class FunnelCheckoutHelper {
   }
 
   /**
-   * 결제 실행 및 권한 해금 처리
+   * 결제 실행 및 권한 해금 처리 (무통장 입금 접수)
    */
   public static async executePayment(): Promise<{ success: boolean; message: string }> {
     const state = appState.getState();
@@ -121,31 +135,36 @@ export class FunnelCheckoutHelper {
       return { success: true, message: '이미 결제가 완료된 사주 분석입니다. 8대 심층 리포트를 즉시 열람합니다.' };
     }
 
-    // 주문서 생성 및 장부 기록
+    // 주문서 생성 (무통장 입금은 관리자 입금 확인 전까지 pending 상태 유지)
     try {
       const order = createStoreOrder({
         productId: this.PRODUCT_ID,
         buyerName: userName || (currentUser.role !== 'guest' ? currentUser.name : '의뢰인'),
         buyerPhone: currentUser.phone || '010-0000-0000',
         buyerEmail: currentUser.email || 'customer@mabosal.com',
-        paymentMethod: 'card',
-        status: 'completed',
+        paymentMethod: 'bank_transfer',
+        status: 'pending',
       });
 
-      // 티어 승급 및 상태 반영
-      await frontendAdapter.upgradeTier('paid_detailed_saju');
-      appState.setActiveTierTab('PAID');
+      // 최고 관리자 무통장 입금 승인 패널 및 마이페이지 대기열에 신청서 등록
+      VoucherStore.createBankTransferRequest(
+        order.buyerName,
+        order.amount,
+        order.productTitle,
+        order.buyerEmail,
+        order.orderId
+      );
 
       // A/B 테스트 성과 지표 기록
       AbTestService.trackEvent('purchase', this.PRICE);
 
       return {
         success: true,
-        message: `[결제 승인 완료] ${userName} 님의 8대 심층 처방 리포트가 성공적으로 해금되었습니다. (주문번호: #${order.orderId.slice(-8)})`
+        message: `[무통장 입금 신청 완료]\n주문번호: #${order.orderId.slice(-8)}\n입금계좌: ${OFFICIAL_BANK_ACCOUNT.bankName} ${OFFICIAL_BANK_ACCOUNT.accountNumber} (${OFFICIAL_BANK_ACCOUNT.holder})\n입금 확인 즉시 8대 심층 리포트가 정상 해금됩니다.`
       };
     } catch (err: any) {
       console.error('[FunnelCheckout] execution error:', err);
-      return { success: false, message: '결제 처리 중 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.' };
+      return { success: false, message: '주문 접수 중 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.' };
     }
   }
 }

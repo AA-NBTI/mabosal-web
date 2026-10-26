@@ -21,8 +21,8 @@ const STORAGE_KEY = 'mabosal_payment_config_v1';
 export const TOSS_DOCS_TEST_CLIENT_KEY = 'test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq';
 
 const DEFAULT_CONFIG: PaymentConfig = {
-  mode: 'toss_test',
-  clientKey: TOSS_DOCS_TEST_CLIENT_KEY,
+  mode: 'bank_only',
+  clientKey: '',
   confirmEndpoint: '',
 };
 
@@ -54,6 +54,10 @@ export class PaymentConfigStore {
   }
 
   static isCardEnabled(cfg: PaymentConfig = PaymentConfigStore.get()): boolean {
-    return cfg.mode !== 'bank_only' && PaymentConfigStore.validate(cfg) === null;
+    // mode가 bank_only이면 무조건 비활성화
+    if (cfg.mode === 'bank_only') return false;
+    // 클라이언트 키가 비어있거나 유효성 검사 실패 시 비활성화
+    if (!cfg.clientKey || !cfg.clientKey.trim()) return false;
+    return PaymentConfigStore.validate(cfg) === null;
   }
 }

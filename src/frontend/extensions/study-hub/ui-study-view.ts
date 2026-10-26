@@ -14,6 +14,12 @@ let activeCategory: string = 'all';
 let currentArticleSlug: string | null = null;
 let editingArticleId: string | null = null;
 
+export function resetStudyCategory(): void {
+  activeCategory = 'all';
+  currentArticleSlug = null;
+  editingArticleId = null;
+}
+
 export function setStudyCategory(cat: string) {
   activeCategory = cat;
   currentArticleSlug = null;
@@ -87,11 +93,15 @@ export function renderStudyView(): string {
 
     if (catParam) {
       activeCategory = catParam;
+    } else {
+      activeCategory = 'all';
     }
   }
 
   const categories = StudyService.getCategories();
   const articles = StudyService.getArticles(activeCategory);
+  const activeCatObj = categories.find(c => c.id === activeCategory);
+  const activeCatLabel = activeCategory === 'all' ? '전체 글' : (activeCatObj ? activeCatObj.name : '전체 글');
   const selectedArticle = currentArticleSlug
     ? (StudyService.getArticleBySlug(currentArticleSlug) || StudyService.getArticleById(currentArticleSlug))
     : null;
@@ -192,57 +202,68 @@ export function renderStudyView(): string {
     }
   </style>
 
-  <div class="study-container" style="width: 100%; max-width: 1440px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; box-sizing: border-box;">
+  <div class="study-container" style="width: 100%; max-width: 1440px; margin: 0 auto; padding: 1.25rem 1rem 3rem; box-sizing: border-box;">
     
-    <!-- 상단 헤더 & 액션 워크스페이스 -->
-    <div style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 14px; padding: 1.75rem 2rem; margin-bottom: 1.75rem; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1.25rem;">
-      <div>
-        <div style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.75rem; background: rgba(242, 202, 80, 0.12); color: var(--primary); border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 9999px; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.65rem;">
-          마보살 명리 지식 아카데미
+    ${!selectedArticle ? `
+      <!-- [PC 전용: 상단 가로 카테고리 메뉴 탭 바] -->
+      <nav class="study-text-category-bar" aria-label="스터디 카테고리 목록">
+        <div class="study-cat-scroll-inner">
+          <!-- '전체 글' 탭 -->
+          <button type="button" class="btn-study-category ${activeCategory === 'all' && !selectedArticle ? 'active' : ''}" data-cat="all">
+            <span>전체 글</span>
+            ${activeCategory === 'all' && !selectedArticle ? '<span class="cat-active-line"></span>' : ''}
+          </button>
+
+          <!-- 동적 카테고리 탭 목록 -->
+          ${categories.map(c => {
+            const isActive = activeCategory === c.id && !selectedArticle;
+            return `
+              <button type="button" class="btn-study-category ${isActive ? 'active' : ''}" data-cat="${c.id}">
+                <span>${esc(c.name)}</span>
+                ${isActive ? '<span class="cat-active-line"></span>' : ''}
+              </button>
+            `;
+          }).join('')}
         </div>
-        <h1 style="color: #ffffff; font-size: 1.65rem; font-weight: 800; margin: 0 0 0.45rem; letter-spacing: -0.02em;">
-          스터디 &amp; 사주 인사이트 허브
-        </h1>
-        <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0; line-height: 1.6;">
-          어려운 한자 명리학을 현대적인 언어로 쉽게 풀었습니다. 자유롭게 카테고리를 구성하고 스터디 글을 공유해보세요.
-        </p>
+      </nav>
+
+      <!-- [모바일 전용: 상단 카테고리 필터 바] -->
+      <div class="study-mobile-filter-bar">
+        <button type="button" class="btn-toggle-study-drawer" id="btn-open-study-drawer">
+          <span class="material-symbols-outlined" style="font-size: 20px;">menu_open</span>
+          <span>주제 분류: ${esc(activeCatLabel)}</span>
+        </button>
       </div>
 
-      <!-- 우측 컨트롤: 최고 관리자에게만 노출되는 바로가기 -->
-      ${AuthService.isAdmin() ? `
-        <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
-          <a href="/admin?tab=tab-study-write" class="study-action-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; background: var(--primary); color: #1c1500; font-weight: 800; border: none; padding: 0.5rem 1rem; font-size: 0.82rem; box-shadow: 0 4px 14px rgba(242, 202, 80, 0.28); border-radius: 8px;">
-            <span class="material-symbols-outlined" style="font-size: 16px;">edit_document</span>
-            글 작성 CMS
-          </a>
-          <a href="/admin?tab=tab-study-categories" class="study-action-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); color: #dfe2f1; padding: 0.5rem 0.9rem; font-size: 0.82rem; border-radius: 8px;">
-            <span class="material-symbols-outlined" style="font-size: 16px;">category</span>
-            카테고리 관리
-          </a>
-        </div>
-      ` : ''}
-    </div>
-
-    <!-- 동적 카테고리 탭 네비게이션 바 -->
-    <nav class="study-text-category-bar" style="display: flex; align-items: center; justify-content: flex-start; gap: 0.35rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 0.25rem; margin-bottom: 2.25rem; overflow-x: auto; scrollbar-width: none;">
-      <!-- '전체' 탭 -->
-      <button type="button" class="study-tab-item btn-study-category ${activeCategory === 'all' && !selectedArticle ? 'active' : ''}" data-cat="all" style="font-weight: ${activeCategory === 'all' && !selectedArticle ? '800' : '600'}; color: ${activeCategory === 'all' && !selectedArticle ? 'var(--primary)' : '#94a3b8'};">
-        <span>전체 글 (${StudyService.getArticles().length})</span>
-        ${activeCategory === 'all' && !selectedArticle ? '<span style="position: absolute; bottom: 0; left: 1rem; right: 1rem; height: 2.5px; background: var(--primary); border-radius: 2px; box-shadow: 0 0 10px rgba(242, 202, 80, 0.5);"></span>' : ''}
-      </button>
-
-      <!-- 동적 카테고리 탭 목록 -->
-      ${categories.map(c => {
-        const isActive = activeCategory === c.id && !selectedArticle;
-        const count = StudyService.getArticles(c.id).length;
-        return `
-          <button type="button" class="study-tab-item btn-study-category ${isActive ? 'active' : ''}" data-cat="${c.id}" style="font-weight: ${isActive ? '800' : '600'}; color: ${isActive ? 'var(--primary)' : '#94a3b8'};">
-            <span>${c.name} (${count})</span>
-            ${isActive ? '<span style="position: absolute; bottom: 0; left: 1rem; right: 1rem; height: 2.5px; background: var(--primary); border-radius: 2px; box-shadow: 0 0 10px rgba(242, 202, 80, 0.5);"></span>' : ''}
+      <!-- [모바일 전용: 좌측 슬라이딩 드로어 & 백드롭] -->
+      <div id="study-drawer-backdrop" class="study-drawer-backdrop"></div>
+      <aside id="study-sidebar-drawer" class="study-sidebar-nav">
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; align-items: center; gap: 0.45rem; font-size: 1.05rem; font-weight: 800; color: #fff;">
+            <span class="material-symbols-outlined" style="color: var(--primary);">menu_book</span>
+            스터디 주제 분류
+          </div>
+          <button type="button" id="btn-close-study-drawer" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #cbd5e1; cursor: pointer; padding: 0.35rem; display: flex; align-items: center; justify-content: center;" aria-label="주제 닫기">
+            <span class="material-symbols-outlined" style="font-size: 20px;">close</span>
           </button>
-        `;
-      }).join('')}
-    </nav>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <button type="button" class="btn-study-category study-drawer-cat-item ${activeCategory === 'all' && !selectedArticle ? 'active' : ''}" data-cat="all">
+            <span class="material-symbols-outlined" style="font-size: 20px; color: ${activeCategory === 'all' && !selectedArticle ? 'var(--primary)' : '#94a3b8'};">apps</span>
+            <span>전체 글</span>
+          </button>
+          ${categories.map(c => {
+            const isActive = activeCategory === c.id && !selectedArticle;
+            return `
+              <button type="button" class="btn-study-category study-drawer-cat-item ${isActive ? 'active' : ''}" data-cat="${c.id}">
+                <span class="material-symbols-outlined" style="font-size: 20px; color: ${isActive ? 'var(--primary)' : '#94a3b8'};">${c.icon || 'menu_book'}</span>
+                <span>${esc(c.name)}</span>
+              </button>
+            `;
+          }).join('')}
+        </div>
+      </aside>
+    ` : ''}
 
     <!-- 메인 워크스페이스 (상세 뷰 또는 카드 리스트) -->
     <main class="study-content-area" style="width: 100%; min-width: 0;">
@@ -254,18 +275,17 @@ export function renderStudyView(): string {
 }
 
 function renderArticleList(articles: StudyArticle[], currentCat: string, categories: StudyCategory[]): string {
+  const currentCatName = currentCat === 'all' ? '전체 글' : (categories.find(c => c.id === currentCat)?.name || currentCat);
+
   if (!articles.length) {
     return `
       <div style="background: var(--surface-container); border: 1px dashed rgba(255,255,255,0.15); border-radius: 14px; padding: 4.5rem 2rem; text-align: center; color: var(--text-muted);">
         <p style="font-size: 1.1rem; color: #ffffff; font-weight: 700; margin: 0 0 0.5rem;">
           이 카테고리에 등록된 스터디 글이 없습니다.
         </p>
-        <p style="font-size: 0.88rem; margin: 0 0 1.5rem;">
-          가장 먼저 실전 명리학 아티클을 등록해보세요!
+        <p style="font-size: 0.88rem; margin: 0;">
+          새로운 실전 명리학 아티클이 곧 업데이트될 예정입니다.
         </p>
-        <button type="button" class="study-action-btn btn-open-write-shortcut" style="background: var(--primary); color: #1c1500; font-weight: 800; border: none; padding: 0.6rem 1.25rem;">
-          + 첫 스터디 글 작성하기
-        </button>
       </div>
     `;
   }

@@ -5,6 +5,8 @@ import { CartStore } from '../cart/cart-store.js';
 import { AuthService } from '../../state/auth-service.js';
 import { UserSajuStore } from '../../state/user-saju-store.js';
 import { VoucherStore } from '../voucher/voucher-store.js';
+import { UserAddressStore } from '../../state/user-address-store.js';
+import { PaymentConfigStore } from '../payment/payment-config.js';
 
 function esc(str: string): string {
   return str
@@ -118,23 +120,23 @@ export function renderCheckoutBoardView(): string {
               <h2 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 1rem 0; display: flex; justify-content: space-between; align-items: center;">
                 <span style="display: flex; align-items: center; gap: 0.4rem;">
                   <span class="material-symbols-outlined" style="color: var(--primary); font-size: 20px;">inventory_2</span>
-                  주문 상품 목록 (${selectedItems.length}건)
+                  주문 상품 목록 (${selectedItems.length}종)
                 </span>
-                <button type="button" class="btn-goto-cart" style="background: none; border: none; color: var(--primary); font-size: 0.8rem; cursor: pointer; text-decoration: underline;">
-                  장바구니 수정
-                </button>
+                <span style="font-size: 0.75rem; color: #94a3b8;">(주문서에서 수량 변경 가능)</span>
               </h2>
-
               <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                 ${selectedItems.map(it => `
-                  <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 0.85rem 1rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
-                    <div>
-                      <div style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem;">
+                  <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 0.85rem 1rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 200px;">
+                      <div style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem;">
                         ${esc(it.title)}
                       </div>
+                      ${it.selectedOptionName ? `
+                        <div style="font-size: 0.78rem; color: var(--primary); margin-bottom: 0.2rem; font-weight: 700;">
+                          [선택 옵션] ${esc(it.selectedOptionName)}
+                        </div>
+                      ` : ''}
                       <div style="font-size: 0.78rem; color: #94a3b8; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                        <span>수량: <strong>${it.quantity}개</strong></span>
-                        <span>•</span>
                         <span>단가: ₩ ${it.price.toLocaleString()}</span>
                         ${it.sajuSnapshot ? `
                           <span>•</span>
@@ -142,19 +144,34 @@ export function renderCheckoutBoardView(): string {
                         ` : ''}
                       </div>
                     </div>
-                    <strong style="font-size: 1.05rem; color: #fff; font-family: var(--font-display); flex-shrink: 0;">
-                      ₩ ${(it.price * it.quantity).toLocaleString()}
-                    </strong>
+
+                    <!-- 수량 실시간 조절 컨트롤러 -->
+                    <div style="display: inline-flex; align-items: center; gap: 0.75rem;">
+                      <div style="display: inline-flex; align-items: center; border: 1px solid rgba(255,255,255,0.18); border-radius: 6px; overflow: hidden; background: #0c0f17;">
+                        <button type="button" class="btn-checkout-qty-minus" data-cart-id="${esc(it.id)}" style="background: transparent; border: none; color: #cbd5e1; width: 28px; height: 26px; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center;">-</button>
+                        <span style="font-size: 0.85rem; font-weight: 800; color: #fff; width: 30px; text-align: center;">${it.quantity}</span>
+                        <button type="button" class="btn-checkout-qty-plus" data-cart-id="${esc(it.id)}" style="background: transparent; border: none; color: #cbd5e1; width: 28px; height: 26px; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center;">+</button>
+                      </div>
+
+                      <strong style="font-size: 1.05rem; color: #f2ca50; font-family: var(--font-display); min-width: 90px; text-align: right;">
+                        ₩ ${(it.price * it.quantity).toLocaleString()}
+                      </strong>
+
+                      <button type="button" class="btn-checkout-remove-item" data-cart-id="${esc(it.id)}" title="항목 삭제" style="background: transparent; border: none; color: #64748b; font-size: 1.1rem; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 4px;">✕</button>
+                    </div>
                   </div>
                 `).join('')}
               </div>
             </div>
 
-            <!-- 2. 주문자 정보 블록 -->
+            <!-- 2. 주문자 정보 블록 (수정 가능) -->
             <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.5rem;">
-              <h2 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 1.25rem 0; display: flex; align-items: center; gap: 0.4rem;">
-                <span class="material-symbols-outlined" style="color: var(--primary); font-size: 20px;">badge</span>
-                주문자 정보
+              <h2 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 1.25rem 0; display: flex; align-items: center; justify-content: space-between;">
+                <span style="display: flex; align-items: center; gap: 0.4rem;">
+                  <span class="material-symbols-outlined" style="color: var(--primary); font-size: 20px;">badge</span>
+                  주문자 정보
+                </span>
+                <span style="font-size: 0.75rem; color: #94a3b8;">(주문 시 수정 가능)</span>
               </h2>
 
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
@@ -162,7 +179,7 @@ export function renderCheckoutBoardView(): string {
                   <label style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.35rem; font-weight: 700;">
                     성함 <span style="color: var(--primary);">*</span>
                   </label>
-                  <input type="text" id="checkout-buyer-name" value="${esc(buyerName)}" required style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem; color: #fff; font-size: 0.9rem;" />
+                  <input type="text" id="checkout-buyer-name" value="${esc(buyerName)}" required placeholder="주문자 성명" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem; color: #fff; font-size: 0.9rem;" />
                 </div>
                 <div>
                   <label style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.35rem; font-weight: 700;">
@@ -172,43 +189,86 @@ export function renderCheckoutBoardView(): string {
                 </div>
                 <div style="grid-column: 1 / -1;">
                   <label style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.35rem; font-weight: 700;">
-                    이메일 (전자 영수증 및 리포트 안내) <span style="color: var(--primary);">*</span>
+                    이메일 (전자 영수증 및 주문 안내 발송) <span style="color: var(--primary);">*</span>
                   </label>
-                  <input type="email" id="checkout-buyer-email" value="${esc(buyerEmail)}" required style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem; color: #fff; font-size: 0.9rem;" />
+                  <input type="email" id="checkout-buyer-email" value="${esc(buyerEmail)}" required placeholder="example@email.com" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem; color: #fff; font-size: 0.9rem;" />
                 </div>
               </div>
             </div>
 
-            <!-- 3. 배송지 정보 블록 (실물 상품이 포함되어 있을 때만 필수 노출) -->
+            <!-- 3. 배송지 주소 및 수령 정보 블록 (언제든 수정 가능 & 회원 주소록 연동) -->
             <div style="background: var(--surface-container); border: 1px solid ${summary.hasPhysicalItems ? 'rgba(242, 202, 80, 0.4)' : 'rgba(255,255,255,0.1)'}; border-radius: 16px; padding: 1.5rem;">
-              <h2 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 1rem 0; display: flex; align-items: center; justify-content: space-between;">
+              <h2 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 1rem 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
                 <span style="display: flex; align-items: center; gap: 0.4rem;">
                   <span class="material-symbols-outlined" style="color: var(--primary); font-size: 20px;">local_shipping</span>
-                  배송지 정보
+                  배송지 주소 / 수령 정보
                 </span>
-                ${summary.hasPhysicalItems 
-                  ? '<span style="font-size: 0.75rem; background: rgba(242, 202, 80, 0.15); color: var(--primary); padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700;">실물 상품 필수 배송지</span>' 
-                  : '<span style="font-size: 0.75rem; background: rgba(255,255,255,0.06); color: #94a3b8; padding: 0.2rem 0.5rem; border-radius: 4px;">디지털 리포트 전용 (배송 불필요)</span>'}
+                <label style="font-size: 0.8rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer; font-weight: normal;">
+                  <input type="checkbox" id="check-same-as-buyer" checked />
+                  주문자 정보와 동일
+                </label>
               </h2>
 
-              ${summary.hasPhysicalItems ? `
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
+              ${(currentUser.role as string) !== 'guest' ? (() => {
+                const addresses = UserAddressStore.getAddresses();
+                const defaultAddr = addresses.find(a => a.isDefault) || addresses[0];
+                return `
+                  <!-- 회원 등록 배송지 주소록 선택 바 -->
+                  <div style="background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(242, 202, 80, 0.3); border-radius: 8px; padding: 0.65rem 0.85rem; margin-bottom: 0.85rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: #cbd5e1;">
+                      <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">bookmark</span>
+                      <span>회원 배송지 불러오기:</span>
+                    </div>
+                    <select id="select-saved-address" style="background: #0c0f17; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 0.82rem; padding: 0.35rem 0.65rem; border-radius: 6px; cursor: pointer; max-width: 320px;">
+                      ${addresses.map(a => `
+                        <option value="${a.id}" data-recipient="${esc(a.recipientName)}" data-phone="${esc(a.recipientPhone)}" data-address="${esc(a.address + (a.detailAddress ? ' ' + a.detailAddress : ''))}" data-memo="${esc(a.deliveryMemo || '')}" ${a.isDefault ? 'selected' : ''}>
+                          ${a.isDefault ? '[기본] ' : ''}${esc(a.recipientName)} (${esc(a.address.slice(0, 16))}...)
+                        </option>
+                      `).join('')}
+                      <option value="new">+ 신규 주소 직접 입력</option>
+                    </select>
+                  </div>
+                `;
+              })() : ''}
+
+              <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                   <div>
-                    <label style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.35rem; font-weight: 700;">
-                      배송받으실 주소 <span style="color: var(--primary);">*</span>
-                    </label>
-                    <input type="text" id="checkout-shipping-address" required placeholder="도로명 주소 및 상세 주소 (동/호수)" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem; color: #fff; font-size: 0.9rem;" />
+                    <label style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.3rem;">수령인 성명</label>
+                    <input type="text" id="checkout-receiver-name" value="${esc(buyerName)}" placeholder="수령인 성명" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.65rem; color: #fff; font-size: 0.88rem;" />
                   </div>
                   <div>
-                    <label style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.35rem;">배송 시 요청사항 (선택)</label>
-                    <input type="text" id="checkout-shipping-memo" placeholder="예: 부재 시 문 앞에 놓아주세요." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem; color: #fff; font-size: 0.9rem;" />
+                    <label style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.3rem;">수령인 연락처</label>
+                    <input type="tel" id="checkout-receiver-phone" value="${esc(buyerPhone)}" placeholder="010-0000-0000" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.65rem; color: #fff; font-size: 0.88rem;" />
                   </div>
                 </div>
-              ` : `
-                <p style="margin: 0; font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
-                  선택하신 상품은 결제 완료 즉시 웹에서 평생 열람 및 PDF/TXT 파일 다운로드가 제공되는 <strong>디지털 사주 리포트</strong> 상품으로, 별도의 택배 배송이 진행되지 않습니다.
-                </p>
-              `}
+
+                <div>
+                  <label style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.35rem; font-weight: 700;">
+                    배송받으실 주소 (도로명 / 지번 및 상세 동/호수)
+                  </label>
+                  <input type="text" id="checkout-shipping-address" placeholder="예: 서울시 강남구 테헤란로 152, 강남파이낸스센터 12층" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem; color: #fff; font-size: 0.9rem;" />
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.3rem;">배송 시 요청사항 (선택)</label>
+                  <input type="text" id="checkout-shipping-memo" placeholder="예: 부재 시 문 앞에 놓아주세요." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.65rem; color: #fff; font-size: 0.88rem;" />
+                </div>
+
+                ${(currentUser.role as any) !== 'guest' ? `
+                  <div style="margin-top: 0.25rem;">
+                    <label style="font-size: 0.78rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+                      <input type="checkbox" id="check-save-to-address-book" checked />
+                      <span>이 배송지를 내 기본 배송지로 주소록에 자동 등록/저장</span>
+                    </label>
+                  </div>
+                ` : ''}
+
+                ${!summary.hasPhysicalItems ? `
+                  <p style="margin: 0.25rem 0 0 0; font-size: 0.76rem; color: #94a3b8; line-height: 1.4;">
+                    ※ 현재 주문 상품 중 디지털 상품은 결제 즉시 마이페이지 '내 디지털 서재'에서 다운로드 및 열람 가능합니다.
+                  </p>
+                ` : ''}
+              </div>
             </div>
 
             <!-- 4. 할인 & 쿠폰 적용 블록 (관리자 CMS 연동 동적 쿠폰 인터페이스) -->
@@ -269,23 +329,42 @@ export function renderCheckoutBoardView(): string {
               </h2>
 
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem;">
-                <label style="border: 1px solid rgba(242, 202, 80, 0.4); border-radius: 10px; padding: 0.85rem; cursor: pointer; text-align: center; background: rgba(242, 202, 80, 0.05); display: flex; flex-direction: column; align-items: center; gap: 0.35rem;">
-                  <input type="radio" name="checkout-pay-method" value="card" checked style="accent-color: var(--primary);" />
-                  <span style="font-size: 0.88rem; font-weight: 700; color: #fff;">신용/체크카드</span>
-                </label>
-                <label style="border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.85rem; cursor: pointer; text-align: center; background: rgba(255,255,255,0.02); display: flex; flex-direction: column; align-items: center; gap: 0.35rem;">
-                  <input type="radio" name="checkout-pay-method" value="kakaopay" style="accent-color: var(--primary);" />
-                  <span style="font-size: 0.88rem; font-weight: 700; color: #fff;">카카오페이</span>
-                </label>
-                <label style="border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.85rem; cursor: pointer; text-align: center; background: rgba(255,255,255,0.02); display: flex; flex-direction: column; align-items: center; gap: 0.35rem;">
-                  <input type="radio" name="checkout-pay-method" value="tosspay" style="accent-color: var(--primary);" />
-                  <span style="font-size: 0.88rem; font-weight: 700; color: #fff;">토스페이</span>
-                </label>
-                <label style="border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.85rem; cursor: pointer; text-align: center; background: rgba(255,255,255,0.02); display: flex; flex-direction: column; align-items: center; gap: 0.35rem;">
-                  <input type="radio" name="checkout-pay-method" value="bank_transfer" style="accent-color: var(--primary);" />
-                  <span style="font-size: 0.88rem; font-weight: 700; color: #fff;">무통장 입금</span>
-                </label>
+                ${(() => {
+                  const cardEnabled = PaymentConfigStore.isCardEnabled();
+                  return `
+                    <label style="border: 1px solid ${!cardEnabled ? 'rgba(255,255,255,0.08)' : 'rgba(242, 202, 80, 0.4)'}; border-radius: 10px; padding: 0.85rem; cursor: ${cardEnabled ? 'pointer' : 'not-allowed'}; text-align: center; background: ${!cardEnabled ? 'rgba(255,255,255,0.02)' : 'rgba(242, 202, 80, 0.05)'}; display: flex; flex-direction: column; align-items: center; gap: 0.35rem; opacity: ${!cardEnabled ? '0.45' : '1'};" ${!cardEnabled ? 'title="현재 카드사 심사 준비 중입니다."' : ''}>
+                      <input type="radio" name="checkout-pay-method" value="card" ${cardEnabled ? 'checked' : 'disabled'} style="accent-color: var(--primary);" />
+                      <span style="font-size: 0.85rem; font-weight: 700; color: #fff;">신용/체크카드</span>
+                      ${!cardEnabled ? '<span style="font-size: 0.68rem; color: #f87171; background: rgba(239, 68, 68, 0.15); padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 800;">심사 준비중</span>' : ''}
+                    </label>
+
+                    <label style="border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.85rem; cursor: ${cardEnabled ? 'pointer' : 'not-allowed'}; text-align: center; background: rgba(255,255,255,0.02); display: flex; flex-direction: column; align-items: center; gap: 0.35rem; opacity: ${!cardEnabled ? '0.45' : '1'};" ${!cardEnabled ? 'title="현재 카카오페이 심사 준비 중입니다."' : ''}>
+                      <input type="radio" name="checkout-pay-method" value="kakaopay" ${cardEnabled ? '' : 'disabled'} style="accent-color: var(--primary);" />
+                      <span style="font-size: 0.85rem; font-weight: 700; color: #fff;">카카오페이</span>
+                      ${!cardEnabled ? '<span style="font-size: 0.68rem; color: #f87171; background: rgba(239, 68, 68, 0.15); padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 800;">심사 준비중</span>' : ''}
+                    </label>
+
+                    <label style="border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.85rem; cursor: ${cardEnabled ? 'pointer' : 'not-allowed'}; text-align: center; background: rgba(255,255,255,0.02); display: flex; flex-direction: column; align-items: center; gap: 0.35rem; opacity: ${!cardEnabled ? '0.45' : '1'};" ${!cardEnabled ? 'title="현재 토스페이 심사 준비 중입니다."' : ''}>
+                      <input type="radio" name="checkout-pay-method" value="tosspay" ${cardEnabled ? '' : 'disabled'} style="accent-color: var(--primary);" />
+                      <span style="font-size: 0.85rem; font-weight: 700; color: #fff;">토스페이</span>
+                      ${!cardEnabled ? '<span style="font-size: 0.68rem; color: #f87171; background: rgba(239, 68, 68, 0.15); padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 800;">심사 준비중</span>' : ''}
+                    </label>
+
+                    <label style="border: 1px solid rgba(242, 202, 80, 0.55); border-radius: 10px; padding: 0.85rem; cursor: pointer; text-align: center; background: rgba(242, 202, 80, 0.08); display: flex; flex-direction: column; align-items: center; gap: 0.35rem;">
+                      <input type="radio" name="checkout-pay-method" value="bank_transfer" checked style="accent-color: var(--primary);" />
+                      <span style="font-size: 0.85rem; font-weight: 700; color: #fff;">무통장 입금</span>
+                      <span style="font-size: 0.68rem; color: #4ade80; background: rgba(74, 222, 128, 0.15); padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 800;">추천 · 즉시승인</span>
+                    </label>
+                  `;
+                })()}
               </div>
+
+              ${!PaymentConfigStore.isCardEnabled() ? `
+                <div style="margin-top: 0.85rem; background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 8px; padding: 0.65rem 0.85rem; font-size: 0.78rem; color: #cbd5e1; display: flex; align-items: center; gap: 0.4rem;">
+                  <span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary);">info</span>
+                  <span>현재 카드사 및 간편결제 연동 심사 준비 중으로, <strong>[무통장 입금]</strong>으로 안전하게 주문 접수 후 입금 확인 즉시 처리해 드립니다.</span>
+                </div>
+              ` : ''}
             </div>
 
             <!-- 6. 전자상거래 법적 필수 약관 동의 블록 -->

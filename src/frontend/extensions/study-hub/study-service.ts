@@ -160,9 +160,16 @@ export class StudyService {
     const rawCats = localStorage.getItem(STORAGE_KEY_CATEGORIES);
     if (rawCats) {
       try {
-        this.categories = JSON.parse(rawCats);
+        const parsed = JSON.parse(rawCats);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          this.categories = parsed;
+        } else {
+          this.categories = [...INITIAL_CATEGORIES];
+          this.saveCategoriesToStorage();
+        }
       } catch {
         this.categories = [...INITIAL_CATEGORIES];
+        this.saveCategoriesToStorage();
       }
     } else {
       this.categories = [...INITIAL_CATEGORIES];
@@ -200,6 +207,10 @@ export class StudyService {
   // ==========================================
   static getCategories(): StudyCategory[] {
     this.init();
+    if (!this.categories || this.categories.length === 0) {
+      this.categories = [...INITIAL_CATEGORIES];
+      this.saveCategoriesToStorage();
+    }
     return [...this.categories].sort((a, b) => a.order - b.order);
   }
 

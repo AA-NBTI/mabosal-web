@@ -8,8 +8,6 @@ import { renderBreadcrumbs, renderCategoryNavTabs, renderCategoryHeader, renderC
 export function renderSajuCategoryPage(state?: AppStateData): string {
   return `
   <div class="category-page-container saju-category-page" style="max-width: 1440px; width: 100%; margin: 0 auto; padding: 1.5rem 1rem 3rem; box-sizing: border-box;">
-    <!-- 브레드크럼 -->
-    ${renderBreadcrumbs([{ label: '종합 사주 감정' }])}
 
     <!-- 헤더 -->
     ${renderCategoryHeader({

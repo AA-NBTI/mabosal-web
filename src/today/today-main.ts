@@ -177,6 +177,11 @@ function runMabosalEngine(params: {
     birth_month: params.birthMonth,
     birth_day: params.birthDay,
     calendar_type: params.calendarType,
+    is_leap_month: false,
+    birth_time: null,
+    is_time_unknown: true,
+    birth_city: 'Seoul',
+    gender: 'male',
   });
 
   // 2. 역법 엔진 (시간 입력 제외 -> birth_time: null)

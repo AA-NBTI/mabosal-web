@@ -280,8 +280,16 @@ export class UserSajuStore {
   /**
    * 특정 주문(Order)에 귀속된 고객 사주 스냅샷을 기반으로 맞춤 리포트를 즉시 조립
    */
-  public static ensureAnalysisReadyFromOrder(order: { buyerName?: string; reportTier?: string; sajuInput?: Partial<UserSajuProfile>; productId?: string }): void {
+  public static ensureAnalysisReadyFromOrder(order: { buyerName?: string; reportTier?: string; sajuInput?: Partial<UserSajuProfile>; productId?: string; status?: string; deliveryType?: string; category?: string }): void {
     if (getIdentity().isGuest) return; // 비로그인은 주문 기반 복원 불가
+
+    // 1) 결제 완료(completed)되지 않은 주문은 리포트 생성 차단 (입금 대기 보호)
+    if (order.status && order.status !== 'completed') return;
+
+    // 2) 사주 리포트가 아닌 일반 상품(전자책, 도서, 상품권, 굿즈 등)은 사주 리포트 세션 조립 차단
+    if (!ReportRouterMapper.isSajuReportProduct(order.productId, order.category, order.deliveryType)) {
+      return;
+    }
     const defaultProfile = this.getProfileOrDefault();
     const currentUser = AuthService.getCurrentUser();
     const customerName = (order.sajuInput?.userName && order.sajuInput.userName !== '의뢰인')

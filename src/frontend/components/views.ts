@@ -238,6 +238,14 @@ export function renderFloatingBottomDock(currentView: string): string {
  <span class="material-symbols-outlined dock-icon">auto_awesome</span>
  <span>운세</span>
  </button>
+ <button type="button" class="dock-tab-btn ${currentView === 'study' ? 'active' : ''}" id="dock-btn-study" data-nav="/study">
+ <span class="material-symbols-outlined dock-icon">menu_book</span>
+ <span>스터디</span>
+ </button>
+ <button type="button" class="dock-tab-btn ${currentView === 'store' ? 'active' : ''}" id="dock-btn-store" data-nav="/store">
+ <span class="material-symbols-outlined dock-icon">storefront</span>
+ <span>스토어</span>
+ </button>
  ${showConsult ? `
  <button type="button" class="dock-tab-btn ${currentView === 'consult' ? 'active' : ''}" id="dock-btn-consult">
  <span class="material-symbols-outlined dock-icon">support_agent</span>

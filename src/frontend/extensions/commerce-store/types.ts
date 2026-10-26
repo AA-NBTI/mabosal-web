@@ -2,7 +2,7 @@
  * 마보살 인하우스 커머스 스토어 공용 타입
  */
 
-export type StoreCategoryType = 'all' | 'report' | 'voucher' | 'ebook' | 'lecture' | 'consulting' | 'goods';
+export type StoreCategoryType = 'all' | 'report' | 'voucher' | 'ebook' | 'lecture' | 'consulting' | 'goods' | (string & {});
 
 export interface StoreCategory {
   id: StoreCategoryType;
@@ -10,7 +10,16 @@ export interface StoreCategory {
   icon: string;
 }
 
-export type DeliveryType = 'digital_url' | 'digital_download' | 'consulting_booking' | 'shipping' | 'saju_report' | 'voucher_code';
+export type DeliveryType = 'digital_url' | 'digital_download' | 'consulting_booking' | 'shipping' | 'saju_report' | 'voucher_code' | 'ebook';
+
+export interface StoreProductOption {
+  id: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  deliveryType?: DeliveryType;
+  description?: string;
+}
 
 export interface StoreProduct {
   id: string;
@@ -19,6 +28,7 @@ export interface StoreProduct {
   price: number;
   originalPrice?: number;
   tagLine: string;
+  summary?: string;
   description: string;
   detailsHtml?: string;
   thumbnailUrl: string;
@@ -37,6 +47,8 @@ export interface StoreProduct {
   galleryImages?: string[];
   /** 네이버 쇼핑형 하단 상세페이지 이미지 URL 리스트 */
   detailImages?: string[];
+  /** 복수 옵션(SKU) 구성 (예: 기본형 / 패키지형 / 소장본) */
+  options?: StoreProductOption[];
 }
 
 export interface StoreOrderItem {
@@ -49,6 +61,7 @@ export interface StoreOrderItem {
   sajuSnapshot?: any;
   reportTier?: string;
   contentPayload?: string;
+  selectedOptionName?: string;
 }
 
 export interface StoreOrder {
@@ -73,6 +86,8 @@ export interface StoreOrder {
   reportTier?: string;
   /** 묶음 주문 품목 리스트 */
   items?: StoreOrderItem[];
+  /** 선택된 세부 옵션명 */
+  selectedOptionName?: string;
   /** 실물 배송 정보 */
   shippingAddress?: string;
   shippingMemo?: string;
