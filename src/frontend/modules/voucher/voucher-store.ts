@@ -111,17 +111,6 @@ const INITIAL_COUPONS: VoucherCoupon[] = [
 
 const INITIAL_TRANSFERS: BankTransferRequest[] = [
   {
-    id: 'tr-1001',
-    depositorName: '홍길동',
-    requestedAmount: 40000,
-    targetProduct: '마보살 정통 유료 사주풀이 (39,900원)',
-    status: 'pending',
-    userIdentifier: 'client_hong',
-    bankInfo: '기업은행 103-123733-04-012 (템바보드 주식회사)',
-    createdAt: '2026-10-12 00:25:10',
-    memo: '입금자명 일치 확인 요청'
-  },
-  {
     id: 'tr-1002',
     depositorName: '김민수',
     requestedAmount: 19900,
@@ -209,7 +198,14 @@ export class VoucherStore {
   static getBankTransfers(): BankTransferRequest[] {
     try {
       const raw = localStorage.getItem(STORAGE_KEY_TRANSFERS);
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        let list: BankTransferRequest[] = JSON.parse(raw);
+        if (list.some(t => t.id === 'tr-1001')) {
+          list = list.filter(t => t.id !== 'tr-1001');
+          localStorage.setItem(STORAGE_KEY_TRANSFERS, JSON.stringify(list));
+        }
+        return list;
+      }
     } catch (e) {}
     localStorage.setItem(STORAGE_KEY_TRANSFERS, JSON.stringify(INITIAL_TRANSFERS));
     return INITIAL_TRANSFERS;
@@ -427,25 +423,54 @@ export class VoucherStore {
   // 3. 사용자 쿠폰 지갑 (계정별 독립 관리)
   static getUserWallet(): UserVoucherWalletItem[] {
     const key = this.getUserWalletKey();
+    const purgeKey = 'mabosal_vouchers_purged_all_v2';
+    const storage = getStorage();
+
+    // 1회성 전면 초기화 마이그레이션 (이용자에게 기존 부여된 쿠폰 전면 제거)
+    if (storage && !storage.getItem(purgeKey)) {
+      this.clearAllUserWallets();
+      storage.setItem(purgeKey, 'true');
+      return [];
+    }
+
     try {
-      const raw = getStorage().getItem(key);
+      const raw = storage.getItem(key);
       if (raw) return JSON.parse(raw);
     } catch (e) {}
-    // 기본으로 런칭 무료 쿠폰 보유 상태 제공
-    const initialWallet: UserVoucherWalletItem[] = [
-      {
-        code: 'MABOSAL-FREE',
-        name: '런칭 기념 무료 사주 진단서 100% 프리패스',
-        type: 'free_pass',
-        discountDescription: '19,900원 전액 무료',
-        expiryDate: '2026-12-31',
-        targetProduct: '무료 사주 진단서',
-        registeredAt: '2026-10-12',
-        isUsed: false
-      }
-    ];
-    getStorage().setItem(key, JSON.stringify(initialWallet));
+
+    // 기본 지급 쿠폰 없음 (빈 지갑)
+    const initialWallet: UserVoucherWalletItem[] = [];
+    storage.setItem(key, JSON.stringify(initialWallet));
     return initialWallet;
+  }
+
+  /**
+   * 모든 이용자 지갑 내 보유 쿠폰 완전 삭제
+   */
+  static clearAllUserWallets(): void {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith(STORAGE_KEY_USER_WALLET)) {
+            localStorage.setItem(k, JSON.stringify([]));
+          }
+        }
+      } catch (e) {
+        console.warn('[VoucherStore] clearAllUserWallets error:', e);
+      }
+    }
+    const storage = getStorage();
+    if (storage) {
+      try {
+        storage.setItem(this.getUserWalletKey(), JSON.stringify([]));
+      } catch {}
+    }
+  }
+
+  static clearUserWallet(): void {
+    const key = this.getUserWalletKey();
+    getStorage().setItem(key, JSON.stringify([]));
   }
 
   static registerUserVoucher(code: string): { success: boolean; message: string; coupon?: VoucherCoupon } {

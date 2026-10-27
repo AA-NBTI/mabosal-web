@@ -187,14 +187,17 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                 ${filtered.length === 0 ? `
                   <tr><td colspan="7" style="padding: 2.5rem; text-align: center; color: var(--text-muted);">조건에 일치하는 상품이 없습니다.</td></tr>
                 ` : filtered.map(p => {
+                  const catItem = allCategories.find(c => c.id === p.category);
                   const meta = CATEGORY_META[p.category] || { title: p.category, badgeColor: '#f2ca50', icon: 'menu_book' };
+                  const displayCatTitle = catItem ? esc(catItem.label) : meta.title;
+                  const displayIcon = p.thumbnailIcon || catItem?.icon || meta.icon || 'category';
                   const regDateStr = p.createdAt ? p.createdAt.slice(0, 10).replace(/-/g, '.') : '-';
 
                   return `
                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
                       <td style="padding: 0.75rem 0.6rem;">
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
-                          <span class="material-symbols-outlined" style="color: var(--primary); font-size: 22px;">${p.thumbnailIcon || meta.icon}</span>
+                          <span class="material-symbols-outlined" style="color: var(--primary); font-size: 22px;">${displayIcon}</span>
                           <div>
                             <strong style="color: #fff; font-size: 0.88rem;">${esc(p.title)}</strong>
                             <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 0.15rem;">${esc(p.tagLine)}</div>
@@ -203,7 +206,7 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                       </td>
                       <td style="padding: 0.75rem 0.6rem;">
                         <span style="background: rgba(242,202,80,0.12); color: ${meta.badgeColor}; padding: 0.2rem 0.55rem; border-radius: 4px; font-size: 0.74rem; font-weight: 700; white-space: nowrap;">
-                          ${meta.title}
+                          ${displayCatTitle}
                         </span>
                       </td>
                       <td style="padding: 0.75rem 0.6rem; font-weight: 800; color: var(--primary); font-size: 0.9rem; white-space: nowrap;">
@@ -545,7 +548,7 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
           <div style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.85rem;">
             <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 0.35rem 0; display: flex; align-items: center; gap: 0.45rem;">
               <span class="material-symbols-outlined" style="color: var(--primary);">category</span>
-              스토어 카테고리 관리 (${allCategories.length}개)
+              스토어 카테고리 관리 (${allCategories.filter(c => c.id !== 'all').length}개)
             </h3>
             <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">스토어에 노출되는 카테고리를 자유롭게 추가하거나 삭제하여 상품 분류 체계를 구성합니다.</p>
           </div>
@@ -588,7 +591,7 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                   </tr>
                 </thead>
                 <tbody>
-                  ${allCategories.map(c => `
+                  ${allCategories.filter(c => c.id !== 'all').map(c => `
                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
                       <td style="padding: 0.75rem 1rem;">
                         <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary); vertical-align: middle;">${c.icon || 'category'}</span>
@@ -600,13 +603,9 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                         <button type="button" class="btn-admin-edit-store-category" data-cat-id="${c.id}" data-cat-name="${esc(c.label)}" data-cat-icon="${c.icon || 'category'}" style="background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.74rem; font-weight: 700; cursor: pointer; margin-right: 0.35rem;">
                           수정
                         </button>
-                        ${c.id === 'all' ? `
-                          <span style="font-size: 0.72rem; color: #64748b;">(삭제불가)</span>
-                        ` : `
-                          <button type="button" class="btn-admin-del-store-category" data-cat-id="${c.id}" data-cat-name="${esc(c.label)}" data-product-count="${categoryCounts[c.id] || 0}" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 6px; padding: 0.25rem 0.55rem; font-size: 0.74rem; cursor: pointer;">
-                            삭제
-                          </button>
-                        `}
+                        <button type="button" class="btn-admin-del-store-category" data-cat-id="${c.id}" data-cat-name="${esc(c.label)}" data-product-count="${categoryCounts[c.id] || 0}" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 6px; padding: 0.25rem 0.55rem; font-size: 0.74rem; cursor: pointer;">
+                          삭제
+                        </button>
                       </td>
                     </tr>
                   `).join('')}

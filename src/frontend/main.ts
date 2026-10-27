@@ -114,6 +114,7 @@ import {
   setStoreActiveCategory,
   getStoreProductById,
   selectStoreProduct,
+  getSelectedStoreProductId,
   setLastStoreOrder,
   getAllStoreOrders,
   createStoreOrder,
@@ -139,6 +140,7 @@ import {
   type StoreCategoryType,
   type DeliveryType,
 } from './extensions/commerce-store/index.js';
+import { SAJU_BOOK_VOL1_PRODUCT } from './extensions/commerce-store/saju-book-data.js';
 import { setSelectedZodiac, setSelectedYear, toggleCardExpanded } from './views/TodayFortuneAndMagiWidget.js';
 import { ModuleRegistry } from './state/module-registry.js';
 import { CatalogStore } from './state/catalog-store.js';
@@ -484,6 +486,16 @@ class MabosalApp {
       window.addEventListener('mm-cart-changed', () => {
         this.updateCartBadges();
       });
+
+      window.addEventListener('navigate-store-product', (e: any) => {
+        const pid = e.detail?.productId;
+        if (pid) {
+          selectStoreProduct(pid, true);
+        }
+        appState.setView('store');
+        this.render(appState.getState());
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
   window.addEventListener('popstate', (event) => {
  const parsed = parseRouteFromLocation();
  const targetView = event.state?.view || parsed.view;
@@ -519,6 +531,8 @@ class MabosalApp {
    let targetUrl = getViewPath(state.currentView);
    if (state.currentView === 'result' && appState.getActiveTierTab()) {
      targetUrl += `?tier=${appState.getActiveTierTab()}${AbTestService.isFunnelVariantB() ? '&ab=b' : ''}`;
+   } else if (state.currentView === 'store' && getSelectedStoreProductId()) {
+     targetUrl += `?product=${encodeURIComponent(getSelectedStoreProductId()!)}`;
    }
    window.history.pushState({ view: state.currentView }, '', targetUrl);
    updateSeoForView(state.currentView);
@@ -3298,6 +3312,42 @@ ${content}
       return;
     }
 
+    // [전자책 정본 PDF 다운로드 버튼 클릭 핸들러 (내 디지털 서재 & 주문내역 통합)]
+    const ebookDownloadBtn = target.closest('.btn-download-ebook-pdf') as HTMLElement | null;
+    if (ebookDownloadBtn) {
+      e.preventDefault();
+      const orderId = ebookDownloadBtn.dataset.orderId || '';
+      const prodId = ebookDownloadBtn.dataset.productId || 'book-saju-principles-vol1';
+      
+      const prod = getStoreProductById(prodId);
+      const downloadFileName = `[마보살_전자책]_${(prod?.title || '정통사주명리학원론_제1권').replace(/[\\/:*?"<>|]/g, '_')}_${orderId || 'DOWN'}.pdf`;
+      const payloadUrl = prod?.contentPayload || '/assets/downloads/saju_principles_vol1_master.pdf';
+      
+      const a = document.createElement('a');
+      a.href = payloadUrl;
+      a.target = '_blank';
+      a.download = downloadFileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      alert('전자책 PDF 정본 파일 다운로드가 시작되었습니다.');
+      return;
+    }
+
+    // [주문 내역: 상품 상세 보기 버튼 클릭 시 스토어 해당 상품 상세로 이동]
+    const gotoStoreProductBtn = target.closest('.btn-goto-store-product-detail') as HTMLElement | null;
+    if (gotoStoreProductBtn) {
+      e.preventDefault();
+      const pid = gotoStoreProductBtn.dataset.productId;
+      if (pid) {
+        selectStoreProduct(pid);
+      }
+      appState.setView('store');
+      this.render(appState.getState());
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     // [B안 구매 전환 퍼널: 성별 토글 버튼]
     const funnelGenderBtn = target.closest('.btn-funnel-gender') as HTMLElement;
     if (funnelGenderBtn) {
@@ -4888,21 +4938,30 @@ ${content}
 
    if (targetSelect?.id === 'select-saved-address') {
      const selectedOpt = targetSelect.selectedOptions[0];
-     if (selectedOpt && targetSelect.value !== 'new') {
+     const nameInput = document.getElementById('checkout-receiver-name') as HTMLInputElement;
+     const phoneInput = document.getElementById('checkout-receiver-phone') as HTMLInputElement;
+     const addrInput = document.getElementById('checkout-shipping-address') as HTMLInputElement;
+     const memoInput = document.getElementById('checkout-shipping-memo') as HTMLInputElement;
+     const saveCheck = document.getElementById('check-save-to-address-book') as HTMLInputElement;
+
+     if (targetSelect.value === 'new') {
+       if (addrInput) {
+         addrInput.value = '';
+         addrInput.focus();
+       }
+       if (memoInput) memoInput.value = '';
+       if (saveCheck) saveCheck.checked = true;
+     } else if (selectedOpt) {
        const rName = selectedOpt.dataset.recipient || '';
        const rPhone = selectedOpt.dataset.phone || '';
        const sAddr = selectedOpt.dataset.address || '';
        const sMemo = selectedOpt.dataset.memo || '';
 
-       const nameInput = document.getElementById('checkout-receiver-name') as HTMLInputElement;
-       const phoneInput = document.getElementById('checkout-receiver-phone') as HTMLInputElement;
-       const addrInput = document.getElementById('checkout-shipping-address') as HTMLInputElement;
-       const memoInput = document.getElementById('checkout-shipping-memo') as HTMLInputElement;
-
-       if (nameInput) nameInput.value = rName;
-       if (phoneInput) phoneInput.value = rPhone;
+       if (nameInput && rName) nameInput.value = rName;
+       if (phoneInput && rPhone) phoneInput.value = rPhone;
        if (addrInput) addrInput.value = sAddr;
        if (memoInput) memoInput.value = sMemo;
+       if (saveCheck) saveCheck.checked = false;
      }
    }
  });

@@ -79,56 +79,14 @@ export function renderUserOrderHistoryWidget(): string {
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.85rem; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
         <div style="display: flex; align-items: center; gap: 0.5rem;">
           <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">receipt_long</span>
-          <h2 style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0;">나의 주문 &amp; 디지털 서재</h2>
+          <h2 style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0;">나의 주문 내역</h2>
         </div>
         <span style="font-size: 0.8rem; color: var(--text-muted);">
           총 주문 <strong style="color: var(--primary);">${userOrders.length}건</strong> (입금 대기 ${pendingTransfers.length}건 / 완료 ${completedOrders.length}건)
         </span>
       </div>
 
-      <!-- 1. [디지털 다운로드] 내 디지털 서재 / 전자책 보관함 (구매한 도서가 있을 경우 최상단 노출) -->
-      ${myDigitalBooks.length > 0 ? `
-        <div style="background: linear-gradient(135deg, rgba(242, 202, 80, 0.12), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(242, 202, 80, 0.4); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
-            <div style="display: flex; align-items: center; gap: 0.5rem; color: #f2ca50; font-weight: 800; font-size: 0.95rem;">
-              <span class="material-symbols-outlined" style="font-size: 22px;">local_library</span>
-              <span>내 디지털 서재 / 전자책 다운로드함 (${myDigitalBooks.length}권 소장 중)</span>
-            </div>
-            <span style="font-size: 0.74rem; background: rgba(242, 202, 80, 0.2); color: #f2ca50; padding: 0.2rem 0.55rem; border-radius: 9999px; font-weight: 700;">
-              평생 영구 소장 &amp; 즉시 다운로드
-            </span>
-          </div>
-
-          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-            ${myDigitalBooks.map(bk => `
-              <div style="background: #0c0f17; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 0.9rem 1.1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
-                <div style="display: flex; align-items: center; gap: 0.85rem;">
-                  <span class="material-symbols-outlined" style="font-size: 32px; color: var(--primary);">menu_book</span>
-                  <div>
-                    <div style="font-size: 0.92rem; font-weight: 800; color: #fff;">${bk.productTitle}</div>
-                    <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 0.2rem;">
-                      구매일: ${new Date(bk.paidAt).toLocaleDateString()} | 주문번호: <span style="font-family: monospace;">${bk.orderId}</span>
-                      ${bk.selectedOptionName ? ` | <span style="color: var(--primary); font-weight: 700;">${bk.selectedOptionName}</span>` : ''}
-                    </div>
-                  </div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                  <button type="button" class="btn-download-ebook-pdf" data-order-id="${bk.orderId}" data-product-id="${bk.productId}" style="background: var(--primary); color: #1c1500; font-weight: 800; font-size: 0.82rem; border: none; padding: 0.5rem 0.9rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; box-shadow: 0 2px 10px rgba(242,202,80,0.3);">
-                    <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
-                    <span>PDF 정본 다운로드</span>
-                  </button>
-                  <button type="button" class="btn-open-book-chart-modal" data-product-id="${bk.productId}" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 700; font-size: 0.82rem; padding: 0.5rem 0.8rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.35rem;">
-                    <span class="material-symbols-outlined" style="font-size: 16px;">menu_book</span>
-                    <span>상세 조견표 열람</span>
-                  </button>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      ` : ''}
-
-      <!-- 2. 무통장 입금 확인 대기 중인 주문 (있을 경우 노출) -->
+      <!-- 1. 무통장 입금 확인 대기 중인 주문 (있을 경우 노출) -->
       ${pendingTransfers.length > 0 ? `
         <div style="background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 12px; padding: 1.15rem; margin-bottom: 1.25rem;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.65rem;">
@@ -200,7 +158,7 @@ export function renderUserOrderHistoryWidget(): string {
         <div style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
           <span class="material-symbols-outlined" style="font-size: 40px; color: rgba(255,255,255,0.2); margin-bottom: 0.5rem;">shopping_bag</span>
           <p style="margin: 0 0 1rem 0; font-size: 0.9rem;">아직 주문하신 상품 내역이 없습니다.</p>
-          <a href="/?view=store" style="display: inline-block; background: var(--primary); color: #000; font-weight: 800; padding: 0.55rem 1.15rem; border-radius: 8px; text-decoration: none; font-size: 0.85rem;">
+          <a href="/store" data-nav="/store" style="display: inline-block; background: var(--primary); color: #000; font-weight: 800; padding: 0.55rem 1.15rem; border-radius: 8px; text-decoration: none; font-size: 0.85rem;">
             마보살 스토어 둘러보기 →
           </a>
         </div>
@@ -291,6 +249,12 @@ export function renderUserOrderHistoryWidget(): string {
                         <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
                       </button>
                     ` : ''}
+
+                    <!-- 상품 상세 및 재구매 바로가기 -->
+                    <button type="button" class="btn-goto-store-product-detail" data-product-id="${o.productId}" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 700; font-size: 0.82rem; padding: 0.45rem 0.8rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
+                      <span class="material-symbols-outlined" style="font-size: 16px;">storefront</span>
+                      <span>상품보기</span>
+                    </button>
                   </div>
                 </div>
 
@@ -411,37 +375,13 @@ startxref
     });
   });
 
-  // 2-1. 상세 조견표 전용 모달 열람 뷰어
-  container.querySelectorAll('.btn-open-book-chart-modal').forEach(btn => {
-    btn.addEventListener('click', () => {
-      let modal = document.getElementById('modal-master-book-chart');
-      if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'modal-master-book-chart';
-        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem;box-sizing:border-box;backdrop-filter:blur(8px);';
-        document.body.appendChild(modal);
+  // 2-1. 주문 상품 상세 페이지 바로가기 (재구매 및 상세 확인)
+  container.querySelectorAll('.btn-goto-store-product-detail').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const pid = (e.currentTarget as HTMLElement).dataset.productId;
+      if (pid) {
+        document.dispatchEvent(new CustomEvent('navigate-store-product', { detail: { productId: pid } }));
       }
-      modal.innerHTML = `
-        <div style="background:#0f172a;border:1.5px solid rgba(242,202,80,0.4);border-radius:16px;max-width:920px;width:100%;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,0.7);overflow:hidden;">
-          <div style="padding:1.1rem 1.4rem;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:space-between;background:rgba(20,27,45,0.8);">
-            <div style="display:flex;align-items:center;gap:0.5rem;">
-              <span class="material-symbols-outlined" style="color:var(--primary);font-size:22px;">menu_book</span>
-              <span style="font-weight:800;color:#fff;font-size:1.05rem;">정통 사주명리학 원론 제1권 - 22p 마스터 조견표 원문</span>
-            </div>
-            <button type="button" id="btn-close-chart-modal" style="background:rgba(255,255,255,0.1);border:none;color:#fff;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">✕</button>
-          </div>
-          <div style="padding:1.5rem;overflow-y:auto;flex:1;color:#dfe2f1;">
-            ${SAJU_BOOK_VOL1_PRODUCT.detailsHtml || ''}
-          </div>
-        </div>
-      `;
-      modal.style.display = 'flex';
-      modal.querySelector('#btn-close-chart-modal')?.addEventListener('click', () => {
-        if (modal) modal.style.display = 'none';
-      });
-      modal.addEventListener('click', (ev) => {
-        if (ev.target === modal) modal.style.display = 'none';
-      });
     });
   });
 

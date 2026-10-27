@@ -159,7 +159,6 @@ html, body {
 }
 
 /* Desktop Left-aligned Category Buttons (사이드바 메뉴용) */
-.btn-study-category,
 .responsive-nav-btn {
   text-align: left !important;
   justify-content: flex-start !important;
@@ -177,7 +176,7 @@ html, body {
   color: #cbd5e1 !important;
 }
 
-.btn-study-category.active {
+.responsive-nav-btn.active {
   background: rgba(242, 202, 80, 0.16) !important;
   border-color: var(--primary) !important;
   color: var(--primary) !important;

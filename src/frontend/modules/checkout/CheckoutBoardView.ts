@@ -209,66 +209,76 @@ export function renderCheckoutBoardView(): string {
                 </label>
               </h2>
 
-              ${(currentUser.role as string) !== 'guest' ? (() => {
-                const addresses = UserAddressStore.getAddresses();
-                const defaultAddr = addresses.find(a => a.isDefault) || addresses[0];
+              ${(() => {
+                const isMember = (currentUser.role as string) !== 'guest';
+                const savedAddresses = isMember ? UserAddressStore.getAddresses() : [];
+                const defaultAddr = savedAddresses.find(a => a.isDefault) || savedAddresses[0] || null;
+
+                const initReceiverName = defaultAddr?.recipientName || buyerName;
+                const initReceiverPhone = defaultAddr?.recipientPhone || buyerPhone;
+                const initShippingAddress = defaultAddr ? `${defaultAddr.address}${defaultAddr.detailAddress ? ' ' + defaultAddr.detailAddress : ''}`.trim() : '';
+                const initShippingMemo = defaultAddr?.deliveryMemo || '';
+                const isAutoSaveChecked = !defaultAddr;
+
                 return `
-                  <!-- 회원 등록 배송지 주소록 선택 바 -->
-                  <div style="background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(242, 202, 80, 0.3); border-radius: 8px; padding: 0.65rem 0.85rem; margin-bottom: 0.85rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
-                    <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: #cbd5e1;">
-                      <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">bookmark</span>
-                      <span>회원 배송지 불러오기:</span>
+                  ${isMember ? `
+                    <!-- 회원 등록 배송지 주소록 선택 바 -->
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(242, 202, 80, 0.3); border-radius: 8px; padding: 0.65rem 0.85rem; margin-bottom: 0.85rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                      <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: #cbd5e1;">
+                        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">bookmark</span>
+                        <span>회원 배송지 불러오기:</span>
+                      </div>
+                      <select id="select-saved-address" style="background: #0c0f17; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 0.82rem; padding: 0.35rem 0.65rem; border-radius: 6px; cursor: pointer; max-width: 320px;">
+                        ${savedAddresses.map(a => `
+                          <option value="${a.id}" data-recipient="${esc(a.recipientName)}" data-phone="${esc(a.recipientPhone)}" data-address="${esc(a.address + (a.detailAddress ? ' ' + a.detailAddress : ''))}" data-memo="${esc(a.deliveryMemo || '')}" ${defaultAddr && a.id === defaultAddr.id ? 'selected' : ''}>
+                            ${a.isDefault ? '[기본] ' : ''}${esc(a.recipientName)} (${esc(a.address.slice(0, 16))}...)
+                          </option>
+                        `).join('')}
+                        <option value="new">+ 신규 주소 직접 입력</option>
+                      </select>
                     </div>
-                    <select id="select-saved-address" style="background: #0c0f17; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 0.82rem; padding: 0.35rem 0.65rem; border-radius: 6px; cursor: pointer; max-width: 320px;">
-                      ${addresses.map(a => `
-                        <option value="${a.id}" data-recipient="${esc(a.recipientName)}" data-phone="${esc(a.recipientPhone)}" data-address="${esc(a.address + (a.detailAddress ? ' ' + a.detailAddress : ''))}" data-memo="${esc(a.deliveryMemo || '')}" ${a.isDefault ? 'selected' : ''}>
-                          ${a.isDefault ? '[기본] ' : ''}${esc(a.recipientName)} (${esc(a.address.slice(0, 16))}...)
-                        </option>
-                      `).join('')}
-                      <option value="new">+ 신규 주소 직접 입력</option>
-                    </select>
+                  ` : ''}
+
+                  <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                      <div>
+                        <label style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.3rem;">수령인 성명</label>
+                        <input type="text" id="checkout-receiver-name" value="${esc(initReceiverName)}" placeholder="수령인 성명" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.65rem; color: #fff; font-size: 0.88rem;" />
+                      </div>
+                      <div>
+                        <label style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.3rem;">수령인 연락처</label>
+                        <input type="tel" id="checkout-receiver-phone" value="${esc(initReceiverPhone)}" placeholder="010-0000-0000" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.65rem; color: #fff; font-size: 0.88rem;" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.35rem; font-weight: 700;">
+                        배송받으실 주소 (도로명 / 지번 및 상세 동/호수)
+                      </label>
+                      <input type="text" id="checkout-shipping-address" value="${esc(initShippingAddress)}" placeholder="예: 서울시 강남구 테헤란로 152, 강남파이낸스센터 12층" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem; color: #fff; font-size: 0.9rem;" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.3rem;">배송 시 요청사항 (선택)</label>
+                      <input type="text" id="checkout-shipping-memo" value="${esc(initShippingMemo)}" placeholder="예: 부재 시 문 앞에 놓아주세요." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.65rem; color: #fff; font-size: 0.88rem;" />
+                    </div>
+
+                    ${isMember ? `
+                      <div style="margin-top: 0.25rem;">
+                        <label style="font-size: 0.78rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+                          <input type="checkbox" id="check-save-to-address-book" ${isAutoSaveChecked ? 'checked' : ''} />
+                          <span>이 배송지를 내 기본 배송지로 주소록에 자동 등록/저장</span>
+                        </label>
+                      </div>
+                    ` : ''}
+
+                    ${!summary.hasPhysicalItems ? `
+                      <p style="margin: 0.25rem 0 0 0; font-size: 0.76rem; color: #94a3b8; line-height: 1.4;">
+                        ※ 현재 주문 상품 중 디지털 상품은 결제 즉시 마이페이지 '내 디지털 서재'에서 다운로드 및 열람 가능합니다.
+                      </p>
+                    ` : ''}
                   </div>
                 `;
-              })() : ''}
-
-              <div style="display: flex; flex-direction: column; gap: 0.85rem;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-                  <div>
-                    <label style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.3rem;">수령인 성명</label>
-                    <input type="text" id="checkout-receiver-name" value="${esc(buyerName)}" placeholder="수령인 성명" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.65rem; color: #fff; font-size: 0.88rem;" />
-                  </div>
-                  <div>
-                    <label style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.3rem;">수령인 연락처</label>
-                    <input type="tel" id="checkout-receiver-phone" value="${esc(buyerPhone)}" placeholder="010-0000-0000" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.65rem; color: #fff; font-size: 0.88rem;" />
-                  </div>
-                </div>
-
-                <div>
-                  <label style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.35rem; font-weight: 700;">
-                    배송받으실 주소 (도로명 / 지번 및 상세 동/호수)
-                  </label>
-                  <input type="text" id="checkout-shipping-address" placeholder="예: 서울시 강남구 테헤란로 152, 강남파이낸스센터 12층" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem; color: #fff; font-size: 0.9rem;" />
-                </div>
-                <div>
-                  <label style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.3rem;">배송 시 요청사항 (선택)</label>
-                  <input type="text" id="checkout-shipping-memo" placeholder="예: 부재 시 문 앞에 놓아주세요." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.65rem; color: #fff; font-size: 0.88rem;" />
-                </div>
-
-                ${(currentUser.role as any) !== 'guest' ? `
-                  <div style="margin-top: 0.25rem;">
-                    <label style="font-size: 0.78rem; color: #cbd5e1; display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer;">
-                      <input type="checkbox" id="check-save-to-address-book" checked />
-                      <span>이 배송지를 내 기본 배송지로 주소록에 자동 등록/저장</span>
-                    </label>
-                  </div>
-                ` : ''}
-
-                ${!summary.hasPhysicalItems ? `
-                  <p style="margin: 0.25rem 0 0 0; font-size: 0.76rem; color: #94a3b8; line-height: 1.4;">
-                    ※ 현재 주문 상품 중 디지털 상품은 결제 즉시 마이페이지 '내 디지털 서재'에서 다운로드 및 열람 가능합니다.
-                  </p>
-                ` : ''}
-              </div>
+              })()}
             </div>
 
             <!-- 4. 할인 & 쿠폰 적용 블록 (관리자 CMS 연동 동적 쿠폰 인터페이스) -->

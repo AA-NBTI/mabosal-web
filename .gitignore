@@ -42,5 +42,6 @@ Thumbs.db
 # Temp & Scratch files
 scratch/
 backups/
+up/
 *.tmp
 supabase/.temp/

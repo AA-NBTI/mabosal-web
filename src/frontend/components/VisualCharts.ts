@@ -794,20 +794,7 @@ export function renderCheonmyeongwonDailyDashboard(options?: CheonmyeongwonDaily
  const luckyNumber = options?.luckyNumber || codex.luckyNumbers;
  const wiseQuote = options?.wiseQuote || codex.wiseQuote;
 
- // SPECIAL EDITION 배너 개인화 변수 산출
- let dayMasterChar = (typeof stemObj === 'object' ? stemObj?.char : stemObj) || (sajuCore as any)?.day_stem;
- let dayMasterEl = (typeof stemObj === 'object' ? stemObj?.element : undefined) || (sajuCore as any)?.day_element || detectedTargetEl;
- if (typeof dayMasterChar === 'object') {
-   dayMasterChar = (dayMasterChar as any)?.char || (dayMasterChar as any)?.name;
- }
- const dayMasterDesc = dayMasterChar && dayMasterEl ? `${dayMasterChar}${dayMasterEl}` : '';
- const specialBadgeText = isPersonalized ? `SPECIAL EDITION · ${userName} 님 1:1 맞춤 본명궁` : `SPECIAL EDITION · 신년 정밀 대운 비책`;
- const specialTitle = isPersonalized && dayMasterDesc
- ? `병오년(丙午年) 붉은 말의 해 · ${dayMasterDesc} 본원 정밀 비책`
- : `병오년(丙午年) 붉은 말의 해`;
- const specialSubDesc = isPersonalized
- ? `${userName} 님의 본명궁과 오행 균형에 최적화된 2026/2027 재물운 &amp; 관운 정밀 분석서`
- : `의뢰인의 본명궁에 맞춘 재물운 &amp; 관운 정밀 분석서 (출생정보 입력 시 1:1 맞춤 전환)`;
+
 
  return `
  <!-- 천명원 10번 규격: Celestial Reading 메인 홈 일진 대시보드 -->
@@ -956,146 +943,8 @@ export function renderCheonmyeongwonDailyDashboard(options?: CheonmyeongwonDaily
   <!-- [3. 비전 바로가기 위쪽 배치] 오늘의 황금 길시(吉時) -->
   ${renderDailyAuspiciousHoursWidget()}
 
-  <!-- [4. 비전(秘傳) 바로가기 4대 퀵 액션 그리드] -->
-  <div style="margin-bottom: 1.5rem;">
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
-      <h3 style="font-size: 0.95rem; font-weight: 700; color: #dfe2f1; margin: 0;">비전(秘傳) 바로가기</h3>
-      <span style="font-size: 0.7rem; color: var(--text-muted);">4대 천명 분석 바로가기</span>
-    </div>
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
-      <button type="button" class="btn-quick-nav" data-action="goto-saju" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;" title="정통 사주 원국 분석 열기">
-        <div style="width: 42px; height: 42px; border-radius: 10px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: var(--primary); margin-bottom: 0.35rem;">
-          <span class="material-symbols-outlined" style="font-size: 22px;">grid_view</span>
-        </div>
-        <span style="font-size: 0.75rem; font-weight: 600; color: #dfe2f1;">정통 사주</span>
-        <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 1px;">원국 풀이</span>
-      </button>
-      <button type="button" class="btn-quick-nav" data-action="goto-chemistry" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;" title="인연 궁합 분석 열기">
-        <div style="width: 42px; height: 42px; border-radius: 10px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: var(--tertiary); margin-bottom: 0.35rem;">
-          <span class="material-symbols-outlined" style="font-size: 22px;">diversity_1</span>
-        </div>
-        <span style="font-size: 0.75rem; font-weight: 600; color: #dfe2f1;">인연 궁합</span>
-        <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 1px;">연인·동업</span>
-      </button>
-      <button type="button" class="btn-quick-nav" data-action="goto-tarot" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;" title="심층 타로 3카드 리딩 열기">
-        <div style="width: 42px; height: 42px; border-radius: 10px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: #bec6dd; margin-bottom: 0.35rem;">
-          <span class="material-symbols-outlined" style="font-size: 22px;">style</span>
-        </div>
-        <span style="font-size: 0.75rem; font-weight: 600; color: #dfe2f1;">심층 타로</span>
-        <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 1px;">3카드 점</span>
-      </button>
-      <button type="button" class="btn-quick-nav" data-action="goto-daeun" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.75rem 0.25rem; border-radius: 12px; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.2s ease;" title="10년 주기 대운 흐름 분석 열기">
-        <div style="width: 42px; height: 42px; border-radius: 10px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: var(--primary); margin-bottom: 0.35rem;">
-          <span class="material-symbols-outlined" style="font-size: 22px;">cyclone</span>
-        </div>
-        <span style="font-size: 0.75rem; font-weight: 600; color: #dfe2f1;">대운 흐름</span>
-        <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 1px;">10년 주기</span>
-      </button>
-    </div>
   </div>
-
-  <!-- [천명원 10번 복원 요소 1] Special 신년 심층 대운 배너 (개별 사주 맞춤 연동 + 전체 클릭 가능) -->
-  <div class="btn-goto-newyear-2027 special-newyear-banner-card" data-action="goto-newyear" style="position: relative; overflow: hidden; border-radius: 16px; background: linear-gradient(135deg, rgba(62,71,90,0.6) 0%, rgba(28,31,42,0.95) 50%, rgba(38,42,53,0.8) 100%); padding: 1.15rem 1.25rem; box-shadow: 0 8px 24px rgba(0,0,0,0.4); border: 1px solid rgba(242,202,80,0.3); margin-bottom: 1.5rem; cursor: pointer; transition: all 0.25s ease;" title="클릭하여 신년 심층 대운 풀이 열람하기">
-    <div style="display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1;">
-      <div style="display: flex; flex-direction: column; max-width: 68%;">
-        <div style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.15rem 0.5rem; border-radius: 9999px; background: rgba(242,202,80,0.2); color: var(--primary); font-family: var(--font-display); font-size: 0.68rem; font-weight: 700; width: fit-content; margin-bottom: 0.35rem;">
-          ${specialBadgeText}
-        </div>
-        <h3 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: #dfe2f1; margin: 0;">
-          ${specialTitle}
-        </h3>
-        <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0.25rem 0 0.65rem 0; line-height: 1.4;">
-          ${specialSubDesc}
-        </p>
-        <div style="display: flex; align-items: center; gap: 0.25rem; color: var(--primary); font-size: 0.78rem; font-weight: 700;">
-          <span>신년 심층 대운 풀이 열람하기</span>
-          <span class="material-symbols-outlined" style="font-size: 15px;">arrow_forward</span>
-        </div>
-      </div>
-      <div style="position: relative; width: 72px; height: 72px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-        <div style="position: absolute; inset: 0; border-radius: 50%; background: rgba(242,202,80,0.15); filter: blur(10px);"></div>
-        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXCUSPiOryMj_SxhWUc8IdjmjcPSitkxidRX35fm1KAfrQVczqvUIh1X7sT9SP6LZqW1S73Xb3uzk0MQq6O6sLhNZTzOhQOHCsp81c0p6TarG9CC7H-jOOPdKymubI0IoQABhNzLERO5J6I00HaokVPkcbNRwqfKJ7-E4aKipYZBcYIh2DWYcUex8EeivOqJv8yijuwImpYgjSeD7iQZVX101gqByM46705NqgPJwR" alt="Celestial Emblem" style="width: 64px; height: 64px; object-fit: contain; position: relative; z-index: 1; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.5);" />
-      </div>
-    </div>
-  </div>
-
- <!-- [천명원 10번 복원 요소 2] 실시간 명리 마스터 가로 스크롤 캐러셀 (관리자 제어) -->
- ${ModuleRegistry.isEnabled('feature_realtime_masters') ? `
- <div style="margin-bottom: 1.5rem;">
- <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
- <div style="display: flex; align-items: center; gap: 0.45rem;">
- <span style="width: 8px; height: 8px; border-radius: 50%; background: #34d399; display: inline-block;"></span>
- <h3 style="font-size: 0.95rem; font-weight: 700; color: #dfe2f1; margin: 0;">실시간 명리 마스터</h3>
- </div>
- <a href="#master-list" class="btn-quick-nav" data-target="sajuFormCard" style="font-size: 0.72rem; color: var(--primary); display: flex; align-items: center; text-decoration: none;">
- 전체 보기 <span class="material-symbols-outlined" style="font-size: 14px;">chevron_right</span>
- </a>
- </div>
- <div style="display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 0.5rem; scrollbar-width: none;">
- ${(() => {
- const activeVendors = CatalogStore.getVendors().filter(v => v.enabled);
- if (activeVendors.length === 0) {
- return `<div style="padding: 1rem; color: var(--text-muted); font-size: 0.85rem;">현재 대기 중인 상담사가 없습니다.</div>`;
- }
- return activeVendors.map(v => `
- <div style="min-width: 250px; max-width: 250px; border-radius: 14px; background: var(--surface-container); padding: 0.95rem; box-shadow: 0 4px 16px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; justify-content: space-between;">
- <div>
- <div style="display: flex; align-items: flex-start; gap: 0.65rem; margin-bottom: 0.65rem;">
- <div style="position: relative; flex-shrink: 0;">
- <img src="${v.avatarUrl || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120'}" alt="${v.name}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover;" />
- <span style="position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; border-radius: 50%; background: #10b981; border: 2px solid var(--surface-container);"></span>
- </div>
- <div style="display: flex; flex-direction: column; min-width: 0;">
- <div style="display: flex; align-items: center; gap: 0.35rem;">
- <span style="font-size: 0.95rem; font-weight: 700; color: #dfe2f1;">${v.name}</span>
- <span style="font-size: 0.65rem; color: #34d399; background: rgba(5,46,22,0.6); padding: 0.1rem 0.35rem; border-radius: 4px;">상담중</span>
- </div>
- <span style="font-size: 0.7rem; color: var(--text-muted); margin-top: 1px;">${v.specialty}</span>
- <div style="display: flex; align-items: center; gap: 0.2rem; margin-top: 2px;">
- <span class="material-symbols-outlined" style="font-size: 13px; color: var(--primary); font-variation-settings: 'FILL' 1;">star</span>
- <span style="font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; color: #dfe2f1;">${v.rating}</span>
- <span style="font-size: 0.68rem; color: var(--text-muted);">(${v.consultationCount.toLocaleString()}회)</span>
- </div>
- </div>
- </div>
- <p style="font-size: 0.75rem; color: rgba(223,226,241,0.85); background: rgba(38,42,53,0.6); border-radius: 8px; padding: 0.5rem; margin: 0; line-height: 1.4;">
- "타고난 명리의 흐름을 읽고 최적의 대처 비책을 안내합니다."
- </p>
- </div>
- <div style="margin-top: 0.75rem; padding-top: 0.65rem; border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between;">
- <span style="font-family: var(--font-display); font-size: 0.8rem; font-weight: 700; color: var(--primary);">${ModuleRegistry.isEnabled('feature_yeop_wallet') ? '1,800엽' : '₩ 18,000'} <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: normal;">/ 10분</span></span>
- <button type="button" class="btn-quick-nav" data-target="sajuFormCard" style="padding: 0.3rem 0.65rem; border-radius: 6px; background: var(--primary); color: #241a00; font-size: 0.72rem; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.2rem;">
- <span class="material-symbols-outlined" style="font-size: 13px;">call</span> 상담 연결
- </button>
- </div>
- </div>
- `).join('');
- })()}
- </div>
- </div>
- ` : ''}
-
- <!-- [천명원 10번 복원 요소 3] 오늘 자정 마감 운세 퀴즈 배너 -->
- <div style="position: relative; overflow: hidden; border-radius: 14px; background: linear-gradient(135deg, var(--surface-container-high) 0%, var(--surface-container) 100%); padding: 1rem 1.15rem; box-shadow: 0 4px 16px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between;">
- <div style="display: flex; align-items: center; gap: 0.75rem;">
- <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(242,202,80,0.2); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
- <span class="material-symbols-outlined" style="font-size: 22px;">psychology_alt</span>
- </div>
- <div style="display: flex; flex-direction: column;">
- <div style="display: flex; align-items: center; gap: 0.4rem;">
- <span style="font-size: 0.92rem; font-weight: 700; color: #dfe2f1;">오늘 자정 마감 운세 퀴즈</span>
- </div>
- <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0.15rem 0 0 0;">
- 내 사주 원국에서 가장 왕성한 오행과 결핍된 오행은?
- </p>
- </div>
- </div>
- <button type="button" class="btn-quick-nav" data-target="sajuFormCard" style="width: 32px; height: 32px; border-radius: 50%; background: var(--surface-container-highest); display: flex; align-items: center; justify-content: center; color: #dfe2f1; border: none; cursor: pointer;">
- <span class="material-symbols-outlined" style="font-size: 18px;">play_arrow</span>
- </button>
- </div>
- </div>
- `;
+  `;
 }
 
 // ============================================================================

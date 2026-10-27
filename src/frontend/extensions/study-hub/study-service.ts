@@ -154,35 +154,56 @@ export class StudyService {
   }
 
   static init(): void {
-    if (this.initialized) return;
+    if (this.initialized && this.categories && this.categories.length > 0) return;
 
     // 카테고리 로드
-    const rawCats = localStorage.getItem(STORAGE_KEY_CATEGORIES);
-    if (rawCats) {
-      try {
+    let loadedCats: StudyCategory[] = [];
+    try {
+      const rawCats = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY_CATEGORIES) : null;
+      if (rawCats) {
         const parsed = JSON.parse(rawCats);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          this.categories = parsed;
-        } else {
-          this.categories = [...INITIAL_CATEGORIES];
-          this.saveCategoriesToStorage();
+          const valid = parsed.filter(c => Boolean(c && c.id && (c.name || (c as any).label)));
+          if (valid.length > 0) {
+            loadedCats = valid.map(c => ({
+              id: c.id,
+              name: c.name || (c as any).label,
+              slug: c.slug || c.id,
+              order: c.order || 1,
+              description: c.description || '',
+              icon: c.icon || 'menu_book'
+            }));
+          }
         }
-      } catch {
-        this.categories = [...INITIAL_CATEGORIES];
-        this.saveCategoriesToStorage();
       }
-    } else {
-      this.categories = [...INITIAL_CATEGORIES];
+    } catch (e) {
+      console.warn('[study-service] 카테고리 로드 오류:', e);
+    }
+
+    if (loadedCats.length === 0) {
+      loadedCats = [...INITIAL_CATEGORIES];
+      this.categories = loadedCats;
       this.saveCategoriesToStorage();
+    } else {
+      this.categories = loadedCats;
     }
 
     // 아티클 로드 (기존 v1 데이터 마이그레이션 지원)
-    const rawA = localStorage.getItem(STORAGE_KEY_ARTICLES) || localStorage.getItem('mabosal_study_articles_v1');
+    const rawA = typeof localStorage !== 'undefined'
+      ? (localStorage.getItem(STORAGE_KEY_ARTICLES) || localStorage.getItem('mabosal_study_articles_v1'))
+      : null;
     if (rawA) {
       try {
-        this.articles = JSON.parse(rawA);
+        const parsedA = JSON.parse(rawA);
+        if (Array.isArray(parsedA) && parsedA.length > 0) {
+          this.articles = parsedA;
+        } else {
+          this.articles = [...INITIAL_ARTICLES];
+          this.saveArticlesToStorage();
+        }
       } catch {
         this.articles = [...INITIAL_ARTICLES];
+        this.saveArticlesToStorage();
       }
     } else {
       this.articles = [...INITIAL_ARTICLES];
@@ -196,7 +217,7 @@ export class StudyService {
     });
 
     // 댓글 로드
-    const rawC = localStorage.getItem(STORAGE_KEY_COMMENTS);
+    const rawC = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY_COMMENTS) : null;
     this.comments = rawC ? JSON.parse(rawC) : [];
 
     this.initialized = true;

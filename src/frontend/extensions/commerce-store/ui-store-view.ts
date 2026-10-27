@@ -151,8 +151,13 @@ export function renderCommerceStoreView(state: AppStateData): string {
     } else if (window.location.pathname.startsWith('/store/')) {
       const pathProd = decodeURIComponent(window.location.pathname.replace('/store/', ''));
       currentSelectedProductId = pathProd || null;
+    } else if (currentSelectedProductId) {
+      // 이미 코드로 선택된 상품이 있으면 URL을 해당 상품 상세로 동기화
+      const url = new URL(window.location.href);
+      url.pathname = '/store';
+      url.searchParams.set('product', currentSelectedProductId);
+      window.history.replaceState({ view: 'store', product: currentSelectedProductId }, '', url.toString());
     } else {
-      // URL에 product가 없으면 무조건 목록 화면으로 리셋!
       currentSelectedProductId = null;
     }
 
@@ -163,7 +168,14 @@ export function renderCommerceStoreView(state: AppStateData): string {
 
   const allCategoryProducts = getStoreProductsByCategory('all');
   const products = getStoreProductsByCategory(currentCategory);
-  const selectedProduct = currentSelectedProductId ? getStoreProductById(currentSelectedProductId) : null;
+  let selectedProduct = currentSelectedProductId ? getStoreProductById(currentSelectedProductId) : null;
+  if (!selectedProduct && currentSelectedProductId) {
+    // ID 상호 포함 또는 카테고리/제목 유사 매칭 보정
+    selectedProduct = allCategoryProducts.find((p: StoreProduct) => p.id.includes(currentSelectedProductId!) || currentSelectedProductId!.includes(p.id)) || null;
+    if (selectedProduct) {
+      currentSelectedProductId = selectedProduct.id;
+    }
+  }
   const storeCategories = getStoreCategories();
   const activeCatObj = storeCategories.find(c => c.id === currentCategory);
   const activeCatLabel = activeCatObj ? activeCatObj.label : '전체 상품';
@@ -186,30 +198,30 @@ export function renderCommerceStoreView(state: AppStateData): string {
     // 1. 결제 완료 영수증 모드
     const order = lastCreatedOrder;
     rightContentHtml = `
-      <div style="background: var(--surface-container); border: 1px solid rgba(242,202,80,0.3); border-radius: 18px; padding: 2.5rem 2rem; text-align: left; box-shadow: var(--shadow-sm);">
-        <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(242,202,80,0.15); border: 1px solid var(--primary); color: var(--primary); display: flex; align-items: center; justify-content: flex-start; margin: 0 auto 1.25rem;">
+      <div style="background: var(--surface-container); border: 1px solid rgba(242,202,80,0.3); border-radius: 18px; padding: 2.5rem 2rem; text-align: center; box-shadow: var(--shadow-sm);">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(242,202,80,0.15); border: 1px solid var(--primary); color: var(--primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
           <span class="material-symbols-outlined" style="font-size: 36px;">check</span>
         </div>
         <h2 style="font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0 0 0.4rem 0;">${order.status === 'pending' ? '주문이 접수되었습니다' : '결제가 성공적으로 완료되었습니다!'}</h2>
         <p style="font-size: 0.9rem; color: #94a3b8; margin: 0 0 2rem 0;">주문번호: ${order.orderId}</p>
-        ${order.status === 'pending' ? `<div style="max-width: 520px; margin: -1rem auto 1.5rem; background: rgba(242,202,80,0.08); border: 1px solid rgba(242,202,80,0.35); border-radius: 12px; padding: 1rem 1.15rem; text-align: left; font-size: 0.85rem; color: #e2e8f0; line-height: 1.6;"><strong style="color: var(--primary);">입금 확인 대기 중</strong><br/>기업은행 103-123733-04-012 (템바보드 주식회사)로 <strong>₩ ${order.amount.toLocaleString()}</strong>을 입금해 주세요. 입금자명은 <strong>${esc(order.buyerName)}</strong> 이어야 하며, 관리자가 입금을 확인하면 결제가 완료되어 열람할 수 있습니다.</div>` : ''}
+        ${order.status === 'pending' ? `<div style="max-width: 520px; margin: -1rem auto 1.5rem; background: rgba(242,202,80,0.08); border: 1px solid rgba(242,202,80,0.35); border-radius: 12px; padding: 1.15rem 1.25rem; text-align: left; font-size: 0.88rem; color: #e2e8f0; line-height: 1.6;"><strong style="color: var(--primary); font-size: 0.95rem; display: block; margin-bottom: 0.35rem;">입금 확인 대기 중</strong>기업은행 103-123733-04-012 (템바보드 주식회사)로 <strong style="color: #fff;">₩ ${order.amount.toLocaleString()}</strong>을 입금해 주세요.<br/><span style="font-size: 0.82rem; color: #cbd5e1; margin-top: 0.25rem; display: block;">입금자명은 <strong>${esc(order.buyerName)}</strong> 이어야 하며, 관리자가 입금을 확인하면 결제가 완료되어 열람할 수 있습니다.</span></div>` : ''}
 
-        <div style="max-width: 520px; margin: 0 auto 2rem; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.5rem; text-align: left; font-size: 0.9rem;">
-          <div style="display: flex; justify-content: flex-start; gap: 0.75rem; margin-bottom: 0;">
-            <span style="color: var(--text-muted);">상품명</span>
-            <strong style="color: #fff;">${esc(order.productTitle)}</strong>
+        <div style="max-width: 520px; margin: 0 auto 2rem; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.5rem; text-align: left; font-size: 0.9rem; display: flex; flex-direction: column; gap: 0.85rem;">
+          <div style="display: flex; align-items: flex-start; gap: 1rem;">
+            <span style="color: var(--text-muted); font-size: 0.84rem; width: 75px; flex-shrink: 0; white-space: nowrap;">상품명</span>
+            <strong style="color: #fff; font-size: 0.92rem; flex: 1; word-break: keep-all; line-height: 1.5;">${esc(order.productTitle)}</strong>
           </div>
-          <div style="display: flex; justify-content: flex-start; gap: 0.75rem; margin-bottom: 0;">
-            <span style="color: var(--text-muted);">결제 금액</span>
-            <strong style="color: var(--primary); font-size: 1.05rem;">₩ ${order.amount.toLocaleString()}</strong>
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <span style="color: var(--text-muted); font-size: 0.84rem; width: 75px; flex-shrink: 0; white-space: nowrap;">결제 금액</span>
+            <strong style="color: var(--primary); font-size: 1.1rem; font-weight: 800;">₩ ${order.amount.toLocaleString()}</strong>
           </div>
-          <div style="display: flex; justify-content: flex-start; gap: 0.75rem; margin-bottom: 0;">
-            <span style="color: var(--text-muted);">구매자 정보</span>
-            <span style="color: #cbd5e1;">${esc(order.buyerName)} (${esc(order.buyerPhone)})</span>
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <span style="color: var(--text-muted); font-size: 0.84rem; width: 75px; flex-shrink: 0; white-space: nowrap;">구매자 정보</span>
+            <span style="color: #cbd5e1; font-size: 0.88rem;">${esc(order.buyerName)} (${esc(order.buyerPhone)})</span>
           </div>
-          <div style="display: flex; justify-content: flex-start; gap: 0.75rem;">
-            <span style="color: var(--text-muted);">수신 이메일</span>
-            <span style="color: #cbd5e1;">${esc(order.buyerEmail)}</span>
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <span style="color: var(--text-muted); font-size: 0.84rem; width: 75px; flex-shrink: 0; white-space: nowrap;">수신 이메일</span>
+            <span style="color: #cbd5e1; font-size: 0.88rem;">${esc(order.buyerEmail)}</span>
           </div>
         </div>
 
@@ -937,11 +949,6 @@ export function renderCommerceStoreView(state: AppStateData): string {
           <div class="store-cat-scroll-inner">
             ${categoryNavHtml}
           </div>
-          <button type="button" id="btn-open-cart-modal" class="btn-store-cart-pill" style="display: ${AuthService.getCurrentUser().role !== 'guest' && CartStore.getCount() > 0 ? 'inline-flex' : 'none'};">
-            <span class="material-symbols-outlined" style="font-size: 18px;">shopping_bag</span>
-            <span>장바구니</span>
-            <span class="cart-pill-count">${CartStore.getCount()}</span>
-          </button>
         </nav>
 
         <!-- [모바일 전용: 햄버거 카테고리 바] -->
@@ -949,11 +956,6 @@ export function renderCommerceStoreView(state: AppStateData): string {
           <button type="button" class="btn-toggle-store-drawer" id="btn-open-store-drawer">
             <span class="material-symbols-outlined" style="font-size: 20px;">menu</span>
             <span>스토어 카테고리 (${esc(activeCatLabel)})</span>
-          </button>
-          <button type="button" id="btn-open-cart-modal-m" class="btn-store-cart-pill" style="display: ${AuthService.getCurrentUser().role !== 'guest' && CartStore.getCount() > 0 ? 'inline-flex' : 'none'};">
-            <span class="material-symbols-outlined" style="font-size: 18px;">shopping_bag</span>
-            <span>장바구니</span>
-            <span class="cart-pill-count">${CartStore.getCount()}</span>
           </button>
         </div>
 

@@ -793,13 +793,58 @@ export function setStoreProductStatus(id: string, status: 'active' | 'soldout' |
   return updateStoreProduct(id, { status });
 }
 
+/** 기본 시드 주문 (홍길동 회원 전자책 1권 정본 구매 내역 보장) */
+const DEFAULT_SEED_ORDERS: StoreOrder[] = [
+  {
+    orderId: 'ORD-MVOK8OJZ-4CO',
+    productId: 'book-saju-principles-vol1',
+    productTitle: '[전자책] 정통 사주명리학 원론 제1권: 음양오행(陰陽五行)과 천간·지지·지장간 원론',
+    category: 'ebook',
+    amount: 29000,
+    deliveryType: 'digital_download',
+    accessUrl: '/assets/downloads/saju_principles_vol1_master.pdf',
+    contentPayload: '/assets/downloads/saju_principles_vol1_master.pdf',
+    buyerName: '홍길동',
+    buyerEmail: 'hong@mabosal.com',
+    buyerPhone: '010-9876-5432',
+    paymentMethod: 'card',
+    userId: 'acc_user_01',
+    paidAt: '2026-10-26T14:30:00.000Z',
+    status: 'completed',
+    selectedOptionName: '[기본형] 전자책(PDF) 마스터 판본 (즉시 다운로드)',
+    reportTier: 'COMPREHENSIVE'
+  }
+];
+
 /** 주문 목록 조회 */
 export function getAllStoreOrders(): StoreOrder[] {
   try {
     const raw = getStorage().getItem(STORAGE_ORDERS_KEY);
-    return raw ? JSON.parse(raw) : [];
+    let orders: StoreOrder[] = raw ? JSON.parse(raw) : [];
+
+    // 홍길동 회원의 대표 전자책 주문이 누락되지 않도록 보장
+    const hasVol1Order = orders.some(o => o.orderId === 'ORD-MVOK8OJZ-4CO' || o.productId === 'book-saju-principles-vol1');
+    if (!hasVol1Order) {
+      orders = [...DEFAULT_SEED_ORDERS, ...orders];
+      getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders.slice(0, 500)));
+    } else {
+      // 기존 주문의 소유자 정보가 누락되어 홍길동에게 안 보이던 현상 보정
+      let updated = false;
+      orders = orders.map(o => {
+        if (o.orderId === 'ORD-MVOK8OJZ-4CO' && !o.userId) {
+          updated = true;
+          return { ...o, userId: 'acc_user_01', buyerEmail: o.buyerEmail || 'hong@mabosal.com' };
+        }
+        return o;
+      });
+      if (updated) {
+        getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders.slice(0, 500)));
+      }
+    }
+
+    return orders;
   } catch {
-    return [];
+    return DEFAULT_SEED_ORDERS;
   }
 }
 

@@ -132,7 +132,7 @@ export function renderYear2027SingleProductView(state: AppStateData): string {
  </div>
  </div>
 
- ${renderSingleProductDownloadBar('재회·인연 특화 비책')}
+ ${renderSingleProductDownloadBar('2027 정미년 신년 총운 & 12절기 월운 비책')}
  ${renderAffiliatePromoBanner()}
  </div>
  `;
@@ -398,7 +398,7 @@ export function renderChemistrySingleProductView(state: AppStateData): string {
  </div>
  </div>
 
- ${renderSingleProductDownloadBar('2027 정미년 운세 특화 비책')}
+ ${renderSingleProductDownloadBar('2인 정밀 궁합 & 갈등 방어 처방전')}
  ${renderAffiliatePromoBanner()}
  </div>
  `;
@@ -453,6 +453,7 @@ export function renderCareerSingleProductView(state: AppStateData): string {
  </div>
  </div>
 
+ ${renderSingleProductDownloadBar('직장·이직 타이밍 & 잔류 vs 퇴사 득실 진단서')}
  ${renderAffiliatePromoBanner()}
  </div>
  `;
@@ -532,6 +533,7 @@ export function renderWealthSingleProductView(state: AppStateData): string {
  </ul>
  </div>
 
+ ${renderSingleProductDownloadBar('재물·투자운 & 손재마(損財魔) 방어 처방전')}
  ${renderAffiliatePromoBanner()}
  </div>
  `;
@@ -609,6 +611,7 @@ export function renderLoveReunionSingleProductView(state: AppStateData): string 
  </div>
  </div>
 
+ ${renderSingleProductDownloadBar('연애·재회운 & 인연 타이밍 진단서')}
  ${renderAffiliatePromoBanner()}
  </div>
  `;

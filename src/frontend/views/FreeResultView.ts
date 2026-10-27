@@ -74,6 +74,10 @@ export function renderFreeResultView(state: AppStateData): string {
  <span class="material-symbols-outlined" style="font-size: 16px;">description</span>
  소장용 TXT 다운로드
  </button>
+ <button type="button" class="btn-cta-secondary btn-download-pdf" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
+ <span class="material-symbols-outlined" style="font-size: 16px;">picture_as_pdf</span>
+ PDF 리포트 저장
+ </button>
  <span style="font-size: 0.82rem; color: #50c878; font-weight: 600;">
  13개 핵심 진단 섹션 무료 제공
  </span>
