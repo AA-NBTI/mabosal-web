@@ -5019,12 +5019,85 @@ ${content}
 
     const submitBtn = document.getElementById('btn-submit-final-order') as HTMLButtonElement;
     const selectedPayMethod = (payMethodInput?.value as any) || 'bank_transfer';
+    const isOnlinePay = (selectedPayMethod === 'card' || selectedPayMethod === 'kakaopay' || selectedPayMethod === 'tosspay');
 
-    if (selectedPayMethod !== 'bank_transfer' && selectedPayMethod !== 'voucher' && !PaymentConfigStore.isCardEnabled()) {
+    if (isOnlinePay && !PaymentConfigStore.isCardEnabled()) {
       alert('현재 포트원(PortOne) 전자결제 연동 심사 준비 중입니다. 결제 수단은 [무통장 입금]만 이용 가능합니다.');
       const bankRadio = form.querySelector('input[name="checkout-pay-method"][value="bank_transfer"]') as HTMLInputElement | null;
       if (bankRadio) bankRadio.checked = true;
       return;
+    }
+
+    const items = CartStore.getSelectedItems();
+    if (items.length === 0) {
+      alert('주문할 상품이 선택되지 않았습니다.');
+      return;
+    }
+
+    // 결제 금액 사전 산출
+    const productAmount = items.reduce((sum, it) => sum + it.price * it.quantity, 0);
+    const hasPhysical = items.some(it => it.deliveryType === 'shipping' || it.category === 'goods');
+    const shippingFee = hasPhysical ? (productAmount >= 50000 ? 0 : 3000) : 0;
+    const discountRes = CheckoutService.calculateDiscount(couponInput?.value, productAmount);
+    const couponDiscount = discountRes.discountAmount;
+    const currentUser = AuthService.getCurrentUser();
+    let usedYeop = 0;
+    if (yeopInput && parseInt(yeopInput.value, 10) > 0) {
+      usedYeop = Math.min(parseInt(yeopInput.value, 10), currentUser.yeopBalance || 0, Math.max(0, productAmount - couponDiscount));
+    }
+    const totalPayAmount = Math.max(0, productAmount + shippingFee - couponDiscount - usedYeop);
+    const isZeroPayment = totalPayAmount === 0;
+
+    let portonePaymentKey: string | undefined = undefined;
+
+    // [온라인 카드/간편결제] 결제창을 먼저 호출하여 승인 완료 시에만 주문 생성 및 장바구니 차감!
+    if (isOnlinePay && !isZeroPayment) {
+      const pCfg = PaymentConfigStore.get();
+      const primaryItem = items[0];
+      const orderTitle = items.length === 1 ? primaryItem.title : `${primaryItem.title} 외 ${items.length - 1}건`;
+      const tempOrderId = 'ORD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 5).toUpperCase();
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '결제창 로딩 중...';
+      }
+
+      try {
+        const response = await PortOneGateway.requestPayment(
+          { storeId: pCfg.storeId, channelKey: pCfg.channelKey },
+          {
+            orderId: tempOrderId,
+            orderName: orderTitle,
+            amount: totalPayAmount,
+            buyerName: nameInput?.value?.trim() || '구매자',
+            buyerPhone: phoneInput?.value?.trim() || '01000000000',
+            buyerEmail: emailInput?.value?.trim() || 'customer@mabosal.com',
+            payMethod: selectedPayMethod === 'kakaopay' ? 'EASY_PAY' : 'CARD',
+          }
+        );
+
+        if (response && response.code != null) {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '결제하기';
+          }
+          if (response.code === 'FAILURE_TYPE_PG' && (response.message?.includes('취소') || response.message?.includes('사용자'))) {
+            alert('결제를 취소하셨습니다.');
+          } else {
+            alert('전자결제 연동 중 오류가 발생했습니다: ' + (response.message || `오류 코드: ${response.code}`));
+          }
+          return;
+        }
+
+        portonePaymentKey = response?.paymentId || tempOrderId;
+      } catch (err: any) {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '결제하기';
+        }
+        alert('전자결제 연동 중 오류가 발생했습니다: ' + (err?.message || err));
+        return;
+      }
     }
 
     if (submitBtn) {
@@ -5050,62 +5123,16 @@ ${content}
         submitBtn.disabled = false;
         submitBtn.textContent = '결제하기';
       }
-      // 카드/페이 미지원 시 무통장 입금 라디오 버튼으로 자동 전환 안내
-      const bankRadio = form.querySelector('input[name="checkout-pay-method"][value="bank_transfer"]') as HTMLInputElement | null;
-      if (bankRadio) {
-        bankRadio.checked = true;
-        bankRadio.focus();
-      }
       return;
     }
 
-    // 카드 · 간편결제(포트원 V2) 선택 시 실제 결제창(모달) 호출
-    if (checkoutRes.order && (selectedPayMethod === 'card' || selectedPayMethod === 'kakaopay' || selectedPayMethod === 'tosspay') && checkoutRes.order.amount > 0) {
-      const pCfg = PaymentConfigStore.get();
-      if (submitBtn) {
-        submitBtn.textContent = '결제창 로딩 중...';
-      }
-      try {
-        const response = await PortOneGateway.requestPayment(
-          { storeId: pCfg.storeId, channelKey: pCfg.channelKey },
-          {
-            orderId: checkoutRes.order.orderId,
-            orderName: checkoutRes.order.productTitle,
-            amount: checkoutRes.order.amount,
-            buyerName: checkoutRes.order.buyerName,
-            buyerPhone: checkoutRes.order.buyerPhone,
-            buyerEmail: checkoutRes.order.buyerEmail,
-            payMethod: selectedPayMethod === 'kakaopay' ? 'EASY_PAY' : 'CARD',
-          }
-        );
-
-        if (response && response.code != null) {
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = '결제하기';
-          }
-          if (response.code === 'FAILURE_TYPE_PG' && (response.message?.includes('취소') || response.message?.includes('사용자'))) {
-            alert('결제를 취소하셨습니다.');
-          } else {
-            alert(response.message || `결제 승인 실패 (${response.code})`);
-          }
-          return;
-        }
-
-        // 결제 성공! 주문 상태 completed로 변경
-        updateStoreOrder(checkoutRes.order.orderId, {
-          status: 'completed',
-          paymentKey: response?.paymentId || checkoutRes.order.orderId,
-        });
-        checkoutRes.order.status = 'completed';
-      } catch (err: any) {
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = '결제하기';
-        }
-        alert('전자결제 연동 중 오류가 발생했습니다: ' + (err?.message || err));
-        return;
-      }
+    // 온라인 결제 승인 완료 건인 경우 주문 상태를 즉시 completed로 확정
+    if (portonePaymentKey && checkoutRes.order) {
+      updateStoreOrder(checkoutRes.order.orderId, {
+        status: 'completed',
+        paymentKey: portonePaymentKey,
+      });
+      checkoutRes.order.status = 'completed';
     }
 
     // 회원 기본 배송지 주소록 저장 체크 시 자동 등록
