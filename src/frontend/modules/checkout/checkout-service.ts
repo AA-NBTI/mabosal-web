@@ -43,27 +43,20 @@ export class CheckoutService {
     }
     const cleanCode = couponCode.trim().toUpperCase();
 
-    if (cleanCode === 'MABOSAL-FREE') {
-      return {
-        discountAmount: Math.min(totalProductAmount, 19900),
-        couponValid: true,
-        message: '런칭 기념 19,900원 전액 할인 쿠폰이 적용되었습니다.',
-      };
-    }
+    // 동적 쿠폰 스토어 조회 (관리자가 정식 발행한 쿠폰만 유효)
+    const activeCoupons = VoucherStore.getCoupons().filter(c => c.enabled && c.code.toUpperCase() === cleanCode);
+    if (activeCoupons.length > 0) {
+      const c = activeCoupons[0];
+      const discount = c.type === 'free_pass'
+        ? totalProductAmount
+        : c.type === 'percent_discount'
+        ? Math.floor((totalProductAmount * (c.discountRate || 0)) / 100)
+        : Math.min(totalProductAmount, c.discountAmount || 0);
 
-    if (cleanCode === 'MABOSAL-10K' || cleanCode.includes('10000')) {
       return {
-        discountAmount: Math.min(totalProductAmount, 10000),
+        discountAmount: discount,
         couponValid: true,
-        message: '10,000원 할인 쿠폰이 적용되었습니다.',
-      };
-    }
-
-    if (cleanCode === 'VIP-FREE') {
-      return {
-        discountAmount: totalProductAmount,
-        couponValid: true,
-        message: 'VIP 전액 지원 쿠폰이 적용되었습니다.',
+        message: `${c.name} (${discount.toLocaleString()}원 할인)이 적용되었습니다.`,
       };
     }
 

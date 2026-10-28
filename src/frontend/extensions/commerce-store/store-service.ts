@@ -922,30 +922,14 @@ export function redeemStoreVoucher(rawCode: string, buyerInfo?: { name: string; 
   let targetProdId = '';
   let discountDesc = '';
 
-  // 쿠폰 코드 규칙
-  if (code === 'MABOSAL-FREE' || code === 'FREE-19900' || code === 'MABOSAL2026' || code === 'FREE') {
-    targetProdId = 'prod-saju-entry-promo';
-    discountDesc = '19,900원 사주 진단서 100% 무료 승인';
-  } else if (code === 'TEMBA-VIP' || code === 'VIP-39900' || code === 'TEMBA-39900' || code === 'VIP') {
-    targetProdId = 'prod-paid-saju-premium';
-    discountDesc = '39,900원 정통 유료 사주풀이 VIP 전액 무료 승인';
-  } else if (code === 'YEAR-2027' || code === 'LUCKY2027') {
-    targetProdId = 'prod-report-year2027';
-    discountDesc = '2027 신년운세 상품권 전액 무료 승인';
+  // 관리자가 등록한 동적 쿠폰 스토어 조회
+  const allCoupons = VoucherStore.getCoupons();
+  const matched = allCoupons.find(c => c.code.toUpperCase() === code && c.enabled);
+  if (matched) {
+    targetProdId = matched.targetProduct === 'all' ? 'prod-paid-saju-premium' : matched.targetProduct;
+    discountDesc = `${matched.name} (${matched.discountAmount ? matched.discountAmount.toLocaleString() + '원 할인' : matched.discountRate + '% 할인'})`;
   } else {
-    // 동적 쿠폰 스토어 조회 (로컬 및 발급 쿠폰)
-    try {
-      const dynamicCoupons = JSON.parse(localStorage.getItem('mabosal_voucher_coupons') || '[]');
-      const matched = dynamicCoupons.find((c: any) => c.code.toUpperCase() === code && c.enabled);
-      if (matched) {
-        targetProdId = matched.targetProduct === 'all' ? 'prod-paid-saju-premium' : matched.targetProduct;
-        discountDesc = `${matched.name} (${matched.discountAmount ? matched.discountAmount.toLocaleString() + '원 할인' : matched.discountRate + '% 할인'})`;
-      } else {
-        return { success: false, message: '유효하지 않거나 이미 사용된 쿠폰/상품권 코드입니다. 코드를 다시 확인해 주세요.' };
-      }
-    } catch {
-      return { success: false, message: '유효하지 않거나 이미 사용된 쿠폰/상품권 코드입니다. 코드를 다시 확인해 주세요.' };
-    }
+    return { success: false, message: '유효하지 않거나 이미 사용된 쿠폰/상품권 코드입니다. 코드를 다시 확인해 주세요.' };
   }
 
   const prod = getStoreProductById(targetProdId);

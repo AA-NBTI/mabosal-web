@@ -49,65 +49,13 @@ export interface UserVoucherWalletItem {
   isUsed: boolean;
 }
 
-const STORAGE_KEY_COUPONS = 'mabosal_admin_vouchers_v1';
+const STORAGE_KEY_COUPONS = 'mabosal_admin_vouchers_v2';
 const STORAGE_KEY_TRANSFERS = 'mabosal_bank_transfers_v1';
-const STORAGE_KEY_USER_WALLET = 'mabosal_user_voucher_wallet_v1';
+const STORAGE_KEY_USER_WALLET = 'mabosal_user_voucher_wallet_v2';
 const STORAGE_KEY_USER_CASH = 'mabosal_user_cash_balance_v1';
 
-const INITIAL_COUPONS: VoucherCoupon[] = [
-  {
-    id: 'coup-free-launch',
-    code: 'MABOSAL-FREE',
-    name: '런칭 기념 무료 사주 진단서 100% 프리패스',
-    type: 'free_pass',
-    discountAmount: 19900,
-    targetProduct: 'free_report',
-    expiryDate: '2026-12-31',
-    usedCount: 142,
-    usageLimit: 10000,
-    enabled: true,
-    createdAt: '2026-10-01'
-  },
-  {
-    id: 'coup-temba-vip',
-    code: 'TEMBA-VIP',
-    name: '템바보드 주식회사 특별 30% 전품목 할인권',
-    type: 'percent_discount',
-    discountRate: 30,
-    targetProduct: 'all',
-    expiryDate: '2026-12-31',
-    usedCount: 28,
-    usageLimit: 500,
-    enabled: true,
-    createdAt: '2026-10-05'
-  },
-  {
-    id: 'coup-year-2027',
-    code: 'YEAR-2027',
-    name: '정묘년 신년 운세 & 사주풀이 10,000원 상품권',
-    type: 'fixed_discount',
-    discountAmount: 10000,
-    targetProduct: 'paid_saju',
-    expiryDate: '2027-02-28',
-    usedCount: 56,
-    usageLimit: 1000,
-    enabled: true,
-    createdAt: '2026-10-08'
-  },
-  {
-    id: 'coup-saju-40k',
-    code: 'FORTUNE-40K',
-    name: '정통 사주풀이 무통장 40,000원 입금 전용권 (잔액 100원 캐시)',
-    type: 'fixed_discount',
-    discountAmount: 39900,
-    targetProduct: 'paid_saju',
-    expiryDate: '2026-12-31',
-    usedCount: 12,
-    usageLimit: 200,
-    enabled: true,
-    createdAt: '2026-10-10'
-  }
-];
+// [쿠폰 완전 제거] 회원에게 자동/기본 지급되는 쿠폰 없음 (0건)
+const INITIAL_COUPONS: VoucherCoupon[] = [];
 
 const INITIAL_TRANSFERS: BankTransferRequest[] = [
   {
