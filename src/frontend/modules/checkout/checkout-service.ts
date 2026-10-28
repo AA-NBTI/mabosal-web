@@ -68,6 +68,29 @@ export class CheckoutService {
   }
 
   /**
+   * 장바구니/주문 품목의 실시간 판매 유효성 검증 (관리자 숨김 및 품절 상품 결제 차단)
+   */
+  public static validateCheckoutItems(items: CartItem[]): { valid: boolean; message: string } {
+    for (const it of items) {
+      const liveProduct = getStoreProductById(it.productId);
+      const status = liveProduct ? liveProduct.status : (it as any).status;
+      if (status === 'hidden') {
+        return {
+          valid: false,
+          message: `'${it.title}' 상품은 현재 판매가 중단(숨김)되어 결제할 수 없습니다. 장바구니에서 해당 상품을 삭제하거나 제외한 후 다시 시도해 주세요.`,
+        };
+      }
+      if (status === 'soldout') {
+        return {
+          valid: false,
+          message: `'${it.title}' 상품은 현재 품절되어 결제할 수 없습니다. 장바구니에서 해당 상품을 삭제하거나 제외한 후 다시 시도해 주세요.`,
+        };
+      }
+    }
+    return { valid: true, message: '' };
+  }
+
+  /**
    * 주문서 제출 및 주문 생성 처리
    */
   public static executeCheckout(payload: CheckoutPayload): CheckoutResult {
@@ -77,6 +100,12 @@ export class CheckoutService {
 
     if (items.length === 0) {
       return { success: false, message: '주문할 상품이 선택되지 않았습니다.' };
+    }
+
+    // [필수 방어] 관리자 숨김 또는 품절 상품 결제 차단
+    const validation = this.validateCheckoutItems(items);
+    if (!validation.valid) {
+      return { success: false, message: validation.message };
     }
 
     if (!payload.agreeTerms) {

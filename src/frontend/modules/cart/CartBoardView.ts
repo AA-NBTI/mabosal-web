@@ -2,6 +2,7 @@
  * CartBoardView - 마보살 정식 쇼핑몰 전체 보드형 장바구니 뷰
  */
 import { CartStore, SHIPPING_FREE_THRESHOLD, DEFAULT_SHIPPING_FEE } from './cart-store.js';
+import { getStoreProductById } from '../../extensions/commerce-store/store-service.js';
 import { AuthService } from '../../state/auth-service.js';
 
 function esc(str: string): string {
@@ -42,6 +43,10 @@ export function renderCartBoardView(): string {
   const items = CartStore.getItems();
   const summary = CartStore.getSummary();
   const isAllSelected = items.length > 0 && items.every(it => it.selected);
+  const hasUnavailableItems = items.some(it => {
+    const p = getStoreProductById(it.productId);
+    return p && (p.status === 'hidden' || p.status === 'soldout');
+  });
 
   if (items.length === 0) {
     return `
@@ -126,16 +131,24 @@ export function renderCartBoardView(): string {
 
         <!-- 좌측: 장바구니 컨트롤 바 & 상품 목록 -->
         <div>
-          <!-- 일괄 제어 바 (전체선택 / 선택삭제) -->
-          <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+          <!-- 일괄 제어 바 (전체선택 / 선택삭제 / 판매불가정리) -->
+          <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
             <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: #fff; font-size: 0.9rem; font-weight: 700;">
               <input type="checkbox" id="cart-check-all" ${isAllSelected ? 'checked' : ''} style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer;" />
               전체 선택 (${summary.selectedItemsCount}/${summary.totalItemsCount})
             </label>
-            <button type="button" id="btn-cart-delete-selected" style="background: none; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #cbd5e1; font-size: 0.8rem; padding: 0.35rem 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
-              <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
-              선택 삭제
-            </button>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              ${hasUnavailableItems ? `
+                <button type="button" id="btn-cart-delete-unavailable" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 6px; color: #f87171; font-size: 0.8rem; padding: 0.35rem 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;" title="숨김 또는 품절된 상품을 장바구니에서 일괄 삭제합니다.">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">remove_shopping_cart</span>
+                  판매 불가 상품 정리
+                </button>
+              ` : ''}
+              <button type="button" id="btn-cart-delete-selected" style="background: none; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #cbd5e1; font-size: 0.8rem; padding: 0.35rem 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
+                <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+                선택 삭제
+              </button>
+            </div>
           </div>
 
           <!-- 상품 리스트 -->
@@ -143,13 +156,20 @@ export function renderCartBoardView(): string {
             ${items.map(it => {
               const itemTotal = it.price * it.quantity;
               const isPhysical = it.deliveryType === 'shipping' || it.category === 'goods';
+              const liveProd = getStoreProductById(it.productId);
+              const isHidden = liveProd?.status === 'hidden';
+              const isSoldOut = liveProd?.status === 'soldout';
+              const isUnavailable = isHidden || isSoldOut;
+              const cardBorder = isUnavailable 
+                ? 'rgba(239, 68, 68, 0.45)' 
+                : (it.selected ? 'rgba(242, 202, 80, 0.35)' : 'rgba(255,255,255,0.08)');
               return `
-                <div class="cart-item-card" data-cart-id="${esc(it.id)}" style="background: var(--surface-container); border: 1px solid ${it.selected ? 'rgba(242, 202, 80, 0.35)' : 'rgba(255,255,255,0.08)'}; border-radius: 14px; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; transition: border-color 0.2s ease;">
+                <div class="cart-item-card" data-cart-id="${esc(it.id)}" style="background: var(--surface-container); border: 1px solid ${cardBorder}; border-radius: 14px; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; transition: border-color 0.2s ease; ${isUnavailable ? 'opacity: 0.85;' : ''}">
                   
                   <!-- 품목 상단: 체크박스 + 썸네일 + 정보 + 삭제버튼 -->
                   <div style="display: flex; gap: 1rem; align-items: flex-start;">
-                    <!-- 개별 체크박스 -->
-                    <input type="checkbox" class="cart-item-checkbox" data-id="${esc(it.id)}" ${it.selected ? 'checked' : ''} style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin-top: 4px;" />
+                    <!-- 개별 체크박스 (판매 불가 품목은 체크 불가) -->
+                    <input type="checkbox" class="cart-item-checkbox" data-id="${esc(it.id)}" ${it.selected && !isUnavailable ? 'checked' : ''} ${isUnavailable ? 'disabled' : ''} title="${isUnavailable ? '판매 불가 상품은 결제할 수 없습니다' : ''}" style="width: 18px; height: 18px; accent-color: var(--primary); cursor: ${isUnavailable ? 'not-allowed' : 'pointer'}; margin-top: 4px;" />
 
                     <!-- 썸네일 -->
                     <div style="width: 76px; height: 76px; border-radius: 10px; overflow: hidden; background: #0c0f17; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1); position: relative;">
@@ -171,11 +191,28 @@ export function renderCartBoardView(): string {
                         <span style="font-size: 0.72rem; color: #94a3b8;">
                           ${isPhysical ? '배송비 3,000원 (5만원↑ 무료)' : '즉시 열람 / 무료 배송'}
                         </span>
+                        ${isHidden ? `
+                          <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.45); font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.45rem; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.2rem;">
+                            <span class="material-symbols-outlined" style="font-size: 13px;">visibility_off</span> 판매 중단 (숨김)
+                          </span>
+                        ` : ''}
+                        ${isSoldOut ? `
+                          <span style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.45); font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.45rem; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.2rem;">
+                            <span class="material-symbols-outlined" style="font-size: 13px;">block</span> 일시 품절
+                          </span>
+                        ` : ''}
                       </div>
 
                       <h3 style="font-size: 1.02rem; font-weight: 700; color: #fff; margin: 0 0 0.4rem 0; line-height: 1.4;">
                         ${esc(it.title)}
                       </h3>
+
+                      ${isUnavailable ? `
+                        <div style="font-size: 0.78rem; color: #f87171; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 6px; padding: 0.4rem 0.65rem; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.35rem;">
+                          <span class="material-symbols-outlined" style="font-size: 15px;">info</span>
+                          <span>관리자에 의해 ${isHidden ? '숨김(판매 중단)' : '품절'} 처리된 상품입니다. 결제할 수 없으므로 장바구니에서 삭제해 주세요.</span>
+                        </div>
+                      ` : ''}
 
                       <!-- 사주 분석 대상자 스냅샷 배지 -->
                       ${!isPhysical && it.sajuSnapshot ? `

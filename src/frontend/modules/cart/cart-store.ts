@@ -2,6 +2,7 @@
  * CartStore - 마보살 정식 쇼핑몰 장바구니 상태 관리자
  */
 import { StoreProduct } from '../../extensions/commerce-store/types.js';
+import { getStoreProductById } from '../../extensions/commerce-store/store-service.js';
 import { UserSajuProfile, UserSajuStore } from '../../state/user-saju-store.js';
 import { CartItem, CartSummary } from './types.js';
 import { getIdentity } from '../identity/index.js';
@@ -101,6 +102,25 @@ export class CartStore {
     this.saveItems(items);
   }
 
+  /** 판매 중단(숨김) 또는 품절된 상품 장바구니에서 일괄 정리 */
+  public static removeUnavailableItems(): void {
+    const items = this.getItems().filter(it => {
+      const prod = getStoreProductById(it.productId);
+      return !prod || (prod.status !== 'hidden' && prod.status !== 'soldout');
+    });
+    this.saveItems(items);
+  }
+
+  /** 상품이 현재 판매 가능한 상태인지(숨김/품절 여부) 확인 */
+  public static isProductAvailable(productId: string): { available: boolean; status?: 'active' | 'soldout' | 'hidden' } {
+    const prod = getStoreProductById(productId);
+    if (!prod) return { available: true };
+    return {
+      available: prod.status === 'active',
+      status: prod.status,
+    };
+  }
+
   public static updateQuantity(cartItemId: string, quantity: number): void {
     const items = this.getItems();
     const target = items.find(it => it.id === cartItemId || it.productId === cartItemId);
@@ -114,13 +134,26 @@ export class CartStore {
     const items = this.getItems();
     const target = items.find(it => it.id === cartItemId || it.productId === cartItemId);
     if (target) {
-      target.selected = !target.selected;
+      const prod = getStoreProductById(target.productId);
+      const isUnavailable = prod && (prod.status === 'hidden' || prod.status === 'soldout');
+      if (isUnavailable) {
+        target.selected = false;
+      } else {
+        target.selected = !target.selected;
+      }
       this.saveItems(items);
     }
   }
 
   public static toggleSelectAll(select: boolean): void {
-    const items = this.getItems().map(it => ({ ...it, selected: select }));
+    const items = this.getItems().map(it => {
+      if (select) {
+        const prod = getStoreProductById(it.productId);
+        const isUnavailable = prod && (prod.status === 'hidden' || prod.status === 'soldout');
+        return { ...it, selected: !isUnavailable };
+      }
+      return { ...it, selected: false };
+    });
     this.saveItems(items);
   }
 

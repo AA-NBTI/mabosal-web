@@ -16,6 +16,8 @@ import {
   getAllStoreOrders,
   approveStoreBankDeposit,
   INITIAL_STORE_PRODUCTS,
+  updateStoreProduct,
+  setStoreProductStatus,
 } from '../src/frontend/extensions/commerce-store/store-service.js';
 
 class MemoryMockStorage {
@@ -228,5 +230,69 @@ describe('Commerce Checkout & Approval Full-Matrix Audit', () => {
     expect(ReportRouterMapper.isSajuReportProduct('prod-voucher-50k', 'voucher', 'voucher_code')).toBe(false);
     expect(ReportRouterMapper.isSajuReportProduct('prod-goods-amulet', 'goods', 'shipping')).toBe(false);
     expect(ReportRouterMapper.isSajuReportProduct('prod-paid-saju-premium', 'report', 'saju_report')).toBe(true);
+  });
+
+  // [시나리오 7] 관리자 숨김(hidden) 처리 상품 결제 즉시 차단
+  it('시나리오 7: 이용자가 장바구니에 담아둔 상품을 관리자가 숨김(hidden) 처리했을 때 결제 차단 및 안내 반환', () => {
+    const targetProd = INITIAL_STORE_PRODUCTS[0];
+    expect(targetProd).toBeDefined();
+
+    // 1. 이용자가 상품을 장바구니에 담음
+    CartStore.addItem(targetProd, 1);
+    expect(CartStore.getItems().length).toBe(1);
+
+    // 2. 관리자가 해당 상품을 '숨김(hidden)' 처리
+    setStoreProductStatus(targetProd.id, 'hidden');
+
+    // 3. 결제 시도
+    const res = CheckoutService.executeCheckout({
+      buyerName: '테스터',
+      buyerPhone: '010-1234-5678',
+      buyerEmail: 'tester@test.com',
+      paymentMethod: 'bank_transfer',
+      agreeTerms: true,
+    });
+
+    // 4. 결제가 엄격히 차단되어야 함
+    expect(res.success).toBe(false);
+    expect(res.message).toContain('판매가 중단(숨김)');
+
+    // 5. 주문이 실제로 생성되지 않아야 함
+    const orders = getAllStoreOrders();
+    expect(orders.some(o => o.productId === targetProd.id && o.buyerName === '테스터')).toBe(false);
+
+    // 6. 원상 복구 (다른 테스트에 영향 없도록 active 복원)
+    setStoreProductStatus(targetProd.id, 'active');
+  });
+
+  // [시나리오 8] 품절(soldout) 상품 결제 차단 및 장바구니 일괄 정리
+  it('시나리오 8: 품절(soldout) 상품 결제 차단 및 CartStore.removeUnavailableItems 일괄 정리 검증', () => {
+    const prodA = INITIAL_STORE_PRODUCTS[0];
+    const prodB = INITIAL_STORE_PRODUCTS[1];
+
+    CartStore.addItem(prodA, 1);
+    CartStore.addItem(prodB, 1);
+
+    // 관리자가 prodA를 품절 처리, prodB를 숨김 처리
+    setStoreProductStatus(prodA.id, 'soldout');
+    setStoreProductStatus(prodB.id, 'hidden');
+
+    // 결제 시도 시 차단 확인
+    const res = CheckoutService.executeCheckout({
+      buyerName: '품절테스터',
+      buyerPhone: '010-0000-0000',
+      buyerEmail: 'soldout@test.com',
+      paymentMethod: 'bank_transfer',
+      agreeTerms: true,
+    });
+    expect(res.success).toBe(false);
+
+    // 판매 불가 상품 일괄 정리 기능 검증
+    CartStore.removeUnavailableItems();
+    expect(CartStore.getItems().length).toBe(0);
+
+    // 복원
+    setStoreProductStatus(prodA.id, 'active');
+    setStoreProductStatus(prodB.id, 'active');
   });
 });

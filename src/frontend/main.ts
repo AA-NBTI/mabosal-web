@@ -3562,6 +3562,11 @@ ${content}
         alert('주문하실 상품을 하나 이상 선택해 주세요.');
         return;
       }
+      const val = CheckoutService.validateCheckoutItems(selected);
+      if (!val.valid) {
+        alert(val.message);
+        return;
+      }
       appState.setView('checkout');
       this.render(appState.getState());
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3844,6 +3849,13 @@ ${content}
       return;
     }
 
+    const deleteUnavailableBtn = target.closest('#btn-cart-delete-unavailable') as HTMLElement;
+    if (deleteUnavailableBtn) {
+      CartStore.removeUnavailableItems();
+      this.render(appState.getState());
+      return;
+    }
+
     const boardQtyPlusBtn = target.closest('.btn-board-qty-plus') as HTMLElement;
     if (boardQtyPlusBtn) {
       const cId = boardQtyPlusBtn.dataset.id;
@@ -3920,6 +3932,11 @@ ${content}
       const items = CartStore.getItems();
       if (items.length === 0) {
         alert('장바구니에 담긴 상품이 없습니다.');
+        return;
+      }
+      const val = CheckoutService.validateCheckoutItems(items);
+      if (!val.valid) {
+        alert(val.message);
         return;
       }
       this.closeCartModal();
@@ -5033,6 +5050,12 @@ ${content}
     const items = CartStore.getSelectedItems();
     if (items.length === 0) {
       alert('주문할 상품이 선택되지 않았습니다.');
+      return;
+    }
+
+    const val = CheckoutService.validateCheckoutItems(items);
+    if (!val.valid) {
+      alert(val.message);
       return;
     }
 

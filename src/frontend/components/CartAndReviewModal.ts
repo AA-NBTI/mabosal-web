@@ -4,6 +4,7 @@
 
 import { CartStore, CartItem } from '../state/cart-store.js';
 import { UserSajuStore, UserSajuProfile } from '../state/user-saju-store.js';
+import { getStoreProductById } from '../extensions/commerce-store/store-service.js';
 
 export function renderCartModal(): string {
   const items = CartStore.getItems();
@@ -35,17 +36,29 @@ export function renderCartModal(): string {
               </button>
             </div>
           ` : `
-            ${items.map(item => `
-              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 0.85rem 1rem; display: flex; gap: 0.85rem; align-items: center;">
+            ${items.map(item => {
+              const prod = getStoreProductById(item.productId);
+              const isHidden = prod?.status === 'hidden';
+              const isSoldOut = prod?.status === 'soldout';
+              const isUnavailable = isHidden || isSoldOut;
+              return `
+              <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid ${isUnavailable ? 'rgba(239, 68, 68, 0.4)' : 'rgba(255, 255, 255, 0.08)'}; border-radius: 12px; padding: 0.85rem 1rem; display: flex; gap: 0.85rem; align-items: center; ${isUnavailable ? 'opacity: 0.85;' : ''}">
                 <img src="${item.thumbnailUrl}" alt="${item.title}" style="width: 56px; height: 56px; border-radius: 8px; object-fit: cover; flex-shrink: 0;" />
                 <div style="flex: 1; min-width: 0;">
-                  <div style="font-size: 0.92rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    ${item.title}
+                  <div style="font-size: 0.92rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 0.35rem;">
+                    <span>${item.title}</span>
+                    ${isHidden ? '<span style="background: rgba(239,68,68,0.2); color: #f87171; font-size: 0.68rem; padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 800; flex-shrink: 0;">판매중단</span>' : ''}
+                    ${isSoldOut ? '<span style="background: rgba(245,158,11,0.2); color: #fbbf24; font-size: 0.68rem; padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 800; flex-shrink: 0;">품절</span>' : ''}
                   </div>
                   <div style="font-size: 0.85rem; color: var(--primary); font-weight: 800;">
                     ₩ ${(item.price * item.quantity).toLocaleString()}
                     ${item.quantity > 1 ? `<span style="font-size: 0.75rem; color: #94a3b8; font-weight: 400;">(개당 ₩ ${item.price.toLocaleString()})</span>` : ''}
                   </div>
+                  ${isUnavailable ? `
+                    <div style="font-size: 0.72rem; color: #f87171; margin-top: 0.2rem;">
+                      ${isHidden ? '현재 판매가 중단(숨김)된 상품입니다.' : '현재 품절된 상품입니다.'}
+                    </div>
+                  ` : ''}
                   ${item.deliveryType === 'saju_report' && item.sajuSnapshot ? `
                     <div style="font-size: 0.72rem; color: #38bdf8; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.25rem;">
                       <span class="material-symbols-outlined" style="font-size: 14px;">person</span>
@@ -71,7 +84,8 @@ export function renderCartModal(): string {
                   </div>
                 </div>
               </div>
-            `).join('')}
+            `;
+            }).join('')}
           `}
         </div>
 
