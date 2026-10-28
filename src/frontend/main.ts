@@ -123,6 +123,7 @@ import {
   saveStoreProduct,
   updateStoreProduct,
   deleteStoreProduct,
+  syncStoreProductsFromSupabase,
   setAdminStoreFilter,
   setAdminStoreStatusFilter,
   setAdminStoreSort,
@@ -423,9 +424,10 @@ class MabosalApp {
    if (container) container.innerHTML = '';
  }
 
- private init() {
- PartnerTracker.initFromUrl();
- AuthService.init();
+  private init() {
+    PartnerTracker.initFromUrl();
+    AuthService.init();
+    void syncStoreProductsFromSupabase();
 
  if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);

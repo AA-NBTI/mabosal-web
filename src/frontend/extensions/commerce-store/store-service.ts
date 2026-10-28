@@ -20,6 +20,7 @@ import {
   SAJU_BOOK_VOL4_PRODUCT
 } from './saju-book-data.js';
 import { VoucherStore } from '../../modules/voucher/voucher-store.js';
+import { supabase } from '../../modules/supabase/supabase-client.js';
 
 const STORAGE_PRODUCTS_KEY = 'mabosal_store_products_v6';
 const STORAGE_ORDERS_KEY = 'mabosal_store_orders';
@@ -758,6 +759,87 @@ export function getStoreProductById(id: string): StoreProduct | undefined {
   return all.find(p => p.id === id);
 }
 
+/**
+ * Supabase 원격 DB로부터 최신 상품 목록을 백그라운드로 가져와 로컬 캐시와 병합
+ */
+export async function syncStoreProductsFromSupabase(): Promise<StoreProduct[]> {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('sales_count', { ascending: false });
+
+    if (error || !data || data.length === 0) {
+      return getAllStoreProducts();
+    }
+
+    const remoteProducts: StoreProduct[] = data.map((p: any) => ({
+      id: p.id,
+      title: p.title,
+      category: p.category,
+      price: Number(p.price),
+      originalPrice: p.original_price ? Number(p.original_price) : undefined,
+      tagLine: p.tag_line || '',
+      description: p.description || '',
+      detailsHtml: p.details_html || '',
+      thumbnailUrl: p.thumbnail_url || '',
+      thumbnailIcon: p.thumbnail_icon || undefined,
+      deliveryType: p.delivery_type,
+      contentPayload: p.content_payload || '',
+      targetSignals: p.target_signals || [],
+      status: p.status || 'active',
+      badge: p.badge || undefined,
+      reportTier: p.report_tier || undefined,
+      salesCount: Number(p.sales_count || 0),
+      createdAt: p.created_at || new Date().toISOString(),
+    }));
+
+    if (typeof localStorage !== 'undefined' && remoteProducts.length > 0) {
+      localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(remoteProducts));
+    }
+    return remoteProducts;
+  } catch (e) {
+    console.warn('[store-service] Supabase syncStoreProducts deferred:', e);
+    return getAllStoreProducts();
+  }
+}
+
+/**
+ * 로컬 전체 상품을 Supabase 원격 DB로 일괄 푸시(초기 마이그레이션/동기화 도우미)
+ */
+export async function pushAllProductsToSupabase(): Promise<{ success: boolean; count: number; error?: string }> {
+  try {
+    const all = getAllStoreProducts();
+    const rows = all.map(p => ({
+      id: p.id,
+      title: p.title,
+      category: p.category,
+      price: p.price,
+      original_price: p.originalPrice || null,
+      tag_line: p.tagLine || '',
+      description: p.description || '',
+      details_html: p.detailsHtml || null,
+      thumbnail_url: p.thumbnailUrl || '',
+      thumbnail_icon: p.thumbnailIcon || null,
+      delivery_type: p.deliveryType,
+      target_signals: p.targetSignals || [],
+      status: p.status,
+      badge: p.badge || null,
+      report_tier: p.reportTier || null,
+      sales_count: p.salesCount || 0,
+      created_at: p.createdAt || new Date().toISOString(),
+    }));
+
+    const { error } = await supabase.from('products').upsert(rows);
+    if (error) {
+      return { success: false, count: 0, error: error.message };
+    }
+    return { success: true, count: rows.length };
+  } catch (e: any) {
+    return { success: false, count: 0, error: e?.message || 'Supabase push error' };
+  }
+}
+
 /** 상품 저장 (신규 등록) */
 export function saveStoreProduct(productInput: Omit<StoreProduct, 'id' | 'createdAt' | 'salesCount'>): StoreProduct {
   const list = getAllStoreProducts();
@@ -771,6 +853,37 @@ export function saveStoreProduct(productInput: Omit<StoreProduct, 'id' | 'create
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(list));
   }
+
+  // [Supabase DB 실시간 동기화]
+  try {
+    supabase.from('products').insert({
+      id: newProduct.id,
+      title: newProduct.title,
+      category: newProduct.category,
+      price: newProduct.price,
+      original_price: newProduct.originalPrice || null,
+      tag_line: newProduct.tagLine || '',
+      description: newProduct.description || '',
+      details_html: newProduct.detailsHtml || null,
+      thumbnail_url: newProduct.thumbnailUrl || '',
+      thumbnail_icon: newProduct.thumbnailIcon || null,
+      delivery_type: newProduct.deliveryType,
+      target_signals: newProduct.targetSignals || [],
+      status: newProduct.status,
+      badge: newProduct.badge || null,
+      report_tier: newProduct.reportTier || null,
+      sales_count: newProduct.salesCount,
+      created_at: newProduct.createdAt,
+    }).then(
+      ({ error }: any) => {
+        if (error) console.warn('[store-service] Supabase product insert deferred:', error.message);
+      },
+      (e: any) => console.warn('[store-service] Supabase product insert error:', e)
+    );
+  } catch (e) {
+    console.warn('[store-service] Supabase product insert skipped:', e);
+  }
+
   return newProduct;
 }
 
@@ -783,6 +896,38 @@ export function updateStoreProduct(id: string, updates: Partial<StoreProduct>): 
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(list));
   }
+
+  // [Supabase DB 실시간 동기화]
+  try {
+    const dbPayload: Record<string, any> = {};
+    if (updates.title !== undefined) dbPayload.title = updates.title;
+    if (updates.category !== undefined) dbPayload.category = updates.category;
+    if (updates.price !== undefined) dbPayload.price = updates.price;
+    if (updates.originalPrice !== undefined) dbPayload.original_price = updates.originalPrice;
+    if (updates.tagLine !== undefined) dbPayload.tag_line = updates.tagLine;
+    if (updates.description !== undefined) dbPayload.description = updates.description;
+    if (updates.detailsHtml !== undefined) dbPayload.details_html = updates.detailsHtml;
+    if (updates.thumbnailUrl !== undefined) dbPayload.thumbnail_url = updates.thumbnailUrl;
+    if (updates.thumbnailIcon !== undefined) dbPayload.thumbnail_icon = updates.thumbnailIcon;
+    if (updates.deliveryType !== undefined) dbPayload.delivery_type = updates.deliveryType;
+    if (updates.targetSignals !== undefined) dbPayload.target_signals = updates.targetSignals;
+    if (updates.status !== undefined) dbPayload.status = updates.status;
+    if (updates.badge !== undefined) dbPayload.badge = updates.badge;
+    if (updates.reportTier !== undefined) dbPayload.report_tier = updates.reportTier;
+    if (updates.salesCount !== undefined) dbPayload.sales_count = updates.salesCount;
+
+    if (Object.keys(dbPayload).length > 0) {
+      supabase.from('products').update(dbPayload).eq('id', id).then(
+        ({ error }: any) => {
+          if (error) console.warn('[store-service] Supabase product update deferred:', error.message);
+        },
+        (e: any) => console.warn('[store-service] Supabase product update error:', e)
+      );
+    }
+  } catch (e) {
+    console.warn('[store-service] Supabase product update skipped:', e);
+  }
+
   return true;
 }
 
@@ -793,6 +938,19 @@ export function deleteStoreProduct(id: string): boolean {
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(filtered));
   }
+
+  // [Supabase DB 실시간 동기화]
+  try {
+    supabase.from('products').delete().eq('id', id).then(
+      ({ error }: any) => {
+        if (error) console.warn('[store-service] Supabase product delete deferred:', error.message);
+      },
+      (e: any) => console.warn('[store-service] Supabase product delete error:', e)
+    );
+  } catch (e) {
+    console.warn('[store-service] Supabase product delete skipped:', e);
+  }
+
   return true;
 }
 
