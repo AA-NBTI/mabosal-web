@@ -786,7 +786,7 @@ class MabosalApp {
         // 1. 관리자 대시보드 수신용 인하우스 저장소에 등록
         const user = AuthService.getCurrentUser();
         const newInquiry = CustomerInquiryStore.addInquiry({
-          userId: user.role !== 'guest' ? user.username : undefined,
+          userId: user.role !== 'guest' ? (user.id || user.username) : undefined,
           userName: name,
           replyEmail,
           phone: phone || undefined,
@@ -1801,10 +1801,28 @@ ${content}
       if (modal) modal.style.display = 'flex';
       return;
     }
-    if (target.closest('#btn-footer-support') || target.closest('#btn-open-support-from-dash') || target.closest('#btn-open-support-empty')) {
+    if (
+      target.closest('#btn-footer-support') ||
+      target.closest('#btn-open-support-from-dash') ||
+      target.closest('#btn-open-support-empty') ||
+      target.closest('.btn-open-support-inquiry') ||
+      target.closest('.btn-open-support')
+    ) {
       e.preventDefault();
       const modal = document.getElementById('modal-support-container');
-      if (modal) modal.style.display = 'flex';
+      if (modal) {
+        modal.style.display = 'flex';
+        // 로그인된 회원 정보 자동 입력
+        const currentUser = AuthService.getCurrentUser();
+        if (currentUser.role !== 'guest') {
+          const nameInput = document.getElementById('support-name') as HTMLInputElement | null;
+          const emailInput = document.getElementById('support-reply-email') as HTMLInputElement | null;
+          const phoneInput = document.getElementById('support-phone') as HTMLInputElement | null;
+          if (nameInput && !nameInput.value) nameInput.value = currentUser.name || '';
+          if (emailInput && !emailInput.value) emailInput.value = currentUser.email || '';
+          if (phoneInput && !phoneInput.value && currentUser.phone) phoneInput.value = currentUser.phone;
+        }
+      }
       return;
     }
     const closeLegalBtn = target.closest('.btn-close-legal-modal') as HTMLElement | null;
@@ -1845,9 +1863,9 @@ ${content}
     ) as HTMLElement | null;
 
     if (accordionToggleBtn) {
-      e.preventDefault();
       const targetId = accordionToggleBtn.dataset.target;
       if (targetId) {
+        e.preventDefault();
         const detailEl = document.getElementById(targetId);
         if (detailEl) {
           const isCurrentlyHidden = detailEl.style.display === 'none' || !detailEl.style.display;
@@ -1859,8 +1877,8 @@ ${content}
             chevron.textContent = isCurrentlyHidden ? 'expand_less' : 'expand_more';
           }
         }
+        return;
       }
-      return;
     }
 
     // 스토어 상품 상세 후기 배너 -> 회원 주문내역 바로가기
@@ -2190,7 +2208,7 @@ ${content}
     }
 
     // [1:1 고객문의 게시판] 기본 닫힘형 아코디언 행 클릭 시 상세 질문 & 답변창 펼침/닫힘 토글
-    const inqToggleBtn = target.closest('.btn-toggle-inquiry-row, .btn-toggle-inquiry-arrow') as HTMLElement | null;
+    const inqToggleBtn = target.closest('.btn-toggle-inquiry-row, .btn-toggle-inquiry-arrow, .btn-toggle-admin-inquiry-row') as HTMLElement | null;
     if (inqToggleBtn && !target.closest('.btn-submit-inquiry-answer') && !target.closest('.btn-delete-inquiry') && !target.closest('textarea') && !target.closest('input')) {
       const inqId = inqToggleBtn.dataset.inquiryId;
       if (inqId) {

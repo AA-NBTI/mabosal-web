@@ -217,7 +217,35 @@ export function renderLegalAndSupportModals(): string {
       <!-- 모달 폼 본문 (스크롤) -->
       <form id="form-customer-support" style="margin: 0; padding: 1.25rem 1.5rem; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 1rem; box-sizing: border-box;">
         
-        <!-- 고객센터 안내 -->
+        <!-- 문의 유형 선택 -->
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #dfe2f1; margin-bottom: 0.35rem;">
+            문의 유형 <span style="color: #f87171;">*</span>
+          </label>
+          <select id="support-category" required style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.65rem 0.85rem; color: #fff; font-size: 0.85rem; outline: none;">
+            <option value="사주 분석 & 리포트 문의">사주 분석 &amp; 리포트 문의</option>
+            <option value="결제 & 입금 확인 문의">결제 &amp; 무통장 입금 확인 문의</option>
+            <option value="서비스 이용 문의">서비스 이용 문의</option>
+            <option value="오류/버그 제보">오류 / 버그 제보</option>
+            <option value="기타 문의">기타 일반 문의</option>
+          </select>
+        </div>
+
+        <!-- 작성자 성함 및 회신 이메일 (필수) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+          <div>
+            <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #dfe2f1; margin-bottom: 0.35rem;">
+              작성자 성함 <span style="color: #f87171;">*</span>
+            </label>
+            <input type="text" id="support-name" required placeholder="홍길동" style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.65rem 0.85rem; color: #fff; font-size: 0.85rem; outline: none;" />
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #dfe2f1; margin-bottom: 0.35rem;">
+              회신받을 이메일 <span style="color: #f87171;">*</span>
+            </label>
+            <input type="email" id="support-reply-email" required placeholder="your@email.com" style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.65rem 0.85rem; color: #fff; font-size: 0.85rem; outline: none;" />
+          </div>
+        </div>
 
         <!-- 연락처 및 주문번호 (선택) -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">

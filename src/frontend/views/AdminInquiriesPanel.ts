@@ -130,7 +130,7 @@ export function renderAdminInquiriesPanel(): string {
               <div class="inquiry-accordion-item" data-inquiry-id="${inq.id}" style="border-bottom: 1px solid rgba(255,255,255,0.06); transition: background 0.15s ease;">
                 
                 <!-- 1) 닫힘형 기본 행 (클릭 시 토글) -->
-                <div class="btn-toggle-inquiry-row" data-inquiry-id="${inq.id}" style="display: grid; grid-template-columns: 85px 95px 1fr 120px 130px 105px; gap: 0.5rem; padding: 0.75rem 1rem; cursor: pointer; align-items: center; background: ${isExpanded ? 'rgba(242, 202, 80, 0.05)' : (idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)')}; user-select: none;">
+                <div class="btn-toggle-admin-inquiry-row btn-toggle-inquiry-row" data-inquiry-id="${inq.id}" style="display: grid; grid-template-columns: 85px 95px 1fr 120px 130px 105px; gap: 0.5rem; padding: 0.75rem 1rem; cursor: pointer; align-items: center; background: ${isExpanded ? 'rgba(242, 202, 80, 0.05)' : (idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)')}; user-select: none;">
                   
                   <!-- 상태 뱃지 -->
                   <div style="text-align: center;">
