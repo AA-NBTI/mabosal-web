@@ -25,6 +25,7 @@ import { supabase } from '../../modules/supabase/supabase-client.js';
 const STORAGE_PRODUCTS_KEY = 'mabosal_store_products_v6';
 const STORAGE_ORDERS_KEY = 'mabosal_store_orders';
 const STORAGE_CATEGORIES_KEY = 'mabosal_store_categories_v1';
+const STORAGE_DELETED_PRODUCTS_KEY = 'mabosal_store_deleted_products_v1';
 
 export const INITIAL_STORE_CATEGORIES: StoreCategory[] = [
   { id: 'all', label: '전체 상품', icon: 'apps' },
@@ -307,7 +308,7 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
   // [1. 마보살 대표 플래그십 상품: 정통 유료 사주풀이 (39,900원)]
   {
     id: 'prod-paid-saju-premium',
-    title: '마보살 정통 유료 사주풀이 (평생 대운 & 정밀 심층 리포트)',
+    title: '정통사주: 평생 대운 & 18개 정밀 심층 리포트',
     category: 'report',
     price: 39900,
     originalPrice: 59000,
@@ -338,7 +339,7 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
   // [3. 마보살 무료 사주 진단서 (체험 상품)]
   {
     id: 'prod-free-experience',
-    title: '마보살 무료 사주 진단서 (기초 원국 & 13개 체험 분석)',
+    title: '무료진단: 마보살 기초 원국 & 13개 체험 분석',
     category: 'report',
     price: 0,
     originalPrice: 19900,
@@ -368,7 +369,7 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
   // [4. 마보살 상충·마·살 특화 리포트 (79,900원)]
   {
     id: 'prod-saju-conflict',
-    title: '마보살 상충·마·살 갈등 특화 리포트 (20개 섹션)',
+    title: '상충·마·살: 관계 갈등 & 이직·퇴사 특화 리포트',
     category: 'report',
     price: 79900,
     originalPrice: 120000,
@@ -398,7 +399,7 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
   // [5. 마보살 VIP 심층 사주 리포트 (149,000원)]
   {
     id: 'prod-paid-saju-vip',
-    title: '마보살 VIP 심층 사주 리포트 (29개 챕터 전수 완결본)',
+    title: 'VIP통합: 29개 챕터 전수 완결본 & 1:1 복합 처방',
     category: 'report',
     price: 149000,
     originalPrice: 250000,
@@ -469,7 +470,7 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
   // [5대 특화 운세 리포트 상품군]
   {
     id: 'prod-report-year2027',
-    title: '2027 정미년(丁未年) 신년운세 & 월별 대운 비책',
+    title: '신년운세: 2027 정미년 신년운세 & 월별 대운 비책',
     category: 'report',
     price: 19900,
     originalPrice: 30000,
@@ -500,7 +501,7 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
   },
   {
     id: 'prod-report-career',
-    title: '직장·이직 특화 운세: 퇴사 vs 잔류 판단 리포트',
+    title: '직장운세: 퇴사 vs 잔류 & 이직 판단 리포트',
     category: 'report',
     price: 19900,
     originalPrice: 30000,
@@ -529,7 +530,7 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
   },
   {
     id: 'prod-report-wealth',
-    title: '재물·투자 특화 운세: 손재마 방어 & 자산 증식 리포트',
+    title: '재물운세: 손재마 방어 & 자산 증식 리포트',
     category: 'report',
     price: 19900,
     originalPrice: 30000,
@@ -558,7 +559,7 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
   },
   {
     id: 'prod-report-relation',
-    title: '애정·궁합 특화 운세: 인연의 흐름 & 갈등 완화 리포트',
+    title: '애정운세: 인연의 흐름 & 갈등 완화 리포트',
     category: 'report',
     price: 19900,
     originalPrice: 30000,
@@ -585,33 +586,62 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
     salesCount: 165,
   },
   {
-    id: 'prod-report-conflict',
-    title: '상충·살 관계 갈등 방어 리포트 (VIP 정밀 처방)',
+    id: 'prod-report-reunion',
+    title: '재회운세: 상대방 속마음 & 재회 골든타임 리포트',
     category: 'report',
-    price: 79900,
-    originalPrice: 120000,
-    tagLine: '칠살, 백호, 원진살 등 악재와 구설을 무력화하는 심층 방어 솔루션',
-    description: '사주 내 살(殺)과 충(沖)의 상호작용으로 인해 지속되는 심리적 불안, 소송, 인간관계 파탄의 근본 원인을 파악하고 이를 조율하는 최상위 심층 리포트입니다.',
+    price: 19900,
+    originalPrice: 30000,
+    tagLine: '상대방 연락 가능성 월별 지수와 재회 골든타임 처방',
+    description: '도화살과 일지 배우자궁의 합/충을 분석하여 상대방의 현재 심리 상태, 연락 가능성이 가장 높은 월별 시점, 재회 성공을 위한 실천 대화법을 제공합니다.',
     detailsHtml: `
       <div style="line-height: 1.7; font-size: 0.9rem; color: #d1d5db;">
         <h4 style="color: #f2ca50; margin: 0 0 0.5rem 0;"> 리포트 주요 수록 내용</h4>
         <ul style="margin: 0 0 1rem 1.2rem; padding: 0;">
-          <li>원국 내 상충살 및 흉살 18개 영역 심층 전수 조사</li>
-          <li>살의 기운을 승화시키는 직업/환경 개운법(開運法)</li>
-          <li>악연과 갈등을 끊어내는 실천 스크립트 10선</li>
+          <li>상대방의 현재 감정선 및 연락 가능성 월별 지수</li>
+          <li>재회 타이밍과 반드시 피해야 할 행동 금기</li>
+          <li>관계를 되돌리는 최적의 첫 연락 스크립트</li>
         </ul>
       </div>
     `,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80',
-    thumbnailIcon: 'security',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'favorite',
     deliveryType: 'saju_report',
-    contentPayload: 'CONFLICT_MALSAL',
-    reportTier: 'CONFLICT_MALSAL',
-    targetSignals: ['mind.stress', 'legal.dispute'],
+    contentPayload: 'REUNION',
+    reportTier: 'REUNION',
+    targetSignals: ['mind.stress'],
     status: 'active',
-    badge: 'VIP추천',
+    badge: '인기',
+    createdAt: '2026-10-04T00:00:00.000Z',
+    salesCount: 165,
+  },
+  {
+    id: 'prod-report-chemistry',
+    title: '궁합운세: 두 사람의 인연 & 화해 대화 리포트',
+    category: 'report',
+    price: 29900,
+    originalPrice: 50000,
+    tagLine: '반복 싸움 유발 요인 3가지와 즉시 화해 대화 스크립트',
+    description: '남녀 두 사람의 사주 원국과 오행 상생/상극, 일지 합/충을 정밀 대조하여 지속적인 갈등의 원인을 짚고 평생 좋은 관계를 유지하는 궁합 솔루션을 제공합니다.',
+    detailsHtml: `
+      <div style="line-height: 1.7; font-size: 0.9rem; color: #d1d5db;">
+        <h4 style="color: #f2ca50; margin: 0 0 0.5rem 0;"> 리포트 주요 수록 내용</h4>
+        <ul style="margin: 0 0 1rem 1.2rem; padding: 0;">
+          <li>두 사람의 오행 조화 및 일간(日干) 케미스트리 정밀 진단</li>
+          <li>반복되는 다툼의 숨은 원인 3가지와 즉각 해소법</li>
+          <li>결혼 적합도 및 평생 동반자 지수 종합 평가</li>
+        </ul>
+      </div>
+    `,
+    thumbnailUrl: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'favorite',
+    deliveryType: 'saju_report',
+    contentPayload: 'CHEMISTRY',
+    reportTier: 'CHEMISTRY',
+    targetSignals: ['mind.stress'],
+    status: 'active',
+    badge: '정밀역학',
     createdAt: '2026-10-05T00:00:00.000Z',
-    salesCount: 92,
+    salesCount: 140,
   },
 
   // [기존 자체 콘텐츠 상품군]
@@ -719,22 +749,76 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
   },
 ];
 
+
+/** 삭제된 상품 ID 세트 조회 (관리자가 삭제한 상품의 부활 방지) */
+export function getDeletedStoreProductIds(): Set<string> {
+  if (typeof localStorage === 'undefined') return new Set();
+  try {
+    const raw = localStorage.getItem(STORAGE_DELETED_PRODUCTS_KEY);
+    return new Set(raw ? JSON.parse(raw) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+/** 삭제된 상품 ID 영구 기록 */
+export function addDeletedStoreProductId(id: string): void {
+  if (typeof localStorage === 'undefined') return;
+  try {
+    const set = getDeletedStoreProductIds();
+    set.add(id);
+    localStorage.setItem(STORAGE_DELETED_PRODUCTS_KEY, JSON.stringify([...set]));
+  } catch {}
+}
+
 /** 등록된 모든 상품 조회 */
 export function getAllStoreProducts(): StoreProduct[] {
-  if (typeof localStorage === 'undefined') return [...INITIAL_STORE_PRODUCTS];
+  const deletedIds = getDeletedStoreProductIds();
+  if (typeof localStorage === 'undefined') return INITIAL_STORE_PRODUCTS.filter(p => !deletedIds.has(p.id));
   try {
     const raw = localStorage.getItem(STORAGE_PRODUCTS_KEY);
     if (!raw) {
-      localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(INITIAL_STORE_PRODUCTS));
-      return [...INITIAL_STORE_PRODUCTS];
+      const initialFiltered = INITIAL_STORE_PRODUCTS.filter(p => !deletedIds.has(p.id));
+      localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(initialFiltered));
+      return initialFiltered;
     }
-    const saved = JSON.parse(raw) as StoreProduct[];
-    // 초기 상품 목록 중 로컬 스토리지에 없는 상품들 자동 병합 (상품권 등 신규 상품 포함)
+    let saved = JSON.parse(raw) as StoreProduct[];
+    // 삭제된 상품이 localStorage에 남아있다면 즉시 제거
+    if (saved.some(p => deletedIds.has(p.id))) {
+      saved = saved.filter(p => !deletedIds.has(p.id));
+      localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(saved));
+    }
+    // 초기 상품 목록 중 로컬 스토리지에 없는 상품들 자동 병합 (단, 관리자가 명시적으로 삭제한 상품은 절대 복원하지 않음)
     let merged = false;
     for (const initP of INITIAL_STORE_PRODUCTS) {
-      if (!saved.some(p => p.id === initP.id)) {
+      if (!deletedIds.has(initP.id) && !saved.some(p => p.id === initP.id)) {
         saved.push(initP);
         merged = true;
+      }
+    }
+    // [4대 정밀 감정 & 5대 특화 운세 리포트 상품 상태 및 타이틀 동기화]
+    const targetReportTitles: Record<string, string> = {
+      'prod-free-experience': '무료진단: 마보살 기초 원국 & 13개 체험 분석',
+      'prod-paid-saju-premium': '정통사주: 평생 대운 & 18개 정밀 심층 리포트',
+      'prod-saju-conflict': '상충·마·살: 관계 갈등 & 이직·퇴사 특화 리포트',
+      'prod-paid-saju-vip': 'VIP통합: 29개 챕터 전수 완결본 & 1:1 복합 처방',
+      'prod-report-year2027': '신년운세: 2027 정미년 신년운세 & 월별 대운 비책',
+      'prod-report-career': '직장운세: 퇴사 vs 잔류 & 이직 판단 리포트',
+      'prod-report-wealth': '재물운세: 손재마 방어 & 자산 증식 리포트',
+      'prod-report-relation': '애정운세: 인연의 흐름 & 갈등 완화 리포트',
+      'prod-report-reunion': '재회운세: 상대방 속마음 & 재회 골든타임 리포트',
+      'prod-report-chemistry': '궁합운세: 두 사람의 인연 & 화해 대화 리포트',
+    };
+    for (const p of saved) {
+      if (targetReportTitles[p.id]) {
+        if (p.title !== targetReportTitles[p.id]) {
+          p.title = targetReportTitles[p.id];
+          merged = true;
+        }
+        if (p.status === 'hidden') {
+          p.status = 'active';
+          merged = true;
+        }
       }
     }
     if (merged) {
@@ -933,6 +1017,7 @@ export function updateStoreProduct(id: string, updates: Partial<StoreProduct>): 
 
 /** 상품 삭제 */
 export function deleteStoreProduct(id: string): boolean {
+  addDeletedStoreProductId(id);
   const list = getAllStoreProducts();
   const filtered = list.filter(p => p.id !== id);
   if (typeof localStorage !== 'undefined') {

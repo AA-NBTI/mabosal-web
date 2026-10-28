@@ -39,13 +39,38 @@ export function getEditingStoreProductId(): string | null {
   return activeEditingStoreProductId;
 }
 
-let activeAdminTabId = 'tab-overview';
+const ADMIN_TAB_STORAGE_KEY = 'mm_admin_active_tab';
+
+let activeAdminTabId = (typeof localStorage !== 'undefined' && localStorage.getItem(ADMIN_TAB_STORAGE_KEY)) || 'tab-overview';
 
 export function setAdminActiveTab(tabId: string): void {
   activeAdminTabId = tabId;
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localStorage.setItem(ADMIN_TAB_STORAGE_KEY, tabId);
+    } catch {}
+  }
+  if (typeof window !== 'undefined' && window.history && window.location) {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', tabId);
+      window.history.replaceState({ ...window.history.state, adminTab: tabId }, '', url.toString());
+    } catch {}
+  }
 }
 
 export function getAdminActiveTab(): string {
+  if (typeof window !== 'undefined') {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    if (tabParam) {
+      return tabParam.startsWith('tab-') ? tabParam : `tab-${tabParam}`;
+    }
+  }
+  if (typeof localStorage !== 'undefined') {
+    const saved = localStorage.getItem(ADMIN_TAB_STORAGE_KEY);
+    if (saved) return saved;
+  }
   return activeAdminTabId;
 }
 
@@ -221,7 +246,7 @@ export function renderAdminDashboardView(): string {
         <div>
           <div style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 800; color: #dfe2f1; line-height: 1.15; display: flex; align-items: center; gap: 0.45rem;">
             마보살 관리자
-            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v1.8.9</span>
+            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v1.9.0</span>
           </div>
           <div style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.05em;">ADMIN CONTROL TOWER</div>
         </div>

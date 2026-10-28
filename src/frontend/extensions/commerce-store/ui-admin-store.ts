@@ -18,13 +18,20 @@ import {
 } from './store-service.js';
 import type { DeliveryType, StoreCategoryType, StoreProduct } from './types.js';
 
-let adminSubTab: 'products' | 'register' | 'orders' | 'categories' = 'products';
+const ADMIN_STORE_SUBTAB_KEY = 'mm_admin_store_subtab';
+let adminSubTab: 'products' | 'register' | 'orders' | 'categories' =
+  (typeof localStorage !== 'undefined' && (localStorage.getItem(ADMIN_STORE_SUBTAB_KEY) as any)) || 'products';
 let adminFilterCategory: StoreCategoryType = 'all';
 let adminFilterStatus: 'all' | 'active' | 'hidden' | 'soldout' = 'all';
 let adminSearchQuery: string = '';
 
 export function setAdminStoreSubTab(tab: 'products' | 'register' | 'orders' | 'categories'): void {
   adminSubTab = tab;
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localStorage.setItem(ADMIN_STORE_SUBTAB_KEY, tab);
+    } catch {}
+  }
 }
 
 export function setAdminStoreFilter(cat: StoreCategoryType): void {
@@ -158,7 +165,7 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                 판매중 (${statusCounts.active})
               </button>
               <button type="button" class="btn-admin-status-filter ${adminFilterStatus === 'hidden' ? 'active' : ''}" data-status="hidden" style="background: ${adminFilterStatus === 'hidden' ? 'rgba(148, 163, 184, 0.2)' : 'transparent'}; border: 1px solid ${adminFilterStatus === 'hidden' ? '#94a3b8' : 'rgba(255, 255, 255, 0.12)'}; color: ${adminFilterStatus === 'hidden' ? '#fff' : '#cbd5e1'}; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 6px; cursor: pointer;">
-                숨김 (${statusCounts.hidden})
+                종료 (${statusCounts.hidden})
               </button>
               <button type="button" class="btn-admin-status-filter ${adminFilterStatus === 'soldout' ? 'active' : ''}" data-status="soldout" style="background: ${adminFilterStatus === 'soldout' ? 'rgba(239, 68, 68, 0.15)' : 'transparent'}; border: 1px solid ${adminFilterStatus === 'soldout' ? '#ef4444' : 'rgba(255, 255, 255, 0.12)'}; color: ${adminFilterStatus === 'soldout' ? '#f87171' : '#cbd5e1'}; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 6px; cursor: pointer;">
                 품절 (${statusCounts.soldout})
@@ -221,7 +228,7 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                       <td style="padding: 0.75rem 0.6rem;">
                         <select class="select-product-status-quick" data-product-id="${p.id}" data-product-title="${esc(p.title)}" style="background: var(--surface-container-low); border: 1px solid ${p.status === 'hidden' ? '#94a3b8' : p.status === 'active' ? 'rgba(34, 197, 94, 0.4)' : 'rgba(239, 68, 68, 0.4)'}; color: ${p.status === 'active' ? '#4ade80' : p.status === 'soldout' ? '#f87171' : '#94a3b8'}; padding: 0.3rem 0.55rem; border-radius: 6px; font-size: 0.76rem; font-weight: 800; cursor: pointer;">
                           <option value="active" ${p.status === 'active' ? 'selected' : ''}>판매중</option>
-                          <option value="hidden" ${p.status === 'hidden' ? 'selected' : ''}>숨김</option>
+                          <option value="hidden" ${p.status === 'hidden' ? 'selected' : ''}>종료</option>
                           <option value="soldout" ${p.status === 'soldout' ? 'selected' : ''}>품절</option>
                         </select>
                       </td>
@@ -301,7 +308,7 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                   <select id="cms-status" style="flex: 1; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.82rem;">
                     <option value="active" ${editItem?.status === 'active' ? 'selected' : ''}>판매중</option>
                     <option value="soldout" ${editItem?.status === 'soldout' ? 'selected' : ''}>품절</option>
-                    <option value="hidden" ${editItem?.status === 'hidden' ? 'selected' : ''}>숨김</option>
+                    <option value="hidden" ${editItem?.status === 'hidden' ? 'selected' : ''}>종료</option>
                   </select>
                   <input type="text" id="cms-badge" value="${editItem ? esc(editItem.badge || '') : 'BEST'}" placeholder="뱃지(BEST)" style="width: 75px; background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.82rem;" />
                 </div>

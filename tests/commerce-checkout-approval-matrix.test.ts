@@ -255,7 +255,7 @@ describe('Commerce Checkout & Approval Full-Matrix Audit', () => {
 
     // 4. 결제가 엄격히 차단되어야 함
     expect(res.success).toBe(false);
-    expect(res.message).toContain('판매가 중단(숨김)');
+    expect(res.message).toContain('판매가 종료');
 
     // 5. 주문이 실제로 생성되지 않아야 함
     const orders = getAllStoreOrders();

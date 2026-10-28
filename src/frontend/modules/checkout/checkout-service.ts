@@ -77,7 +77,7 @@ export class CheckoutService {
       if (status === 'hidden') {
         return {
           valid: false,
-          message: `'${it.title}' 상품은 현재 판매가 중단(숨김)되어 결제할 수 없습니다. 장바구니에서 해당 상품을 삭제하거나 제외한 후 다시 시도해 주세요.`,
+          message: `'${it.title}' 상품은 현재 판매가 종료되어 결제할 수 없습니다. 장바구니에서 해당 상품을 삭제하거나 제외한 후 다시 시도해 주세요.`,
         };
       }
       if (status === 'soldout') {

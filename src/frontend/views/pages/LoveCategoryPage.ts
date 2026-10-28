@@ -39,7 +39,7 @@ export function renderLoveCategoryPage(state?: AppStateData): string {
         </div>
         <div class="product-action-box" style="display: flex; align-items: center; gap: 1.15rem;">
           <div class="product-price-label" style="font-size: 1.35rem; font-weight: 800; color: var(--primary);">19,900원</div>
-          <button type="button" class="btn-cta-primary btn-select-product" data-tier="REUNION" style="padding: 0.75rem 1.45rem; font-size: 0.95rem; font-weight: 800; border-radius: 8px; cursor: pointer; background: var(--primary); color: #241a00; border: none;">
+          <button type="button" class="btn-cta-primary btn-goto-store-product-detail" data-product-id="prod-report-reunion" style="padding: 0.75rem 1.45rem; font-size: 0.95rem; font-weight: 800; border-radius: 8px; cursor: pointer; background: var(--primary); color: #241a00; border: none;">
             구매하기
           </button>
         </div>
@@ -63,7 +63,7 @@ export function renderLoveCategoryPage(state?: AppStateData): string {
         </div>
         <div class="product-action-box" style="display: flex; align-items: center; gap: 1.15rem;">
           <div class="product-price-label" style="font-size: 1.35rem; font-weight: 800; color: #f472b6;">29,900원</div>
-          <button type="button" class="btn-cta-primary btn-select-product" data-tier="CHEMISTRY" style="padding: 0.75rem 1.45rem; font-size: 0.95rem; font-weight: 800; border-radius: 8px; cursor: pointer; background: #f472b6; color: #241a00; border: none;">
+          <button type="button" class="btn-cta-primary btn-goto-store-product-detail" data-product-id="prod-report-chemistry" style="padding: 0.75rem 1.45rem; font-size: 0.95rem; font-weight: 800; border-radius: 8px; cursor: pointer; background: #f472b6; color: #241a00; border: none;">
             구매하기
           </button>
         </div>

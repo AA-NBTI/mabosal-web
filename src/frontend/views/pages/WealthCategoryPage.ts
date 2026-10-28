@@ -43,7 +43,7 @@ export function renderWealthCategoryPage(state?: AppStateData): string {
         <div style="background: rgba(15, 19, 29, 0.85); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 12px; padding: 1.5rem; min-width: 240px; text-align: center; display: flex; flex-direction: column; gap: 1rem; align-items: center;">
           <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">재물 특화 완결 리포트</div>
           <div style="font-size: 1.75rem; font-weight: 800; color: var(--primary); line-height: 1;">19,900원</div>
-          <button type="button" class="btn-cta-primary btn-select-product" data-tier="WEALTH" style="width: 100%; padding: 0.85rem 1.25rem; font-size: 1rem; font-weight: 800; border-radius: 8px; cursor: pointer; background: var(--primary); color: #241a00; border: none; box-shadow: 0 4px 14px rgba(242, 202, 80, 0.35);">
+          <button type="button" class="btn-cta-primary btn-goto-store-product-detail" data-product-id="prod-report-wealth" style="width: 100%; padding: 0.85rem 1.25rem; font-size: 1rem; font-weight: 800; border-radius: 8px; cursor: pointer; background: var(--primary); color: #241a00; border: none; box-shadow: 0 4px 14px rgba(242, 202, 80, 0.35);">
             구매하기
           </button>
           <div style="font-size: 0.74rem; color: #71717a;">생년월일 입력 후 즉시 열람</div>

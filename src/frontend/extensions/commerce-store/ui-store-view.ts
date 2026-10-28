@@ -48,11 +48,11 @@ export function setStoreActiveCategory(cat: StoreCategoryType): void {
 }
 
 /** 스토어 홈 또는 상단 메뉴 클릭 시 기본 '전체' 카테고리 및 목록으로 완전 리셋 */
-export function resetStoreCategory(): void {
+export function resetStoreCategory(updateHistory: boolean = true): void {
   currentCategory = 'all';
   currentSelectedProductId = null;
   lastCreatedOrder = null;
-  if (typeof window !== 'undefined') {
+  if (typeof window !== 'undefined' && updateHistory) {
     const url = new URL(window.location.href);
     url.pathname = '/store';
     url.searchParams.delete('product');

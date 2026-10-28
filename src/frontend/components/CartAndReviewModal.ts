@@ -47,7 +47,7 @@ export function renderCartModal(): string {
                 <div style="flex: 1; min-width: 0;">
                   <div style="font-size: 0.92rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 0.35rem;">
                     <span>${item.title}</span>
-                    ${isHidden ? '<span style="background: rgba(239,68,68,0.2); color: #f87171; font-size: 0.68rem; padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 800; flex-shrink: 0;">판매중단</span>' : ''}
+                    ${isHidden ? '<span style="background: rgba(239,68,68,0.2); color: #f87171; font-size: 0.68rem; padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 800; flex-shrink: 0;">판매종료</span>' : ''}
                     ${isSoldOut ? '<span style="background: rgba(245,158,11,0.2); color: #fbbf24; font-size: 0.68rem; padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 800; flex-shrink: 0;">품절</span>' : ''}
                   </div>
                   <div style="font-size: 0.85rem; color: var(--primary); font-weight: 800;">
@@ -56,7 +56,7 @@ export function renderCartModal(): string {
                   </div>
                   ${isUnavailable ? `
                     <div style="font-size: 0.72rem; color: #f87171; margin-top: 0.2rem;">
-                      ${isHidden ? '현재 판매가 중단(숨김)된 상품입니다.' : '현재 품절된 상품입니다.'}
+                      ${isHidden ? '현재 판매가 종료된 상품입니다.' : '현재 품절된 상품입니다.'}
                     </div>
                   ` : ''}
                   ${item.deliveryType === 'saju_report' && item.sajuSnapshot ? `

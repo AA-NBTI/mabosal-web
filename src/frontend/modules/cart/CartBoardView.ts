@@ -139,7 +139,7 @@ export function renderCartBoardView(): string {
             </label>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
               ${hasUnavailableItems ? `
-                <button type="button" id="btn-cart-delete-unavailable" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 6px; color: #f87171; font-size: 0.8rem; padding: 0.35rem 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;" title="숨김 또는 품절된 상품을 장바구니에서 일괄 삭제합니다.">
+                <button type="button" id="btn-cart-delete-unavailable" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 6px; color: #f87171; font-size: 0.8rem; padding: 0.35rem 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;" title="종료 또는 품절된 상품을 장바구니에서 일괄 삭제합니다.">
                   <span class="material-symbols-outlined" style="font-size: 16px;">remove_shopping_cart</span>
                   판매 불가 상품 정리
                 </button>
@@ -193,7 +193,7 @@ export function renderCartBoardView(): string {
                         </span>
                         ${isHidden ? `
                           <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.45); font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.45rem; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.2rem;">
-                            <span class="material-symbols-outlined" style="font-size: 13px;">visibility_off</span> 판매 중단 (숨김)
+                            <span class="material-symbols-outlined" style="font-size: 13px;">visibility_off</span> 판매 종료
                           </span>
                         ` : ''}
                         ${isSoldOut ? `

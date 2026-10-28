@@ -161,7 +161,6 @@ import { renderCheckoutBoardView, CheckoutService, ReportRouterMapper } from './
 import { renderCartModal, renderOrderReviewModal } from './components/CartAndReviewModal.js';
 import { renderReviewWriteModal } from './components/ReviewWriteModal.js';
 import { renderAuthModal } from './components/AuthModal.js';
-import { renderCharmPricingCheckoutModal } from './components/common-components.js';
 import { generateDownloadableReportText } from './components/tier-templates.js';
 import { renderCheonmyeongwonShareModal } from './components/VisualCharts.js';
 import { FunnelCheckoutHelper } from './views/pages/FunnelCheckoutHelper.js';
@@ -438,7 +437,7 @@ class MabosalApp {
         appState.setView('store');
         void this.handlePaymentReturn(urlParams);
       } else if (initialView === 'admin' || urlParams.get('admin') === 'true') {
-        const tabParam = urlParams.get('tab');
+        const tabParam = urlParams.get('tab') || (typeof localStorage !== 'undefined' ? localStorage.getItem('mm_admin_active_tab') : null);
         const editIdParam = urlParams.get('editId');
         if (editIdParam) {
           StudyService.setEditingArticleId(editIdParam);
@@ -447,6 +446,10 @@ class MabosalApp {
         } else if (tabParam) {
           const fullTabId = tabParam.startsWith('tab-') ? tabParam : ('tab-' + tabParam);
           setAdminActiveTab(fullTabId);
+          if (fullTabId === 'tab-store') setAdminStoreSubTab('products');
+          else if (fullTabId === 'tab-store-register') setAdminStoreSubTab('register');
+          else if (fullTabId === 'tab-store-orders') setAdminStoreSubTab('orders');
+          else if (fullTabId === 'tab-store-categories') setAdminStoreSubTab('categories');
         }
         if (!AuthService.isAdmin()) {
           appState.setView('landing');
@@ -480,6 +483,9 @@ class MabosalApp {
       updateSeoForView(appState.getState().currentView);
     }
 
+ let isNavigatingBack = false;
+ let prevNavView = appState.getState().currentView;
+
  // [SEO & 테마 페이지 구조화] History API 연동 & 뒤로가기/앞으로가기
  if (typeof window !== 'undefined') {
  window.history.replaceState({ view: appState.getState().currentView }, '', window.location.href);
@@ -506,45 +512,62 @@ class MabosalApp {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
   window.addEventListener('popstate', (event) => {
- const parsed = parseRouteFromLocation();
- const targetView = event.state?.view || parsed.view;
- const currentView = appState.getState().currentView;
+    isNavigatingBack = true;
+    try {
+      const parsed = parseRouteFromLocation();
+      const targetView = event.state?.view || parsed.view;
+      const currentView = appState.getState().currentView;
 
- if (targetView === 'loading') {
-   appState.setView('analyze');
-   return;
- }
+      // 스토어 이외의 화면으로 뒤로가기 시 열려있던 스토어 모달 상태 닫기 (pushState 방지)
+      if (targetView !== 'store') {
+        selectStoreProduct(null, false);
+      }
 
- if (targetView && targetView !== currentView) {
-   updateSeoForView(targetView);
-   appState.setView(targetView);
- } else {
-   // 동일 뷰 내에서 서브 파라미터(상품/아티클/탭 등)가 변경된 경우 즉시 재렌더링
-   this.render(appState.getState());
- }
- });
+      if (targetView === 'loading') {
+        appState.setView('analyze');
+        return;
+      }
+
+      prevNavView = targetView;
+      if (targetView && targetView !== currentView) {
+        updateSeoForView(targetView);
+        appState.setView(targetView);
+      } else {
+        // 동일 뷰 내에서 서브 파라미터(상품/아티클/탭 등)가 변경된 경우 즉시 재렌더링
+        this.render(appState.getState());
+      }
+    } finally {
+      setTimeout(() => {
+        isNavigatingBack = false;
+      }, 50);
+    }
+  });
  }
 
  window.addEventListener('study-state-changed', () => {
       this.render(appState.getState());
     });
 
-  let prevNavView = appState.getState().currentView;
  appState.subscribe(state => {
  if (state.currentView === 'loading') {
    this.render(state);
    return;
  }
 
- if (typeof window !== 'undefined' && state.currentView !== prevNavView) {
+ if (typeof window !== 'undefined' && state.currentView !== prevNavView && !isNavigatingBack) {
    let targetUrl = getViewPath(state.currentView);
    if (state.currentView === 'result' && appState.getActiveTierTab()) {
      targetUrl += `?tier=${appState.getActiveTierTab()}${AbTestService.isFunnelVariantB() ? '&ab=b' : ''}`;
    } else if (state.currentView === 'store' && getSelectedStoreProductId()) {
      targetUrl += `?product=${encodeURIComponent(getSelectedStoreProductId()!)}`;
    }
-   window.history.pushState({ view: state.currentView }, '', targetUrl);
+   const currentFullPath = window.location.pathname + window.location.search;
+   if (currentFullPath !== targetUrl) {
+     window.history.pushState({ view: state.currentView }, '', targetUrl);
+   }
    updateSeoForView(state.currentView);
+   prevNavView = state.currentView;
+ } else if (isNavigatingBack) {
    prevNavView = state.currentView;
  }
  this.render(state);
@@ -1197,6 +1220,18 @@ ${content}
   const target = e.target as HTMLElement;
   if (!target) return;
 
+  // [최우선 순위: 브랜드 로고 및 홈 네비게이션 클릭 -> 완전한 홈 복귀 및 상태 초기화]
+  if (target.closest('#btn-nav-brand') || target.closest('#nav-btn-landing')) {
+    e.preventDefault();
+    selectStoreProduct(null, false);
+    const drawer = document.getElementById('mobile-nav-drawer');
+    const backdrop = document.getElementById('mobile-nav-backdrop');
+    if (drawer) drawer.style.display = 'none';
+    if (backdrop) backdrop.style.display = 'none';
+    navigateTo('/');
+    return;
+  }
+
   // [신규 SPA 테마 라우팅: data-nav 및 내부 a 태그 클릭 가로채기]
   const navAnchor = target.closest('a[data-nav], a[href^="/"]') as HTMLAnchorElement | null;
   if (navAnchor && !navAnchor.target && !navAnchor.hasAttribute('download')) {
@@ -1207,6 +1242,12 @@ ${content}
         alert('✨ 회원가입 필수 단계: 사주 원국 정보를 먼저 저장해 주셔야 맞춤 서비스 이용이 가능합니다.');
         return;
       }
+      // 모바일 드로어가 열려있을 경우 자동 닫힘
+      const drawer = document.getElementById('mobile-nav-drawer');
+      const backdrop = document.getElementById('mobile-nav-backdrop');
+      if (drawer) drawer.style.display = 'none';
+      if (backdrop) backdrop.style.display = 'none';
+
       navigateTo(href);
       return;
     }
@@ -2072,6 +2113,8 @@ ${content}
       if (prodId && confirm('정말로 이 상품을 삭제하시겠습니까?')) {
         deleteStoreProduct(prodId);
         alert('상품이 성공적으로 삭제되었습니다.');
+        setAdminActiveTab('tab-store');
+        setAdminStoreSubTab('products');
         this.render(appState.getState());
       }
       return;
@@ -2864,19 +2907,12 @@ ${content}
 
  // 0-A. PC 모드 카테고리 네비게이션 바 클릭
  if (target.closest('#pc-nav-home')) {
- appState.setView('landing');
- window.scrollTo({ top: 0, behavior: 'smooth' });
+ navigateTo('/');
  return;
  }
- // [항목 6] 상단 카테고리 '정통사주' 클릭 시 메인의 마보살 4대 정밀 감정 리포트 섹션으로 이동
+ // 상단 카테고리 '종합사주' 클릭 시 /saju 독립 카테고리 페이지로 이동
  if (target.closest('#pc-nav-saju')) {
- if (appState.getState().currentView !== 'landing') {
- appState.setView('landing');
- }
- setTimeout(() => {
- const el = document.getElementById('section-four-reports');
- if (el) el.scrollIntoView({ behavior: 'smooth' });
- }, 100);
+ navigateTo('/saju');
  return;
  }
 
@@ -3367,17 +3403,15 @@ ${content}
       return;
     }
 
-    // [주문 내역: 상품 상세 보기 버튼 클릭 시 스토어 해당 상품 상세로 이동]
+    // [주문 내역 / 카테고리: 상품 상세 보기 버튼 클릭 시 스토어 해당 상품 상세로 이동]
     const gotoStoreProductBtn = target.closest('.btn-goto-store-product-detail') as HTMLElement | null;
     if (gotoStoreProductBtn) {
       e.preventDefault();
       const pid = gotoStoreProductBtn.dataset.productId;
       if (pid) {
-        selectStoreProduct(pid);
+        selectStoreProduct(pid, false);
       }
-      appState.setView('store');
-      this.render(appState.getState());
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      navigateTo(`/store?product=${encodeURIComponent(pid || '')}`);
       return;
     }
 
@@ -4293,7 +4327,8 @@ ${content}
 
  // 1. 브랜드 로고 클릭 -> 홈 이동
  if (target.closest('#btn-nav-brand') || target.closest('#nav-btn-landing')) {
- appState.setView('landing');
+ selectStoreProduct(null, false);
+ navigateTo('/');
  return;
  }
 
@@ -4330,28 +4365,12 @@ ${content}
     // 마보살 스터디 & 스토어 네비게이션 클릭
     // /* id-nav-study-handled */
     if (target.closest('#pc-nav-study') || target.closest('#m-nav-study')) {
-      resetStudyCategory();
-      selectStudyArticle(null, false);
-      appState.setView('study');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      const drawer = document.getElementById('mobile-nav-drawer');
-      const backdrop = document.getElementById('mobile-nav-backdrop');
-      if (drawer) drawer.classList.remove('open');
-      if (backdrop) backdrop.classList.remove('open');
-      this.render(appState.getState());
+      navigateTo('/study');
       return;
     }
 
     if (target.closest('#pc-nav-store') || target.closest('#m-nav-store')) {
-      resetStoreCategory();
-      selectStoreProduct(null);
-      appState.setView('store');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      const drawer = document.getElementById('mobile-nav-drawer');
-      const backdrop = document.getElementById('mobile-nav-backdrop');
-      if (drawer) drawer.classList.remove('open');
-      if (backdrop) backdrop.classList.remove('open');
-      this.render(appState.getState());
+      navigateTo('/store');
       return;
     }
 
@@ -4767,62 +4786,19 @@ ${content}
  return;
  }
 
- // 12. 900원 참 프라이싱 결제 모달 열기 (.btn-trigger-checkout)
+ // 12. [폐기 완료] 기존 4대 정밀 감정 레거시 결제 모달 폐기 -> 스토어 정규 결제/상세로 자동 전환
  const triggerCheckoutBtn = target.closest('.btn-trigger-checkout') as HTMLElement;
  if (triggerCheckoutBtn) {
- const productName = triggerCheckoutBtn.dataset.productName || '마보살 맞춤 사주 솔루션';
- const amount = parseInt(triggerCheckoutBtn.dataset.amount || '19900', 10);
- const originalPrice = parseInt(triggerCheckoutBtn.dataset.originalPrice || '50000', 10);
- const tier = triggerCheckoutBtn.dataset.tier || 'PAID';
- const modalContainer = document.getElementById('checkout-modal-container');
- if (modalContainer) {
- modalContainer.innerHTML = renderCharmPricingCheckoutModal({
- productTitle: productName,
- originalPrice,
- finalPrice900: amount,
- yeopDiscount: 3000,
- tierId: tier,
- });
+   const tier = triggerCheckoutBtn.dataset.tier || 'PAID';
+   const prod = IntelligentSajuRouter.findProductForTier(tier as any);
+   if (prod && prod.id) {
+     selectStoreProduct(prod.id);
+   }
+   appState.setView('store');
+   this.render(appState.getState());
+   window.scrollTo({ top: 0, behavior: 'smooth' });
+   return;
  }
- return;
- }
-
- // 12-1. 결제 모달 닫기
- if (
- target.id === 'btn-close-checkout-modal' ||
- target.id === 'btn-modal-close-checkout' ||
- target.id === 'modal-checkout-overlay'
- ) {
- const modalContainer = document.getElementById('checkout-modal-container');
- if (modalContainer) modalContainer.innerHTML = '';
- return;
- }
-
- // 12-2. 결제 모달 최종 결제 승인 (.btn-submit-payment 또는 #btn-confirm-checkout)
- const confirmCheckoutBtn = target.closest('.btn-submit-payment, #btn-confirm-checkout') as HTMLElement;
- if (confirmCheckoutBtn) {
- const tier = (confirmCheckoutBtn.dataset.tier || 'PAID') as any;
- const amount = parseInt(confirmCheckoutBtn.dataset.amount || '19900', 10);
- const productName = confirmCheckoutBtn.dataset.productName || '사주 솔루션';
-
- // 1. 파트너스 30% 커미션 자동 추적 & 기록
- PartnerTracker.recordConversion(amount);
-
- // 2. 엔진 티어 업그레이드
- await frontendAdapter.upgradeTier(tier === 'PREMIUM' ? 'paid_mabosal_full' : 'paid_detailed_saju');
-
- // 3. 모달 닫기
- const modalContainer = document.getElementById('checkout-modal-container');
- if (modalContainer) modalContainer.innerHTML = '';
-
- alert(`[결제 승인 완료]\n\n${productName} (${amount.toLocaleString()}원) 결제가 성공적으로 승인되었습니다!\n심층 명리 처방과 모든 잠금 섹션이 즉시 해제되었습니다.`);
-
- if (tier) {
- appState.setActiveTierTab(tier);
- }
- return;
- }
-
  // 12-3. 파트너스 추천 링크 복사
  const copyLinkBtn = target.closest('#btn-copy-ref-link') as HTMLElement;
  if (copyLinkBtn) {

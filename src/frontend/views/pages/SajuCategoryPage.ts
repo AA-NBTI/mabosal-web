@@ -37,7 +37,7 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
         </div>
         <div class="product-action-box">
           <div class="product-price-label">0원</div>
-          <button type="button" class="btn-cta-secondary btn-select-product" data-tier="FREE" style="background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary);">
+          <button type="button" class="btn-cta-secondary btn-select-product btn-goto-store-product-detail" data-product-id="prod-free-experience" style="background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); cursor: pointer;">
             무료 체험
           </button>
         </div>
@@ -61,7 +61,7 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
         </div>
         <div class="product-action-box">
           <div class="product-price-label">39,900원</div>
-          <button type="button" class="btn-cta-primary btn-select-product" data-tier="PAID" style="background: var(--primary); color: #241a00; border: none;">
+          <button type="button" class="btn-cta-primary btn-select-product btn-goto-store-product-detail" data-product-id="prod-paid-saju-premium" style="background: var(--primary); color: #241a00; border: none; cursor: pointer;">
             구매하기
           </button>
         </div>
@@ -85,7 +85,7 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
         </div>
         <div class="product-action-box">
           <div class="product-price-label">79,900원</div>
-          <button type="button" class="btn-cta-primary btn-select-product" data-tier="CONFLICT_MALSAL" style="background: var(--primary); color: #241a00; border: none;">
+          <button type="button" class="btn-cta-primary btn-select-product btn-goto-store-product-detail" data-product-id="prod-saju-conflict" style="background: var(--primary); color: #241a00; border: none; cursor: pointer;">
             구매하기
           </button>
         </div>
@@ -109,7 +109,7 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
         </div>
         <div class="product-action-box">
           <div class="product-price-label">149,900원</div>
-          <button type="button" class="btn-cta-primary btn-select-product" data-tier="PREMIUM" style="background: var(--primary); color: #241a00; border: none;">
+          <button type="button" class="btn-cta-primary btn-select-product btn-goto-store-product-detail" data-product-id="prod-paid-saju-vip" style="background: var(--primary); color: #241a00; border: none; cursor: pointer;">
             구매하기
           </button>
         </div>
@@ -125,7 +125,7 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
             마보살 5대 특화 운세 리포트
           </h2>
         </div>
-        <a href="/fortune" data-nav="/fortune" style="font-size: 0.8rem; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.2rem;">전체보기 →</a>
+        <a href="/store" data-nav="/store" class="btn-goto-store" style="font-size: 0.8rem; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.2rem; cursor: pointer;">스토어 전체보기 →</a>
       </div>
 
       <div class="landing-product-list" style="display: flex; flex-direction: column; gap: 0.95rem;">
@@ -141,13 +141,13 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
                 <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">신년운세</h3>
               </div>
               <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
-                2027 정묘년(丁卯年) 상반기 대운과 월별 기회·위험 총정리.
+                2027 정미년(丁未年) 상반기 대운과 월별 기회·위험 총정리.
               </p>
             </div>
           </div>
           <div class="product-action-box">
             <div class="product-price-label">19,900원</div>
-            <button type="button" class="btn-cta-primary btn-select-product" data-tier="YEAR_2027" style="background: var(--primary); color: #241a00; border: none;">
+            <button type="button" class="btn-cta-primary btn-select-product btn-goto-store-product-detail" data-product-id="prod-report-year2027" style="background: var(--primary); color: #241a00; border: none; cursor: pointer;">
               구매하기
             </button>
           </div>
@@ -171,7 +171,7 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
           </div>
           <div class="product-action-box">
             <div class="product-price-label">19,900원</div>
-            <button type="button" class="btn-cta-primary btn-select-product" data-tier="CAREER" style="background: var(--primary); color: #241a00; border: none;">
+            <button type="button" class="btn-cta-primary btn-select-product btn-goto-store-product-detail" data-product-id="prod-report-career" style="background: var(--primary); color: #241a00; border: none; cursor: pointer;">
               구매하기
             </button>
           </div>
@@ -195,7 +195,7 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
           </div>
           <div class="product-action-box">
             <div class="product-price-label">19,900원</div>
-            <button type="button" class="btn-cta-primary btn-select-product" data-tier="WEALTH" style="background: var(--primary); color: #241a00; border: none;">
+            <button type="button" class="btn-cta-primary btn-select-product btn-goto-store-product-detail" data-product-id="prod-report-wealth" style="background: var(--primary); color: #241a00; border: none; cursor: pointer;">
               구매하기
             </button>
           </div>
@@ -219,7 +219,7 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
           </div>
           <div class="product-action-box">
             <div class="product-price-label">19,900원</div>
-            <button type="button" class="btn-cta-primary btn-select-product" data-tier="REUNION" style="background: var(--primary); color: #241a00; border: none;">
+            <button type="button" class="btn-cta-primary btn-select-product btn-goto-store-product-detail" data-product-id="prod-report-reunion" style="background: var(--primary); color: #241a00; border: none; cursor: pointer;">
               구매하기
             </button>
           </div>
@@ -243,7 +243,7 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
           </div>
           <div class="product-action-box">
             <div class="product-price-label">29,900원</div>
-            <button type="button" class="btn-cta-primary btn-select-product" data-tier="CHEMISTRY" style="background: var(--primary); color: #241a00; border: none;">
+            <button type="button" class="btn-cta-primary btn-select-product btn-goto-store-product-detail" data-product-id="prod-report-chemistry" style="background: var(--primary); color: #241a00; border: none; cursor: pointer;">
               구매하기
             </button>
           </div>
@@ -252,7 +252,7 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
     </div>
 
     <!-- 비교표 섹션 -->
-    <section style="background: rgba(18, 22, 34, 0.75); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.5rem; margin-bottom: 3rem; overflow-x: auto;">
+    <section style="width: 100%; max-width: 900px; margin: 0 auto 3rem; background: rgba(18, 22, 34, 0.75); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.5rem; overflow-x: auto; box-sizing: border-box;">
       <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin: 0 0 1rem; text-align: center;">
         사주 감정 리포트 등급별 비교
       </h3>

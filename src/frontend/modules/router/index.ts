@@ -17,7 +17,7 @@
 
 import { AppViewType, appState } from '../../state/app-state.js';
 import { getPageByPathname, PageModule } from '../../pages/index.js';
-import { resetStoreCategory } from '../../extensions/commerce-store/ui-store-view.js';
+import { resetStoreCategory, selectStoreProduct } from '../../extensions/commerce-store/ui-store-view.js';
 import { resetStudyCategory, selectStudyArticle } from '../../extensions/study-hub/ui-study-view.js';
 
 export interface SeoMetadata {
@@ -361,16 +361,29 @@ export function navigateTo(target: AppViewType | string, options?: { replace?: b
     if (qs) targetPath += (targetPath.includes('?') ? '&' : '?') + qs;
   }
 
+  const currentFullPath = window.location.pathname + window.location.search;
   if (options?.replace) {
     window.history.replaceState({ view: targetView }, '', targetPath);
-  } else {
+  } else if (currentFullPath !== targetPath) {
     window.history.pushState({ view: targetView }, '', targetPath);
   }
 
-  // 스토어/스터디 진입 시 특정 쿼리가 없으면 항상 기본 전체 카테고리로 리셋
-  if (targetView === 'store' && (!options?.query?.category)) {
-    resetStoreCategory();
-  } else if (targetView === 'study' && (!options?.query?.category && !options?.query?.article)) {
+  // 스토어/스터디 진입 및 타 뷰 이동 시 모달/선택 상태 정리
+  if (targetView === 'store') {
+    if (!options?.query?.category) {
+      resetStoreCategory(false); // URL은 아래에서 이미 push됨 → 히스토리 변조 금지
+    }
+    // 목적지 URL의 product 파라미터를 reset 이후에 다시 반영 (상품 상세로 바로 진입)
+    const productParam = new URL(targetPath, window.location.origin).searchParams.get('product')
+      || options?.query?.product
+      || null;
+    selectStoreProduct(productParam, false);
+  } else {
+    // 스토어가 아닌 다른 화면으로 이동 시 열려있던 스토어 상품 상세 선택 해제
+    selectStoreProduct(null, false);
+  }
+
+  if (targetView === 'study' && (!options?.query?.category && !options?.query?.article)) {
     resetStudyCategory();
     selectStudyArticle(null, false);
   }
