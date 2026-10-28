@@ -35,7 +35,7 @@ export class AuthService {
     {
       id: 'acc_admin_01',
       username: 'admin',
-      password: 'admin1234',
+      password: 'aa1111',
       name: '최고관리자 (Master)',
       email: 'master@mabosal.com',
       phone: '010-0000-0000',
@@ -85,6 +85,21 @@ export class AuthService {
         const storedAccounts = getStorage().getItem(STORAGE_KEY_ACCOUNTS);
         if (!storedAccounts) {
           getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(this.defaultAccounts));
+        } else {
+          // 관리자 비밀번호 aa1111 최신 동기화 보장
+          try {
+            const list: UserAccount[] = JSON.parse(storedAccounts);
+            let updated = false;
+            for (const acc of list) {
+              if (acc.username === 'admin' && acc.password !== 'aa1111') {
+                acc.password = 'aa1111';
+                updated = true;
+              }
+            }
+            if (updated) {
+              getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(list));
+            }
+          } catch {}
         }
 
         // 현재 로그인 세션 복원

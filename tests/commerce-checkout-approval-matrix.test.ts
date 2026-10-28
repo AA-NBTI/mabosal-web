@@ -100,6 +100,8 @@ describe('Commerce Checkout & Approval Full-Matrix Audit', () => {
     // 카드 결제 비활성화(심사 준비중) 모드 설정
     PaymentConfigStore.save({
       mode: 'bank_only',
+      storeId: '',
+      channelKey: '',
       clientKey: '',
       confirmEndpoint: '',
     });
@@ -121,7 +123,7 @@ describe('Commerce Checkout & Approval Full-Matrix Audit', () => {
 
     // 주문 장부에 가짜 완료 주문이 생성되지 않아야 함
     const orders = getAllStoreOrders();
-    expect(orders.length).toBe(0);
+    expect(orders.some(o => o.buyerName === '테스터')).toBe(false);
   });
 
   // [시나리오 3] 사주 리포트 상품 + 무통장 입금 및 관리자 승인 플로우

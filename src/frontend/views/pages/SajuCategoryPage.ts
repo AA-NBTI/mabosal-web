@@ -116,6 +116,141 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
       </div>
     </div>
 
+    <!-- ⑤ 5대 운세 특화 상품군 (마보살 5대 특화 운세 리포트) -->
+    <div style="width: 100%; max-width: 900px; margin: 0 auto 3rem; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.85rem;">
+        <div>
+          <span style="font-size: 0.72rem; color: var(--primary); font-weight: 700; letter-spacing: 0.05em;">SPECIALIZED THEMATIC</span>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0.15rem 0 0 0;">
+            마보살 5대 특화 운세 리포트
+          </h2>
+        </div>
+        <a href="/fortune" data-nav="/fortune" style="font-size: 0.8rem; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.2rem;">전체보기 →</a>
+      </div>
+
+      <div class="landing-product-list" style="display: flex; flex-direction: column; gap: 0.95rem;">
+        <!-- 1. 신년운세 (19,900원) -->
+        <div class="product-showcase-card">
+          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">calendar_today</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 0.45rem;">
+                <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">신년 특화</span>
+                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">신년운세</h3>
+              </div>
+              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
+                2027 정묘년(丁卯年) 상반기 대운과 월별 기회·위험 총정리.
+              </p>
+            </div>
+          </div>
+          <div class="product-action-box">
+            <div class="product-price-label">19,900원</div>
+            <button type="button" class="btn-cta-primary btn-select-product" data-tier="YEAR_2027" style="background: var(--primary); color: #241a00; border: none;">
+              구매하기
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. 직장운세 (19,900원) -->
+        <div class="product-showcase-card">
+          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">work</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 0.45rem;">
+                <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">직장·이직</span>
+                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">직장운세</h3>
+              </div>
+              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
+                부서 이동·이직 타이밍과 퇴사 vs 잔류 판단 명리 가이드.
+              </p>
+            </div>
+          </div>
+          <div class="product-action-box">
+            <div class="product-price-label">19,900원</div>
+            <button type="button" class="btn-cta-primary btn-select-product" data-tier="CAREER" style="background: var(--primary); color: #241a00; border: none;">
+              구매하기
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. 재물운세 (19,900원) -->
+        <div class="product-showcase-card">
+          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">payments</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 0.45rem;">
+                <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">재물·투자</span>
+                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">재물운세</h3>
+              </div>
+              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
+                현금 보유 최적기 vs 공격 투자 타이밍과 손재마 방어.
+              </p>
+            </div>
+          </div>
+          <div class="product-action-box">
+            <div class="product-price-label">19,900원</div>
+            <button type="button" class="btn-cta-primary btn-select-product" data-tier="WEALTH" style="background: var(--primary); color: #241a00; border: none;">
+              구매하기
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. 재회운세 (19,900원) -->
+        <div class="product-showcase-card">
+          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">favorite</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 0.45rem;">
+                <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">연애·재회</span>
+                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">재회운세</h3>
+              </div>
+              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
+                상대방 연락 가능성 월별 지수와 재회 골든타임 처방.
+              </p>
+            </div>
+          </div>
+          <div class="product-action-box">
+            <div class="product-price-label">19,900원</div>
+            <button type="button" class="btn-cta-primary btn-select-product" data-tier="REUNION" style="background: var(--primary); color: #241a00; border: none;">
+              구매하기
+            </button>
+          </div>
+        </div>
+
+        <!-- 5. 궁합운세 (29,900원) -->
+        <div class="product-showcase-card">
+          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(251, 207, 232, 0.12); border: 1px solid rgba(251, 207, 232, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-symbols-outlined" style="font-size: 22px; color: #f472b6;">favorite</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 0.45rem;">
+                <span style="background: rgba(251, 207, 232, 0.15); color: #f472b6; font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">정밀 역학</span>
+                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">궁합운세</h3>
+              </div>
+              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
+                반복 싸움 유발 요인 3가지와 즉시 화해 대화 스크립트.
+              </p>
+            </div>
+          </div>
+          <div class="product-action-box">
+            <div class="product-price-label">29,900원</div>
+            <button type="button" class="btn-cta-primary btn-select-product" data-tier="CHEMISTRY" style="background: var(--primary); color: #241a00; border: none;">
+              구매하기
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 비교표 섹션 -->
     <section style="background: rgba(18, 22, 34, 0.75); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.5rem; margin-bottom: 3rem; overflow-x: auto;">
       <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin: 0 0 1rem; text-align: center;">

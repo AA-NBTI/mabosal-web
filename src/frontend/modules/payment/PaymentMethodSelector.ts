@@ -8,7 +8,7 @@ import { OFFICIAL_BANK_ACCOUNT } from '../../extensions/commerce-store/store-ser
 export function renderPaymentMethodSelector(amount: number): string {
   const cfg = PaymentConfigStore.get();
   const cardOn = PaymentConfigStore.isCardEnabled(cfg);
-  const testBadge = cfg.mode === 'toss_test'
+  const testBadge = cfg.mode === 'portone_test'
     ? '<span style="font-size:0.66rem;background:rgba(96,165,250,0.2);color:#93c5fd;border:1px solid rgba(96,165,250,0.4);border-radius:4px;padding:0.05rem 0.35rem;margin-left:0.3rem;">TEST</span>'
     : '';
 
@@ -28,8 +28,8 @@ export function renderPaymentMethodSelector(amount: number): string {
         무통장 입금
       </label>
       <label class="pay-opt ${cardOn ? '' : 'disabled'}">
-        <input type="radio" name="order-pay-method" value="toss_card" ${cardOn ? '' : 'disabled'} />
-        카드 · 간편결제${cardOn ? testBadge : ' (준비중)'}
+        <input type="radio" name="order-pay-method" value="portone_card" ${cardOn ? '' : 'disabled'} />
+        포트원 카드 · 간편결제${cardOn ? testBadge : ' (준비중)'}
       </label>
     </div>
 

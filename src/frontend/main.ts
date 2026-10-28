@@ -446,9 +446,15 @@ class MabosalApp {
           setAdminActiveTab(fullTabId);
         }
         if (!AuthService.isAdmin()) {
-          AuthService.login('admin', 'admin1234');
+          appState.setView('landing');
+          setTimeout(() => {
+            const authModal = document.getElementById('modal-auth-container');
+            if (authModal) authModal.style.display = 'flex';
+            alert('관리자 대시보드는 최고 관리자(admin) 계정으로 로그인 후 이용하실 수 있습니다.');
+          }, 150);
+        } else {
+          appState.setView('admin');
         }
-        appState.setView('admin');
       } else if (initialView === 'result' || initialView === 'report') {
         UserSajuStore.restoreLastActiveAnalysis(urlParams.get('orderId'), urlParams.get('tier'));
         appState.setView('result');
@@ -1786,6 +1792,12 @@ ${content}
       if (modal) modal.style.display = 'flex';
       return;
     }
+    if (target.closest('#btn-footer-refund')) {
+      e.preventDefault();
+      const modal = document.getElementById('modal-refund-container');
+      if (modal) modal.style.display = 'flex';
+      return;
+    }
     if (target.closest('#btn-footer-support') || target.closest('#btn-open-support-from-dash') || target.closest('#btn-open-support-empty')) {
       e.preventDefault();
       const modal = document.getElementById('modal-support-container');
@@ -1802,7 +1814,7 @@ ${content}
       }
       return;
     }
-    if (target.id === 'modal-terms-container' || target.id === 'modal-privacy-container' || target.id === 'modal-support-container') {
+    if (target.id === 'modal-terms-container' || target.id === 'modal-privacy-container' || target.id === 'modal-support-container' || target.id === 'modal-refund-container') {
       (target as HTMLElement).style.display = 'none';
       return;
     }
@@ -4383,13 +4395,17 @@ ${content}
  const biz = (document.getElementById('input-cms-footer-biz') as HTMLInputElement)?.value?.trim() || '107-88-44796';
  const mail = (document.getElementById('input-cms-footer-mail') as HTMLInputElement)?.value?.trim() || '제 2026-부산사하-0589호';
  const address = (document.getElementById('input-cms-footer-address') as HTMLInputElement)?.value?.trim() || '부산광역시 사하구 하신번영로 328, 302호 (하단동)';
- const contact = (document.getElementById('input-cms-footer-contact') as HTMLInputElement)?.value?.trim() || '고객센터: 1:1 온라인 문의 | 평일 10:00 ~ 18:00 (주말·공휴일 휴무)';
+ const phone = (document.getElementById('input-cms-footer-phone') as HTMLInputElement)?.value?.trim() || '051-208-8746';
+ const email = (document.getElementById('input-cms-footer-email') as HTMLInputElement)?.value?.trim() || 'anbtiteam@gmail.com';
+ const cpoName = (document.getElementById('input-cms-footer-cpo') as HTMLInputElement)?.value?.trim() || '박경민';
+ const hostingProvider = (document.getElementById('input-cms-footer-hosting') as HTMLInputElement)?.value?.trim() || '마보살 클라우드 (Vercel & Supabase)';
+ const contact = (document.getElementById('input-cms-footer-contact') as HTMLInputElement)?.value?.trim() || '고객센터: 051-208-8746 | 평일 10:00 ~ 18:00 (주말·공휴일 휴무)';
  const copyright = (document.getElementById('input-cms-footer-copy') as HTMLInputElement)?.value?.trim() || '© 2026 템바보드 주식회사. All rights reserved.';
 
  SiteContentStore.updateConfig({
  header: { brandName, domainText },
  hero: { mainTitle: heroTitle, subPill: heroSubpill, description: heroDesc },
- footer: { companyName: company, ceoName: ceo, bizNumber: biz, mailOrderNumber: mail, contactInfo: contact, copyright, address },
+ footer: { companyName: company, ceoName: ceo, bizNumber: biz, mailOrderNumber: mail, contactInfo: contact, copyright, address, phone, email, cpoName, hostingProvider },
  });
 
  setAdminActiveTab('tab-site-content');
@@ -5004,7 +5020,7 @@ ${content}
     const selectedPayMethod = (payMethodInput?.value as any) || 'bank_transfer';
 
     if (selectedPayMethod !== 'bank_transfer' && selectedPayMethod !== 'voucher' && !PaymentConfigStore.isCardEnabled()) {
-      alert('현재 카드사 및 간편결제 연동 심사 준비 중입니다. 결제 수단은 [무통장 입금]만 이용 가능합니다.');
+      alert('현재 포트원(PortOne) 전자결제 연동 심사 준비 중입니다. 결제 수단은 [무통장 입금]만 이용 가능합니다.');
       const bankRadio = form.querySelector('input[name="checkout-pay-method"][value="bank_transfer"]') as HTMLInputElement | null;
       if (bankRadio) bankRadio.checked = true;
       return;

@@ -40,7 +40,7 @@ export function renderLegalAndSupportModals(): string {
           • 상호: <strong>${companyName}</strong> | 대표자: <strong>${ceoName}</strong><br/>
           • 사업자등록번호: <strong>${bizNumber}</strong> | 통신판매업신고: <strong>${mailOrderNumber}</strong><br/>
           • 사업장 소재지: ${address}<br/>
-          • 고객센터 문의: <strong>${supportEmail}</strong>
+          • 대표전화: <strong>051-208-8746</strong> | 고객센터 문의: <strong>${supportEmail}</strong>
         </div>
 
         <h3 style="color: #fff; font-size: 1rem; margin: 1.2rem 0 0.5rem 0;">제1조 (목적)</h3>
@@ -133,17 +133,49 @@ export function renderLegalAndSupportModals(): string {
           • 웹사이트 방문기록: 3개월 (통신비밀보호법)
         </p>
 
-        <h3 style="color: #fff; font-size: 1rem; margin: 1.2rem 0 0.5rem 0;">제4조 (개인정보 보호책임자)</h3>
+        <h3 style="color: #fff; font-size: 1rem; margin: 1.2rem 0 0.5rem 0;">제4조 (개인정보 처리 업무의 위탁)</h3>
+        <p>
+          1. 회사는 원활하고 안전한 전자결제 및 서비스 제공을 위하여 「개인정보 보호법」 제26조에 따라 다음과 같이 개인정보 처리 업무를 외부 전문기관에 위탁하고 있습니다.
+        </p>
+        <div style="overflow-x: auto; margin: 0.85rem 0;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.12); text-align: left; background: rgba(255,255,255,0.02); border-radius: 6px; overflow: hidden;">
+            <thead>
+              <tr style="background: rgba(242, 202, 80, 0.1); border-bottom: 1px solid rgba(255,255,255,0.15);">
+                <th style="padding: 0.65rem 0.75rem; color: #fff; font-weight: 700; width: 30%;">수탁업체</th>
+                <th style="padding: 0.65rem 0.75rem; color: #fff; font-weight: 700; width: 40%;">위탁 업무 내용</th>
+                <th style="padding: 0.65rem 0.75rem; color: #fff; font-weight: 700; width: 30%;">보유 및 이용 기간</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <td style="padding: 0.65rem 0.75rem; color: #f2ca50; font-weight: 700;">(주)코리아포트원 (PortOne)</td>
+                <td style="padding: 0.65rem 0.75rem; color: #cbd5e1;">결제 연동 서비스 제공, 전자결제(신용카드/간편결제 등) 승인 및 중계 대행</td>
+                <td style="padding: 0.65rem 0.75rem; color: #94a3b8;">회원 탈퇴 또는 위탁 계약 종료 시까지 (단, 전자상거래법 등 관계 법령에 따른 보존 의무 기간 동안 보관)</td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <td style="padding: 0.65rem 0.75rem; color: #cbd5e1; font-weight: 700;">Vercel Inc. / Supabase Inc.</td>
+                <td style="padding: 0.65rem 0.75rem; color: #cbd5e1;">웹 호스팅 인프라 제공 및 클라우드 데이터베이스 저장/운영</td>
+                <td style="padding: 0.65rem 0.75rem; color: #94a3b8;">서비스 이용 해지 또는 위탁 계약 종료 시까지</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          2. 회사는 위탁계약 체결 시 「개인정보 보호법」 제26조에 따라 위탁업무 수행목적 외 개인정보 처리금지, 기술적·관리적 보호조치, 재위탁 제한, 수탁자에 대한 관리·감독, 손해배상 등 책임에 관한 사항을 명시하고 있으며, 수탁자가 개인정보를 안전하게 처리하도록 철저히 관리·감독하고 있습니다.<br/>
+          3. 위탁하는 업무의 내용이나 수탁자가 변경될 경우 지체 없이 본 개인정보처리방침을 통하여 공개하도록 하겠습니다.
+        </p>
+
+        <h3 style="color: #fff; font-size: 1rem; margin: 1.2rem 0 0.5rem 0;">제5조 (개인정보 보호책임자)</h3>
         <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1rem; margin-top: 0.5rem;">
           • 성명: <strong>${ceoName}</strong><br/>
           • 직책: <strong>대표이사 / 개인정보 보호책임자</strong><br/>
           • 소속: <strong>${companyName}</strong><br/>
           • 이메일: <strong>${supportEmail}</strong><br/>
-          • 전화번호: <strong>051-220-5441</strong>
+          • 전화번호: <strong>051-208-8746</strong>
         </div>
 
         <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.8rem; color: #94a3b8;">
-          공고일자: 2026년 10월 15일 | 시행일자: 2026년 10월 15일
+          공고일자: 2026년 10월 15일 | 개정일자: 2026년 10월 28일 | 시행일자: 2026년 10월 28일
         </div>
       </div>
 
@@ -232,7 +264,7 @@ export function renderLegalAndSupportModals(): string {
           <span class="material-symbols-outlined" style="font-size: 32px; display: block; margin: 0 auto 0.25rem;">check_circle</span>
           <strong style="font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">문의가 정상적으로 접수되었습니다!</strong>
           <span style="font-size: 0.78rem; color: #bbf7d0;">
-            접수처: <strong>${supportEmail}</strong><br/>
+            접수처: <strong>${supportEmail}</strong> | 대표전화: <strong>051-208-8746</strong><br/>
             담당자가 신속히 확인 후 입력하신 이메일로 답변을 전송해 드리겠습니다.
           </span>
         </div>
@@ -249,6 +281,67 @@ export function renderLegalAndSupportModals(): string {
         </div>
 
       </form>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- 4. 취소 및 환불/교환 정책 모달 (Refund & Return Policy) -->
+  <!-- ======================================================= -->
+  <div id="modal-refund-container" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; box-sizing: border-box;">
+    <div style="background: #0f131d; border: 1px solid rgba(242, 202, 80, 0.4); border-radius: 16px; width: 100%; max-width: 720px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.85); overflow: hidden;">
+      
+      <!-- 모달 헤더 -->
+      <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
+        <div>
+          <span style="font-size: 0.72rem; color: #f2ca50; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">Refund &amp; Return Policy</span>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0.15rem 0 0 0;">취소 및 환불 / 반품 규정</h2>
+        </div>
+        <button type="button" class="btn-close-legal-modal" data-modal="modal-refund-container" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 0.4rem; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+          <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
+        </button>
+      </div>
+
+      <!-- 모달 본문 (스크롤) -->
+      <div style="padding: 1.5rem; overflow-y: auto; color: #cbd5e1; font-size: 0.86rem; line-height: 1.75; flex: 1;">
+        <div style="background: rgba(242,202,80,0.06); border: 1px solid rgba(242,202,80,0.25); border-radius: 10px; padding: 1rem; margin-bottom: 1.25rem;">
+          <strong style="color: #f2ca50;">전자상거래 소비자보호법 기준 환불 안내</strong><br/>
+          마보살은 「전자상거래 등에서의 소비자보호에 관한 법률」 및 공정거래위원회 표준약관을 엄격히 준수합니다.
+        </div>
+
+        <h3 style="color: #fff; font-size: 1rem; margin: 1.2rem 0 0.4rem 0;">1. 디지털 콘텐츠 (사주 분석 리포트 · PDF 전자책)</h3>
+        <p>
+          • <strong>청약철회 제한 고지</strong>: 「전자상거래법」 제17조 제2항 제5호 및 「콘텐츠산업 진흥법」에 따라, <strong>열람 또는 다운로드가 개시되었거나 맞춤 분석이 완료된 디지털 콘텐츠는 청약철회(환불)가 제한</strong>됩니다.<br/>
+          • 결제 완료 후 열람이나 다운로드를 개시하지 않은 주문은 결제일로부터 7일 이내 전액 환불이 가능합니다.<br/>
+          • 전산 시스템 오류, 파일 손상 등으로 정상적인 열람이 불가능한 경우 고객센터 접수 즉시 재발송 또는 전액 환불해 드립니다.
+        </p>
+
+        <h3 style="color: #fff; font-size: 1rem; margin: 1.2rem 0 0.4rem 0;">2. 실물 배송 상품 (수제 부적 · 굿즈 소품)</h3>
+        <p>
+          • 상품 수령일로부터 <strong>7일 이내</strong> 청약철회(반품/교환)를 신청하실 수 있습니다.<br/>
+          • <strong>반품 배송비</strong>: 단순 변심에 의한 반품 시 편도 3,000원(최초 무료배송인 경우 왕복 6,000원)은 고객 부담입니다.<br/>
+          • <strong>반품 불가 사유</strong>: 고객 귀책으로 상품이 멸실/훼손된 경우, 개봉 후 사용 흔적으로 재판매가 불가능한 경우, 고객 맞춤형으로 단독 제작된 주문 제작 수제 부적.
+        </p>
+
+        <h3 style="color: #fff; font-size: 1rem; margin: 1.2rem 0 0.4rem 0;">3. 1:1 심층 상담권 및 모바일 바우처</h3>
+        <p>
+          • 미사용 모바일 바우처: 발행일로부터 유효기간 내 언제든 전액 환불 가능합니다.<br/>
+          • 1:1 상담 예약권: 상담 예정 시각 24시간 전 취소 시 전액 환불되며, 상담 당일 무단 불참(노쇼) 또는 상담 개시 후에는 환불이 불가합니다.
+        </p>
+
+        <h3 style="color: #fff; font-size: 1rem; margin: 1.2rem 0 0.4rem 0;">4. 취소 및 환불 신청 방법</h3>
+        <p>
+          • 마이페이지 [주문 내역] → 해당 주문의 [주문 취소/반품 접수] 버튼을 통해 24시간 온라인 접수<br/>
+          • 고객센터 유선 문의: <strong>051-208-8746</strong> (평일 10:00 ~ 18:00)<br/>
+          • 고객센터 이메일 접수: <strong>anbtiteam@gmail.com</strong>
+        </p>
+      </div>
+
+      <!-- 모달 푸터 -->
+      <div style="padding: 1rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: flex-end; background: rgba(0,0,0,0.2);">
+        <button type="button" class="btn-close-legal-modal btn-cta-primary" data-modal="modal-refund-container" style="padding: 0.55rem 1.5rem; font-size: 0.85rem; font-weight: 700; border-radius: 8px;">
+          확인 및 닫기
+        </button>
+      </div>
     </div>
   </div>
   `;

@@ -362,3 +362,237 @@ export const SAJU_BOOK_VOL1_PRODUCT: StoreProduct = {
     </div>
   `
 };
+
+export const SAJU_BOOK_VOL2_PRODUCT: StoreProduct = {
+  id: 'book-saju-principles-vol2',
+  title: '[전자책] 정통 사주명리학 원론 제2권: 십성의 심리학과 격국용신론',
+  category: 'ebook',
+  price: 29000,
+  originalPrice: 45000,
+  tagLine: '10대 성정(비견·겁재·식신·상관·편재·정재·편관·정관·편인·정인) 심리 구조와 8대 정격·외격 및 용신 판별법',
+  badge: '정통 명저 · 2권',
+  summary: '인간의 행동 패턴과 재물·직업 성취의 핵심인 십성(十星)의 심리학과 억부·조후·통관 3대 용신 및 8대 정격의 성패를 완벽 해설한 마스터북 제2권입니다.',
+  description: '사주명리학에서 인간의 내면 동기와 사회적 대인관계를 읽어내는 가장 강력한 도구가 바로 십성(十星)입니다. 『정통 사주명리학 원론 제2권』은 비겁(주체성·독립), 식상(표현·생산), 재성(통제·결실), 관성(규범·책임), 인성(수용·학문)의 10대 심리 역학을 현대 심리학과 접목하여 명쾌하게 해설합니다. 나아가 사주의 중심축인 월지(月令)에서 비롯되는 8대 정격(관인상생격, 식신생재격, 살인상생격 등)과 파격(破格)의 구응(救應) 원리, 억부용신·조후용신·통관용신을 잡는 고전 정통 공식을 체계화하였습니다.',
+  thumbnailUrl: '/images/store/saju-vol2-cover.jpg',
+  thumbnailIcon: 'psychology',
+  galleryImages: [
+    '/images/store/saju-vol2-cover.jpg',
+    '/images/store/saju-vol1-elements.jpg',
+    '/images/store/saju-vol1-study.jpg'
+  ],
+  detailImages: [
+    '/images/store/saju-vol2-cover.jpg',
+    '/images/store/saju-vol1-elements.jpg',
+    '/images/store/saju-vol1-study.jpg'
+  ],
+  deliveryType: 'digital_download',
+  contentPayload: '/assets/downloads/saju_principles_vol2_master.pdf',
+  targetSignals: ['general.knowledge', 'career.change', 'wealth.growth'],
+  status: 'active',
+  createdAt: '2026-10-25',
+  salesCount: 142,
+  options: [
+    {
+      id: 'opt-vol2-pdf',
+      name: '[기본형] 전자책(PDF) 마스터 판본 (즉시 다운로드)',
+      price: 29000,
+      originalPrice: 45000,
+      deliveryType: 'digital_download',
+      description: '제2권 십성 심리 및 격국용신 완벽 마스터 PDF 다운로드 & 영구 소장'
+    },
+    {
+      id: 'opt-vol2-pdf-art',
+      name: '[소장형] 전자책(PDF) + 십성 역학 구조도 디지털 아카이브',
+      price: 35000,
+      originalPrice: 55000,
+      deliveryType: 'digital_download',
+      description: '전자책 PDF + 십성 생극제화 및 8대 정격 구조 일람 디지털 고화질 브로슈어'
+    },
+    {
+      id: 'opt-vol2-hardcover',
+      name: '[프리미엄 패키지] 전자책(PDF) + 실물 고급 양장본 서적 (무료 배송)',
+      price: 48000,
+      originalPrice: 75000,
+      deliveryType: 'shipping',
+      description: '전자책 즉시 열람 + 제2권 소장용 실물 양장 하드커버 서적 무료 택배 배송'
+    }
+  ],
+  detailsHtml: `
+    <div class="saju-book-detail" style="color: #e2e8f0; font-size: 0.92rem; line-height: 1.75;">
+      <div style="background: linear-gradient(135deg, rgba(242, 202, 80, 0.12), rgba(15, 23, 42, 0.8)); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; align-items: center; gap: 0.6rem; color: #f2ca50; font-weight: 700; font-size: 1.05rem; margin-bottom: 0.6rem;">
+          <span class="material-symbols-outlined" style="font-size: 24px;">psychology</span>
+          마보살 명리학 디지털 아카이브 • 정통 원론 제2권 완결본
+        </div>
+        <p style="margin: 0 0 1rem 0; color: #cbd5e1; font-size: 0.9rem;">
+          십성(十星)은 음양오행이 일간(나)과 맺는 관계성을 10가지 페르소나로 체계화한 동양 심리학의 극치입니다. 내면의 욕망, 재능, 직업 적성, 그리고 인생의 무게중심을 정확하게 진단합니다.
+        </p>
+      </div>
+      <h3 style="color: #f2ca50; font-size: 1.15rem; margin: 2rem 0 1rem 0; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid rgba(242, 202, 80, 0.2); padding-bottom: 0.5rem;">
+        <span class="material-symbols-outlined" style="font-size: 22px;">toc</span>
+        제2권 핵심 수록 주제 및 격국용신 체계
+      </h3>
+      <ul style="color: #cbd5e1; line-height: 1.8; margin-bottom: 2rem;">
+        <li><strong>제1부 10대 십성의 심리 메커니즘</strong>: 비견·겁재(독립과 경쟁), 식신·상관(창의와 표출), 편재·정재(경영과 관리), 편관·정관(권력과 원칙), 편인·정인(통찰과 수용)</li>
+        <li><strong>제2부 월령(月令)과 격국(格局)의 성패</strong>: 자평진전 기준 8대 정격(식신격, 정관격, 정인격, 재격 등)의 성격(成格) 조건 및 파격(破格) 극복법</li>
+        <li><strong>제3부 3대 용신(用神) 판별 공식</strong>: 신강·신약을 다스리는 억부용신, 계절의 온도를 맞추는 조후용신, 막힌 기운을 뚫는 통관용신 실전 적용</li>
+      </ul>
+    </div>
+  `
+};
+
+export const SAJU_BOOK_VOL3_PRODUCT: StoreProduct = {
+  id: 'book-saju-principles-vol3',
+  title: '[전자책] 정통 사주명리학 원론 제3권: 합충형파해와 12운성·신살편',
+  category: 'ebook',
+  price: 29000,
+  originalPrice: 45000,
+  tagLine: '천간합·지지삼합·방합·육합과 충(沖)·형(刑)·파(破)·해(害) 작용력, 12포태법 및 길흉 핵심 신살 정해',
+  badge: '정통 명저 · 3권',
+  summary: '원국 내 사주 글자 간의 역동적 상호작용인 합·충·형·파·해와 인간 생로병사의 에너지 주기인 12운성(포태법), 백호·괴강·도화·역마 등 현대적 통변 신살의 실전 적용법을 정립한 마스터북 제3권입니다.',
+  description: '정적인 명식이 사건과 사고, 인연과 변화로 발현되는 순간은 글자와 글자가 만나는 합(合)과 충(沖)에서 시작됩니다. 『정통 사주명리학 원론 제3권』은 천간합화의 진퇴, 지지 삼합·방합의 국(局) 형성, 육충(자오충·인신충 등)의 충돌 양상과 축술미 삼형·인사신 삼형의 형벌적 인과를 상세히 분석합니다. 또한 일간과 각 지지의 에너지 강약을 측정하는 12운성(장생, 목욕, 관대, 건록, 제왕, 쇠, 병, 사, 묘, 절, 태, 양)의 통변 법칙과 미신을 걷어낸 실전 길흉 신살을 엄선하여 수록하였습니다.',
+  thumbnailUrl: '/images/store/saju-vol3-cover.jpg',
+  thumbnailIcon: 'shuffle',
+  galleryImages: [
+    '/images/store/saju-vol3-cover.jpg',
+    '/images/store/saju-vol1-elements.jpg',
+    '/images/store/saju-vol1-study.jpg'
+  ],
+  detailImages: [
+    '/images/store/saju-vol3-cover.jpg',
+    '/images/store/saju-vol1-elements.jpg',
+    '/images/store/saju-vol1-study.jpg'
+  ],
+  deliveryType: 'digital_download',
+  contentPayload: '/assets/downloads/saju_principles_vol3_master.pdf',
+  targetSignals: ['general.knowledge', 'future.planning', 'mind.stress'],
+  status: 'active',
+  createdAt: '2026-10-25',
+  salesCount: 128,
+  options: [
+    {
+      id: 'opt-vol3-pdf',
+      name: '[기본형] 전자책(PDF) 마스터 판본 (즉시 다운로드)',
+      price: 29000,
+      originalPrice: 45000,
+      deliveryType: 'digital_download',
+      description: '제3권 합충형파해 및 12운성·신살 완벽 마스터 PDF 다운로드 & 영구 소장'
+    },
+    {
+      id: 'opt-vol3-pdf-art',
+      name: '[소장형] 전자책(PDF) + 12운성 포태 주기 디지털 차트',
+      price: 35000,
+      originalPrice: 55000,
+      deliveryType: 'digital_download',
+      description: '전자책 PDF + 12지 지지별 12운성 및 핵심 길흉 신살 대조표 디지털 고화질 아카이브'
+    },
+    {
+      id: 'opt-vol3-hardcover',
+      name: '[프리미엄 패키지] 전자책(PDF) + 실물 고급 양장본 서적 (무료 배송)',
+      price: 48000,
+      originalPrice: 75000,
+      deliveryType: 'shipping',
+      description: '전자책 즉시 열람 + 제3권 소장용 실물 양장 하드커버 서적 무료 택배 배송'
+    }
+  ],
+  detailsHtml: `
+    <div class="saju-book-detail" style="color: #e2e8f0; font-size: 0.92rem; line-height: 1.75;">
+      <div style="background: linear-gradient(135deg, rgba(242, 202, 80, 0.12), rgba(15, 23, 42, 0.8)); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; align-items: center; gap: 0.6rem; color: #f2ca50; font-weight: 700; font-size: 1.05rem; margin-bottom: 0.6rem;">
+          <span class="material-symbols-outlined" style="font-size: 24px;">shuffle</span>
+          마보살 명리학 디지털 아카이브 • 정통 원론 제3권 완결본
+        </div>
+        <p style="margin: 0 0 1rem 0; color: #cbd5e1; font-size: 0.9rem;">
+          합(合)으로 맺어지고 충(沖)으로 깨어지며, 형(刑)으로 조정되는 인생의 거대한 변동성을 수학적 정밀함으로 해석합니다.
+        </p>
+      </div>
+      <h3 style="color: #f2ca50; font-size: 1.15rem; margin: 2rem 0 1rem 0; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid rgba(242, 202, 80, 0.2); padding-bottom: 0.5rem;">
+        <span class="material-symbols-outlined" style="font-size: 22px;">toc</span>
+        제3권 핵심 수록 주제 및 통변 체계
+      </h3>
+      <ul style="color: #cbd5e1; line-height: 1.8; margin-bottom: 2rem;">
+        <li><strong>제1부 합(合)의 미학</strong>: 천간 5합(갑기, 을경, 병신, 정임, 무계), 지지 육합과 삼합(해묘미, 인오술, 사유축, 신자진), 방합의 세력 분석</li>
+        <li><strong>제2부 충(沖)·형(刑)·파(破)·해(害)</strong>: 지지 육충의 개고(開庫)와 붕괴, 축술미 삼형·인사신 삼형의 조정과 수술·관재구설 방어</li>
+        <li><strong>제3부 12운성(포태법)과 핵심 신살</strong>: 장생부터 묘·절까지 에너지 파동 12단계 및 백호대살, 괴강살, 화개살, 도화살, 역마살 실전 검증</li>
+      </ul>
+    </div>
+  `
+};
+
+export const SAJU_BOOK_VOL4_PRODUCT: StoreProduct = {
+  id: 'book-saju-principles-vol4',
+  title: '[전자책] 정통 사주명리학 원론 제4권: 대운·세운 추명과 실전 통변 사례집',
+  category: 'ebook',
+  price: 29000,
+  originalPrice: 45000,
+  tagLine: '10년 대운과 1년 세운·월운의 타이밍 포착, 부·귀·빈·천과 재물·직업·결혼 실전 통변 50대 실사례 완결판',
+  badge: '정통 명저 · 4권',
+  summary: '10년 단위 대운의 방향성과 1년 세운의 사건 발생 시기를 예측하는 추명 공식, 현대인의 재물 증식, 이직·창업, 혼인·갈등 실전 간명 50대 사례를 총망라한 마스터북 완결편 제4권입니다.',
+  description: '명리학의 궁극적 목표는 다가오는 운(運)의 파도를 읽고 최적의 결정을 내리는 추명(推命)에 있습니다. 『정통 사주명리학 원론 제4권』은 대운수 산출과 교운기(交運期)의 심리·환경 변동, 세운과 원국의 천간·지지 감응 법칙을 완벽히 정립합니다. 또한 사업의 성패, 주식·부동산 매매 시기, 직장 내 승진과 이직, 부부 화합과 갈등, 건강 질환 발생 시기 등을 실제 간명 차트 50선과 함께 한눈에 입증하는 실전 통변의 결정판입니다.',
+  thumbnailUrl: '/images/store/saju-vol4-cover.jpg',
+  thumbnailIcon: 'analytics',
+  galleryImages: [
+    '/images/store/saju-vol4-cover.jpg',
+    '/images/store/saju-vol1-elements.jpg',
+    '/images/store/saju-vol1-study.jpg'
+  ],
+  detailImages: [
+    '/images/store/saju-vol4-cover.jpg',
+    '/images/store/saju-vol1-elements.jpg',
+    '/images/store/saju-vol1-study.jpg'
+  ],
+  deliveryType: 'digital_download',
+  contentPayload: '/assets/downloads/saju_principles_vol4_master.pdf',
+  targetSignals: ['future.planning', 'career.change', 'wealth.growth'],
+  status: 'active',
+  createdAt: '2026-10-25',
+  salesCount: 167,
+  options: [
+    {
+      id: 'opt-vol4-pdf',
+      name: '[기본형] 전자책(PDF) 마스터 판본 (즉시 다운로드)',
+      price: 29000,
+      originalPrice: 45000,
+      deliveryType: 'digital_download',
+      description: '제4권 대운세운 추명 및 실전 50대 통변 사례집 PDF 다운로드 & 영구 소장'
+    },
+    {
+      id: 'opt-vol4-pdf-art',
+      name: '[소장형] 전자책(PDF) + 실전 50대 명식 해설집 아카이브',
+      price: 35000,
+      originalPrice: 55000,
+      deliveryType: 'digital_download',
+      description: '전자책 PDF + 현대 재물·직업·혼인 50대 대표 간명록 디지털 고화질 아카이브'
+    },
+    {
+      id: 'opt-vol4-hardcover',
+      name: '[프리미엄 패키지] 전자책(PDF) + 실물 고급 양장본 서적 (무료 배송)',
+      price: 48000,
+      originalPrice: 75000,
+      deliveryType: 'shipping',
+      description: '전자책 즉시 열람 + 제4권 소장용 실물 양장 하드커버 서적 무료 택배 배송'
+    }
+  ],
+  detailsHtml: `
+    <div class="saju-book-detail" style="color: #e2e8f0; font-size: 0.92rem; line-height: 1.75;">
+      <div style="background: linear-gradient(135deg, rgba(242, 202, 80, 0.12), rgba(15, 23, 42, 0.8)); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; align-items: center; gap: 0.6rem; color: #f2ca50; font-weight: 700; font-size: 1.05rem; margin-bottom: 0.6rem;">
+          <span class="material-symbols-outlined" style="font-size: 24px;">analytics</span>
+          마보살 명리학 디지털 아카이브 • 정통 원론 제4권 완결본 (실전 통변편)
+        </div>
+        <p style="margin: 0 0 1rem 0; color: #cbd5e1; font-size: 0.9rem;">
+          원국(사주팔자)이 자동차라면, 대운(大運)은 도로의 상태이고 세운(歲運)은 마주치는 기상천후입니다. 때를 알고 나아가고 물러서는 추명학의 정수를 전수합니다.
+        </p>
+      </div>
+      <h3 style="color: #f2ca50; font-size: 1.15rem; margin: 2rem 0 1rem 0; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid rgba(242, 202, 80, 0.2); padding-bottom: 0.5rem;">
+        <span class="material-symbols-outlined" style="font-size: 22px;">toc</span>
+        제4권 핵심 수록 주제 및 실전 50대 간명 체계
+      </h3>
+      <ul style="color: #cbd5e1; line-height: 1.8; margin-bottom: 2rem;">
+        <li><strong>제1부 대운(大運)과 세운(歲運)의 감응 법칙</strong>: 10년 대운 천간·지지 작용 시기(천간 5년, 지지 5년 vs 지지 중심설), 교운기 3대 징후</li>
+        <li><strong>제2부 세운(歲運)·월운(月運)의 사건 포착</strong>: 세운 천간이 일간을 극할 때, 세운 지지가 일지·월지를 충할 때 일어나는 실질적 현실 사건</li>
+        <li><strong>제3부 현대 실전 통변 50대 사례집</strong>: 사업 대박과 파산의 분기점, 공직·전문직 합격 명식, 이혼과 재혼의 타이밍, 급성 질환 발생 시기 실증 분석</li>
+      </ul>
+    </div>
+  `
+};

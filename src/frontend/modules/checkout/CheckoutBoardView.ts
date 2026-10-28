@@ -372,7 +372,7 @@ export function renderCheckoutBoardView(): string {
               ${!PaymentConfigStore.isCardEnabled() ? `
                 <div style="margin-top: 0.85rem; background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 8px; padding: 0.65rem 0.85rem; font-size: 0.78rem; color: #cbd5e1; display: flex; align-items: center; gap: 0.4rem;">
                   <span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary);">info</span>
-                  <span>현재 카드사 및 간편결제 연동 심사 준비 중으로, <strong>[무통장 입금]</strong>으로 안전하게 주문 접수 후 입금 확인 즉시 처리해 드립니다.</span>
+                  <span>현재 포트원(PortOne) 전자결제(신용카드/카카오페이/토스페이) 가맹 심사 준비 중으로, <strong>[무통장 입금]</strong>으로 안전하게 주문 접수 후 입금 확인 즉시 처리해 드립니다.</span>
                 </div>
               ` : ''}
             </div>
@@ -397,12 +397,23 @@ export function renderCheckoutBoardView(): string {
                   </label>
                   <label style="display: flex; align-items: flex-start; gap: 0.4rem; cursor: pointer;">
                     <input type="checkbox" class="term-sub-check" required checked style="width: 15px; height: 15px; margin-top: 2px; accent-color: var(--primary);" />
-                    <span>[필수] 개인정보 수집 및 결제 대행을 위한 제3자 제공 동의</span>
+                    <span>[필수] 개인정보 수집·이용 및 결제 처리 위탁 동의 (결제 연동 수탁사: (주)코리아포트원)</span>
                   </label>
                   <label style="display: flex; align-items: flex-start; gap: 0.4rem; cursor: pointer;">
                     <input type="checkbox" class="term-sub-check" required checked style="width: 15px; height: 15px; margin-top: 2px; accent-color: var(--primary);" />
-                    <span>[필수] 디지털 컨텐츠 특성상 열람/다운로드 즉시 전자상거래법에 따라 청약철회(환불)가 제한됨을 확인하였습니다.</span>
+                    <span>[필수] 취소 및 환불 규정 동의 (디지털 콘텐츠는 다운로드/열람 즉시 청약철회가 제한되며, 실물 배송 상품은 수령 후 7일 이내 환불 가능·단순 변심 시 왕복 배송비 6,000원 부담)</span>
                   </label>
+                </div>
+
+                <!-- 전자상거래법 및 개인정보보호법 법정 필수 고지 -->
+                <div style="margin-top: 0.5rem; padding: 0.75rem 0.85rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; font-size: 0.75rem; color: #94a3b8; line-height: 1.5;">
+                  <div style="color: #cbd5e1; font-weight: 700; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.3rem;">
+                    <span class="material-symbols-outlined" style="font-size: 15px; color: var(--primary);">verified_user</span>
+                    <span>전자상거래법 및 개인정보보호법에 따른 법정 고지</span>
+                  </div>
+                  <p style="margin: 0 0 0.25rem 0;">• <strong>결제 연동 및 개인정보 처리위탁 고지</strong>: 안전한 전자결제 서비스(신용카드, 간편결제 등) 제공 및 결제 중계를 위해 결제 연동 업무는 개인정보 처리 수탁사인 <strong>(주)코리아포트원</strong>에 위탁하여 처리됩니다. (개인정보 보호법 제26조)</p>
+                  <p style="margin: 0 0 0.25rem 0;">• <strong>미성년자 계약 취소권</strong>: 미성년자가 법정대리인의 동의 없이 체결한 계약은 본인 또는 법정대리인이 취소할 수 있습니다. (전자상거래 등에서의 소비자보호에 관한 법률 제13조 제3항)</p>
+                  <p style="margin: 0;">• <strong>고객센터/환불문의</strong>: <strong>051-208-8746</strong> (운영시간: 평일 10:00~18:00 / 이메일: anbtiteam@gmail.com)</p>
                 </div>
               </div>
             </div>

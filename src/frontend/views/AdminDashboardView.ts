@@ -221,7 +221,7 @@ export function renderAdminDashboardView(): string {
         <div>
           <div style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 800; color: #dfe2f1; line-height: 1.15; display: flex; align-items: center; gap: 0.45rem;">
             마보살 관리자
-            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v1.8.2</span>
+            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v1.8.3</span>
           </div>
           <div style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.05em;">ADMIN CONTROL TOWER</div>
         </div>
@@ -446,6 +446,22 @@ export function renderAdminDashboardView(): string {
                     <div>
                       <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">사업장 소재지 (주소)</label>
                       <input type="text" id="input-cms-footer-address" value="${cms.footer.address || '부산광역시 사하구 하신번영로 328, 302호 (하단동)'}" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem;" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">대표 전화번호</label>
+                      <input type="text" id="input-cms-footer-phone" value="${cms.footer.phone || '051-208-8746'}" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem;" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">대표 이메일</label>
+                      <input type="email" id="input-cms-footer-email" value="${cms.footer.email || 'anbtiteam@gmail.com'}" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem;" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">개인정보보호책임자(CPO)</label>
+                      <input type="text" id="input-cms-footer-cpo" value="${cms.footer.cpoName || '박경민'}" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem;" />
+                    </div>
+                    <div>
+                      <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">호스팅 서비스 제공자</label>
+                      <input type="text" id="input-cms-footer-hosting" value="${cms.footer.hostingProvider || '마보살 클라우드 (Vercel & Supabase)'}" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #dfe2f1; font-size: 0.85rem;" />
                     </div>
                     <div>
                       <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">고객센터 연락처 및 운영시간</label>

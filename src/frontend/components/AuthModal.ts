@@ -61,9 +61,6 @@ export function renderAuthModal(): string {
  <button type="button" class="btn-preset-login" data-user="partner1" data-pass="1234" style="background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.3); color: #f2ca50; font-size: 0.72rem; padding: 0.25rem 0.5rem; border-radius: 6px; cursor: pointer;">
  파트너 (partner1)
  </button>
- <button type="button" class="btn-preset-login" data-user="admin" data-pass="admin1234" style="background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3); color: #f87171; font-size: 0.72rem; padding: 0.25rem 0.5rem; border-radius: 6px; cursor: pointer;">
- ️ 관리자 (admin)
- </button>
  </div>
  </div>
 

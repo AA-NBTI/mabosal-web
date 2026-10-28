@@ -13,7 +13,12 @@ import type { StoreCategory, StoreCategoryType, StoreOrder, StoreProduct } from 
 import { UserSajuStore } from '../../state/user-saju-store.js';
 import { getIdentity, ownsRecord } from '../../modules/identity/index.js';
 import { getStorage } from '../../modules/persistence/index.js';
-import { SAJU_BOOK_VOL1_PRODUCT } from './saju-book-data.js';
+import {
+  SAJU_BOOK_VOL1_PRODUCT,
+  SAJU_BOOK_VOL2_PRODUCT,
+  SAJU_BOOK_VOL3_PRODUCT,
+  SAJU_BOOK_VOL4_PRODUCT
+} from './saju-book-data.js';
 import { VoucherStore } from '../../modules/voucher/voucher-store.js';
 
 const STORAGE_PRODUCTS_KEY = 'mabosal_store_products_v6';
@@ -135,8 +140,11 @@ export function deleteStoreCategory(id: string): { success: boolean; message: st
 export const STORE_CATEGORIES: StoreCategory[] = INITIAL_STORE_CATEGORIES;
 
 export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
-  // [정통 사주명리학 원론 제1권: 음양오행과 간지 원론 (정식 마스터북)]
+  // [정통 사주명리학 원론 시리즈 제1권 ~ 제4권 (정식 마스터북 개별 상품)]
   SAJU_BOOK_VOL1_PRODUCT,
+  SAJU_BOOK_VOL2_PRODUCT,
+  SAJU_BOOK_VOL3_PRODUCT,
+  SAJU_BOOK_VOL4_PRODUCT,
 
   // [상품권 1. 마보살 50,000원 VIP 기프트 상품권]
   {
