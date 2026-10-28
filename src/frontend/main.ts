@@ -1,5 +1,6 @@
 import { OrderAuthGuard } from './modules/order/order-auth-guard.js';
-import { PaymentService } from './modules/payment/payment-service.js';
+import { PaymentService, PortOneGateway } from './modules/payment/payment-service.js';
+import { updateStoreOrder } from './extensions/commerce-store/store-service.js';
 import { savePaymentConfigFromDom } from './modules/payment/AdminPaymentPanel.js';
 import { VoucherStore } from './modules/voucher/voucher-store.js';
 import { renderMagiCalendarView } from './views/MagiCalendarView.js';
@@ -5056,6 +5057,55 @@ ${content}
         bankRadio.focus();
       }
       return;
+    }
+
+    // 카드 · 간편결제(포트원 V2) 선택 시 실제 결제창(모달) 호출
+    if (checkoutRes.order && (selectedPayMethod === 'card' || selectedPayMethod === 'kakaopay' || selectedPayMethod === 'tosspay') && checkoutRes.order.amount > 0) {
+      const pCfg = PaymentConfigStore.get();
+      if (submitBtn) {
+        submitBtn.textContent = '결제창 로딩 중...';
+      }
+      try {
+        const response = await PortOneGateway.requestPayment(
+          { storeId: pCfg.storeId, channelKey: pCfg.channelKey },
+          {
+            orderId: checkoutRes.order.orderId,
+            orderName: checkoutRes.order.productTitle,
+            amount: checkoutRes.order.amount,
+            buyerName: checkoutRes.order.buyerName,
+            buyerPhone: checkoutRes.order.buyerPhone,
+            buyerEmail: checkoutRes.order.buyerEmail,
+            payMethod: selectedPayMethod === 'kakaopay' ? 'EASY_PAY' : 'CARD',
+          }
+        );
+
+        if (response && response.code != null) {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '결제하기';
+          }
+          if (response.code === 'FAILURE_TYPE_PG' && (response.message?.includes('취소') || response.message?.includes('사용자'))) {
+            alert('결제를 취소하셨습니다.');
+          } else {
+            alert(response.message || `결제 승인 실패 (${response.code})`);
+          }
+          return;
+        }
+
+        // 결제 성공! 주문 상태 completed로 변경
+        updateStoreOrder(checkoutRes.order.orderId, {
+          status: 'completed',
+          paymentKey: response?.paymentId || checkoutRes.order.orderId,
+        });
+        checkoutRes.order.status = 'completed';
+      } catch (err: any) {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '결제하기';
+        }
+        alert('전자결제 연동 중 오류가 발생했습니다: ' + (err?.message || err));
+        return;
+      }
     }
 
     // 회원 기본 배송지 주소록 저장 체크 시 자동 등록

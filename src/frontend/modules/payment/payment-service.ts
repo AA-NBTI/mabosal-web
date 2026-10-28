@@ -67,7 +67,7 @@ function generateOrderId(): string {
 }
 
 /** 포트원(PortOne V2) SDK 브라우저 어댑터 */
-class PortOneGateway {
+export class PortOneGateway {
   static loadSdk(): Promise<any> {
     const w = window as any;
     if (w.PortOne) return Promise.resolve(w.PortOne);
@@ -84,7 +84,18 @@ class PortOneGateway {
     });
   }
 
-  static async requestPayment(cfg: { storeId: string; channelKey: string }, d: PaymentDraft): Promise<any> {
+  static async requestPayment(
+    cfg: { storeId: string; channelKey: string },
+    d: {
+      orderId: string;
+      orderName: string;
+      amount: number;
+      buyerName: string;
+      buyerPhone: string;
+      buyerEmail: string;
+      payMethod?: string;
+    }
+  ): Promise<any> {
     const PortOne = await PortOneGateway.loadSdk();
     const base = window.location.origin + window.location.pathname;
 
@@ -95,11 +106,11 @@ class PortOneGateway {
       orderName: d.orderName.slice(0, 100),
       totalAmount: d.amount,
       currency: 'CURRENCY_KRW',
-      payMethod: 'CARD',
+      payMethod: (d.payMethod === 'EASY_PAY' ? 'EASY_PAY' : 'CARD'),
       customer: {
-        fullName: d.buyerName,
-        phoneNumber: d.buyerPhone.replace(/[^0-9]/g, ''),
-        email: d.buyerEmail,
+        fullName: d.buyerName || '구매자',
+        phoneNumber: (d.buyerPhone || '010-0000-0000').replace(/[^0-9]/g, '') || '01000000000',
+        email: d.buyerEmail || 'customer@mabosal.com',
       },
       redirectUrl: `${base}?view=store&payment=success&orderId=${d.orderId}`,
     });

@@ -21,13 +21,13 @@ export interface PaymentConfig {
   confirmEndpoint: string;
 }
 
-const STORAGE_KEY = 'mabosal_portone_payment_config_v2';
+const STORAGE_KEY = 'mabosal_portone_payment_config_v3';
 
 const DEFAULT_CONFIG: PaymentConfig = {
-  mode: 'bank_only',
-  storeId: '',
-  channelKey: '',
-  clientKey: '',
+  mode: 'portone_test',
+  storeId: 'store-b7716cf1-fcc2-4b13-b637-868cee1e7d6d',
+  channelKey: 'channel-key-0a515c8c-73dd-459c-8d57-b87df29ca0d5',
+  clientKey: 'store-b7716cf1-fcc2-4b13-b637-868cee1e7d6d',
   confirmEndpoint: '',
 };
 
