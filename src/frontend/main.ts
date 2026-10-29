@@ -3940,17 +3940,8 @@ ${content}
           const savedProf = UserSajuStore.getProfile(currentUser.username || currentUser.id);
 
           if (prod.deliveryType === 'saju_report' || prod.category === 'report') {
-            const targetChoice = (document.querySelector('input[name="saju-target-choice"]:checked') as HTMLInputElement)?.value;
             if (!savedProf) {
-              alert('정밀 사주 분석 리포트를 구매하시려면 먼저 사주 정보(성별·생년월일시)를 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
-              sessionStorage.setItem('mabosal_pending_saju_product', prod.id);
-              appState.setView('analyze');
-              this.render(appState.getState());
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-              return;
-            }
-            if (targetChoice === 'custom') {
-              alert('선물하실 대상자의 사주 정보(성별·생년월일시)를 먼저 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
+              alert('정밀 사주 분석 리포트를 구매하시려면 먼저 사주 정보를 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
               sessionStorage.setItem('mabosal_pending_saju_product', prod.id);
               appState.setView('analyze');
               this.render(appState.getState());
@@ -5012,13 +5003,7 @@ ${content}
 
  // 입력 변경 이벤트 (사주 대상자 선택 라디오 토글, 상품 옵션 변경, 배송지 선택 등)
  this.rootEl.addEventListener('change', (e) => {
-   const targetInput = e.target as HTMLInputElement;
-   if (targetInput?.name === 'saju-target-choice') {
-     const customDiv = document.getElementById('custom-saju-input-fields');
-     if (customDiv) {
-       customDiv.style.display = targetInput.value === 'custom' ? 'block' : 'none';
-     }
-   }
+   
 
    const targetSelect = e.target as HTMLSelectElement;
    if (targetSelect?.id === 'store-product-option-select') {
@@ -5309,17 +5294,8 @@ ${content}
         const savedProf = UserSajuStore.getProfile(currentUser.username || currentUser.id);
 
         if (prod.deliveryType === 'saju_report' || prod.category === 'report') {
-          const targetChoice = (form.querySelector('input[name="saju-target-choice"]:checked') as HTMLInputElement)?.value;
           if (!savedProf) {
-            alert('정밀 사주 분석 리포트를 구매하시려면 먼저 사주 정보(성별·생년월일시)를 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
-            sessionStorage.setItem('mabosal_pending_saju_product', prod.id);
-            appState.setView('analyze');
-            this.render(appState.getState());
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return;
-          }
-          if (targetChoice === 'custom') {
-            alert('선물하실 대상자의 사주 정보(성별·생년월일시)를 먼저 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
+            alert('정밀 사주 분석 리포트를 구매하시려면 먼저 사주 정보를 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
             sessionStorage.setItem('mabosal_pending_saju_product', prod.id);
             appState.setView('analyze');
             this.render(appState.getState());
