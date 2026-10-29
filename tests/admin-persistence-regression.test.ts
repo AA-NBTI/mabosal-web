@@ -55,5 +55,13 @@ describe('관리자 삭제/상태 유지 회귀', () => {
       expect(p?.status).toBe('hidden');
     }
   });
+
+  it('파트너 수수료율 및 상태 수정 후 올바르게 유지된다', () => {
+    const target = Object.keys(PartnerTracker.getAllPartners())[0];
+    PartnerTracker.updatePartnerCommission(target, 0.45, 'active');
+    const stats = PartnerTracker.getPartnerStats(target);
+    expect(stats.commissionRate).toBe(0.45);
+    expect(stats.status).toBe('active');
+  });
 });
 

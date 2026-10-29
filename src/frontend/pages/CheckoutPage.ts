@@ -6,4 +6,11 @@ export const CheckoutPage: PageModule = {
   render(_ctx: PageContext): string {
     return renderCheckoutBoardView();
   },
+  onMount(outletEl: HTMLElement): void {
+    const couponInput = outletEl.querySelector('#checkout-coupon-code') as HTMLInputElement | null;
+    const applyBtn = outletEl.querySelector('#btn-apply-coupon') as HTMLElement | null;
+    if (couponInput && couponInput.value.trim() && applyBtn) {
+      applyBtn.click();
+    }
+  },
 };

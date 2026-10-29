@@ -321,7 +321,7 @@ export function renderCheckoutBoardView(): string {
                     쿠폰 코드 직접 입력
                   </label>
                   <div style="display: flex; gap: 0.5rem;">
-                    <input type="text" id="checkout-coupon-code" placeholder="보유하신 쿠폰 코드가 있으시면 입력해 주세요" style="flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem; color: #fff; font-size: 0.88rem; text-transform: uppercase;" />
+                    <input type="text" id="checkout-coupon-code" value="${esc(typeof sessionStorage !== 'undefined' ? (sessionStorage.getItem('mabosal_applied_coupon') || '') : '')}" placeholder="보유하신 쿠폰 코드가 있으시면 입력해 주세요" style="flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem; color: #fff; font-size: 0.88rem; text-transform: uppercase;" />
                     <button type="button" id="btn-apply-coupon" style="background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); font-weight: 700; border-radius: 8px; padding: 0 1.25rem; cursor: pointer; white-space: nowrap;">
                       코드 확인
                     </button>

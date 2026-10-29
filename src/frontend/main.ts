@@ -2916,6 +2916,73 @@ ${content}
    return;
  }
 
+ // 관리자: 파트너 개별 수수료율 및 상태 저장
+ const savePartnerRateBtn = target.closest('.btn-save-partner-rate') as HTMLElement | null;
+ if (savePartnerRateBtn) {
+   const code = savePartnerRateBtn.dataset.partner;
+   if (code) {
+     const card = savePartnerRateBtn.closest('.partner-admin-card') as HTMLElement | null;
+     const statusSelect = card?.querySelector('.partner-status-select') as HTMLSelectElement | null;
+     const rateInput = card?.querySelector('.partner-rate-input') as HTMLInputElement | null;
+     const status = (statusSelect?.value as 'active' | 'inactive') || 'inactive';
+     const ratePercent = parseFloat(rateInput?.value || '0');
+     const rate = Math.max(0, Math.min(100, isNaN(ratePercent) ? 0 : ratePercent)) / 100;
+
+     PartnerTracker.updatePartnerCommission(code, rate, status);
+     alert(`[파트너 설정 완료]\n\n파트너 '${code}'의 수수료율이 ${(rate * 100).toFixed(0)}%, 상태가 '${status === 'active' ? '개별 수수료 지급 승인' : '미제공'}'으로 저장되었습니다.`);
+     this.render(appState.getState());
+   }
+   return;
+ }
+
+ // 파트너 포털: 메인 홈으로 돌아가기 버튼
+ if (target.closest('#btn-back-to-home')) {
+   navigateTo('/');
+   return;
+ }
+
+ // 파트너 포털: 파트너 고유 링크 복사
+ if (target.closest('#btn-copy-partner-url')) {
+   const input = document.getElementById('input-partner-url') as HTMLInputElement | null;
+   if (input && input.value) {
+     if (navigator.clipboard) {
+       navigator.clipboard.writeText(input.value).then(() => {
+         alert('파트너 추천 링크가 클립보드에 복사되었습니다.');
+       }).catch(() => {
+         input.select();
+         document.execCommand('copy');
+         alert('파트너 추천 링크가 클립보드에 복사되었습니다.');
+       });
+     } else {
+       input.select();
+       document.execCommand('copy');
+       alert('파트너 추천 링크가 클립보드에 복사되었습니다.');
+     }
+   }
+   return;
+ }
+
+ // 스토어 바우처 발급 완료 코드 복사
+ if (target.closest('#btn-copy-issued-voucher')) {
+   const input = document.getElementById('issued-voucher-code-input') as HTMLInputElement | null;
+   if (input && input.value) {
+     if (navigator.clipboard) {
+       navigator.clipboard.writeText(input.value).then(() => {
+         alert(`[바우처 코드 복사 완료]\n\n코드: ${input.value}\n클립보드에 복사되었습니다. 결제 시 쿠폰 코드 란에 입력하여 사용하세요.`);
+       }).catch(() => {
+         input.select();
+         document.execCommand('copy');
+         alert(`[바우처 코드 복사 완료]\n\n코드: ${input.value}`);
+       });
+     } else {
+       input.select();
+       document.execCommand('copy');
+       alert(`[바우처 코드 복사 완료]\n\n코드: ${input.value}`);
+     }
+   }
+   return;
+ }
+
  // 0-A. PC 모드 카테고리 네비게이션 바 클릭
  if (target.closest('#pc-nav-home')) {
  navigateTo('/');
