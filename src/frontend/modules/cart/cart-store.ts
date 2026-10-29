@@ -48,13 +48,14 @@ export class CartStore {
     selectedOption?: { id?: string; name: string; price?: number; originalPrice?: number; deliveryType?: any }
   ): CartItem {
     const items = this.getItems();
-    const sajuSnap = sajuProfile || UserSajuStore.getProfileOrDefault();
+    const isSajuReport = product.deliveryType === 'saju_report' || product.category === 'report';
+    const sajuSnap = isSajuReport ? (sajuProfile || UserSajuStore.getProfileOrDefault()) : undefined;
     const optName = selectedOption?.name;
 
-    // 동일 상품 & 동일 사주 대상자명 & 동일 옵션인 경우 수량 증가
+    // 동일 상품 & 동일 사주 대상자명(리포트인 경우) & 동일 옵션인 경우 수량 증가
     const existingIndex = items.findIndex(
       it => it.productId === product.id &&
-            it.sajuSnapshot.userName === sajuSnap.userName &&
+            (it.sajuSnapshot?.userName === sajuSnap?.userName) &&
             it.selectedOptionName === optName
     );
 
@@ -183,11 +184,16 @@ export class CartStore {
   }
 
   /**
-   * 장바구니 합계 요약 (선택된 상품 기준, 스마트 배송비 계산)
+   * 장바구니 합계 요약 (선택된 판매 가능 상품 기준, 스마트 배송비 계산)
    */
   public static getSummary(): CartSummary {
     const all = this.getItems();
-    const selected = all.filter(it => it.selected);
+    const selected = all.filter(it => {
+      if (!it.selected) return false;
+      const prod = getStoreProductById(it.productId);
+      const isUnavailable = prod && (prod.status === 'hidden' || prod.status === 'soldout');
+      return !isUnavailable;
+    });
 
     const totalItemsCount = all.reduce((sum, it) => sum + it.quantity, 0);
     const selectedItemsCount = selected.reduce((sum, it) => sum + it.quantity, 0);

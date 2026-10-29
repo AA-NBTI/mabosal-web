@@ -138,9 +138,9 @@ export function renderCheckoutBoardView(): string {
                       ` : ''}
                       <div style="font-size: 0.78rem; color: #94a3b8; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                         <span>단가: ₩ ${it.price.toLocaleString()}</span>
-                        ${it.sajuSnapshot ? `
+                        ${(it.deliveryType === 'saju_report' || it.category === 'report') ? `
                           <span>•</span>
-                          <span style="color: var(--primary);">사주 대상: ${esc(it.sajuSnapshot.userName || '의뢰인')} (${it.sajuSnapshot.solarBirthDate})</span>
+                          <span style="color: #4ade80; font-weight: 700;">사주 분석 대상: 등록 완료</span>
                         ` : ''}
                       </div>
                     </div>

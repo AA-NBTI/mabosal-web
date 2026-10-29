@@ -42,11 +42,11 @@ export function renderCartBoardView(): string {
 
   const items = CartStore.getItems();
   const summary = CartStore.getSummary();
-  const isAllSelected = items.length > 0 && items.every(it => it.selected);
-  const hasUnavailableItems = items.some(it => {
+  const availableItems = items.filter(it => {
     const p = getStoreProductById(it.productId);
-    return p && (p.status === 'hidden' || p.status === 'soldout');
+    return !p || (p.status !== 'hidden' && p.status !== 'soldout');
   });
+  const isAllSelected = availableItems.length > 0 && availableItems.every(it => it.selected);
 
   if (items.length === 0) {
     return `
@@ -131,19 +131,13 @@ export function renderCartBoardView(): string {
 
         <!-- 좌측: 장바구니 컨트롤 바 & 상품 목록 -->
         <div>
-          <!-- 일괄 제어 바 (전체선택 / 선택삭제 / 판매불가정리) -->
+          <!-- 일괄 제어 바 (전체선택 / 선택삭제) -->
           <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
             <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: #fff; font-size: 0.9rem; font-weight: 700;">
               <input type="checkbox" id="cart-check-all" ${isAllSelected ? 'checked' : ''} style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer;" />
               전체 선택 (${summary.selectedItemsCount}/${summary.totalItemsCount})
             </label>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
-              ${hasUnavailableItems ? `
-                <button type="button" id="btn-cart-delete-unavailable" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 6px; color: #f87171; font-size: 0.8rem; padding: 0.35rem 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;" title="종료 또는 품절된 상품을 장바구니에서 일괄 삭제합니다.">
-                  <span class="material-symbols-outlined" style="font-size: 16px;">remove_shopping_cart</span>
-                  판매 불가 상품 정리
-                </button>
-              ` : ''}
               <button type="button" id="btn-cart-delete-selected" style="background: none; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #cbd5e1; font-size: 0.8rem; padding: 0.35rem 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
                 <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
                 선택 삭제
@@ -156,6 +150,7 @@ export function renderCartBoardView(): string {
             ${items.map(it => {
               const itemTotal = it.price * it.quantity;
               const isPhysical = it.deliveryType === 'shipping' || it.category === 'goods';
+              const isSajuReport = it.deliveryType === 'saju_report' || it.category === 'report';
               const liveProd = getStoreProductById(it.productId);
               const isHidden = liveProd?.status === 'hidden';
               const isSoldOut = liveProd?.status === 'soldout';
@@ -210,15 +205,15 @@ export function renderCartBoardView(): string {
                       ${isUnavailable ? `
                         <div style="font-size: 0.78rem; color: #f87171; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 6px; padding: 0.4rem 0.65rem; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.35rem;">
                           <span class="material-symbols-outlined" style="font-size: 15px;">info</span>
-                          <span>관리자에 의해 ${isHidden ? '숨김(판매 중단)' : '품절'} 처리된 상품입니다. 결제할 수 없으므로 장바구니에서 삭제해 주세요.</span>
+                          <span>종료된 상품입니다.</span>
                         </div>
                       ` : ''}
 
-                      <!-- 사주 분석 대상자 스냅샷 배지 -->
-                      ${!isPhysical && it.sajuSnapshot ? `
-                        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.35rem 0.65rem; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: #cbd5e1; margin-top: 0.2rem;">
-                          <span class="material-symbols-outlined" style="font-size: 14px; color: var(--primary);">person</span>
-                          <span>사주 대상: <strong style="color: #fff;">${esc(it.sajuSnapshot.userName || '의뢰인')}</strong> (${it.sajuSnapshot.solarBirthDate || '생년월일 미상'}${it.sajuSnapshot.gender === 'female' ? ' · 여' : ' · 남'})</span>
+                      <!-- 사주 분석 대상자 스냅샷 배지 (사주 리포트 상품 전용, 개인정보 비노출) -->
+                      ${isSajuReport ? `
+                        <div style="background: rgba(242, 202, 80, 0.05); border: 1px solid rgba(242, 202, 80, 0.2); border-radius: 6px; padding: 0.25rem 0.55rem; display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.76rem; color: #cbd5e1; margin-top: 0.2rem;">
+                          <span class="material-symbols-outlined" style="font-size: 14px; color: var(--primary);">psychology</span>
+                          <span>사주 분석 대상: <span style="color: #4ade80; font-weight: 700;">등록 완료</span></span>
                         </div>
                       ` : ''}
                     </div>
@@ -309,12 +304,6 @@ export function renderCartBoardView(): string {
             <button type="button" id="btn-proceed-to-checkout" ${summary.selectedItemsCount === 0 ? 'disabled' : ''} style="width: 100%; background: ${summary.selectedItemsCount > 0 ? 'var(--primary)' : 'rgba(255,255,255,0.15)'}; color: ${summary.selectedItemsCount > 0 ? '#0f131d' : 'var(--text-muted)'}; border: none; border-radius: 12px; padding: 1rem; font-size: 1.05rem; font-weight: 800; cursor: ${summary.selectedItemsCount > 0 ? 'pointer' : 'not-allowed'}; box-shadow: ${summary.selectedItemsCount > 0 ? '0 4px 18px rgba(242, 202, 80, 0.35)' : 'none'}; transition: all 0.2s ease;">
               총 ${summary.selectedItemsCount}건 주문서 작성하기 →
             </button>
-
-            <!-- 안심 안내 -->
-            <div style="margin-top: 1rem; text-align: center; font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;">
-              <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle; color: var(--primary);">verified_user</span>
-              개인 사주 정보 암호화 보존 &amp; 안전 결제 보장
-            </div>
           </div>
         </div>
 

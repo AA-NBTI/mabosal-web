@@ -56,13 +56,13 @@ export function renderCartModal(): string {
                   </div>
                   ${isUnavailable ? `
                     <div style="font-size: 0.72rem; color: #f87171; margin-top: 0.2rem;">
-                      ${isHidden ? '현재 판매가 종료된 상품입니다.' : '현재 품절된 상품입니다.'}
+                      종료된 상품입니다.
                     </div>
                   ` : ''}
-                  ${item.deliveryType === 'saju_report' && item.sajuSnapshot ? `
-                    <div style="font-size: 0.72rem; color: #38bdf8; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.25rem;">
-                      <span class="material-symbols-outlined" style="font-size: 14px;">person</span>
-                      분석 대상: ${item.sajuSnapshot.userName} 님 (${item.sajuSnapshot.solarBirthDate})
+                  ${(item.deliveryType === 'saju_report' || item.category === 'report') ? `
+                    <div style="font-size: 0.72rem; color: #4ade80; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.25rem; font-weight: 700;">
+                      <span class="material-symbols-outlined" style="font-size: 14px;">psychology</span>
+                      사주 분석 대상: 등록 완료
                     </div>
                   ` : ''}
                   ${item.deliveryType === 'shipping' ? `
