@@ -521,6 +521,18 @@ class MabosalApp {
       // 스토어 이외의 화면으로 뒤로가기 시 열려있던 스토어 모달 상태 닫기 (pushState 방지)
       if (targetView !== 'store') {
         selectStoreProduct(null, false);
+      } else {
+        // [스토어 내부 뒤로가기/앞으로가기] URL의 product 쿼리 파라미터를 읽어 메모리 선택 상태와 즉시 동기화
+        const prodParam = parsed.params.product || null;
+        selectStoreProduct(prodParam, false);
+      }
+
+      // 스터디 뷰 뒤로가기/앞으로가기 아티클 파라미터 동기화
+      if (targetView !== 'study') {
+        selectStudyArticle(null, false);
+      } else {
+        const articleParam = parsed.params.article || null;
+        selectStudyArticle(articleParam, false);
       }
 
       if (targetView === 'loading') {
@@ -1675,8 +1687,13 @@ ${content}
 
     // [스토어] 목록으로 돌아가기 버튼
     if (target.closest('.btn-back-to-store-list') || target.closest('#btn-store-back-to-list')) {
-      selectStoreProduct(null);
-      this.render(appState.getState());
+      setLastStoreOrder(null);
+      if (typeof window !== 'undefined' && window.history.state?.product) {
+        window.history.back();
+      } else {
+        selectStoreProduct(null);
+        this.render(appState.getState());
+      }
       return;
     }
 
