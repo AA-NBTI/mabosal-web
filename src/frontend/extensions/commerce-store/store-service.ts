@@ -797,6 +797,9 @@ export function getAllStoreProducts(): StoreProduct[] {
       }
     }
     // [4대 정밀 감정 & 5대 특화 운세 리포트 상품 상태 및 타이틀 동기화]
+    // 1회성 마이그레이션: 이후에는 관리자가 변경한 상태(숨김/품절)와 타이틀을 매 조회마다 덮어쓰지 않는다.
+    const MIGRATION_FLAG_KEY = 'mabosal_store_report_sync_v190';
+    const needsReportSync = localStorage.getItem(MIGRATION_FLAG_KEY) !== 'done';
     const targetReportTitles: Record<string, string> = {
       'prod-free-experience': '무료진단: 마보살 기초 원국 & 13개 체험 분석',
       'prod-paid-saju-premium': '정통사주: 평생 대운 & 18개 정밀 심층 리포트',
@@ -809,17 +812,20 @@ export function getAllStoreProducts(): StoreProduct[] {
       'prod-report-reunion': '재회운세: 상대방 속마음 & 재회 골든타임 리포트',
       'prod-report-chemistry': '궁합운세: 두 사람의 인연 & 화해 대화 리포트',
     };
-    for (const p of saved) {
-      if (targetReportTitles[p.id]) {
-        if (p.title !== targetReportTitles[p.id]) {
-          p.title = targetReportTitles[p.id];
-          merged = true;
-        }
-        if (p.status === 'hidden') {
-          p.status = 'active';
-          merged = true;
+    if (needsReportSync) {
+      for (const p of saved) {
+        if (targetReportTitles[p.id]) {
+          if (p.title !== targetReportTitles[p.id]) {
+            p.title = targetReportTitles[p.id];
+            merged = true;
+          }
+          if (p.status === 'hidden') {
+            p.status = 'active';
+            merged = true;
+          }
         }
       }
+      localStorage.setItem(MIGRATION_FLAG_KEY, 'done');
     }
     if (merged) {
       localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(saved));

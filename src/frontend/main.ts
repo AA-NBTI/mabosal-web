@@ -2905,6 +2905,17 @@ ${content}
    return;
  }
 
+ // 관리자: 파트너 삭제 (기본 파트너도 재생성되지 않도록 삭제 목록에 기록)
+ const deletePartnerBtn = target.closest('.btn-delete-partner') as HTMLElement | null;
+ if (deletePartnerBtn) {
+   const code = deletePartnerBtn.dataset.partner;
+   if (code && confirm(`파트너 '${code}'를 삭제하시겠습니까?\n삭제 후에는 목록에 다시 나타나지 않습니다.`)) {
+     PartnerTracker.deletePartner(code);
+     this.render(appState.getState());
+   }
+   return;
+ }
+
  // 0-A. PC 모드 카테고리 네비게이션 바 클릭
  if (target.closest('#pc-nav-home')) {
  navigateTo('/');

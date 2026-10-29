@@ -20,6 +20,7 @@ export interface PartnerStats {
 const STORAGE_KEY_REF = 'mabosal_partner_ref';
 const STORAGE_KEY_REF_EXPIRY = 'mabosal_partner_ref_expiry';
 const STORAGE_KEY_PARTNER_DATA = 'mabosal_partner_portal_data';
+const STORAGE_KEY_DELETED_PARTNERS = 'mabosal_partner_deleted_v1';
 const ATTRIBUTION_DAYS = 30;
 
 // 기본 파트너 목록 (기본 설정: 현재 수수료 미제공 / inactive)
@@ -126,16 +127,51 @@ export class PartnerTracker {
     return { partnerCode: ref, commission };
   }
 
+  /** 삭제된 파트너 코드 세트 조회 (기본 파트너 부활 방지) */
+  private static getDeletedPartnerCodes(): Set<string> {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_DELETED_PARTNERS);
+      return new Set(raw ? JSON.parse(raw) : []);
+    } catch {
+      return new Set();
+    }
+  }
+
+  /** 최고 관리자: 파트너 삭제 (기본 파트너도 다시 살아나지 않도록 삭제 목록에 영구 기록) */
+  public static deletePartner(partnerCode: string): boolean {
+    try {
+      const deleted = this.getDeletedPartnerCodes();
+      deleted.add(partnerCode);
+      localStorage.setItem(STORAGE_KEY_DELETED_PARTNERS, JSON.stringify([...deleted]));
+
+      const allDataStr = localStorage.getItem(STORAGE_KEY_PARTNER_DATA);
+      const allData: Record<string, PartnerStats> = allDataStr ? JSON.parse(allDataStr) : {};
+      delete allData[partnerCode];
+      localStorage.setItem(STORAGE_KEY_PARTNER_DATA, JSON.stringify(allData));
+
+      // 삭제된 파트너의 활성 추천 코드가 남아있으면 해제
+      if (localStorage.getItem(STORAGE_KEY_REF) === partnerCode) {
+        localStorage.removeItem(STORAGE_KEY_REF);
+        localStorage.removeItem(STORAGE_KEY_REF_EXPIRY);
+      }
+      return true;
+    } catch (e) {
+      console.warn('[PartnerTracker] Failed to delete partner', e);
+      return false;
+    }
+  }
+
   /** 모든 파트너 목록 조회 (관리자 대시보드용) */
   public static getAllPartners(): Record<string, PartnerStats> {
+    const deleted = this.getDeletedPartnerCodes();
     try {
       const allDataStr = localStorage.getItem(STORAGE_KEY_PARTNER_DATA);
       let allData: Record<string, PartnerStats> = allDataStr ? JSON.parse(allDataStr) : {};
 
-      // 기본 파트너 병합
+      // 기본 파트너 병합 (관리자가 삭제한 파트너는 복원하지 않음)
       let modified = false;
       Object.keys(DEFAULT_PARTNERS).forEach((key) => {
-        if (!allData[key]) {
+        if (!allData[key] && !deleted.has(key)) {
           allData[key] = { ...DEFAULT_PARTNERS[key] };
           modified = true;
         }
@@ -146,7 +182,9 @@ export class PartnerTracker {
       }
       return allData;
     } catch {
-      return { ...DEFAULT_PARTNERS };
+      const fallback = { ...DEFAULT_PARTNERS };
+      deleted.forEach((code) => delete fallback[code]);
+      return fallback;
     }
   }
 
@@ -154,7 +192,7 @@ export class PartnerTracker {
   public static getPartnerStats(partnerCode: string): PartnerStats {
     const allData = this.getAllPartners();
     if (!allData[partnerCode]) {
-      allData[partnerCode] = {
+      const fresh: PartnerStats = {
         partnerCode,
         name: partnerCode.toUpperCase(),
         clicks: 1,
@@ -166,6 +204,9 @@ export class PartnerTracker {
         status: 'inactive', // 기본 비활성화
         memo: '신규 등록 (수수료 미제공 상태)',
       };
+      // 삭제된 파트너 코드는 목록에 다시 저장하지 않음 (임시 객체만 반환)
+      if (this.getDeletedPartnerCodes().has(partnerCode)) return fresh;
+      allData[partnerCode] = fresh;
       this.savePartnerStats(allData[partnerCode]);
     }
     return allData[partnerCode];
