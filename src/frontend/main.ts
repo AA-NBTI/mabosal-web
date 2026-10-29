@@ -3538,40 +3538,55 @@ ${content}
       return;
     }
 
-    // [B안 구매 전환 퍼널: 유료 전환 결제 확인 모달 열기]
+    // [B안 구매 전환 퍼널: 유료 전환 결제 확인 -> 정규 주문서(checkout)로 단일화]
     if (target.closest('#btn-open-funnel-checkout')) {
       AbTestService.trackEvent('paid_click');
-      const slot = document.getElementById('funnel-checkout-modal-slot');
-      if (slot) {
-        slot.innerHTML = FunnelCheckoutHelper.renderCheckoutModal();
+      const currentUser = AuthService.getCurrentUser();
+      if (currentUser.role === 'guest') {
+        alert('유료 사주 분석 리포트는 로그인 후 구매하실 수 있습니다.');
+        this.openAuthModal('login');
+        return;
+      }
+      const hasSaju = UserSajuStore.hasSajuProfile(currentUser.username || currentUser.id);
+      if (!hasSaju) {
+        alert('정밀 사주 분석을 위해 먼저 사주 정보(성별·생년월일시)를 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
+        sessionStorage.setItem('mabosal_pending_saju_product', 'prod-paid-saju-premium');
+        appState.setView('analyze');
+        this.render(appState.getState());
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      const prod = getStoreProductById('prod-paid-saju-premium');
+      if (prod) {
+        const sajuSnap = UserSajuStore.getProfile(currentUser.username || currentUser.id) || UserSajuStore.getProfileOrDefault();
+        CartStore.clear();
+        CartStore.addItem(prod, 1, sajuSnap);
+        appState.setActiveTierTab('PAID');
+        appState.setView('checkout');
+        this.render(appState.getState());
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
       return;
     }
 
-    // [B안 구매 전환 퍼널: 결제 확인 모달 닫기]
+    // [B안 구매 전환 퍼널: 결제 확인 모달 닫기 (하위 호환성 유지)]
     if (target.closest('.btn-close-funnel-modal')) {
       const slot = document.getElementById('funnel-checkout-modal-slot');
       if (slot) slot.innerHTML = '';
       return;
     }
 
-    // [B안 구매 전환 퍼널: 결제 승인 실행 및 8대 리포트 해금]
-    if (target.closest('#btn-confirm-funnel-pay')) {
-      const btn = target.closest('#btn-confirm-funnel-pay') as HTMLButtonElement;
-      btn.disabled = true;
-      btn.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">sync</span> 처리 중...`;
-      
-      FunnelCheckoutHelper.executePayment().then(result => {
-        const slot = document.getElementById('funnel-checkout-modal-slot');
-        if (slot) slot.innerHTML = '';
-        alert(result.message);
-        this.render(appState.getState());
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }).catch(err => {
-        alert('결제 처리 중 오류가 발생했습니다: ' + err.message);
-        btn.disabled = false;
-        btn.innerHTML = `₩ 39,900 결제 및 즉시 해금하기`;
-      });
+    // [스토어 상세: 대상자 사주 정보 정식 등록하러 가기]
+    const gotoAnalyzeTargetBtn = target.closest('.btn-goto-analyze-target') as HTMLElement | null;
+    if (gotoAnalyzeTargetBtn) {
+      e.preventDefault();
+      const pid = gotoAnalyzeTargetBtn.dataset.productId;
+      if (pid) {
+        sessionStorage.setItem('mabosal_pending_saju_product', pid);
+      }
+      appState.setView('analyze');
+      this.render(appState.getState());
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -3921,22 +3936,31 @@ ${content}
       if (prodId) {
         const prod = getStoreProductById(prodId);
         if (prod) {
-          const qty = parseInt((document.getElementById('detail-qty-input') as HTMLInputElement)?.value || '1', 10);
-          let sajuSnap = UserSajuStore.getProfileOrDefault();
-          const targetChoice = (document.querySelector('input[name="saju-target-choice"]:checked') as HTMLInputElement)?.value;
-          if (targetChoice === 'custom') {
-            const cName = (document.getElementById('custom-saju-name') as HTMLInputElement)?.value?.trim();
-            const cBirth = (document.getElementById('custom-saju-birth') as HTMLInputElement)?.value?.trim();
-            const cTime = (document.getElementById('custom-saju-time') as HTMLInputElement)?.value?.trim();
-            if (cName && cBirth) {
-              sajuSnap = {
-                ...sajuSnap,
-                userName: cName,
-                solarBirthDate: cBirth.length === 8 ? `${cBirth.slice(0, 4)}-${cBirth.slice(4, 6)}-${cBirth.slice(6, 8)}` : cBirth,
-                birthTime: cTime || null,
-              };
+          const currentUser = AuthService.getCurrentUser();
+          const savedProf = UserSajuStore.getProfile(currentUser.username || currentUser.id);
+
+          if (prod.deliveryType === 'saju_report' || prod.category === 'report') {
+            const targetChoice = (document.querySelector('input[name="saju-target-choice"]:checked') as HTMLInputElement)?.value;
+            if (!savedProf) {
+              alert('정밀 사주 분석 리포트를 구매하시려면 먼저 사주 정보(성별·생년월일시)를 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
+              sessionStorage.setItem('mabosal_pending_saju_product', prod.id);
+              appState.setView('analyze');
+              this.render(appState.getState());
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              return;
+            }
+            if (targetChoice === 'custom') {
+              alert('선물하실 대상자의 사주 정보(성별·생년월일시)를 먼저 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
+              sessionStorage.setItem('mabosal_pending_saju_product', prod.id);
+              appState.setView('analyze');
+              this.render(appState.getState());
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              return;
             }
           }
+
+          const qty = parseInt((document.getElementById('detail-qty-input') as HTMLInputElement)?.value || '1', 10);
+          const sajuSnap = savedProf || UserSajuStore.getProfileOrDefault();
           const optSelect = document.getElementById('store-product-option-select') as HTMLSelectElement | null;
           let selectedOpt: any = undefined;
           if (optSelect && optSelect.selectedOptions.length > 0) {
@@ -4057,7 +4081,7 @@ ${content}
       return;
     }
 
-    // [장바구니에서 주문서 확인 모달로 이동]
+    // [장바구니에서 정규 주문서(checkout)로 이동]
     if (target.closest('#btn-cart-proceed-checkout')) {
       const items = CartStore.getItems();
       if (items.length === 0) {
@@ -4070,21 +4094,13 @@ ${content}
         return;
       }
       this.closeCartModal();
-      const currentUser = AuthService.getCurrentUser();
-      const savedProf = UserSajuStore.getProfileOrDefault();
-      this.openReviewModal({
-        items,
-        totalAmount: CartStore.getTotalAmount(),
-        buyerName: currentUser.role !== 'guest' ? currentUser.name : savedProf.userName,
-        buyerPhone: currentUser.role !== 'guest' && currentUser.phone ? currentUser.phone : '010-0000-0000',
-        buyerEmail: currentUser.role !== 'guest' ? currentUser.email : 'user@mabosal.com',
-        paymentMethod: 'card',
-        sajuSnapshot: savedProf,
-      });
+      appState.setView('checkout');
+      this.render(appState.getState());
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
-    // [주문서 확인 모달 닫기 / 수정하기]
+    // [주문서 확인 모달 닫기 / 수정하기 (하위 호환성 유지)]
     if (target.closest('#btn-close-review-modal') || target.id === 'modal-review-overlay') {
       this.closeReviewModal();
       return;
@@ -4723,11 +4739,15 @@ ${content}
  return;
  }
 
- // 1:1 상담실 입장 버튼
- if (target.closest('.btn-start-consultation')) {
- alert(' [1:1 실시간 상담 연결]\n\n• 의뢰인: 홍길동 님 (32세)\n• 의뢰인의 사주 원국과 사전 질문지 3문 3답 분석 자료가 역술가 전용 상담 HUD에 로드되었습니다.\n• 통화가 시작됩니다.');
- return;
- }
+  // 1:1 상담실 입장 버튼
+  if (target.closest('.btn-start-consultation')) {
+    const user = AuthService.getCurrentUser();
+    const prof = UserSajuStore.getProfile(user.username || user.id);
+    const clientName = prof?.userName || (user.role !== 'guest' ? user.name : '의뢰인');
+    const ageStr = prof?.birthYear ? ` (${new Date().getFullYear() - prof.birthYear + 1}세)` : '';
+    alert(`[1:1 실시간 상담 연결]\n\n• 의뢰인: ${clientName} 님${ageStr}\n• 의뢰인의 정밀 사주 원국과 사전 분석 자료가 수석 역술가 상담 HUD에 로드되었습니다.\n• 실시간 상담실로 입장합니다.`);
+    return;
+  }
 
  // 1-2. 엽전 지갑 클릭
  if (target.closest('#btn-yeop-wallet')) {
@@ -5272,23 +5292,43 @@ ${content}
     if (prodId) {
       const prod = getStoreProductById(prodId);
       if (prod) {
-        if (prod.price === 0 || prod.id === 'prod-free-experience') { appState.setActiveTierTab('FREE'); appState.setView('analyze'); this.render(appState.getState()); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-        if (AuthService.getCurrentUser().role === 'guest') { alert('상품 구매 및 주문은 회원 로그인 후 이용 가능합니다.'); this.openAuthModal('login'); return; }
-        let sajuSnap = UserSajuStore.getProfileOrDefault();
-        const targetChoice = (form.querySelector('input[name="saju-target-choice"]:checked') as HTMLInputElement)?.value;
-        if (targetChoice === 'custom') {
-          const cName = (document.getElementById('custom-saju-name') as HTMLInputElement)?.value?.trim();
-          const cBirth = (document.getElementById('custom-saju-birth') as HTMLInputElement)?.value?.trim();
-          const cTime = (document.getElementById('custom-saju-time') as HTMLInputElement)?.value?.trim();
-          if (cName && cBirth) {
-            sajuSnap = {
-              ...sajuSnap,
-              userName: cName,
-              solarBirthDate: cBirth.length === 8 ? `${cBirth.slice(0, 4)}-${cBirth.slice(4, 6)}-${cBirth.slice(6, 8)}` : cBirth,
-              birthTime: cTime || null,
-            };
+        if (prod.price === 0 || prod.id === 'prod-free-experience') {
+          appState.setActiveTierTab('FREE');
+          appState.setView('analyze');
+          this.render(appState.getState());
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+        if (AuthService.getCurrentUser().role === 'guest') {
+          alert('상품 구매 및 주문은 회원 로그인 후 이용 가능합니다.');
+          this.openAuthModal('login');
+          return;
+        }
+
+        const currentUser = AuthService.getCurrentUser();
+        const savedProf = UserSajuStore.getProfile(currentUser.username || currentUser.id);
+
+        if (prod.deliveryType === 'saju_report' || prod.category === 'report') {
+          const targetChoice = (form.querySelector('input[name="saju-target-choice"]:checked') as HTMLInputElement)?.value;
+          if (!savedProf) {
+            alert('정밀 사주 분석 리포트를 구매하시려면 먼저 사주 정보(성별·생년월일시)를 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
+            sessionStorage.setItem('mabosal_pending_saju_product', prod.id);
+            appState.setView('analyze');
+            this.render(appState.getState());
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+          }
+          if (targetChoice === 'custom') {
+            alert('선물하실 대상자의 사주 정보(성별·생년월일시)를 먼저 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
+            sessionStorage.setItem('mabosal_pending_saju_product', prod.id);
+            appState.setView('analyze');
+            this.render(appState.getState());
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
           }
         }
+
+        const sajuSnap = savedProf || UserSajuStore.getProfileOrDefault();
 
         // 옵션 선택값 추출
         const optSelect = document.getElementById('store-product-option-select') as HTMLSelectElement | null;
@@ -5502,6 +5542,15 @@ ${content}
       }
     } catch (err) {
       console.warn('[무료 체험 주문 동기화 실패]:', err);
+    }
+
+    // 스토어 상품 구매 중 사주 등록을 위해 이동해 온 경우, 등록 완료 즉시 해당 상품 상세로 안전 복귀
+    const pendingProdId = sessionStorage.getItem('mabosal_pending_saju_product');
+    if (pendingProdId) {
+      sessionStorage.removeItem('mabosal_pending_saju_product');
+      selectStoreProduct(pendingProdId, false);
+      navigateTo(`/store?product=${encodeURIComponent(pendingProdId)}`);
+      return;
     }
  } catch {
  // 에러는 appState.setError()에서 관리

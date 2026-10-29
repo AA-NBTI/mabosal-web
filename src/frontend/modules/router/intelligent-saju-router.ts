@@ -89,9 +89,19 @@ export class IntelligentSajuRouter {
       return;
     }
 
-    // 2-B. 로그인 회원: 정규 이커머스 주문서(checkout)로 이동하여 결제 진행
+    // 2-B. 로그인 회원: 사주 프로필 등록 여부 확인
+    const hasSaju = UserSajuStore.hasSajuProfile(currentUser.username || currentUser.id);
+    if (!hasSaju) {
+      alert('정확한 맞춤 리포트 분석을 위해 먼저 사주 정보(성별·생년월일시)를 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
+      appState.setActiveTierTab(effectiveTier);
+      appState.setView('analyze');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 2-C. 정규 이커머스 주문서(checkout)로 이동하여 결제 진행
     const targetProduct = this.findProductForTier(effectiveTier);
-    const sajuSnap = UserSajuStore.getProfileOrDefault();
+    const sajuSnap = UserSajuStore.getProfile(currentUser.username || currentUser.id) || UserSajuStore.getProfileOrDefault();
 
     if (targetProduct) {
       CartStore.clear();

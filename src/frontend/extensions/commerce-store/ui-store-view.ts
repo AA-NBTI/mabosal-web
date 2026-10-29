@@ -425,12 +425,12 @@ export function renderCommerceStoreView(state: AppStateData): string {
                     const already = savedProf ? isProductAlreadyPurchased(p.id, savedProf.userName) : { purchased: false };
                     return `
                       <div style="background: rgba(242, 202, 80, 0.06); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 6px; padding: 0.65rem;">
-                        <div style="font-size: 0.74rem; font-weight: 800; color: var(--primary); margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.25rem;">
-                          <span class="material-symbols-outlined" style="font-size: 14px;">psychology</span>
+                        <div style="font-size: 0.74rem; font-weight: 800; color: var(--primary); margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.25rem;">
+                          <span class="material-symbols-outlined" style="font-size: 15px;">psychology</span>
                           사주 분석 대상자
                         </div>
                         ${savedProf ? `
-                          <label style="display: flex; align-items: flex-start; gap: 0.4rem; font-size: 0.8rem; color: #fff; cursor: pointer; margin-bottom: 0.3rem;">
+                          <label style="display: flex; align-items: flex-start; gap: 0.4rem; font-size: 0.8rem; color: #fff; cursor: pointer; margin-bottom: 0.35rem;">
                             <input type="radio" name="saju-target-choice" value="saved" ${already.purchased ? '' : 'checked'} style="margin-top: 0.15rem;" />
                             <div>
                               <strong>내 사주로 분석 ${already.purchased ? '<span style="color: #4ade80; font-size: 0.72rem; margin-left: 0.2rem;">[구매완료]</span>' : '(추천)'}</strong>
@@ -443,19 +443,23 @@ export function renderCommerceStoreView(state: AppStateData): string {
                             <input type="radio" name="saju-target-choice" value="custom" ${already.purchased ? 'checked' : ''} />
                             다른 사람 사주로 분석 (선물)
                           </label>
-                          <div id="custom-saju-input-fields" style="display: none; margin-top: 0.45rem; padding-top: 0.45rem; border-top: 1px dashed rgba(255,255,255,0.15);">
-                            <input type="text" id="custom-saju-name" placeholder="대상자 성명" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.35rem 0.5rem; border-radius: 6px; font-size: 0.78rem; margin-bottom: 0.3rem;" />
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem;">
-                              <input type="text" id="custom-saju-birth" placeholder="생년월일(예: 19950412)" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.35rem 0.5rem; border-radius: 6px; font-size: 0.78rem;" />
-                              <input type="text" id="custom-saju-time" placeholder="출생시간(예: 0830)" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.35rem 0.5rem; border-radius: 6px; font-size: 0.78rem;" />
-                            </div>
+                          <div id="custom-saju-input-fields" style="${already.purchased ? 'display: block;' : 'display: none;'} margin-top: 0.45rem; padding-top: 0.45rem; border-top: 1px dashed rgba(255,255,255,0.15);">
+                            <p style="font-size: 0.74rem; color: #cbd5e1; margin: 0 0 0.4rem 0; line-height: 1.45;">
+                              선물하실 분의 정밀 명리 분석을 위해 정식 사주 정보(성별·양음력·생년월일시) 등록이 필요합니다.
+                            </p>
+                            <button type="button" class="btn-goto-analyze-target" data-product-id="${p.id}" style="width: 100%; background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); padding: 0.45rem 0.6rem; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                              <span class="material-symbols-outlined" style="font-size: 15px;">edit_calendar</span>
+                              <span>대상자 사주 입력하기 (정규 만세력)</span>
+                            </button>
                           </div>
                         ` : `
-                          <input type="text" id="custom-saju-name" required placeholder="대상자 성명" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.35rem 0.5rem; border-radius: 6px; font-size: 0.78rem; margin-bottom: 0.3rem;" />
-                          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem;">
-                            <input type="text" id="custom-saju-birth" required placeholder="생년월일(예: 19950412)" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.35rem 0.5rem; border-radius: 6px; font-size: 0.78rem;" />
-                            <input type="text" id="custom-saju-time" placeholder="출생시간(예: 0830)" style="width: 100%; box-sizing: border-box; background: var(--surface-container); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.35rem 0.5rem; border-radius: 6px; font-size: 0.78rem;" />
+                          <div style="font-size: 0.76rem; color: #cbd5e1; margin-bottom: 0.45rem; line-height: 1.45;">
+                            등록된 사주 정보가 없습니다. 정확한 4대 정밀 감정 리포트 생성을 위해 먼저 본인의 사주 정보(성별·양음력·생년월일시)를 등록해 주세요.
                           </div>
+                          <button type="button" class="btn-goto-analyze-target" data-product-id="${p.id}" style="width: 100%; background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); padding: 0.45rem 0.6rem; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                            <span class="material-symbols-outlined" style="font-size: 15px;">edit_calendar</span>
+                            <span>사주 정보 등록하러 가기</span>
+                          </button>
                         `}
                       </div>
                     `;
