@@ -293,44 +293,62 @@ export function renderCommerceStoreView(state: AppStateData): string {
         <div class="store-detail-main-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.75rem; background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.28); border-radius: 18px; padding: 1.5rem; box-shadow: var(--shadow-sm); align-items: start;">
           
           <!-- 좌측: 상품 대표 이미지 및 서브 갤러리 (폭/높이 균형 규격화) -->
-          <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 440px; margin: 0 auto;">
-            <!-- 메인 대형 이미지 뷰어 (3:4 책 표지 최적 비율, 최대 높이 460px로 정돈) -->
-            <div style="position: relative; width: 100%; aspect-ratio: 3 / 4; max-height: 460px; border-radius: 12px; overflow: hidden; background: #0c0f17; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 20px rgba(0,0,0,0.45);">
-              ${p.thumbnailUrl ? `
-                <img id="store-main-gallery-view" src="${p.thumbnailUrl}" alt="${esc(p.title)}" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.2s ease;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-              ` : ''}
-              <div id="store-main-gallery-placeholder" style="display: ${p.thumbnailUrl ? 'none' : 'flex'}; width: 100%; height: 100%; align-items: center; justify-content: center; background: rgba(242,202,80,0.08);">
-                <span class="material-symbols-outlined" style="font-size: 64px; color: var(--primary);">${p.thumbnailIcon || 'menu_book'}</span>
-              </div>
-              <div style="position: absolute; top: 12px; left: 12px; display: flex; gap: 0.35rem; z-index: 2;">
-                ${isRecommended ? `
-                  <span style="background: var(--primary); color: #1c1500; font-size: 0.72rem; font-weight: 800; padding: 0.25rem 0.55rem; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">
-                     내 사주 맞춤
-                  </span>
-                ` : ''}
-                ${p.badge ? `
-                  <span style="background: rgba(15,19,29,0.88); color: #f2ca50; border: 1px solid rgba(242,202,80,0.4); font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.55rem; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">
-                    ${esc(p.badge)}
-                  </span>
-                ` : ''}
-              </div>
-            </div>
+          ${(() => {
+            const rawGallery = [p.thumbnailUrl, ...(p.galleryImages || [])].filter(Boolean) as string[];
+            const allGalleryImgs = rawGallery.filter((url, idx) => rawGallery.indexOf(url) === idx);
+            const hasMultiple = allGalleryImgs.length > 1;
 
-            <!-- 하단 썸네일 스트립 (클릭/호버 시 메인 사진 즉시 전환) -->
-            ${(() => {
-              const allGalleryImgs = [p.thumbnailUrl, ...(p.galleryImages || [])].filter(Boolean);
-              if (allGalleryImgs.length <= 1) return '';
-              return `
-                <div style="display: flex; gap: 0.5rem; overflow-x: auto; padding: 0.25rem 0; align-items: center;">
-                  ${allGalleryImgs.map((imgUrl, gIdx) => `
-                    <button type="button" class="btn-store-gallery-thumb" data-img-url="${esc(imgUrl)}" style="width: 56px; height: 56px; border-radius: 6px; border: 2px solid ${gIdx === 0 ? 'var(--primary)' : 'rgba(255,255,255,0.15)'}; background: #0c0f17; overflow: hidden; padding: 0; cursor: pointer; flex-shrink: 0; transition: border-color 0.15s ease;">
-                      <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" />
+            return `
+              <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 440px; margin: 0 auto;">
+                <!-- 메인 대형 이미지 뷰어 (3:4 책 표지 최적 비율, 최대 높이 460px로 정돈) -->
+                <div style="position: relative; width: 100%; aspect-ratio: 3 / 4; max-height: 460px; border-radius: 12px; overflow: hidden; background: #0c0f17; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 20px rgba(0,0,0,0.45);">
+                  ${p.thumbnailUrl ? `
+                    <img id="store-main-gallery-view" src="${p.thumbnailUrl}" alt="${esc(p.title)}" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.2s ease;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                  ` : ''}
+                  <div id="store-main-gallery-placeholder" style="display: ${p.thumbnailUrl ? 'none' : 'flex'}; width: 100%; height: 100%; align-items: center; justify-content: center; background: rgba(242,202,80,0.08);">
+                    <span class="material-symbols-outlined" style="font-size: 64px; color: var(--primary);">${p.thumbnailIcon || 'menu_book'}</span>
+                  </div>
+                  <div style="position: absolute; top: 12px; left: 12px; display: flex; gap: 0.35rem; z-index: 2;">
+                    ${isRecommended ? `
+                      <span style="background: var(--primary); color: #1c1500; font-size: 0.72rem; font-weight: 800; padding: 0.25rem 0.55rem; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">
+                         내 사주 맞춤
+                      </span>
+                    ` : ''}
+                    ${p.badge ? `
+                      <span style="background: rgba(15,19,29,0.88); color: #f2ca50; border: 1px solid rgba(242,202,80,0.4); font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.55rem; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">
+                        ${esc(p.badge)}
+                      </span>
+                    ` : ''}
+                  </div>
+
+                  <!-- 다중 이미지 좌/우 이동 내비게이션 버튼 -->
+                  ${hasMultiple ? `
+                    <button type="button" id="btn-gallery-prev" aria-label="이전 사진" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border-radius: 50%; background: rgba(15, 19, 29, 0.75); border: 1px solid rgba(255,255,255,0.25); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 3; transition: all 0.15s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
+                      <span class="material-symbols-outlined" style="font-size: 20px;">chevron_left</span>
                     </button>
-                  `).join('')}
+                    <button type="button" id="btn-gallery-next" aria-label="다음 사진" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border-radius: 50%; background: rgba(15, 19, 29, 0.75); border: 1px solid rgba(255,255,255,0.25); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 3; transition: all 0.15s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
+                      <span class="material-symbols-outlined" style="font-size: 20px;">chevron_right</span>
+                    </button>
+                    <!-- 이미지 장수 카운터 배지 (1 / N) -->
+                    <div id="gallery-counter-badge" style="position: absolute; bottom: 10px; right: 10px; background: rgba(15, 19, 29, 0.85); border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 12px; z-index: 2; pointer-events: none;">
+                      <span id="gallery-current-idx">1</span> / ${allGalleryImgs.length}
+                    </div>
+                  ` : ''}
                 </div>
-              `;
-            })()}
-          </div>
+
+                <!-- 하단 썸네일 스트립 (클릭/호버 시 메인 사진 즉시 전환) -->
+                ${hasMultiple ? `
+                  <div id="store-gallery-thumbs-wrapper" style="display: flex; gap: 0.5rem; overflow-x: auto; padding: 0.25rem 0; align-items: center;">
+                    ${allGalleryImgs.map((imgUrl, gIdx) => `
+                      <button type="button" class="btn-store-gallery-thumb" data-index="${gIdx}" data-img-url="${esc(imgUrl)}" style="width: 56px; height: 56px; border-radius: 6px; border: 2px solid ${gIdx === 0 ? 'var(--primary)' : 'rgba(255,255,255,0.15)'}; background: #0c0f17; overflow: hidden; padding: 0; cursor: pointer; flex-shrink: 0; transition: border-color 0.15s ease;">
+                        <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" />
+                      </button>
+                    `).join('')}
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          })()}
 
           <!-- 우측: 상품 정보, 슬림형 가격 박스, 수량 및 안정적인 결제 패널 -->
           <div style="display: flex; flex-direction: column; gap: 0.65rem; justify-content: flex-start; width: 100%;">
@@ -370,6 +388,31 @@ export function renderCommerceStoreView(state: AppStateData): string {
                 <strong id="detail-sale-price" style="font-size: 1.45rem; color: var(--primary); font-family: var(--font-display); font-weight: 900; letter-spacing: -0.5px;">
                   ₩ ${p.price.toLocaleString()}
                 </strong>
+              </div>
+            </div>
+
+            <!-- 3-1. 할인쿠폰 코드등록 아코디언 영역 (정상가 아래 위치, 클릭 시 펼침) -->
+            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; overflow: hidden;">
+              <button type="button" id="btn-toggle-coupon-input" style="width: 100%; display: flex; align-items: center; justify-content: space-between; background: transparent; border: none; padding: 0.6rem 0.85rem; color: #cbd5e1; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: background 0.15s ease;">
+                <span style="display: flex; align-items: center; gap: 0.4rem; color: var(--primary);">
+                  <span class="material-symbols-outlined" style="font-size: 17px;">confirmation_number</span>
+                  <span>쿠폰 코드등록</span>
+                </span>
+                <span id="coupon-toggle-arrow" class="material-symbols-outlined" style="font-size: 18px; color: #94a3b8; transition: transform 0.2s ease;">expand_more</span>
+              </button>
+              <div id="detail-coupon-expand-container" style="display: none; padding: 0.6rem 0.85rem 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.06); flex-direction: column; gap: 0.35rem; background: rgba(0,0,0,0.25);">
+                <div style="display: flex; gap: 0.35rem; align-items: center;">
+                  <input type="text" id="detail-coupon-input" placeholder="쿠폰 코드를 입력하세요" style="flex: 1; background: #0c0f17; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.4rem 0.55rem; border-radius: 5px; font-size: 0.78rem; text-transform: uppercase;" />
+                  <button type="button" id="btn-detail-apply-coupon" style="background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); font-weight: 800; font-size: 0.75rem; padding: 0.4rem 0.65rem; border-radius: 5px; cursor: pointer; white-space: nowrap;">등록</button>
+                  <button type="button" id="btn-detail-cancel-coupon" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; font-weight: 800; font-size: 0.75rem; padding: 0.4rem 0.55rem; border-radius: 5px; cursor: pointer; white-space: nowrap;">취소</button>
+                </div>
+                <div id="detail-coupon-discount-row" style="display: none; justify-content: space-between; font-size: 0.75rem; color: #4ade80; font-weight: 700; margin-top: 0.15rem;">
+                  <span>쿠폰 할인 적용</span>
+                  <span id="detail-coupon-discount-text">- ₩ 0</span>
+                </div>
+                <div id="detail-coupon-msg" style="display: none; font-size: 0.72rem; line-height: 1.3; margin-top: 0.1rem;"></div>
+                <input type="hidden" id="detail-coupon-discount-val" value="0" />
+                <input type="hidden" id="detail-coupon-code-val" value="" />
               </div>
             </div>
 
@@ -424,37 +467,32 @@ export function renderCommerceStoreView(state: AppStateData): string {
                   if (p.deliveryType === 'saju_report') {
                     const already = savedProf ? isProductAlreadyPurchased(p.id, savedProf.userName) : { purchased: false };
                     return `
-                      <div style="background: rgba(242, 202, 80, 0.06); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 6px; padding: 0.65rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                          <div style="font-size: 0.74rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 0.25rem;">
-                            <span class="material-symbols-outlined" style="font-size: 15px;">psychology</span>
-                            사주 분석 대상자
-                          </div>
-                          <button type="button" class="btn-goto-analyze-target" data-product-id="${p.id}" style="background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.35); color: var(--primary); font-size: 0.74rem; font-weight: 700; padding: 0.18rem 0.55rem; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.2rem;">
-                            <span class="material-symbols-outlined" style="font-size: 13px;">edit_calendar</span>
-                            <span>사주 입력</span>
-                          </button>
+                      <div style="background: rgba(242, 202, 80, 0.05); border: 1px solid rgba(242, 202, 80, 0.2); border-radius: 6px; padding: 0.55rem 0.75rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.4rem;">
+                          <span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary);">psychology</span>
+                          <span style="font-size: 0.78rem; font-weight: 700; color: #cbd5e1;">사주 분석 대상</span>
+                          ${savedProf ? `
+                            <span style="background: rgba(74, 222, 128, 0.15); border: 1px solid rgba(74, 222, 128, 0.4); color: #4ade80; font-size: 0.7rem; font-weight: 800; padding: 0.15rem 0.45rem; border-radius: 4px;">
+                              등록 완료
+                            </span>
+                            ${already.purchased ? '<span style="background: rgba(242,202,80,0.15); border: 1px solid rgba(242,202,80,0.4); color: var(--primary); font-size: 0.7rem; font-weight: 800; padding: 0.15rem 0.45rem; border-radius: 4px;">구매완료</span>' : ''}
+                          ` : `
+                            <span style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; font-size: 0.7rem; font-weight: 800; padding: 0.15rem 0.45rem; border-radius: 4px;">
+                              미등록
+                            </span>
+                          `}
                         </div>
-                        ${savedProf ? `
-                          <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 0.8rem; color: #fff;">
-                            <div>
-                              <strong style="color: #fff;">${esc(savedProf.userName)} 님</strong>
-                              <span style="font-size: 0.75rem; color: #cbd5e1; margin-left: 0.25rem;">(${esc(savedProf.solarBirthDate)} · ${savedProf.gender === 'female' ? '坤命' : '乾命'})</span>
-                              ${already.purchased ? '<span style="color: #4ade80; font-size: 0.7rem; font-weight: 700; margin-left: 0.3rem;">[구매완료]</span>' : ''}
-                            </div>
-                          </div>
-                        ` : `
-                          <div style="font-size: 0.76rem; color: #cbd5e1; line-height: 1.45;">
-                            등록된 사주 정보가 없습니다. <strong>[사주 입력]</strong>을 눌러 정보를 먼저 등록해 주세요.
-                          </div>
-                        `}
+                        <button type="button" class="btn-goto-analyze-target" data-product-id="${p.id}" style="background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.35); color: var(--primary); font-size: 0.74rem; font-weight: 700; padding: 0.22rem 0.6rem; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem;">
+                          <span class="material-symbols-outlined" style="font-size: 13px;">edit_calendar</span>
+                          <span>사주 입력</span>
+                        </button>
                       </div>
                     `;
                   }
                   return '';
                 })()}
 
-                <!-- 수량 선택 컨트롤 & 쿠폰 통합 바 -->
+                <!-- 수량 선택 컨트롤 & 총 결제액 컴팩트 표시 -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; align-items: center;">
                   <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.4rem 0.6rem;">
                     <span style="font-size: 0.78rem; color: #cbd5e1; font-weight: 600;">수량</span>
@@ -473,22 +511,6 @@ export function renderCommerceStoreView(state: AppStateData): string {
                       ₩ ${p.price.toLocaleString()}
                     </strong>
                   </div>
-                </div>
-
-                <!-- 할인 쿠폰 적용 슬림 바 -->
-                <div style="background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(242, 202, 80, 0.3); border-radius: 6px; padding: 0.45rem 0.6rem; display: flex; flex-direction: column; gap: 0.25rem;">
-                  <div style="display: flex; gap: 0.35rem; align-items: center;">
-                    <input type="text" id="detail-coupon-input" placeholder="할인 쿠폰 코드 입력" style="flex: 1; background: #0c0f17; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.35rem 0.5rem; border-radius: 5px; font-size: 0.75rem; text-transform: uppercase;" />
-                    <button type="button" id="btn-detail-apply-coupon" style="background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); font-weight: 800; font-size: 0.72rem; padding: 0.35rem 0.6rem; border-radius: 5px; cursor: pointer; white-space: nowrap;">적용</button>
-                    <button type="button" id="btn-detail-cancel-coupon" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; font-weight: 800; font-size: 0.72rem; padding: 0.35rem 0.5rem; border-radius: 5px; cursor: pointer; white-space: nowrap;">취소</button>
-                  </div>
-                  <div id="detail-coupon-discount-row" style="display: none; justify-content: space-between; font-size: 0.72rem; color: #4ade80;">
-                    <span>쿠폰 할인</span>
-                    <span id="detail-coupon-discount-text">- ₩ 0</span>
-                  </div>
-                  <div id="detail-coupon-msg" style="display: none; font-size: 0.7rem; line-height: 1.2;"></div>
-                  <input type="hidden" id="detail-coupon-discount-val" value="0" />
-                  <input type="hidden" id="detail-coupon-code-val" value="" />
                 </div>
 
                 <!-- 액션 버튼 2단 (장바구니 + 바로구매) -->

@@ -1680,10 +1680,11 @@ ${content}
       return;
     }
 
-    // [스토어 상세 갤러리 썸네일 클릭/호버 전환]
+    // [스토어 상세 갤러리 썸네일 클릭 전환 & 이전/다음 탐색 버튼]
     const galleryThumbBtn = target.closest('.btn-store-gallery-thumb') as HTMLElement | null;
     if (galleryThumbBtn) {
       const imgUrl = galleryThumbBtn.dataset.imgUrl;
+      const idx = galleryThumbBtn.dataset.index;
       const mainImg = document.getElementById('store-main-gallery-view') as HTMLImageElement;
       if (mainImg && imgUrl) {
         mainImg.src = imgUrl;
@@ -1691,6 +1692,28 @@ ${content}
           (b as HTMLElement).style.borderColor = 'rgba(255,255,255,0.15)';
         });
         galleryThumbBtn.style.borderColor = 'var(--primary)';
+        const counterEl = document.getElementById('gallery-current-idx');
+        if (counterEl && idx !== undefined) {
+          counterEl.textContent = String(parseInt(idx, 10) + 1);
+        }
+      }
+      return;
+    }
+
+    const galleryPrevBtn = target.closest('#btn-gallery-prev');
+    const galleryNextBtn = target.closest('#btn-gallery-next');
+    if (galleryPrevBtn || galleryNextBtn) {
+      const thumbs = Array.from(document.querySelectorAll('.btn-store-gallery-thumb')) as HTMLElement[];
+      if (thumbs.length > 0) {
+        const curCounterEl = document.getElementById('gallery-current-idx');
+        let curIdx = curCounterEl ? parseInt(curCounterEl.textContent || '1', 10) - 1 : 0;
+        if (isNaN(curIdx) || curIdx < 0) curIdx = 0;
+        if (galleryPrevBtn) {
+          curIdx = (curIdx - 1 + thumbs.length) % thumbs.length;
+        } else {
+          curIdx = (curIdx + 1) % thumbs.length;
+        }
+        thumbs[curIdx]?.click();
       }
       return;
     }
@@ -3815,6 +3838,25 @@ ${content}
       return;
     }
 
+    // [상품 상세: 쿠폰 코드등록 펼침 토글 버튼]
+    const toggleCouponBtn = target.closest('#btn-toggle-coupon-input');
+    if (toggleCouponBtn) {
+      const container = document.getElementById('detail-coupon-expand-container');
+      const arrow = document.getElementById('coupon-toggle-arrow');
+      if (container) {
+        const isOpen = container.style.display === 'flex';
+        container.style.display = isOpen ? 'none' : 'flex';
+        if (arrow) {
+          arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+        if (!isOpen) {
+          const couponInput = document.getElementById('detail-coupon-input') as HTMLInputElement;
+          couponInput?.focus();
+        }
+      }
+      return;
+    }
+
     // [상품 상세: 쿠폰 적용 버튼]
     const detailApplyCouponBtn = target.closest('#btn-detail-apply-coupon');
     if (detailApplyCouponBtn) {
@@ -3824,6 +3866,8 @@ ${content}
       const cancelBtn = document.getElementById('btn-detail-cancel-coupon');
       const discountValInput = document.getElementById('detail-coupon-discount-val') as HTMLInputElement;
       const codeValInput = document.getElementById('detail-coupon-code-val') as HTMLInputElement;
+      const discountRow = document.getElementById('detail-coupon-discount-row');
+      const discountText = document.getElementById('detail-coupon-discount-text');
       const totalPriceEl = document.getElementById('detail-total-price') as HTMLElement;
       const qtyInput = document.getElementById('detail-qty-input') as HTMLInputElement;
 
@@ -3840,12 +3884,15 @@ ${content}
           couponMsg.textContent = `✓ ${res.message}`;
           if (couponTag) couponTag.style.display = 'inline-block';
           if (cancelBtn) cancelBtn.style.display = 'inline-block';
+          if (discountRow) discountRow.style.display = 'flex';
+          if (discountText) discountText.textContent = `- ₩ ${res.discountAmount.toLocaleString()}`;
           if (discountValInput) discountValInput.value = String(res.discountAmount);
           if (codeValInput) codeValInput.value = res.couponCode;
           updateDetailTotal();
         } else {
           couponMsg.style.color = '#f87171';
           couponMsg.textContent = `✕ ${res.message}`;
+          if (discountRow) discountRow.style.display = 'none';
         }
       }
       return;
@@ -3857,11 +3904,13 @@ ${content}
       const couponInput = document.getElementById('detail-coupon-input') as HTMLInputElement;
       const couponMsg = document.getElementById('detail-coupon-msg');
       const couponTag = document.getElementById('detail-coupon-tag');
+      const discountRow = document.getElementById('detail-coupon-discount-row');
       const discountValInput = document.getElementById('detail-coupon-discount-val') as HTMLInputElement;
       const codeValInput = document.getElementById('detail-coupon-code-val') as HTMLInputElement;
       if (couponInput) couponInput.value = '';
       if (couponMsg) { couponMsg.style.display = 'none'; couponMsg.textContent = ''; }
       if (couponTag) couponTag.style.display = 'none';
+      if (discountRow) discountRow.style.display = 'none';
       if (detailCancelCouponBtn instanceof HTMLElement) detailCancelCouponBtn.style.display = 'none';
       if (discountValInput) discountValInput.value = '0';
       if (codeValInput) codeValInput.value = '';

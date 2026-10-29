@@ -170,6 +170,11 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
       </div>
     `,
     thumbnailUrl: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&auto=format&fit=crop&q=80',
+    galleryImages: [
+      'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1512909006721-3d6018887383?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=800&auto=format&fit=crop&q=80',
+    ],
     thumbnailIcon: 'card_giftcard',
     deliveryType: 'voucher_code',
     contentPayload: 'VOUCHER_50000',
@@ -198,6 +203,11 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
       </div>
     `,
     thumbnailUrl: 'https://images.unsplash.com/photo-1512909006721-3d6018887383?w=800&auto=format&fit=crop&q=80',
+    galleryImages: [
+      'https://images.unsplash.com/photo-1512909006721-3d6018887383?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=800&auto=format&fit=crop&q=80',
+    ],
     thumbnailIcon: 'confirmation_number',
     deliveryType: 'voucher_code',
     contentPayload: 'VOUCHER_30000',
@@ -327,6 +337,12 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
       </div>
     `,
     thumbnailUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80',
+    galleryImages: [
+      'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&auto=format&fit=crop&q=80',
+    ],
     thumbnailIcon: 'auto_stories',
     deliveryType: 'saju_report',
     contentPayload: 'PAID_REPORT',
@@ -357,6 +373,11 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
       </div>
     `,
     thumbnailUrl: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&auto=format&fit=crop&q=80',
+    galleryImages: [
+      'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&auto=format&fit=crop&q=80',
+    ],
     thumbnailIcon: 'explore',
     deliveryType: 'saju_report',
     contentPayload: 'FREE_EXPERIENCE',
@@ -387,6 +408,11 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
       </div>
     `,
     thumbnailUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80',
+    galleryImages: [
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80',
+    ],
     thumbnailIcon: 'bolt',
     deliveryType: 'saju_report',
     contentPayload: 'CONFLICT_MALSAL',
@@ -417,6 +443,12 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
       </div>
     `,
     thumbnailUrl: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&auto=format&fit=crop&q=80',
+    galleryImages: [
+      'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&auto=format&fit=crop&q=80',
+    ],
     thumbnailIcon: 'diamond',
     deliveryType: 'saju_report',
     contentPayload: 'PREMIUM_VIP',
@@ -826,6 +858,22 @@ export function getAllStoreProducts(): StoreProduct[] {
         }
       }
       localStorage.setItem(MIGRATION_FLAG_KEY, 'done');
+    }
+
+    // [v1.9.5] 기존 로컬스토리지에 저장된 상품들의 다중 갤러리 이미지 동기화
+    const GALLERY_SYNC_KEY = 'mabosal_store_gallery_sync_v195';
+    if (localStorage.getItem(GALLERY_SYNC_KEY) !== 'done') {
+      const initMap = new Map(INITIAL_STORE_PRODUCTS.map(p => [p.id, p]));
+      for (const p of saved) {
+        const initP = initMap.get(p.id);
+        if (initP && initP.galleryImages && initP.galleryImages.length > 0) {
+          if (!p.galleryImages || p.galleryImages.length <= 1) {
+            p.galleryImages = [...initP.galleryImages];
+            merged = true;
+          }
+        }
+      }
+      localStorage.setItem(GALLERY_SYNC_KEY, 'done');
     }
     if (merged) {
       localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(saved));
