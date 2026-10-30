@@ -30,9 +30,6 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
               <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">체험 진단</span>
               <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">무료 사주 진단</h3>
             </div>
-            <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
-              4주 8자, 일간 본질, 오행 분포, 감지된 마(Ma) 징후 (13개 섹션)
-            </p>
           </div>
         </div>
         <div class="product-action-box">
@@ -54,9 +51,6 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
               <span style="background: rgba(242, 202, 80, 0.15); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">정밀 사주</span>
               <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">유료 사주풀이</h3>
             </div>
-            <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
-              격국·강약·용신 심층 해석, 12개월 월운 전체 해설 (18개 섹션)
-            </p>
           </div>
         </div>
         <div class="product-action-box">
@@ -78,9 +72,6 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
               <span style="background: rgba(242, 202, 80, 0.15); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">갈등 특화</span>
               <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">상충·마·살 특화</h3>
             </div>
-            <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
-              인간관계 충돌(축진파/인사해), 퇴사 vs 잔류 4주 점검 (20개 섹션)
-            </p>
           </div>
         </div>
         <div class="product-action-box">
@@ -102,9 +93,6 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
               <span style="background: rgba(242, 202, 80, 0.2); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 800;">VIP 완결판</span>
               <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">프리미엄 통합</h3>
             </div>
-            <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
-              29개 전수 섹션 100% 완전 충족, 1:1 심층 복합 처방 로드맵
-            </p>
           </div>
         </div>
         <div class="product-action-box">
@@ -140,9 +128,6 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
                 <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">신년 특화</span>
                 <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">신년운세</h3>
               </div>
-              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
-                2027 정미년(丁未年) 상반기 대운과 월별 기회·위험 총정리.
-              </p>
             </div>
           </div>
           <div class="product-action-box">
@@ -164,9 +149,6 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
                 <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">직장·이직</span>
                 <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">직장운세</h3>
               </div>
-              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
-                부서 이동·이직 타이밍과 퇴사 vs 잔류 판단 명리 가이드.
-              </p>
             </div>
           </div>
           <div class="product-action-box">
@@ -188,9 +170,6 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
                 <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">재물·투자</span>
                 <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">재물운세</h3>
               </div>
-              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
-                현금 보유 최적기 vs 공격 투자 타이밍과 손재마 방어.
-              </p>
             </div>
           </div>
           <div class="product-action-box">
@@ -212,9 +191,6 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
                 <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">연애·재회</span>
                 <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">재회운세</h3>
               </div>
-              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
-                상대방 연락 가능성 월별 지수와 재회 골든타임 처방.
-              </p>
             </div>
           </div>
           <div class="product-action-box">
@@ -236,9 +212,6 @@ export function renderSajuCategoryPage(state?: AppStateData): string {
                 <span style="background: rgba(251, 207, 232, 0.15); color: #f472b6; font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">정밀 역학</span>
                 <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">궁합운세</h3>
               </div>
-              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
-                반복 싸움 유발 요인 3가지와 즉시 화해 대화 스크립트.
-              </p>
             </div>
           </div>
           <div class="product-action-box">

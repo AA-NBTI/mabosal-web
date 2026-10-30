@@ -326,9 +326,6 @@ ${(() => {
                 <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">체험 진단</span>
                 <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">무료 사주 진단</h3>
               </div>
-              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
-                4주 8자, 일간 본질, 오행 분포, 감지된 마(Ma) 징후 (13개 섹션)
-              </p>
             </div>
           </div>
           <div class="product-action-box">
@@ -350,9 +347,6 @@ ${(() => {
                 <span style="background: rgba(242, 202, 80, 0.15); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">정밀 사주</span>
                 <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">유료 사주풀이</h3>
               </div>
-              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
-                격국·강약·용신 심층 해석, 12개월 월운 전체 해설 (18개 섹션)
-              </p>
             </div>
           </div>
           <div class="product-action-box">
@@ -374,9 +368,6 @@ ${(() => {
                 <span style="background: rgba(242, 202, 80, 0.15); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">갈등 특화</span>
                 <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">상충·마·살 특화</h3>
               </div>
-              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
-                인간관계 충돌(축진파/인사해), 퇴사 vs 잔류 4주 점검 (20개 섹션)
-              </p>
             </div>
           </div>
           <div class="product-action-box">
@@ -398,9 +389,6 @@ ${(() => {
                 <span style="background: rgba(242, 202, 80, 0.2); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 800;">VIP 완결판</span>
                 <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">프리미엄 통합</h3>
               </div>
-              <p style="font-size: 0.84rem; color: #a1a1aa; margin: 0; line-height: 1.45;">
-                29개 전수 섹션 100% 완전 충족, 1:1 심층 복합 처방 로드맵
-              </p>
             </div>
           </div>
           <div class="product-action-box">
