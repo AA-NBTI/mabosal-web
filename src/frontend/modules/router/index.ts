@@ -132,6 +132,11 @@ export const ROUTE_SEO_CONFIG: Record<string, SeoMetadata> = {
     description: '당신의 사주 원국과 시기별 기운 분석 결과 리포트입니다.',
     canonicalPath: '/result',
   },
+  'ebook-reader': {
+    title: '전자책 웹 리더 | 정통 사주명리학 원론 - 마보살',
+    description: '마보살 인하우스 정통 사주명리학 전자책 온라인 웹 뷰어.',
+    canonicalPath: '/reader',
+  },
 };
 
 /**
@@ -197,6 +202,12 @@ export function parseRouteFromLocation(): { view: AppViewType; pathname: string;
   if (pathname === '/result' || pathname === '/report') return { view: 'result', pathname, params };
   if (pathname === '/consult') return { view: 'consult', pathname, params };
   if (pathname === '/partner') return { view: 'partner', pathname, params };
+  if (pathname === '/reader' || pathname.startsWith('/reader/')) {
+    if (urlParams.get('bookId')) params.bookId = urlParams.get('bookId')!;
+    if (urlParams.get('chapter')) params.chapter = urlParams.get('chapter')!;
+    if (urlParams.get('page')) params.page = urlParams.get('page')!;
+    return { view: 'ebook-reader', pathname, params };
+  }
 
   return { view: 'landing', pathname, params };
 }
@@ -224,6 +235,8 @@ function mapParamToView(param: string): AppViewType {
     case 'consult': return 'consult';
     case 'report': return 'report';
     case 'partner': return 'partner';
+    case 'reader':
+    case 'ebook-reader': return 'ebook-reader';
     default: return 'landing';
   }
 }
@@ -254,6 +267,7 @@ export function getViewPath(view: AppViewType): string {
     case 'consult': return '/consult';
     case 'report': return '/result';
     case 'partner': return '/partner';
+    case 'ebook-reader': return '/reader';
     default: return '/';
   }
 }
@@ -350,6 +364,7 @@ export function navigateTo(target: AppViewType | string, options?: { replace?: b
     else if (pathOnly === '/analyze') targetView = 'analyze';
     else if (pathOnly === '/result' || pathOnly === '/report') targetView = 'result';
     else if (pathOnly === '/consult') targetView = 'consult';
+    else if (pathOnly === '/reader') targetView = 'ebook-reader';
     else targetView = 'landing';
   } else {
     targetView = target as AppViewType;

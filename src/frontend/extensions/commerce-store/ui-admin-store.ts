@@ -233,6 +233,12 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                         </select>
                       </td>
                       <td style="padding: 0.75rem 0.6rem; text-align: right; white-space: nowrap;">
+                        ${(p.category === 'ebook' || p.id.includes('book')) ? `
+                          <a href="/reader?bookId=${p.id}" data-nav="/reader?bookId=${p.id}" style="background: rgba(59, 130, 246, 0.18); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 5px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.2rem; margin-right: 0.3rem;" title="관리자 권한으로 전 22페이지 고화질 뷰어 즉시 검수">
+                            <span class="material-symbols-outlined" style="font-size: 14px;">visibility</span>
+                            뷰어검수
+                          </a>
+                        ` : ''}
                         <button type="button" class="btn-edit-store-product" data-product-id="${p.id}" style="background: rgba(242,202,80,0.15); border: 1px solid rgba(242,202,80,0.3); color: var(--primary); font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.65rem; border-radius: 5px; cursor: pointer; margin-right: 0.3rem;">
                           수정
                         </button>

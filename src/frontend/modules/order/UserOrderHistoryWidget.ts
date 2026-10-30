@@ -234,13 +234,22 @@ export function renderUserOrderHistoryWidget(): string {
                         <span class="material-symbols-outlined" style="font-size: 15px;">rate_review</span>
                         <span>후기 작성</span>
                       </button>
+
                     ` : ''}
 
                     ${o.status === 'completed' && (o.category === 'ebook' || o.productId.includes('book')) ? `
-                      <button type="button" class="btn-download-ebook-pdf" data-order-id="${o.orderId}" data-product-id="${o.productId}" style="background: var(--primary); color: #000; font-weight: 800; font-size: 0.82rem; padding: 0.45rem 0.85rem; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
+                      <a href="/reader?bookId=${o.productId}" data-nav="/reader?bookId=${o.productId}" style="background: var(--primary); color: #1e1e1e; font-weight: 800; font-size: 0.82rem; padding: 0.45rem 0.85rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                        <span class="material-symbols-outlined" style="font-size: 16px;">auto_stories</span>
+                        <span>웹 뷰어로 읽기</span>
+                      </a>
+                      <button type="button" class="btn-download-ebook-pdf" data-order-id="${o.orderId}" data-product-id="${o.productId}" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #cbd5e1; font-weight: 700; font-size: 0.82rem; padding: 0.45rem 0.85rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
                         <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
                         <span>PDF 다운로드</span>
                       </button>
+
+
+
+
                     ` : ''}
 
                     ${o.status === 'completed' && o.deliveryType === 'saju_report' ? `
@@ -248,6 +257,7 @@ export function renderUserOrderHistoryWidget(): string {
                         <span>리포트 열람</span>
                         <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
                       </button>
+
                     ` : ''}
 
                     <!-- 상품 상세 및 재구매 바로가기 -->

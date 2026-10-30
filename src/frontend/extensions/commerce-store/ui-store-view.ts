@@ -513,6 +513,13 @@ export function renderCommerceStoreView(state: AppStateData): string {
                   </div>
                 </div>
 
+                ${p.category === 'ebook' ? `
+                  <a href="/reader?bookId=${p.id}" data-nav="/reader?bookId=${p.id}" style="display: flex; align-items: center; justify-content: center; gap: 0.45rem; background: linear-gradient(135deg, rgba(242, 202, 80, 0.2), rgba(242, 202, 80, 0.08)); border: 1.5px solid var(--primary); color: #fff; font-weight: 800; font-size: 0.88rem; padding: 0.65rem 0.5rem; border-radius: 8px; text-decoration: none; margin-bottom: 0.5rem; box-shadow: 0 4px 12px rgba(242, 202, 80, 0.2); transition: all 0.15s ease;">
+                    <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">auto_stories</span>
+                    <span>실제 책장 규격 웹 뷰어로 즉시 열람 (무료 01~03p)</span>
+                  </a>
+                ` : ''}
+
                 <!-- 액션 버튼 2단 (장바구니 + 바로구매) -->
                 <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 0.45rem; margin-top: 0.1rem;">
                   <button type="button" class="btn-add-to-cart-from-detail" data-product-id="${p.id}" style="background: rgba(242, 202, 80, 0.1); color: var(--primary); border: 1px solid rgba(242, 202, 80, 0.35); font-size: 0.84rem; font-weight: 800; border-radius: 8px; padding: 0.7rem 0.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem; transition: all 0.15s ease;">

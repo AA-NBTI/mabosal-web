@@ -35,7 +35,8 @@ export type AppViewType =
   | 'store' 
   | 'study' 
   | 'cart' 
-  | 'checkout';
+  | 'checkout'
+  | 'ebook-reader';
 
 export interface ChatMessage {
   id: string;

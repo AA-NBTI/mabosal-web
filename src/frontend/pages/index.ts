@@ -15,6 +15,7 @@ export * from './CheckoutPage.js';
 export * from './AnalyzePage.js';
 export * from './ResultPage.js';
 export * from './ConsultPage.js';
+export * from './EbookReaderPage.js';
 
 import { PageModule } from './types.js';
 import { HomePage } from './HomePage.js';
@@ -33,6 +34,7 @@ import { CheckoutPage } from './CheckoutPage.js';
 import { AnalyzePage } from './AnalyzePage.js';
 import { ResultPage } from './ResultPage.js';
 import { ConsultPage } from './ConsultPage.js';
+import { EbookReaderPage } from './EbookReaderPage.js';
 
 export const PAGE_REGISTRY: Record<string, PageModule> = {
   '/': HomePage,
@@ -53,6 +55,7 @@ export const PAGE_REGISTRY: Record<string, PageModule> = {
   '/result': ResultPage,
   '/report': ResultPage,
   '/consult': ConsultPage,
+  '/reader': EbookReaderPage,
 };
 
 export function getPageByPathname(pathname: string): PageModule {

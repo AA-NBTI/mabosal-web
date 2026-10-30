@@ -106,6 +106,7 @@ import {
   normalizeFirstTierSlug,
   resetToFirstTierDefaults,
 } from './views/AdminSeoWikiHubPanel.js';
+import { setSelectedPreviewBookId } from './views/AdminEbookLibraryPanel.js';
 import { findSajuFactorWiki } from './data/saju-factor-wiki.js';
 import { LifeAnalysisWarehouseBuilder } from '../modules/life-analysis/life-analysis-warehouse.js';
 import { buildEvidencePacket } from '../modules/life-analysis/evidence/evidence-packet-builder.js';
@@ -1005,6 +1006,14 @@ ${content}
 
  private render(state: AppStateData) {
  this.ensureLayoutShell(state);
+
+    const isReader = state.currentView === 'ebook-reader';
+    const headerContainer = document.getElementById('app-header-container');
+    const footerContainer = document.getElementById('app-footer-container');
+    const dockContainer = document.getElementById('app-dock-container');
+    if (headerContainer) headerContainer.style.display = isReader ? 'none' : '';
+    if (footerContainer) footerContainer.style.display = isReader ? 'none' : '';
+    if (dockContainer) dockContainer.style.display = isReader ? 'none' : '';
 
  const outletEl = document.getElementById('page-outlet');
  if (!outletEl) return;
@@ -2426,6 +2435,15 @@ ${content}
         }
       }
       return;
+    }
+
+    // [관리자 전자책 도서관: 검수 도서 선택 전환]
+    const previewBookBtn = target.closest('.btn-admin-preview-book') as HTMLElement | null;
+    if (previewBookBtn) {
+      const bId = previewBookBtn.dataset.bookId;
+      if (bId) {
+        setSelectedPreviewBookId(bId);
+      }
     }
 
     // 관리자 탭 전환

@@ -21,6 +21,7 @@ import { renderAdminInquiriesPanel, expandSpecificInquiry } from './AdminInquiri
 import { renderAdminReviewsPanel } from './AdminReviewsPanel.js';
 import { renderAdminLifeAnalysisPanel } from './AdminLifeAnalysisPanel.js';
 import { renderAdminSeoWikiHubPanel } from './AdminSeoWikiHubPanel.js';
+import { renderAdminEbookLibraryPanel } from './AdminEbookLibraryPanel.js';
 
 
 let activeEditingStudyArticleId: string | null = null;
@@ -158,6 +159,10 @@ export function renderAdminDashboardView(): string {
           ]
         },
         {
+          id: 'tab-ebook-library',
+          label: '전자책',
+        },
+        {
           id: 'tab-seo-wiki-hub',
           label: 'SEO 키워드 웹서비스',
         }
@@ -200,7 +205,7 @@ export function renderAdminDashboardView(): string {
   );
   if (!activeGroup) {
     if (['tab-store', 'tab-store-register', 'tab-store-orders', 'tab-store-categories', 'tab-orders', 'tab-vouchers'].includes(currentTab)) activeGroup = adminGroups[1];
-    else if (['tab-study-articles', 'tab-study-write', 'tab-study-categories', 'tab-study', 'tab-seo-wiki-hub'].includes(currentTab)) activeGroup = adminGroups[2];
+    else if (['tab-study-articles', 'tab-study-write', 'tab-study-categories', 'tab-study', 'tab-ebook-library', 'tab-seo-wiki-hub'].includes(currentTab)) activeGroup = adminGroups[2];
     else if (currentTab === 'tab-products') activeGroup = adminGroups[5];
     else activeGroup = adminGroups[0];
   }
@@ -246,7 +251,7 @@ export function renderAdminDashboardView(): string {
         <div>
           <div style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 800; color: #dfe2f1; line-height: 1.15; display: flex; align-items: center; gap: 0.45rem;">
             마보살 관리자
-            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v1.9.7</span>
+            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v1.9.8</span>
           </div>
           <div style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.05em;">ADMIN CONTROL TOWER</div>
         </div>
@@ -1396,6 +1401,11 @@ export function renderAdminDashboardView(): string {
 
           <div id="tab-store" class="admin-tab-panel" style="display: ${['tab-store', 'tab-store-register', 'tab-store-orders', 'tab-store-categories'].includes(currentTab) ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
             ${renderAdminStorePanel(activeEditingStoreProductId, currentTab === 'tab-store-register' ? 'register' : (currentTab === 'tab-store-orders' ? 'orders' : (currentTab === 'tab-store-categories' ? 'categories' : 'products')))}
+          </div>
+
+          <!-- [패널] 컨텐츠 > 전자책 디지털 도서관 (발행 & 검수 센터) -->
+          <div id="tab-ebook-library" class="admin-tab-panel" style="display: ${currentTab === 'tab-ebook-library' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+            ${renderAdminEbookLibraryPanel()}
           </div>
 
           <!-- [컨텐츠 > 스터디 3대 서브카테고리 독립 패널 워크스페이스] -->
