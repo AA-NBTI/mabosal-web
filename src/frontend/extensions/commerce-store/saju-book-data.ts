@@ -39,7 +39,7 @@ export const SAJU_BOOK_VOL1_PRODUCT: StoreProduct = {
       price: 29000,
       originalPrice: 45000,
       deliveryType: 'digital_download',
-      description: '정통 원론 전 22페이지 고밀도 조견표 PDF 다운로드 & 영구 소장'
+      description: '정통 원론 전 22페이지 고밀도 조견표 PDF 다운로드'
     },
     {
       id: 'opt-vol1-pdf-art',
@@ -365,25 +365,29 @@ export const SAJU_BOOK_VOL1_PRODUCT: StoreProduct = {
 
 export const SAJU_BOOK_VOL2_PRODUCT: StoreProduct = {
   id: 'book-saju-principles-vol2',
-  title: '[전자책] 정통 사주명리학 원론 제2권: 십성의 심리학과 격국용신론',
+  title: '[전자책] 정통 사주명리학 원론 제2권: 십성(육친)의 심리학과 격국(格局)·용신(用神)론',
   category: 'ebook',
   price: 29000,
   originalPrice: 45000,
-  tagLine: '10대 성정(비견·겁재·식신·상관·편재·정재·편관·정관·편인·정인) 심리 구조와 8대 정격·외격 및 용신 판별법',
+  tagLine: '10성 심리와 4주 궁위(연·월·일·시), 자평진전 8정격의 성패와 5대 용신(억부·조후·병약·통관·전왕) 정밀 추출 마스터북',
   badge: '정통 명저 · 2권',
-  summary: '인간의 행동 패턴과 재물·직업 성취의 핵심인 십성(十星)의 심리학과 억부·조후·통관 3대 용신 및 8대 정격의 성패를 완벽 해설한 마스터북 제2권입니다.',
-  description: '사주명리학에서 인간의 내면 동기와 사회적 대인관계를 읽어내는 가장 강력한 도구가 바로 십성(十星)입니다. 『정통 사주명리학 원론 제2권』은 비겁(주체성·독립), 식상(표현·생산), 재성(통제·결실), 관성(규범·책임), 인성(수용·학문)의 10대 심리 역학을 현대 심리학과 접목하여 명쾌하게 해설합니다. 나아가 사주의 중심축인 월지(月令)에서 비롯되는 8대 정격(관인상생격, 식신생재격, 살인상생격 등)과 파격(破格)의 구응(救應) 원리, 억부용신·조후용신·통관용신을 잡는 고전 정통 공식을 체계화하였습니다.',
-  thumbnailUrl: '/images/store/saju-vol2-cover.jpg',
+  summary: '인간관계와 사회적 적성을 해독하는 10성 역학, 자평진전 8정격의 성격·파격 판별법, 5대 용신과 5단계 통변 알고리즘을 완벽 체계화한 22페이지 고화질 마스터 조견표 판본입니다.',
+  description: '제1권의 음양오행과 간지가 명조를 구성하는 자연적 원재료라면, 『정통 사주명리학 원론 제2권: 십성(육친)의 심리학과 격국·용신론』은 그 원재료들이 일간(나)을 중심으로 어떠한 사회적 관계망(십성·궁위)을 형성하고, 어떠한 직업적 그릇(격국)을 지녔으며, 사주 전체의 균형과 성패를 좌우하는 핵심 중추(용신과 상신)가 무엇인지를 판별하는 정통 자평명리학의 핵심 원론서입니다.',
+  thumbnailUrl: '/ebooks/vol2/page-1.webp',
   thumbnailIcon: 'psychology',
   galleryImages: [
-    '/images/store/saju-vol2-cover.jpg',
-    '/images/store/saju-vol1-elements.jpg',
-    '/images/store/saju-vol1-study.jpg'
+    '/ebooks/vol2/page-1.webp',
+    '/ebooks/vol2/page-2.webp',
+    '/ebooks/vol2/page-3.webp',
+    '/ebooks/vol2/page-8.webp',
+    '/ebooks/vol2/page-17.webp'
   ],
   detailImages: [
-    '/images/store/saju-vol2-cover.jpg',
-    '/images/store/saju-vol1-elements.jpg',
-    '/images/store/saju-vol1-study.jpg'
+    '/ebooks/vol2/page-1.webp',
+    '/ebooks/vol2/page-2.webp',
+    '/ebooks/vol2/page-3.webp',
+    '/ebooks/vol2/page-8.webp',
+    '/ebooks/vol2/page-17.webp'
   ],
   deliveryType: 'digital_download',
   contentPayload: '/assets/downloads/saju_principles_vol2_master.pdf',
@@ -394,11 +398,11 @@ export const SAJU_BOOK_VOL2_PRODUCT: StoreProduct = {
   options: [
     {
       id: 'opt-vol2-pdf',
-      name: '[기본형] 전자책(PDF) 마스터 판본 (즉시 다운로드)',
+      name: '[기본형] 전자책(PDF) 마스터 판본 (즉시 다운로드 & 웹 뷰어)',
       price: 29000,
       originalPrice: 45000,
       deliveryType: 'digital_download',
-      description: '제2권 십성 심리 및 격국용신 완벽 마스터 PDF 다운로드 & 영구 소장'
+      description: '제2권 십성 심리 및 격국용신 완벽 마스터 PDF 다운로드 & 웹 뷰어'
     },
     {
       id: 'opt-vol2-pdf-art',
@@ -419,24 +423,261 @@ export const SAJU_BOOK_VOL2_PRODUCT: StoreProduct = {
   ],
   detailsHtml: `
     <div class="saju-book-detail" style="color: #e2e8f0; font-size: 0.92rem; line-height: 1.75;">
-      <div style="background: linear-gradient(135deg, rgba(242, 202, 80, 0.12), rgba(15, 23, 42, 0.8)); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
-        <div style="display: flex; align-items: center; gap: 0.6rem; color: #f2ca50; font-weight: 700; font-size: 1.05rem; margin-bottom: 0.6rem;">
-          <span class="material-symbols-outlined" style="font-size: 24px;">psychology</span>
-          마보살 명리학 디지털 아카이브 • 정통 원론 제2권 완결본
+      
+      <!-- 상단 마스터 인트로 배너 & 웹 뷰어 미리보기 연동 -->
+      <div style="background: linear-gradient(135deg, rgba(242, 202, 80, 0.14), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.6rem; color: #f2ca50; font-weight: 700; font-size: 1.05rem;">
+            <span class="material-symbols-outlined" style="font-size: 24px;">psychology</span>
+            <span>마보살 명리학 디지털 아카이브 • 정통 원론 제2권 완결본</span>
+          </div>
+          <a href="/reader?bookId=book-saju-principles-vol2&from=store&page=1" data-nav="/reader?bookId=book-saju-principles-vol2&from=store&page=1" style="background: var(--primary); color: #1e1e1e; font-weight: 800; font-size: 0.82rem; padding: 0.45rem 0.95rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; box-shadow: 0 2px 8px rgba(242,202,80,0.3);">
+            <span class="material-symbols-outlined" style="font-size: 16px;">auto_stories</span>
+            <span>미리보기</span>
+          </a>
         </div>
-        <p style="margin: 0 0 1rem 0; color: #cbd5e1; font-size: 0.9rem;">
-          십성(十星)은 음양오행이 일간(나)과 맺는 관계성을 10가지 페르소나로 체계화한 동양 심리학의 극치입니다. 내면의 욕망, 재능, 직업 적성, 그리고 인생의 무게중심을 정확하게 진단합니다.
+        <p style="margin: 0 0 1rem 0; color: #cbd5e1; font-size: 0.9rem; line-height: 1.65;">
+          사주 감명의 골격은 <strong>십성(十星)</strong>으로 개인의 내면 심리와 인간관계를 읽고, <strong>격국(格局)</strong>으로 사회 속에서 수행할 사명과 조직적 그릇을 정하며, <strong>용신(用神)</strong>으로 삶의 불균형을 치유할 핵심 전략을 세우는 데 있습니다. 고전 『자평진전』의 격국론, 『적천수』의 억부형상론, 『궁통보감』의 조후론을 입체적으로 통합한 마스터 핸드북입니다.
         </p>
+        <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; font-size: 0.8rem;">
+          <span style="background: rgba(242, 202, 80, 0.15); color: #f2ca50; border: 1px solid rgba(242, 202, 80, 0.3); padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 700;">전 22페이지 고밀도 마스터 조견표</span>
+          <span style="background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.2rem 0.6rem; border-radius: 4px;">A4 실물 인쇄본 1:1 리얼 페이퍼 시트</span>
+          <span style="background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); padding: 0.2rem 0.6rem; border-radius: 4px; font-weight: 700;">인앱 고화질 웹 뷰어 영구 열람</span>
+        </div>
       </div>
-      <h3 style="color: #f2ca50; font-size: 1.15rem; margin: 2rem 0 1rem 0; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid rgba(242, 202, 80, 0.2); padding-bottom: 0.5rem;">
-        <span class="material-symbols-outlined" style="font-size: 22px;">toc</span>
-        제2권 핵심 수록 주제 및 격국용신 체계
-      </h3>
-      <ul style="color: #cbd5e1; line-height: 1.8; margin-bottom: 2rem;">
-        <li><strong>제1부 10대 십성의 심리 메커니즘</strong>: 비견·겁재(독립과 경쟁), 식신·상관(창의와 표출), 편재·정재(경영과 관리), 편관·정관(권력과 원칙), 편인·정인(통찰과 수용)</li>
-        <li><strong>제2부 월령(月令)과 격국(格局)의 성패</strong>: 자평진전 기준 8대 정격(식신격, 정관격, 정인격, 재격 등)의 성격(成格) 조건 및 파격(破格) 극복법</li>
-        <li><strong>제3부 3대 용신(用神) 판별 공식</strong>: 신강·신약을 다스리는 억부용신, 계절의 온도를 맞추는 조후용신, 막힌 기운을 뚫는 통관용신 실전 적용</li>
-      </ul>
+
+      <!-- 실제 원본 내지 미리보기 갤러리 스트립 -->
+      <div style="margin-bottom: 2.25rem;">
+        <h3 style="color: #f2ca50; font-size: 1.1rem; font-weight: 800; margin: 0 0 0.85rem 0; display: flex; align-items: center; gap: 0.5rem;">
+          <span class="material-symbols-outlined" style="font-size: 22px;">photo_library</span>
+          실제 책자 고화질 내지 갤러리 (A4 실물 페이퍼 시트)
+        </h3>
+        <p style="font-size: 0.85rem; color: #94a3b8; margin: 0 0 1rem 0;">
+          단순한 텍스트 나열이 아닌, 현장에서 한눈에 펼쳐볼 수 있도록 고안된 실물 조견표 판본의 실제 페이지들입니다.
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem;">
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; overflow: hidden; text-align: center;">
+            <img src="/ebooks/vol2/page-1.webp" alt="정통 사주명리학 원론 제2권 표지" style="width: 100%; height: auto; display: block; aspect-ratio: 1 / 1.414; object-fit: cover;" />
+            <div style="padding: 0.5rem; font-size: 0.78rem; font-weight: 700; color: #f2ca50; background: rgba(0,0,0,0.4);">01p. 정식 표지 &amp; 총론 초록</div>
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; overflow: hidden; text-align: center;">
+            <img src="/ebooks/vol2/page-2.webp" alt="제2권 마스터 목차" style="width: 100%; height: auto; display: block; aspect-ratio: 1 / 1.414; object-fit: cover;" />
+            <div style="padding: 0.5rem; font-size: 0.78rem; font-weight: 700; color: #cbd5e1; background: rgba(0,0,0,0.4);">02p. 서문 &amp; 22p 마스터 목차</div>
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; overflow: hidden; text-align: center;">
+            <img src="/ebooks/vol2/page-3.webp" alt="십성 성립 원리와 4주 궁위 총론" style="width: 100%; height: auto; display: block; aspect-ratio: 1 / 1.414; object-fit: cover;" />
+            <div style="padding: 0.5rem; font-size: 0.78rem; font-weight: 700; color: #cbd5e1; background: rgba(0,0,0,0.4);">03p. 십성 원리 &amp; 4주 궁위표</div>
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; overflow: hidden; text-align: center;">
+            <img src="/ebooks/vol2/page-8.webp" alt="월령 지장간 취격 마스터 표" style="width: 100%; height: auto; display: block; aspect-ratio: 1 / 1.414; object-fit: cover;" />
+            <div style="padding: 0.5rem; font-size: 0.78rem; font-weight: 700; color: #cbd5e1; background: rgba(0,0,0,0.4);">08p. 8정격 취격 마스터 조견표</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 제2권 4대 편찬 체계 및 전체 목차 일람 (원문 일치) -->
+      <div style="background: rgba(30, 41, 59, 0.45); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="color: #f2ca50; font-size: 1.15rem; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid rgba(242, 202, 80, 0.2); padding-bottom: 0.5rem;">
+          <span class="material-symbols-outlined" style="font-size: 22px;">toc</span>
+          제2권 4대 편찬 체계 및 22페이지 마스터 로드맵
+        </h3>
+        
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.84rem; background: rgba(0,0,0,0.25);">
+            <thead>
+              <tr style="background: rgba(242, 202, 80, 0.12); color: #f2ca50;">
+                <th style="padding: 0.65rem; width: 110px; text-align: left;">편찬 구분</th>
+                <th style="padding: 0.65rem; width: 80px; text-align: center;">쪽수</th>
+                <th style="padding: 0.65rem; text-align: left;">핵심 연구 영역 및 장 제목</th>
+                <th style="padding: 0.65rem; text-align: left;">주요 수록 법칙 및 마스터 조견표</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+                <td style="padding: 0.65rem; font-weight: 700; color: #cbd5e1;">권두언</td>
+                <td style="padding: 0.65rem; text-align: center; color: #94a3b8;">01p~02p</td>
+                <td style="padding: 0.65rem;">표지 초록 및 서문(序文) · 제2권 마스터 목차</td>
+                <td style="padding: 0.65rem; color: #cbd5e1;">제2권 4대 편찬 체계 및 십성×격국×용신 입체 결합론</td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+                <td style="padding: 0.65rem; font-weight: 700; color: #60a5fa;">제 1 부</td>
+                <td style="padding: 0.65rem; text-align: center; color: #60a5fa; font-weight: 700;">03p~07p</td>
+                <td style="padding: 0.65rem;">
+                  <strong>십성(육친)의 심리학과 궁위(宮位)</strong><br/>
+                  <span style="font-size: 0.78rem; color: #94a3b8;">03p 궁위원리 · 04p 비겁 · 05p 식상 · 06p 재성 · 07p 관성·인성</span>
+                </td>
+                <td style="padding: 0.65rem; color: #cbd5e1;">
+                  십성 산출 원리와 4주 궁위(연·월·일·시 근묘화실) 배속, 비견·겁재·식신·상관·정재·편재·정관·편관·정인·편인 10대 심리와 현대 직무 적성 비교표
+                </td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+                <td style="padding: 0.65rem; font-weight: 700; color: #a78bfa;">제 2 부</td>
+                <td style="padding: 0.65rem; text-align: center; color: #a78bfa; font-weight: 700;">08p~13p</td>
+                <td style="padding: 0.65rem;">
+                  <strong>내격(8정격)의 성립과 성패</strong><br/>
+                  <span style="font-size: 0.78rem; color: #94a3b8;">08p 지장간 취격 · 09p 정관격 · 10p 칠살격 · 11p 재격 · 12~13p 인성·식상격</span>
+                </td>
+                <td style="padding: 0.65rem; color: #cbd5e1;">
+                  월령 지장간(인원용사) 투출 취격법, 8정격(정관·편관·정재·편재·정인·편인·식신·상관)의 성격·파격 판독표, 상관견관·관살혼잡·군겁쟁재 구제 원리
+                </td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+                <td style="padding: 0.65rem; font-weight: 700; color: #34d399;">제 3 부</td>
+                <td style="padding: 0.65rem; text-align: center; color: #34d399; font-weight: 700;">14p~16p</td>
+                <td style="padding: 0.65rem;">
+                  <strong>건록·양인격 및 외격(종·전왕)</strong><br/>
+                  <span style="font-size: 0.78rem; color: #94a3b8;">14p 건록·양인 · 15p 4대 종격 · 16p 5대 전왕격·화기격</span>
+                </td>
+                <td style="padding: 0.65rem; color: #cbd5e1;">
+                  건록격·양인격의 용관·용재·용식상 법칙, 4대 종격(종아·종재·종살·종세) 및 가종격, 5대 전왕격(곡직·염상·가색·종혁·윤하)과 화기격 성립 조견표
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 0.65rem; font-weight: 700; color: #f2ca50;">제 4 부</td>
+                <td style="padding: 0.65rem; text-align: center; color: #f2ca50; font-weight: 700;">17p~22p</td>
+                <td style="padding: 0.65rem;">
+                  <strong>5대 용신법과 희신·기신</strong><br/>
+                  <span style="font-size: 0.78rem; color: #94a3b8;">17p 억부 · 18p 조후 · 19p 통관·병약 · 20p 6대 세력 · 21~22p 5단계 알고리즘</span>
+                </td>
+                <td style="padding: 0.65rem; color: #cbd5e1;">
+                  억부·조후·병약·통관·전왕 용신 정밀 추출 프로토콜, 용·상·희·기·구·한 6대 세력 판독법 및 격국·용신 실전 통변 5단계 종합 알고리즘
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 제1부 핵심 발췌: 10대 십성의 심리 메커니즘 & 직무 배속 -->
+      <div style="background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h4 style="color: #60a5fa; margin: 0 0 0.8rem 0; font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span class="material-symbols-outlined" style="font-size: 22px;">group</span>
+          [제 1 부 핵심] 10대 십성 심리 구조와 현대 직무 적성
+        </h4>
+        <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 1rem;">
+          일간과 음양이 같은 결합(편·偏)은 전문적 몰입과 결단력을, 음양이 다른 결합(정·正)은 사회적 유대와 합리적 규범성을 발현합니다.
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.75rem; font-size: 0.82rem;">
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(96, 165, 250, 0.2); border-radius: 8px; padding: 0.85rem;">
+            <strong style="color: #60a5fa; font-size: 0.9rem;">비겁 (比肩 · 劫財)</strong><br/>
+            · <strong>비견</strong>: 독립성, 주체적 자존심, 동업·동료 협력 / 전문직, 1인 창업<br/>
+            · <strong>겁재</strong>: 승부사 기질, 탈재(奪財)와 반전의 돌파력 / 투자, 고위험 사업
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(96, 165, 250, 0.2); border-radius: 8px; padding: 0.85rem;">
+            <strong style="color: #60a5fa; font-size: 0.9rem;">식상 (食神 · 傷官)</strong><br/>
+            · <strong>식신</strong>: 심층 탐구력, 의식주 생산, 수명·건강복 / 연구, 엔지니어, 미식<br/>
+            · <strong>상관</strong>: 파격적 창의력, 비판적 언변, 기획 순발력 / 예술, 마케팅, 컨설팅
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(96, 165, 250, 0.2); border-radius: 8px; padding: 0.85rem;">
+            <strong style="color: #60a5fa; font-size: 0.9rem;">재성 (正財 · 偏財)</strong><br/>
+            · <strong>정재</strong>: 정밀한 자산 관리, 신용, 안정적 결실 / 회계, 금융, 정규직 경영<br/>
+            · <strong>편재</strong>: 광역 공간 지각, 유통 자본, 공격적 스케일업 / 무역, 플랫폼 사업
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(96, 165, 250, 0.2); border-radius: 8px; padding: 0.85rem;">
+            <strong style="color: #60a5fa; font-size: 0.9rem;">관성 (正官 · 偏官)</strong><br/>
+            · <strong>정관</strong>: 사회적 명예, 공적 규범 준수, 승진 / 공직, 대기업 관리직<br/>
+            · <strong>편관(칠살)</strong>: 카리스마, 위기 극복, 강력한 통솔권 / 특수직, 권력기관, CEO
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(96, 165, 250, 0.2); border-radius: 8px; padding: 0.85rem;">
+            <strong style="color: #60a5fa; font-size: 0.9rem;">인성 (正印 · 偏印)</strong><br/>
+            · <strong>정인</strong>: 보편적 학문, 자비심, 지적 수용력 / 교수, 교육, 행정, 학술<br/>
+            · <strong>편인</strong>: 직관 통찰력, 특수 기술, 비주류 통섭 / 의약, IT개발, 철학·심리
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(96, 165, 250, 0.2); border-radius: 8px; padding: 0.85rem;">
+            <strong style="color: #f2ca50; font-size: 0.9rem;">4주 궁위론 (根苗花實)</strong><br/>
+            · <strong>연주(뿌리)</strong>: 유년기(1~15세), 조상과 국가적 배경<br/>
+            · <strong>월주(줄기)</strong>: 청년기(16~30세), 부모·형제 및 사회적 직업 환경<br/>
+            · <strong>일주(꽃)</strong>: 중년기(31~45세), 본인과 배우자궁<br/>
+            · <strong>시주(열매)</strong>: 말년기(46세~), 자녀와 최종 미래 지향점
+          </div>
+        </div>
+      </div>
+
+      <!-- 제2부 핵심 발췌: 8정격 성격과 파격 구제표 -->
+      <div style="background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h4 style="color: #a78bfa; margin: 0 0 0.8rem 0; font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span class="material-symbols-outlined" style="font-size: 22px;">schema</span>
+          [제 2 부 핵심] 자평진전 8정격(八正格) 성격(成格)과 파격 구제표
+        </h4>
+        <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 1rem;">
+          월령(月令)에서 비롯되는 8정격의 귀천과 성패를 결정하는 상신(相神)의 배합 원리를 명쾌하게 공식화하였습니다.
+        </p>
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem; background: rgba(0,0,0,0.25);">
+            <thead>
+              <tr style="background: rgba(167, 139, 250, 0.12); color: #a78bfa;">
+                <th style="padding: 0.55rem; width: 85px;">격국</th>
+                <th style="padding: 0.55rem; width: 140px;">성격(成格) 조건 (상신)</th>
+                <th style="padding: 0.55rem; width: 140px;">파격(破格) 요인</th>
+                <th style="padding: 0.55rem;">파격 구제(救應) 공식</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 0.55rem; font-weight: 700; color: #a78bfa;">정관격</td>
+                <td style="padding: 0.55rem;">재생관(財生官), 관인상생</td>
+                <td style="padding: 0.55rem; color: #f87171;">상관견관(傷官見官), 관살혼잡</td>
+                <td style="padding: 0.55rem;">인성으로 상관을 제압(상관패인)하거나 합살유관(合殺留官)</td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 0.55rem; font-weight: 700; color: #a78bfa;">편관격(칠살)</td>
+                <td style="padding: 0.55rem;">식신제살, 살인상생, 양인합살</td>
+                <td style="padding: 0.55rem; color: #f87171;">제복 과다, 재성 생살(財生殺)</td>
+                <td style="padding: 0.55rem;">식신이 태과하면 인성으로 식신을 조율하고 살을 보호</td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 0.55rem; font-weight: 700; color: #a78bfa;">재격(정·편재)</td>
+                <td style="padding: 0.55rem;">식상생재, 재왕생관</td>
+                <td style="padding: 0.55rem; color: #f87171;">군겁쟁재(群劫爭財), 재다신약</td>
+                <td style="padding: 0.55rem;">관성으로 비겁을 제압하거나 식상으로 비겁의 기운을 통관</td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 0.55rem; font-weight: 700; color: #a78bfa;">인수격(정·편인)</td>
+                <td style="padding: 0.55rem;">관인상생, 살인상생, 용재파인</td>
+                <td style="padding: 0.55rem; color: #f87171;">탐재괴인(貪財壞印), 모왕자쇠</td>
+                <td style="padding: 0.55rem;">비겁으로 재성을 견제하여 인성을 보호하거나 관성으로 통관</td>
+              </tr>
+              <tr>
+                <td style="padding: 0.55rem; font-weight: 700; color: #a78bfa;">식상격</td>
+                <td style="padding: 0.55rem;">식신생재, 식신제살, 상관패인</td>
+                <td style="padding: 0.55rem; color: #f87171;">도식(梟神奪食), 상관견관</td>
+                <td style="padding: 0.55rem;">편재로 편인을 극제하여 식신을 구제하거나 인성으로 상관을 수양</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 제4부 완결: 5대 용신 추출 프로토콜 & 5단계 통변 체크리스트 -->
+      <div style="background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;">
+        <h4 style="color: #f2ca50; margin: 0 0 0.8rem 0; font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span class="material-symbols-outlined" style="font-size: 22px;">checklist</span>
+          [완결 부록] 제 2 권 격국·용신 실전 통변 5단계 종합 프로토콜
+        </h4>
+        <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.86rem; color: #e2e8f0;">
+          <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+            <span style="color: #f2ca50; font-weight: 700;">단계 1.</span>
+            <span><strong>월령 취격(取格) 판정</strong>: 월지 지장간(여기·중기·정기) 중 천간에 투출한 글자를 기준으로 정격(8정격) 또는 건록·양인·외격을 확정했는가?</span>
+          </div>
+          <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+            <span style="color: #f2ca50; font-weight: 700;">단계 2.</span>
+            <span><strong>성격(成格) vs 파격(破格) 식별</strong>: 격을 돕는 상신(相神)이 유력한가, 아니면 상관견관·군겁쟁재 등 파격 요인이 발생했는가?</span>
+          </div>
+          <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+            <span style="color: #f2ca50; font-weight: 700;">단계 3.</span>
+            <span><strong>구응(救應)의 존재 검증</strong>: 파격이 발생했다면, 이를 구제하는 약신(인성의 상관패인, 합살 등)이 원국이나 지장간에 존재하는가?</span>
+          </div>
+          <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+            <span style="color: #f2ca50; font-weight: 700;">단계 4.</span>
+            <span><strong>5대 용신(억부·조후·병약·통관·전왕) 선용</strong>: 계절적 조후가 시급한지, 신강신약의 억부가 우선인지 우선순위 규칙에 따라 핵심 용신과 희신을 확정했는가?</span>
+          </div>
+          <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+            <span style="color: #f2ca50; font-weight: 700;">단계 5.</span>
+            <span><strong>용·상·희·기·구·한 6대 세력 판독</strong>: 내 삶의 무기(용신)와 무기를 보호하는 수호신(상신·희신), 그리고 이를 파괴하는 기신·구신을 구분하여 대운의 길흉을 판별할 준비를 마쳤는가?</span>
+          </div>
+        </div>
+      </div>
+
     </div>
   `
 };
@@ -476,7 +717,7 @@ export const SAJU_BOOK_VOL3_PRODUCT: StoreProduct = {
       price: 29000,
       originalPrice: 45000,
       deliveryType: 'digital_download',
-      description: '제3권 합충형파해 및 12운성·신살 완벽 마스터 PDF 다운로드 & 영구 소장'
+      description: '제3권 합충형파해 및 12운성·신살 완벽 마스터 PDF 다운로드'
     },
     {
       id: 'opt-vol3-pdf-art',
@@ -554,7 +795,7 @@ export const SAJU_BOOK_VOL4_PRODUCT: StoreProduct = {
       price: 29000,
       originalPrice: 45000,
       deliveryType: 'digital_download',
-      description: '제4권 대운세운 추명 및 실전 50대 통변 사례집 PDF 다운로드 & 영구 소장'
+      description: '제4권 대운세운 추명 및 실전 50대 통변 사례집 PDF 다운로드'
     },
     {
       id: 'opt-vol4-pdf-art',

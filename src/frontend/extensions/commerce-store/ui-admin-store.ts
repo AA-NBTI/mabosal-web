@@ -58,16 +58,17 @@ function esc(text: string): string {
     .replace(/"/g, '&quot;');
 }
 
-const CATEGORY_ORDER: StoreCategoryType[] = ['report', 'voucher', 'ebook', 'lecture', 'consulting', 'goods'];
+const CATEGORY_ORDER: StoreCategoryType[] = ['report', 'ebook', 'lecture', 'goods'];
 
-const CATEGORY_META: Record<StoreCategoryType, { title: string; badgeColor: string; icon: string }> = {
+const CATEGORY_META: Record<string, { title: string; badgeColor: string; icon: string }> = {
   all: { title: '전체 상품', badgeColor: '#f2ca50', icon: 'apps' },
-  report: { title: '4대 정밀 감정 리포트', badgeColor: '#f2ca50', icon: 'auto_awesome' },
-  voucher: { title: '상품권 · 바우처', badgeColor: '#38bdf8', icon: 'confirmation_number' },
-  ebook: { title: '전자책 · 가이드', badgeColor: '#f2ca50', icon: 'menu_book' },
-  lecture: { title: '강의 · VOD', badgeColor: '#f2ca50', icon: 'smart_display' },
-  consulting: { title: '1:1 상담권', badgeColor: '#dfe2f1', icon: 'support_agent' },
-  goods: { title: '부적 · 굿즈', badgeColor: '#dfe2f1', icon: 'token' },
+  report: { title: '사주', badgeColor: '#f2ca50', icon: 'auto_awesome' },
+  saju: { title: '사주', badgeColor: '#f2ca50', icon: 'auto_awesome' },
+  ebook: { title: '도서', badgeColor: '#f2ca50', icon: 'menu_book' },
+  lecture: { title: '강의', badgeColor: '#f2ca50', icon: 'smart_display' },
+  goods: { title: '굿즈', badgeColor: '#dfe2f1', icon: 'token' },
+  voucher: { title: '상품권', badgeColor: '#38bdf8', icon: 'confirmation_number' },
+  consulting: { title: '상담권', badgeColor: '#dfe2f1', icon: 'support_agent' },
 };
 
 export function renderAdminStorePanel(editingProductId?: string | null, forcedSubTab?: 'products' | 'register' | 'orders' | 'categories'): string {
@@ -80,7 +81,7 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
     .reduce((sum, o) => sum + o.amount, 0);
 
   const editItem = editingProductId ? getStoreProductById(editingProductId) : undefined;
-  const activeTab = forcedSubTab || (editItem ? 'register' : adminSubTab);
+  const activeTab = editItem ? 'register' : (forcedSubTab || adminSubTab);
 
   const allCategories = getStoreCategories();
   // 카테고리별 개수 카운트
@@ -176,13 +177,13 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
             </div>
           </div>
 
-          <!-- 상품 목록 테이블 -->
+          <!-- 상품 목록 테이블 (1줄 1상품, 카테고리 선두, 보조설명 제거 및 제목 클릭 시 상품 열림) -->
           <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.82rem; color: #dfe2f1;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.82rem; color: #dfe2f1; white-space: nowrap;">
               <thead>
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);">
-                  <th style="padding: 0.75rem 0.6rem;">상품명 &amp; 한 줄 소개</th>
-                  <th style="padding: 0.75rem 0.6rem;">카테고리</th>
+                  <th style="padding: 0.75rem 0.6rem; width: 110px;">카테고리</th>
+                  <th style="padding: 0.75rem 0.6rem;">상품명 (클릭 시 이동)</th>
                   <th style="padding: 0.75rem 0.6rem;">판매 가격</th>
                   <th style="padding: 0.75rem 0.6rem;">누적 판매</th>
                   <th style="padding: 0.75rem 0.6rem;">등록일</th>
@@ -199,50 +200,62 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                   const displayCatTitle = catItem ? esc(catItem.label) : meta.title;
                   const displayIcon = p.thumbnailIcon || catItem?.icon || meta.icon || 'category';
                   const regDateStr = p.createdAt ? p.createdAt.slice(0, 10).replace(/-/g, '.') : '-';
+                  const MAX_TITLE_LEN = 28;
+                  const shortTitle = p.title.length > MAX_TITLE_LEN ? p.title.slice(0, MAX_TITLE_LEN) + '…' : p.title;
 
                   return `
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                      <td style="padding: 0.75rem 0.6rem;">
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                          <span class="material-symbols-outlined" style="color: var(--primary); font-size: 22px;">${displayIcon}</span>
-                          <div>
-                            <strong style="color: #fff; font-size: 0.88rem;">${esc(p.title)}</strong>
-                            <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 0.15rem;">${esc(p.tagLine)}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td style="padding: 0.75rem 0.6rem;">
-                        <span style="background: rgba(242,202,80,0.12); color: ${meta.badgeColor}; padding: 0.2rem 0.55rem; border-radius: 4px; font-size: 0.74rem; font-weight: 700; white-space: nowrap;">
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.04); height: 48px;">
+                      <!-- 1. 카테고리 맨 앞 배치 -->
+                      <td style="padding: 0.55rem 0.6rem; white-space: nowrap;">
+                        <span style="background: rgba(242,202,80,0.12); color: ${meta.badgeColor}; padding: 0.2rem 0.55rem; border-radius: 4px; font-size: 0.74rem; font-weight: 700; display: inline-block;">
                           ${displayCatTitle}
                         </span>
                       </td>
-                      <td style="padding: 0.75rem 0.6rem; font-weight: 800; color: var(--primary); font-size: 0.9rem; white-space: nowrap;">
+
+                      <!-- 2. 상품명 (보조 설명 제거, 일정 글자수 노출, 클릭 시 해당 상품 열림) -->
+                      <td style="padding: 0.55rem 0.6rem; white-space: nowrap;">
+                        <a href="/store?product=${p.id}" target="_blank" title="${esc(p.title)} (클릭 시 해당 상품 새 창 열기)" style="display: inline-flex; align-items: center; gap: 0.4rem; color: #fff; text-decoration: none; font-size: 0.88rem; font-weight: 700; max-width: 380px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color 0.15s ease;" onmouseover="this.style.color='var(--primary)';" onmouseout="this.style.color='#fff';">
+                          <span class="material-symbols-outlined" style="color: var(--primary); font-size: 20px; flex-shrink: 0;">${displayIcon}</span>
+                          <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${esc(shortTitle)}</span>
+                        </a>
+                      </td>
+
+                      <!-- 3. 판매 가격 -->
+                      <td style="padding: 0.55rem 0.6rem; font-weight: 800; color: var(--primary); font-size: 0.9rem; white-space: nowrap;">
                         ₩ ${p.price.toLocaleString()}
                       </td>
-                      <td style="padding: 0.75rem 0.6rem; color: #dfe2f1; font-weight: 800; white-space: nowrap;">
+
+                      <!-- 4. 누적 판매 -->
+                      <td style="padding: 0.55rem 0.6rem; color: #dfe2f1; font-weight: 800; white-space: nowrap;">
                         ${p.salesCount || 0}건
                       </td>
-                      <td style="padding: 0.75rem 0.6rem; color: #94a3b8; font-size: 0.76rem; white-space: nowrap;">
+
+                      <!-- 5. 등록일 -->
+                      <td style="padding: 0.55rem 0.6rem; color: #94a3b8; font-size: 0.76rem; white-space: nowrap;">
                         ${regDateStr}
                       </td>
-                      <td style="padding: 0.75rem 0.6rem;">
-                        <select class="select-product-status-quick" data-product-id="${p.id}" data-product-title="${esc(p.title)}" style="background: var(--surface-container-low); border: 1px solid ${p.status === 'hidden' ? '#94a3b8' : p.status === 'active' ? 'rgba(34, 197, 94, 0.4)' : 'rgba(239, 68, 68, 0.4)'}; color: ${p.status === 'active' ? '#4ade80' : p.status === 'soldout' ? '#f87171' : '#94a3b8'}; padding: 0.3rem 0.55rem; border-radius: 6px; font-size: 0.76rem; font-weight: 800; cursor: pointer;">
+
+                      <!-- 6. 판매 상태 (즉시 저장) -->
+                      <td style="padding: 0.55rem 0.6rem; white-space: nowrap;">
+                        <select class="select-product-status-quick" data-product-id="${p.id}" data-product-title="${esc(p.title)}" style="background: var(--surface-container-low); border: 1px solid ${p.status === 'hidden' ? '#94a3b8' : p.status === 'active' ? 'rgba(34, 197, 94, 0.4)' : 'rgba(239, 68, 68, 0.4)'}; color: ${p.status === 'active' ? '#4ade80' : p.status === 'soldout' ? '#f87171' : '#94a3b8'}; padding: 0.25rem 0.55rem; border-radius: 6px; font-size: 0.76rem; font-weight: 800; cursor: pointer;">
                           <option value="active" ${p.status === 'active' ? 'selected' : ''}>판매중</option>
                           <option value="hidden" ${p.status === 'hidden' ? 'selected' : ''}>종료</option>
                           <option value="soldout" ${p.status === 'soldout' ? 'selected' : ''}>품절</option>
                         </select>
                       </td>
-                      <td style="padding: 0.75rem 0.6rem; text-align: right; white-space: nowrap;">
+
+                      <!-- 7. 관리 조치 -->
+                      <td style="padding: 0.55rem 0.6rem; text-align: right; white-space: nowrap;">
                         ${(p.category === 'ebook' || p.id.includes('book')) ? `
-                          <a href="/reader?bookId=${p.id}" data-nav="/reader?bookId=${p.id}" style="background: rgba(59, 130, 246, 0.18); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 5px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.2rem; margin-right: 0.3rem;" title="관리자 권한으로 전 22페이지 고화질 뷰어 즉시 검수">
+                          <a href="/reader?bookId=${p.id}&from=admin" target="_blank" data-nav="/reader?bookId=${p.id}&from=admin" style="background: rgba(59, 130, 246, 0.18); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.55rem; border-radius: 5px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.2rem; margin-right: 0.3rem;" title="관리자 권한으로 고화질 뷰어 즉시 검수">
                             <span class="material-symbols-outlined" style="font-size: 14px;">visibility</span>
-                            뷰어검수
+                            뷰어
                           </a>
                         ` : ''}
-                        <button type="button" class="btn-edit-store-product" data-product-id="${p.id}" style="background: rgba(242,202,80,0.15); border: 1px solid rgba(242,202,80,0.3); color: var(--primary); font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.65rem; border-radius: 5px; cursor: pointer; margin-right: 0.3rem;">
+                        <button type="button" class="btn-edit-store-product" data-product-id="${p.id}" style="background: rgba(242,202,80,0.15); border: 1px solid rgba(242,202,80,0.3); color: var(--primary); font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 5px; cursor: pointer; margin-right: 0.3rem;">
                           수정
                         </button>
-                        <button type="button" class="btn-delete-store-product" data-product-id="${p.id}" style="background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: #e2e8f0; font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.65rem; border-radius: 5px; cursor: pointer;">
+                        <button type="button" class="btn-delete-store-product" data-product-id="${p.id}" style="background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: #e2e8f0; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 5px; cursor: pointer;">
                           삭제
                         </button>
                       </td>

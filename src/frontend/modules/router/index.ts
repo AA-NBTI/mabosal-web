@@ -87,12 +87,20 @@ export const ROUTE_SEO_CONFIG: Record<string, SeoMetadata> = {
     ogDescription: '흉한 기운은 피하고 길한 기운을 취하는 365일 마보살 달력.',
   },
   store: {
-    title: '마보살 스토어 | 정통 맞춤 개운 부적 & 처방 굿즈 - 마보살',
-    description: '명리 분석 결과에 따라 맞춤 제작되는 디지털/실물 부적, 개운 팔찌, 처방 굿즈 및 정밀 감정 바우처를 만나보세요.',
-    keywords: '개운 부적, 사주 부적, 맞춤 부적, 개운 굿즈, 액막이, 행운 아이템, 마보살 스토어',
+    title: '마보살 스토어 | 정통 사주 · 도서 · 강의 · 굿즈 - 마보살',
+    description: '명리 분석 결과에 따라 맞춤 제작되는 개운 팔찌, 처방 굿즈 및 사주 리포트, 도서, 강의를 만나보세요.',
+    keywords: '사주 굿즈, 사주 부적, 맞춤 부적, 개운 굿즈, 액막이, 행운 아이템, 마보살 스토어',
     canonicalPath: '/store',
-    ogTitle: '마보살 스토어 | 맞춤 개운 부적 & 힐링 굿즈',
+    ogTitle: '마보살 스토어 | 맞춤 사주 굿즈 & 힐링 굿즈',
     ogDescription: '나쁜 기운을 정화하고 복을 부르는 엄선된 개운 처방 아이템.',
+  },
+  subscription: {
+    title: '마보살 프라임 멤버십 | 무제한 사주 리포트 & 도서관 구독 - 마보살',
+    description: '월 9,900원으로 사주 리포트 무제한 열람, 명리 도서관 전권 열람, VOD 강의 무제한 수강, 스토어 20% 상시 할인 혜택을 누리세요.',
+    keywords: '사주 구독, 마보살 멤버십, 프라임 구독, 사주 무제한, 명리학 도서, 정기구독',
+    canonicalPath: '/subscription',
+    ogTitle: '마보살 프라임 멤버십 정기구독',
+    ogDescription: '월 9,900원에 만나는 무제한 사주 리포트와 명리학 도서관 혜택.',
   },
   study: {
     title: '명리학 스터디 허브 | 사주팔자 기초부터 실전 해석 - 마보살',
@@ -157,6 +165,10 @@ export function parseRouteFromLocation(): { view: AppViewType; pathname: string;
       return { view: mapParamToView(viewParam), pathname, params };
     }
     return { view: 'landing', pathname, params };
+  }
+
+  if (pathname === '/subscription' || pathname.startsWith('/subscription/')) {
+    return { view: 'subscription', pathname, params };
   }
 
   // 스토어 서브 경로 및 쿼리 지원 (/store/prod-xxx 또는 /store?product=xxx)
@@ -224,6 +236,7 @@ function mapParamToView(param: string): AppViewType {
     case 'lucky-calendar': return 'lucky-calendar';
     case 'store':
     case 'mall': return 'store';
+    case 'subscription': return 'subscription';
     case 'study': return 'study';
     case 'admin': return 'admin';
     case 'member-dashboard': return 'member-dashboard';
@@ -256,6 +269,7 @@ export function getViewPath(view: AppViewType): string {
     case 'magi-calendar': return '/calendar?tab=magi';
     case 'lucky-calendar': return '/calendar?tab=lucky';
     case 'store': return '/store';
+    case 'subscription': return '/subscription';
     case 'study': return '/study';
     case 'admin': return '/admin';
     case 'member-dashboard': return '/member-dashboard';
@@ -278,7 +292,7 @@ let activePageModule: PageModule | null = null;
  * 독립 Page를 Page Outlet(#page-outlet)에 마운트
  */
 export function mountPageToOutlet(pathname: string, outletEl: HTMLElement): void {
-  const cleanPath = pathname.replace(/\/+$/, '') || '/';
+  const cleanPath = pathname.split('?')[0].replace(/\/+$/, '') || '/';
   const page = getPageByPathname(cleanPath);
 
   if (activePageModule && activePageModule.onDestroy) {
@@ -289,6 +303,10 @@ export function mountPageToOutlet(pathname: string, outletEl: HTMLElement): void
   const urlParams = new URLSearchParams(window.location.search);
   const params: Record<string, string> = {};
   urlParams.forEach((v, k) => { params[k] = v; });
+  if (pathname.includes('?')) {
+    const pathParams = new URLSearchParams(pathname.split('?')[1]);
+    pathParams.forEach((v, k) => { params[k] = v; });
+  }
 
   outletEl.innerHTML = page.render({ state, params, pathname: cleanPath });
   activePageModule = page;

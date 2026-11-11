@@ -238,7 +238,7 @@ export function renderUserOrderHistoryWidget(): string {
                     ` : ''}
 
                     ${o.status === 'completed' && (o.category === 'ebook' || o.productId.includes('book')) ? `
-                      <a href="/reader?bookId=${o.productId}" data-nav="/reader?bookId=${o.productId}" style="background: var(--primary); color: #1e1e1e; font-weight: 800; font-size: 0.82rem; padding: 0.45rem 0.85rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                      <a href="/reader?bookId=${o.productId}&from=dashboard" data-nav="/reader?bookId=${o.productId}&from=dashboard" style="background: var(--primary); color: #1e1e1e; font-weight: 800; font-size: 0.82rem; padding: 0.45rem 0.85rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
                         <span class="material-symbols-outlined" style="font-size: 16px;">auto_stories</span>
                         <span>웹 뷰어로 읽기</span>
                       </a>

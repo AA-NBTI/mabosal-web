@@ -4,6 +4,8 @@ import {
   getCurrentPageNumber,
   getReaderSettings,
   isEbookFullAccessAllowed,
+  getReaderAccessSource,
+  isUserEbookOwner,
 } from '../reader-state.js';
 import { getEbookById, getEbookPage } from '../ebook-registry.js';
 import { renderEbookTocDrawer } from './EbookTocDrawer.js';
@@ -28,11 +30,15 @@ export function renderEbookReaderView(): string {
   const settings = getReaderSettings();
 
   const totalPages = book.totalPageCount;
-  const hasPrev = page.pageNumber > 1;
-  const hasNext = page.pageNumber < totalPages;
-
   const isFullAccess = isEbookFullAccessAllowed(bookId);
+  const maxAllowedPage = isFullAccess ? totalPages : 3;
+
+  const hasPrev = page.pageNumber > 1;
+  const hasNext = page.pageNumber < maxAllowedPage;
   const isPageLocked = !page.isFreePreview && !isFullAccess;
+
+  const source = getReaderAccessSource();
+  const isOwner = isUserEbookOwner(bookId);
 
   const currentUser = AuthService.getCurrentUser();
   const isAdmin = currentUser && currentUser.role === 'admin';
@@ -42,20 +48,20 @@ export function renderEbookReaderView(): string {
 
   // 권한 뱃지 라벨
   let authBadge = '';
-  if (isAdmin) {
+  if (source === 'admin' && isAdmin) {
     authBadge = `<span style="font-size: 0.74rem; background: rgba(59, 130, 246, 0.18); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.35); padding: 0.2rem 0.55rem; border-radius: 9999px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
       <span class="material-symbols-outlined" style="font-size: 14px;">admin_panel_settings</span>
-      관리자 검수 모드 (전 ${totalPages}p)
+      관리자 대시보드 검수 모드 (전 ${totalPages}p)
     </span>`;
-  } else if (isFullAccess) {
+  } else if (source === 'dashboard' && isFullAccess) {
     authBadge = `<span style="font-size: 0.74rem; background: rgba(34, 197, 94, 0.18); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.35); padding: 0.2rem 0.55rem; border-radius: 9999px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
       <span class="material-symbols-outlined" style="font-size: 14px;">verified</span>
-      정식 소장 회원 (전 ${totalPages}p 완결본)
+      구매자 대시보드 정식 소장본 (전 ${totalPages}p 완결본)
     </span>`;
   } else {
     authBadge = `<span style="font-size: 0.74rem; background: rgba(242, 202, 80, 0.18); color: var(--primary); border: 1px solid rgba(242, 202, 80, 0.35); padding: 0.2rem 0.55rem; border-radius: 9999px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.25rem;">
       <span class="material-symbols-outlined" style="font-size: 14px;">visibility</span>
-      무료 미리보기 (01~03p)
+      스토어 맛보기 미리보기 (01~03p)
     </span>`;
   }
 
@@ -120,7 +126,7 @@ export function renderEbookReaderView(): string {
         </button>
 
         <div style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.88rem; font-family: monospace; font-weight: 700;">
-          <input type="number" id="input-jump-page" value="${page.pageNumber}" min="1" max="${totalPages}" style="
+          <input type="number" id="input-jump-page" value="${page.pageNumber}" min="1" max="${maxAllowedPage}" style="
             width: 38px; height: 28px; text-align: center; background: rgba(0,0,0,0.3);
             border: 1px solid var(--pdf-border); color: var(--pdf-accent); border-radius: 4px;
             font-size: 0.88rem; font-weight: 800; font-family: monospace;
@@ -128,7 +134,7 @@ export function renderEbookReaderView(): string {
           <span style="color: var(--pdf-muted);">/ ${totalPages} p</span>
         </div>
 
-        <button type="button" class="btn-ebook-page-next" ${!hasNext ? 'disabled' : ''} title="다음 페이지 (▶ 방향키)" style="
+        <button type="button" class="btn-ebook-page-next" ${!hasNext ? 'disabled' : ''} title="${!hasNext && !isFullAccess ? '미리보기는 3페이지까지 제공됩니다' : '다음 페이지 (▶ 방향키)'}" style="
           background: rgba(255,255,255,0.08); border: 1px solid var(--pdf-border);
           color: ${hasNext ? 'var(--pdf-text)' : 'var(--pdf-muted)'};
           width: 32px; height: 32px; border-radius: 6px;
@@ -166,11 +172,11 @@ export function renderEbookReaderView(): string {
 
     <!-- [중앙 A4 실물 페이퍼 워크스페이스] -->
     <div class="ebook-paper-workspace" style="
-      flex: 1; display: flex; align-items: center; justify-content: center;
-      padding: 2rem 1rem 3.5rem; overflow-x: auto; box-sizing: border-box; position: relative;
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+      padding: 2rem 1rem 4rem; overflow-y: auto; overflow-x: auto; box-sizing: border-box; position: relative;
     ">
       <!-- 좌측 부유 화살표 (이전 쪽) -->
-      <button type="button" class="btn-ebook-page-prev floating-page-btn left" ${!hasPrev ? 'disabled' : ''} style="
+      <button type="button" class="btn-ebook-page-prev floating-page-btn left" ${!hasPrev ? 'disabled' : ''} title="이전 페이지 (◀ 방향키)" style="
         position: fixed; left: 1.5rem; top: 50%; transform: translateY(-50%);
         width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,0.65);
         border: 1.5px solid var(--pdf-border); color: #fff; display: flex; align-items: center; justify-content: center;
@@ -213,11 +219,11 @@ export function renderEbookReaderView(): string {
           "
         />
 
-        <!-- 유료 페이지 잠금 오버레이 (미구매자 4p 이후 접근 시) -->
+        <!-- 유료 페이지 잠금 오버레이 (3p 초과 접근 시 차단) -->
         ${isPageLocked ? `
           <div class="sheet-paywall-overlay" style="
             position: absolute; inset: 0;
-            background: rgba(15, 23, 42, 0.82);
+            background: rgba(15, 23, 42, 0.88);
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             text-align: center; padding: 2rem; box-sizing: border-box; z-index: 20;
@@ -225,34 +231,168 @@ export function renderEbookReaderView(): string {
             <div style="width: 58px; height: 58px; border-radius: 50%; background: rgba(242, 202, 80, 0.15); border: 1.5px solid var(--pdf-accent); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; color: var(--pdf-accent);">
               <span class="material-symbols-outlined" style="font-size: 32px;">lock</span>
             </div>
-            <h3 style="font-size: 1.35rem; font-weight: 900; color: #ffffff; margin: 0 0 0.6rem;">
-              『${book.title}』 정식 완결본
-            </h3>
-            <p style="font-size: 0.92rem; color: #cbd5e1; max-width: 460px; line-height: 1.75; margin: 0 0 1.75rem;">
-              현재 보고 계신 페이지(<strong>${page.pageLabel}: ${page.title || ''}</strong>)를 포함한 <strong>전 ${book.totalPageCount}페이지 고밀도 원본 완결본</strong>은 정식 구매 회원 및 최고 관리자에게 제공됩니다.
-            </p>
-            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
-              <a href="/store?product=${book.storeProductId || book.id}" data-nav="/store?product=${book.storeProductId || book.id}" class="btn-cta-primary" style="
-                background: var(--pdf-accent); color: #1e1e1e; font-weight: 900;
-                padding: 0.8rem 1.75rem; border-radius: 8px; text-decoration: none; font-size: 0.92rem;
-                box-shadow: 0 4px 16px rgba(242,202,80,0.3);
-              ">
-                완결본 열람권 구매 (${book.price.toLocaleString()}원)
-              </a>
-              <button type="button" class="btn-ebook-open-toc" style="
-                background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2);
-                color: #ffffff; font-weight: 700; padding: 0.8rem 1.25rem;
-                border-radius: 8px; cursor: pointer; font-size: 0.9rem;
-              ">
-                무료 01~03p 목차 보기
-              </button>
-            </div>
+
+            ${isOwner && source === 'store' ? `
+              <h3 style="font-size: 1.35rem; font-weight: 900; color: #ffffff; margin: 0 0 0.6rem;">
+                『${book.title}』 이미 구매 완료된 도서입니다
+              </h3>
+              <p style="font-size: 0.92rem; color: #cbd5e1; max-width: 480px; line-height: 1.75; margin: 0 0 1.75rem;">
+                스토어 상품 페이지에서는 <strong>무료 맛보기(01~03페이지)</strong>까지만 제공됩니다.<br/>
+                고객님께서 소장하신 <strong>전 ${book.totalPageCount}페이지 고화질 완결본</strong>은 <strong>[나의 구매 대시보드]</strong>에서 즉시 영구 열람하실 수 있습니다.
+              </p>
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
+                <a href="/member-dashboard" data-nav="/member-dashboard" class="btn-cta-primary" style="
+                  background: var(--pdf-accent); color: #1e1e1e; font-weight: 900;
+                  padding: 0.8rem 1.75rem; border-radius: 8px; text-decoration: none; font-size: 0.92rem;
+                  box-shadow: 0 4px 16px rgba(242,202,80,0.3);
+                ">
+                  나의 구매 대시보드로 이동하여 읽기
+                </a>
+                <button type="button" class="btn-ebook-open-toc" style="
+                  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2);
+                  color: #ffffff; font-weight: 700; padding: 0.8rem 1.25rem;
+                  border-radius: 8px; cursor: pointer; font-size: 0.9rem;
+                ">
+                  무료 01~03p 목차 보기
+                </button>
+              </div>
+            ` : isAdmin && source === 'store' ? `
+              <h3 style="font-size: 1.35rem; font-weight: 900; color: #ffffff; margin: 0 0 0.6rem;">
+                스토어 맛보기 미리보기 모드
+              </h3>
+              <p style="font-size: 0.92rem; color: #cbd5e1; max-width: 480px; line-height: 1.75; margin: 0 0 1.75rem;">
+                스토어 영역에서는 일반 독자 체험용으로 01~03페이지 미리보기 전용으로 작동합니다.<br/>
+                관리자 권한의 <strong>전 ${book.totalPageCount}페이지 완결본 검수</strong>는 <strong>[관리자 대시보드 > 컨텐츠 > 전자책]</strong> 영역에서 진행하실 수 있습니다.
+              </p>
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
+                <a href="/admin" data-nav="/admin" class="btn-cta-primary" style="
+                  background: #2563eb; color: #fff; font-weight: 900;
+                  padding: 0.8rem 1.75rem; border-radius: 8px; text-decoration: none; font-size: 0.92rem;
+                  box-shadow: 0 4px 16px rgba(37,99,235,0.35);
+                ">
+                  관리자 전자책 도서관으로 이동
+                </a>
+                <button type="button" class="btn-ebook-open-toc" style="
+                  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2);
+                  color: #ffffff; font-weight: 700; padding: 0.8rem 1.25rem;
+                  border-radius: 8px; cursor: pointer; font-size: 0.9rem;
+                ">
+                  무료 01~03p 목차 보기
+                </button>
+              </div>
+            ` : `
+              <h3 style="font-size: 1.35rem; font-weight: 900; color: #ffffff; margin: 0 0 0.6rem;">
+                『${book.title}』 정식 완결본 안내
+              </h3>
+              <p style="font-size: 0.92rem; color: #cbd5e1; max-width: 460px; line-height: 1.75; margin: 0 0 1.75rem;">
+                현재 보고 계신 페이지(<strong>${page.pageLabel}: ${page.title || ''}</strong>)를 포함한 <strong>전 ${book.totalPageCount}페이지 고밀도 원본 완결본</strong>은 스토어에서 결제 완료 후 <strong>[구매자 대시보드]</strong>에서 열람하실 수 있습니다.
+              </p>
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
+                <a href="/store?product=${book.storeProductId || book.id}" data-nav="/store?product=${book.storeProductId || book.id}" class="btn-cta-primary" style="
+                  background: var(--pdf-accent); color: #1e1e1e; font-weight: 900;
+                  padding: 0.8rem 1.75rem; border-radius: 8px; text-decoration: none; font-size: 0.92rem;
+                  box-shadow: 0 4px 16px rgba(242,202,80,0.3);
+                ">
+                  완결본 열람권 구매 (${book.price.toLocaleString()}원)
+                </a>
+                <button type="button" class="btn-ebook-open-toc" style="
+                  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2);
+                  color: #ffffff; font-weight: 700; padding: 0.8rem 1.25rem;
+                  border-radius: 8px; cursor: pointer; font-size: 0.9rem;
+                ">
+                  무료 01~03p 목차 보기
+                </button>
+              </div>
+            `}
           </div>
         ` : ''}
       </div>
 
+      <!-- 🌟 [화면 중간 구성] 3페이지 이후(다음 시도 시) 화면 중앙 즉시 안내 모달 -->
+      ${!isFullAccess && page.pageNumber === 3 ? `
+        <div id="ebook-preview-center-modal" class="ebook-preview-center-modal" style="
+          position: fixed; inset: 0; z-index: 999;
+          background: rgba(11, 14, 20, 0.85);
+          backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+          display: none; align-items: center; justify-content: center;
+          padding: 1.5rem; box-sizing: border-box;
+          animation: ebookModalFadeIn 0.2s ease-out;
+        ">
+          <div style="
+            background: #0f172a; border: 2px solid var(--pdf-accent);
+            border-radius: 16px; padding: 2.25rem 2rem 2rem; max-width: 490px; width: 100%;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.85), 0 0 35px rgba(242,202,80,0.22);
+            text-align: center; box-sizing: border-box; position: relative;
+          ">
+            <!-- 우측 상단 닫기 X 버튼 (클릭 시 구매 가능한 상세페이지로 즉시 이동) -->
+            <button type="button" class="btn-return-to-store-detail" title="구매 상세페이지로 이동" style="
+              position: absolute; top: 1.1rem; right: 1.1rem;
+              background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
+              color: #94a3b8; width: 34px; height: 34px; border-radius: 50%;
+              cursor: pointer; display: flex; align-items: center; justify-content: center;
+              transition: all 0.15s ease;
+            ">
+              <span class="material-symbols-outlined" style="font-size: 20px;">close</span>
+            </button>
+
+            <!-- 황금 자물쇠 아이콘 -->
+            <div style="
+              width: 64px; height: 64px; border-radius: 50%;
+              background: rgba(242, 202, 80, 0.15); border: 1.5px solid var(--pdf-accent);
+              color: var(--pdf-accent); display: flex; align-items: center; justify-content: center;
+              margin: 0 auto 1.25rem;
+            ">
+              <span class="material-symbols-outlined" style="font-size: 34px;">lock</span>
+            </div>
+
+            <!-- 제목 및 안내문 -->
+            <h3 style="font-size: 1.35rem; font-weight: 900; color: #ffffff; margin: 0 0 0.75rem;">
+              무료 맛보기가 완료되었습니다
+            </h3>
+            <p style="font-size: 0.92rem; color: #cbd5e1; line-height: 1.7; margin: 0 0 1.75rem;">
+              『${book.title}』 <strong>전 ${totalPages}페이지 고화질 완결본</strong>은<br/>
+              상품 상세페이지에서 간편하게 결제 후 즉시 열람하실 수 있습니다.
+            </p>
+
+            <!-- 구매 바로가기 액션 버튼 -->
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%;">
+              <a href="/store?product=${book.storeProductId || book.id}" data-nav="/store?product=${book.storeProductId || book.id}" class="btn-cta-primary btn-return-to-store-detail" style="
+                background: var(--pdf-accent); color: #1e1e1e; font-weight: 900;
+                padding: 0.9rem 1.5rem; border-radius: 8px; text-decoration: none; font-size: 0.96rem;
+                display: flex; align-items: center; justify-content: center; gap: 0.45rem;
+                box-shadow: 0 4px 16px rgba(242,202,80,0.35);
+              ">
+                <span class="material-symbols-outlined" style="font-size: 20px;">shopping_bag</span>
+                <span>완결본 구매하기 (${book.price.toLocaleString()}원)</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3페이지 하단 가벼운 구매 바로가기 안내 바 -->
+        <div style="
+          margin-top: 1.5rem; width: 100%; max-width: ${780 * zoomScale}px;
+          background: rgba(15, 23, 42, 0.92); border: 1.5px solid var(--pdf-accent);
+          border-radius: 10px; padding: 1rem 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+          display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; box-sizing: border-box;
+        ">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span class="material-symbols-outlined" style="color: var(--pdf-accent); font-size: 22px;">lock</span>
+            <div style="font-size: 0.88rem; color: #e2e8f0; font-weight: 700;">
+              무료 맛보기(01~03p)가 여기까지입니다. 전 ${totalPages}p 완결본을 구매해보세요.
+            </div>
+          </div>
+          <a href="/store?product=${book.storeProductId || book.id}" data-nav="/store?product=${book.storeProductId || book.id}" class="btn-cta-primary btn-return-to-store-detail" style="
+            background: var(--pdf-accent); color: #1e1e1e; font-weight: 800; font-size: 0.84rem;
+            padding: 0.55rem 1.15rem; border-radius: 6px; text-decoration: none;
+          ">
+            완결본 구매하기 (${book.price.toLocaleString()}원)
+          </a>
+        </div>
+      ` : ''}
+
       <!-- 우측 부유 화살표 (다음 쪽) -->
-      <button type="button" class="btn-ebook-page-next floating-page-btn right" ${!hasNext ? 'disabled' : ''} title="다음 페이지 (▶ 방향키)" style="
+      <button type="button" class="btn-ebook-page-next floating-page-btn right" ${!hasNext ? 'disabled' : ''} title="${!hasNext && !isFullAccess ? '미리보기는 3페이지까지 제공됩니다' : '다음 페이지 (▶ 방향키)'}" style="
         position: fixed; right: 1.5rem; top: 50%; transform: translateY(-50%);
         width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,0.65);
         border: 1.5px solid var(--pdf-border); color: #fff; display: flex; align-items: center; justify-content: center;

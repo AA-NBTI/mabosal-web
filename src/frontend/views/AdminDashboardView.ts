@@ -22,6 +22,7 @@ import { renderAdminReviewsPanel } from './AdminReviewsPanel.js';
 import { renderAdminLifeAnalysisPanel } from './AdminLifeAnalysisPanel.js';
 import { renderAdminSeoWikiHubPanel } from './AdminSeoWikiHubPanel.js';
 import { renderAdminEbookLibraryPanel } from './AdminEbookLibraryPanel.js';
+import { renderAdminSubscriptionsPanel, getAllSubscriptions } from './SubscriptionView.js';
 
 
 let activeEditingStudyArticleId: string | null = null;
@@ -144,6 +145,14 @@ export function renderAdminDashboardView(): string {
       ]
     },
     {
+      id: 'group-subscription',
+      label: '구독관리',
+      defaultTab: 'tab-subscriptions',
+      subTabs: [
+        { id: 'tab-subscriptions', label: '구독/환불 관리' },
+      ]
+    },
+    {
       id: 'group-content',
       label: '컨텐츠',
       defaultTab: 'tab-study-articles',
@@ -204,9 +213,10 @@ export function renderAdminDashboardView(): string {
     g.subTabs.some(st => st.id === currentTab || (st.children && st.children.some(c => c.id === currentTab)))
   );
   if (!activeGroup) {
-    if (['tab-store', 'tab-store-register', 'tab-store-orders', 'tab-store-categories', 'tab-orders', 'tab-vouchers'].includes(currentTab)) activeGroup = adminGroups[1];
-    else if (['tab-study-articles', 'tab-study-write', 'tab-study-categories', 'tab-study', 'tab-ebook-library', 'tab-seo-wiki-hub'].includes(currentTab)) activeGroup = adminGroups[2];
-    else if (currentTab === 'tab-products') activeGroup = adminGroups[5];
+    if (currentTab === 'tab-subscriptions') activeGroup = adminGroups[2]; // group-subscription
+    else if (['tab-store', 'tab-store-register', 'tab-store-orders', 'tab-store-categories', 'tab-orders', 'tab-vouchers'].includes(currentTab)) activeGroup = adminGroups[1];
+    else if (['tab-study-articles', 'tab-study-write', 'tab-study-categories', 'tab-study', 'tab-ebook-library', 'tab-seo-wiki-hub'].includes(currentTab)) activeGroup = adminGroups[3];
+    else if (currentTab === 'tab-products') activeGroup = adminGroups[6];
     else activeGroup = adminGroups[0];
   }
 
@@ -251,7 +261,7 @@ export function renderAdminDashboardView(): string {
         <div>
           <div style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 800; color: #dfe2f1; line-height: 1.15; display: flex; align-items: center; gap: 0.45rem;">
             마보살 관리자
-            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v1.9.8</span>
+            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v2.0.0</span>
           </div>
           <div style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.05em;">ADMIN CONTROL TOWER</div>
         </div>
@@ -1400,7 +1410,7 @@ export function renderAdminDashboardView(): string {
           </div>
 
           <div id="tab-store" class="admin-tab-panel" style="display: ${['tab-store', 'tab-store-register', 'tab-store-orders', 'tab-store-categories'].includes(currentTab) ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
-            ${renderAdminStorePanel(activeEditingStoreProductId, currentTab === 'tab-store-register' ? 'register' : (currentTab === 'tab-store-orders' ? 'orders' : (currentTab === 'tab-store-categories' ? 'categories' : 'products')))}
+            ${renderAdminStorePanel(activeEditingStoreProductId, activeEditingStoreProductId ? 'register' : (currentTab === 'tab-store-register' ? 'register' : (currentTab === 'tab-store-orders' ? 'orders' : (currentTab === 'tab-store-categories' ? 'categories' : 'products'))))}
           </div>
 
           <!-- [패널] 컨텐츠 > 전자책 디지털 도서관 (발행 & 검수 센터) -->
@@ -1422,6 +1432,11 @@ export function renderAdminDashboardView(): string {
           ${renderAdminReviewsPanel()}
         </div>
 
+        <!-- [신규 패널] 정기 구독 및 환불 심사 관리 센터 -->
+        <div id="tab-subscriptions" class="admin-tab-panel" style="display: ${currentTab === 'tab-subscriptions' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+          ${renderAdminSubscriptionsPanel()}
+        </div>
+
       </div>
     </main>
  </div>
@@ -1440,12 +1455,14 @@ function renderAdminOverviewPanel(): string {
   const allOrders = getAllStoreOrders();
   const pendingTransfers = VoucherStore.getBankTransfers().filter(t => t.status === 'pending');
   const reviews = ProductReviewStore.getReviews();
+  const allSubs = getAllSubscriptions();
+  const pendingSubRefunds = allSubs.filter(s => s.status === 'refund_pending');
 
   return `
     <div style="display: flex; flex-direction: column; gap: 1.25rem;">
       
-      <!-- 핵심 KPI 요약 카드 4종 (클릭 시 해당 화면 연결) -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem;">
+      <!-- 핵심 KPI 요약 카드 (클릭 시 해당 화면 연결) -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem;">
         
         <!-- 1. 미답변 문의 (클릭 시 고객문의 탭 이동) -->
         <div class="btn-admin-kpi-card" data-goto-tab="tab-inquiries" style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1.15rem; cursor: pointer; transition: all 0.15s ease;">
@@ -1473,7 +1490,20 @@ function renderAdminOverviewPanel(): string {
           </div>
         </div>
 
-        <!-- 3. 총 주문 건수 (클릭 시 주문 장부 탭 이동) -->
+        <!-- 3. 구독 환불 심사 대기 (클릭 시 구독/환불 관리 탭 이동) -->
+        <div class="btn-admin-kpi-card" data-goto-tab="tab-subscriptions" style="background: ${pendingSubRefunds.length > 0 ? 'rgba(242, 202, 80, 0.08)' : 'var(--surface-container)'}; border: 1px solid ${pendingSubRefunds.length > 0 ? 'var(--primary)' : 'rgba(255,255,255,0.08)'}; border-radius: 10px; padding: 1.15rem; cursor: pointer; transition: all 0.15s ease;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+            <span style="font-size: 0.74rem; color: ${pendingSubRefunds.length > 0 ? 'var(--primary)' : 'var(--text-muted)'}; font-weight: 700;">구독 환불 심사</span>
+          </div>
+          <div style="font-size: 1.5rem; font-weight: 900; color: ${pendingSubRefunds.length > 0 ? 'var(--primary)' : '#fff'};">
+            ${pendingSubRefunds.length}건
+          </div>
+          <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">
+            심사 대기 건 (클릭 시 이동)
+          </div>
+        </div>
+
+        <!-- 4. 총 주문 건수 (클릭 시 주문 장부 탭 이동) -->
         <div class="btn-admin-kpi-card" data-goto-tab="tab-orders" style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1.15rem; cursor: pointer; transition: all 0.15s ease;">
           <div style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 0.25rem;">총 주문 건수</div>
           <div style="font-size: 1.5rem; font-weight: 900; color: #fff;">
@@ -1484,7 +1514,7 @@ function renderAdminOverviewPanel(): string {
           </div>
         </div>
 
-        <!-- 4. 고객 리뷰 평점 (클릭 시 리뷰 관리 탭 이동) -->
+        <!-- 5. 고객 리뷰 평점 (클릭 시 리뷰 관리 탭 이동) -->
         <div class="btn-admin-kpi-card" data-goto-tab="tab-reviews" style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1.15rem; cursor: pointer; transition: all 0.15s ease;">
           <div style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 0.25rem;">고객 리뷰 평점</div>
           <div style="font-size: 1.5rem; font-weight: 900; color: #fff;">

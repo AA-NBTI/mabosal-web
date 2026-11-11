@@ -16,7 +16,7 @@
  * - CTA: '내 문제의 원인과 해결책 상세 분석하기'
  * 
  * [3단계 유료 결과 8대 구성]
- * - 결제 성공 시 즉시 8대 심층 리포트 해금
+ * - 결제 성공 시 즉시 8대 심층 리포트 제공
  * - 비구매자는 블러/잠금 및 주문 확인 모달 연동
  * - 중복 결제 방지 및 보관함 영구 귀속
  */
@@ -202,12 +202,12 @@ export function renderFunnelResultView(state: AppStateData): string {
     <!-- ========================================== -->
 
     ${isPaidPurchased ? `
-      <!-- [유료 결제 완료 고객: 8대 심층 정밀 리포트 해금 화면] -->
+      <!-- [유료 결제 완료 고객: 8대 심층 정밀 리포트 제공 화면] -->
       <section style="background: linear-gradient(135deg, rgba(242, 202, 80, 0.12), rgba(0,0,0,0.6)); border: 2px solid var(--primary); border-radius: 20px; padding: 2rem 1.5rem; margin-bottom: 3rem; box-shadow: 0 10px 40px rgba(242, 202, 80, 0.2);">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(242,202,80,0.3); padding-bottom: 1rem; margin-bottom: 1.5rem;">
           <div>
             <div style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.74rem; font-weight: 800; color: var(--primary); background: rgba(242,202,80,0.15); padding: 0.2rem 0.55rem; border-radius: 4px; margin-bottom: 0.35rem;">
-              <span class="material-symbols-outlined" style="font-size: 14px;">verified</span> 정밀 분석 완료 (영구 소장)
+              <span class="material-symbols-outlined" style="font-size: 14px;">verified</span> 정밀 분석 완료
             </div>
             <h2 style="font-family: var(--font-serif); font-size: 1.45rem; font-weight: 900; color: #ffffff; margin: 0;">
               ${userName} 님의 8대 심층 처방 리포트
@@ -296,7 +296,7 @@ export function renderFunnelResultView(state: AppStateData): string {
         <div style="text-align: center; margin-bottom: 1.75rem;">
           <div style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.75rem; border-radius: 9999px; background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.4); margin-bottom: 0.75rem;">
             <span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary);">lock_open</span>
-            <span style="font-size: 0.76rem; font-weight: 800; color: var(--primary);">유료 정밀 분석 해금</span>
+            <span style="font-size: 0.76rem; font-weight: 800; color: var(--primary);">유료 정밀 분석</span>
           </div>
 
           <h2 style="font-family: var(--font-serif); font-size: 1.6rem; font-weight: 900; color: #ffffff; margin: 0 0 0.5rem; word-break: keep-all;">
@@ -340,9 +340,9 @@ export function renderFunnelResultView(state: AppStateData): string {
           </div>
 
           <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center; font-size: 0.75rem; color: #cbd5e1; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.75rem;">
-            <div>⚡ <strong>제공 방식:</strong> 결제 즉시 1초 해금</div>
-            <div>🔒 <strong>보관 여부:</strong> 마이페이지 영구 보관</div>
-            <div>🛡️ <strong>환불 보장:</strong> 미제공 시 100% 즉시 환불</div>
+            <div>⚡ <strong>제공 방식:</strong> 결제 즉시 제공</div>
+            <div>🔒 <strong>제공 형태:</strong> 온라인 리포트</div>
+            <div>🛡️ <strong>환불 보장:</strong> 미열람 시 7일 이내 환불</div>
           </div>
         </div>
 

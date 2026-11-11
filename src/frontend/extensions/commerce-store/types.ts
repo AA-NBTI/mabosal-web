@@ -2,7 +2,7 @@
  * 마보살 인하우스 커머스 스토어 공용 타입
  */
 
-export type StoreCategoryType = 'all' | 'report' | 'voucher' | 'ebook' | 'lecture' | 'consulting' | 'goods' | (string & {});
+export type StoreCategoryType = 'all' | 'report' | 'saju' | 'ebook' | 'lecture' | 'goods' | 'voucher' | 'consulting' | (string & {});
 
 export interface StoreCategory {
   id: StoreCategoryType;

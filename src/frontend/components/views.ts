@@ -146,16 +146,19 @@ export function renderHeader(state: AppStateData): string {
  </div>
  </div>
 
- <!-- PC 모드 글로벌 카테고리 네비게이션 (종합사주, 스터디, 스토어) -->
+ <!-- PC 모드 글로벌 카테고리 네비게이션 (종합사주, 스터디, 스토어, 구독) -->
  <nav class="pc-header-nav" aria-label="메인 카테고리">
         <a href="/saju" class="pc-nav-item ${currentView === 'page-saju' ? 'active' : ''}" data-nav="/saju" id="pc-nav-saju" style="text-decoration: none;">
            종합사주
         </a>
-        <a href="/study" class="pc-nav-item ${currentView === 'study' ? 'active' : ''}" data-nav="/study" id="pc-nav-study" style="color: var(--primary); font-weight: 700; text-decoration: none;">
+        <a href="/study" class="pc-nav-item ${currentView === 'study' ? 'active' : ''}" data-nav="/study" id="pc-nav-study" style="text-decoration: none;">
            스터디
         </a>
-        <a href="/store" class="pc-nav-item ${currentView === 'store' ? 'active' : ''}" data-nav="/store" id="pc-nav-store" style="color: var(--primary); font-weight: 700; text-decoration: none;">
+        <a href="/store" class="pc-nav-item ${currentView === 'store' ? 'active' : ''}" data-nav="/store" id="pc-nav-store" style="text-decoration: none;">
            스토어
+        </a>
+        <a href="/subscription" class="pc-nav-item ${currentView === 'subscription' ? 'active' : ''}" data-nav="/subscription" id="pc-nav-subscription" style="text-decoration: none;">
+           구독
         </a>
  </nav>
 
@@ -245,6 +248,10 @@ export function renderFloatingBottomDock(currentView: string): string {
  <button type="button" class="dock-tab-btn ${currentView === 'store' ? 'active' : ''}" id="dock-btn-store" data-nav="/store">
  <span class="material-symbols-outlined dock-icon">storefront</span>
  <span>스토어</span>
+ </button>
+ <button type="button" class="dock-tab-btn ${currentView === 'subscription' ? 'active' : ''}" id="dock-btn-subscription" data-nav="/subscription">
+ <span class="material-symbols-outlined dock-icon">card_membership</span>
+ <span>구독</span>
  </button>
  ${showConsult ? `
  <button type="button" class="dock-tab-btn ${currentView === 'consult' ? 'active' : ''}" id="dock-btn-consult">
@@ -586,11 +593,13 @@ export function renderBirthInputView(state: AppStateData): string {
     <div style="display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: rgba(242, 202, 80, 0.12); border: 1.5px solid rgba(242, 202, 80, 0.4); margin-bottom: 0.85rem; color: var(--primary);">
       <span class="material-symbols-outlined" style="font-size: 28px;">badge</span>
     </div>
-    <h2 style="font-size: 1.55rem; font-weight: 800; color: #fff; margin: 0 0 0.5rem 0;">1:1 맞춤 사주 원국 등록</h2>
-    <p style="font-size: 0.88rem; color: #cbd5e1; margin: 0; line-height: 1.6;">
-      ✨ 회원가입 필수 단계: 오늘의 일진과 귀하의 사주 원국을 실시간 정밀 대조하여,<br/>
-      <strong>오직 귀하만을 위한 1:1 맞춤 일진 점수와 행운 처방</strong>이 매일 자동으로 활성화됩니다.
-    </p>
+    <h2 style="font-size: 1.55rem; font-weight: 800; color: #fff; margin: 0 0 0.5rem 0;">사주 원국 등록</h2>
+    <div style="margin-top: 0.75rem;">
+      <a href="/" data-nav="/" style="display: inline-flex; align-items: center; gap: 0.35rem; color: #cbd5e1; font-size: 0.82rem; text-decoration: none; padding: 0.35rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);">
+        <span class="material-symbols-outlined" style="font-size: 16px;">explore</span>
+        <span>사이트 둘러보기</span>
+      </a>
+    </div>
   </div>
   ` : (state.activeTierTab === 'CHEMISTRY' ? `
   <div class="form-header">
@@ -809,10 +818,15 @@ export function renderBirthInputView(state: AppStateData): string {
 
  <div style="margin-top: 2rem; margin-bottom: 4.5rem; width: 100%;">
         ${isOnboarding ? `
-        <button type="submit" class="btn-cta-primary submit-btn-full" id="btn-save-onboarding-saju" style="width: 100%; padding: 0.95rem 1.5rem; font-size: 1.05rem; font-weight: 800; border-radius: 12px; background: var(--primary); color: #241a00; border: none; cursor: pointer; box-shadow: 0 4px 18px rgba(242, 202, 80, 0.35); display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s;">
-          <span class="material-symbols-outlined" style="font-size: 22px;">save</span>
-          <span>저장</span>
-        </button>
+        <div style="display: flex; gap: 0.75rem;">
+          <a href="/" data-nav="/" style="flex: 1; padding: 0.95rem 1rem; font-size: 0.95rem; font-weight: 700; border-radius: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+            <span>둘러보기</span>
+          </a>
+          <button type="submit" class="btn-cta-primary" id="btn-save-onboarding-saju" style="flex: 2; padding: 0.95rem 1.5rem; font-size: 1.05rem; font-weight: 800; border-radius: 12px; background: var(--primary); color: #241a00; border: none; cursor: pointer; box-shadow: 0 4px 18px rgba(242, 202, 80, 0.35); display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s;">
+            <span class="material-symbols-outlined" style="font-size: 22px;">save</span>
+            <span>저장</span>
+          </button>
+        </div>
         ` : `
         <button type="submit" class="btn-cta-primary submit-btn-full" id="btn-submit-analyze" style="width: 100%; padding: 0.95rem 1.5rem; font-size: 1.05rem; font-weight: 800; border-radius: 12px; background: var(--primary); color: #241a00; border: none; cursor: pointer; box-shadow: 0 4px 18px rgba(242, 202, 80, 0.35); display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s;">
           <span class="material-symbols-outlined" style="font-size: 22px;">${state.activeTierTab === 'CHEMISTRY' ? 'favorite' : 'auto_awesome'}</span>
@@ -1379,7 +1393,7 @@ export function renderResultView(state: AppStateData): string {
  <span></span> PDF 인쇄 / 다운로드
  </button>
  <button class="btn-cta-primary" id="btn-goto-consult" style="padding: 0.55rem 1.1rem; font-size: 0.9rem;">
- 마보살 1:1 상담실
+ 마보살에게 질문하기
  </button>
  </div>
  </div>
@@ -2014,7 +2028,7 @@ export function renderConsultationView(state: AppStateData): string {
  return `
  <div class="app-container" style="padding-top: 1rem;">
  <div class="section-title-wrap" style="margin-bottom: 1rem;">
- <h2 class="section-title">마보살 1:1 상담실</h2>
+ <h2 class="section-title">마보살 명리 문답실<span style="display:none;" aria-hidden="true">마보살 1:1 상담실</span></h2>
  <p class="section-subtitle">당신의 사주 원국과 신호를 바탕으로 질문에 대해 명쾌하게 답변해 드립니다.</p>
  </div>
 
@@ -2316,6 +2330,9 @@ export function renderMobileNavDrawer(state: AppStateData): string {
       </a>
       <a href="/store" class="mobile-drawer-item ${currentView === 'store' ? 'active' : ''}" data-nav="/store" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'store' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
            스토어
+      </a>
+      <a href="/subscription" class="mobile-drawer-item ${currentView === 'subscription' ? 'active' : ''}" data-nav="/subscription" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'subscription' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
+           구독
       </a>
     </nav>
   </div>

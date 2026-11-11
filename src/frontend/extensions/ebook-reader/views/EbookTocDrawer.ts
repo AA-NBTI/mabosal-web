@@ -49,16 +49,18 @@ export function renderEbookTocDrawer(book: EbookBookMetadata): string {
         <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.35rem;">
           ${book.pages.map(p => {
             const isCurrent = p.pageNumber === currentPage;
+            const isAccessible = p.isFreePreview || isFullAccess || p.pageNumber <= 3;
             return `
               <li>
-                <button type="button" class="btn-ebook-page-jump" data-page="${p.pageNumber}" style="
+                <button type="button" class="${isAccessible ? 'btn-ebook-page-jump' : ''}" data-page="${p.pageNumber}" ${!isAccessible ? 'disabled' : ''} style="
                   width: 100%; text-align: left; padding: 0.65rem 0.8rem; border-radius: 6px;
                   background: ${isCurrent ? 'var(--pdf-active-bg)' : 'transparent'};
                   border: 1px solid ${isCurrent ? 'var(--pdf-accent)' : 'transparent'};
-                  color: ${isCurrent ? 'var(--pdf-accent)' : 'var(--pdf-text)'};
-                  cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+                  color: ${isCurrent ? 'var(--pdf-accent)' : isAccessible ? 'var(--pdf-text)' : 'var(--pdf-muted)'};
+                  cursor: ${isAccessible ? 'pointer' : 'not-allowed'}; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+                  opacity: ${isAccessible ? '1' : '0.45'};
                   transition: all 0.15s ease;
-                ">
+                " title="${isAccessible ? `${p.pageLabel}로 이동` : '미리보기는 3페이지까지만 제공됩니다'}">
                   <div style="min-width: 0; display: flex; align-items: center; gap: 0.5rem;">
                     <span style="font-size: 0.72rem; font-family: monospace; font-weight: 700; width: 28px; color: ${isCurrent ? 'var(--pdf-accent)' : 'var(--pdf-muted)'};">
                       ${p.pageLabel}
@@ -68,9 +70,9 @@ export function renderEbookTocDrawer(book: EbookBookMetadata): string {
                     </span>
                   </div>
                   <div style="flex-shrink: 0;">
-                    ${p.isFreePreview || isFullAccess
+                    ${isAccessible
                       ? `<span style="font-size: 0.65rem; background: ${isFullAccess ? 'rgba(59, 130, 246, 0.15)' : 'rgba(74, 222, 128, 0.15)'}; color: ${isFullAccess ? '#60a5fa' : '#4ade80'}; padding: 0.05rem 0.35rem; border-radius: 3px; font-weight: 700;">${isFullAccess ? '완결본' : '무료'}</span>`
-                      : `<span class="material-symbols-outlined" style="font-size: 14px; color: var(--pdf-muted);" title="정식 구매 후 열람">lock</span>`
+                      : `<span class="material-symbols-outlined" style="font-size: 14px; color: var(--pdf-muted);" title="미리보기 3p 제한">lock</span>`
                     }
                   </div>
                 </button>

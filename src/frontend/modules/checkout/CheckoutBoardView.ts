@@ -401,7 +401,7 @@ export function renderCheckoutBoardView(): string {
                   </label>
                   <label style="display: flex; align-items: flex-start; gap: 0.4rem; cursor: pointer;">
                     <input type="checkbox" class="term-sub-check" required checked style="width: 15px; height: 15px; margin-top: 2px; accent-color: var(--primary);" />
-                    <span>[필수] 취소 및 환불 규정 동의 (디지털 콘텐츠는 다운로드/열람 즉시 청약철회가 제한되며, 실물 배송 상품은 수령 후 7일 이내 환불 가능·단순 변심 시 왕복 배송비 6,000원 부담)</span>
+                    <span>[필수] 취소 및 환불 규정 동의 (디지털 콘텐츠 제공 및 열람 기간은 결제일로부터 7일이며, 미이용 시 7일 이내 100% 환불 가능·열람/다운로드 개시 시 청약철회 제한. 실물 배송 상품은 수령 후 7일 이내 환불 가능·단순 변심 시 왕복 배송비 6,000원 부담)</span>
                   </label>
                 </div>
 

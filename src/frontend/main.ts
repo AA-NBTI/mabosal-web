@@ -167,6 +167,19 @@ import { renderCheonmyeongwonShareModal } from './components/VisualCharts.js';
 import { FunnelCheckoutHelper } from './views/pages/FunnelCheckoutHelper.js';
 import { AbTestService } from './modules/ab-test/ab-test-service.js';
 import { PaymentConfigStore } from './modules/payment/payment-config.js';
+import {
+  saveUserSubscription,
+  cancelUserSubscription,
+  reactivateUserSubscription,
+  requestUserSubscriptionRefund,
+  approveAdminSubscriptionRefund,
+  rejectAdminSubscriptionRefund,
+  getUserSubscription,
+  renderSubscriptionCheckoutModal,
+  adminRegisterOrApproveSubscription,
+  getAllSubscriptions,
+  saveAllSubscriptions,
+} from './views/SubscriptionView.js';
 
 
 function compressImageFile(file: File, maxDimension = 900, quality = 0.85): Promise<string> {
@@ -524,7 +537,7 @@ class MabosalApp {
         selectStoreProduct(null, false);
       } else {
         // [스토어 내부 뒤로가기/앞으로가기] URL의 product 쿼리 파라미터를 읽어 메모리 선택 상태와 즉시 동기화
-        const prodParam = parsed.params.product || null;
+        const prodParam = parsed.params.product || event.state?.product || null;
         selectStoreProduct(prodParam, false);
       }
 
@@ -573,6 +586,10 @@ class MabosalApp {
      targetUrl += `?tier=${appState.getActiveTierTab()}${AbTestService.isFunnelVariantB() ? '&ab=b' : ''}`;
    } else if (state.currentView === 'store' && getSelectedStoreProductId()) {
      targetUrl += `?product=${encodeURIComponent(getSelectedStoreProductId()!)}`;
+   } else if (state.currentView === 'ebook-reader') {
+     if (window.location.search) {
+       targetUrl += window.location.search;
+     }
    }
    const currentFullPath = window.location.pathname + window.location.search;
    if (currentFullPath !== targetUrl) {
@@ -635,6 +652,46 @@ class MabosalApp {
           alert(`[${depositor}] 님의 무통장 입금 확인 신청이 접수되었습니다.\n관리자 입금 확인 후 쿠폰이 즉시 승인 지급됩니다.`);
           this.render(appState.getState());
         }
+        return;
+      }
+
+      // [정기 구독: 마보살 프라임 멤버십 결제 확인 모달 제출]
+      if (targetForm?.id === 'form-subscription-modal-checkout' || targetForm?.id === 'form-subscription-checkout') {
+        e.preventDefault();
+        const buyerName = (document.getElementById('modal-sub-name') as HTMLInputElement)?.value?.trim() || (document.getElementById('sub-buyer-name') as HTMLInputElement)?.value?.trim() || '회원';
+        const buyerPhone = (document.getElementById('modal-sub-phone') as HTMLInputElement)?.value?.trim() || (document.getElementById('sub-buyer-phone') as HTMLInputElement)?.value?.trim() || '';
+        const buyerEmail = (document.getElementById('modal-sub-email') as HTMLInputElement)?.value?.trim() || (document.getElementById('sub-buyer-email') as HTMLInputElement)?.value?.trim() || '';
+        const paymentMethodEl = (document.querySelector('input[name="modal-sub-pay-method"]:checked') || document.querySelector('input[name="sub-payment-method"]:checked')) as HTMLInputElement;
+        const paymentMethod = paymentMethodEl ? paymentMethodEl.value : 'card';
+
+        const now = new Date();
+        const nextBilling = new Date();
+        nextBilling.setMonth(nextBilling.getMonth() + 1);
+
+        const orderId = 'SUB-' + Date.now();
+        saveUserSubscription({
+          orderId,
+          planName: '마보살 프라임 정기 구독',
+          amount: 9900,
+          buyerName,
+          buyerPhone,
+          buyerEmail,
+          paymentMethod,
+          subscribedAt: now.toISOString().split('T')[0],
+          nextBillingDate: nextBilling.toISOString().split('T')[0],
+          status: 'active'
+        });
+
+        // 모달 닫기
+        const slot = document.getElementById('subscription-checkout-modal-slot');
+        if (slot) slot.innerHTML = '';
+
+        alert(`[구독 결제 완료]\n마보살 프라임 멤버십 정기 구독이 시작되었습니다.\n- 주문번호: ${orderId}\n- 첫 결제금액: ₩ 9,900 (매월 자동 갱신)\n- 다음 결제예정일: ${nextBilling.toISOString().split('T')[0]}\n\n마이페이지 [구독 관리]에서 결제 내역 확인 및 해지/환불이 가능합니다.`);
+        
+        setMemberActiveTab('tab-subscription');
+        appState.setView('member-dashboard');
+        this.render(appState.getState());
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
 
@@ -799,6 +856,7 @@ class MabosalApp {
 
         setEditingStoreProductId(null);
         setAdminStoreSubTab('products');
+        setAdminActiveTab('tab-store');
         this.render(appState.getState());
         return;
       }
@@ -1259,10 +1317,6 @@ ${content}
     const href = navAnchor.getAttribute('data-nav') || navAnchor.getAttribute('href');
     if (href && href.startsWith('/')) {
       e.preventDefault();
-      if (appState.getState().isOnboarding && !href.includes('/analyze')) {
-        alert('✨ 회원가입 필수 단계: 사주 원국 정보를 먼저 저장해 주셔야 맞춤 서비스 이용이 가능합니다.');
-        return;
-      }
       // 모바일 드로어가 열려있을 경우 자동 닫힘
       const drawer = document.getElementById('mobile-nav-drawer');
       const backdrop = document.getElementById('mobile-nav-backdrop');
@@ -1824,6 +1878,9 @@ ${content}
       const prodId = editProdBtn.dataset.productId;
       if (prodId) {
         setEditingStoreProductId(prodId);
+        setAdminStoreSubTab('register');
+        setAdminActiveTab('tab-store-register');
+        appState.setView('admin');
         this.render(appState.getState());
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
@@ -1833,6 +1890,8 @@ ${content}
     // [관리자 CMS] 상품 수정 취소
     if (target.closest('#btn-cancel-edit-product')) {
       setEditingStoreProductId(null);
+      setAdminStoreSubTab('products');
+      setAdminActiveTab('tab-store');
       this.render(appState.getState());
       return;
     }
@@ -2080,7 +2139,7 @@ ${content}
       const input = document.getElementById('input-store-voucher') as HTMLInputElement;
       const rawCode = input?.value?.trim() || '';
       if (!rawCode) {
-        alert('쿠폰 또는 상품권 코드를 입력해 주세요.');
+        alert('쿠폰 코드를 입력해 주세요.');
         input?.focus();
         return;
       }
@@ -3148,6 +3207,219 @@ ${content}
  this.render(appState.getState());
  return;
  }
+ if (target.closest('#dock-btn-subscription') || target.closest('#pc-nav-subscription')) {
+ appState.setView('subscription');
+ window.scrollTo({ top: 0, behavior: 'smooth' });
+ this.render(appState.getState());
+ return;
+ }
+ // [구독 결제 확인 모달 열기]
+ if (target.closest('#btn-open-subscription-checkout')) {
+   const user = AuthService.getCurrentUser();
+   if (user.role === 'guest') {
+     alert('구독 서비스를 신청하시려면 로그인이 필요합니다.');
+     this.openAuthModal('login');
+     return;
+   }
+   const modalSlot = document.getElementById('subscription-checkout-modal-slot');
+   if (modalSlot) {
+     modalSlot.innerHTML = renderSubscriptionCheckoutModal();
+   }
+   return;
+ }
+ // [구독 결제 확인 모달 닫기]
+ if (target.closest('.btn-close-sub-modal')) {
+   const modalSlot = document.getElementById('subscription-checkout-modal-slot');
+   if (modalSlot) {
+     modalSlot.innerHTML = '';
+   }
+   return;
+ }
+ // [구독 해지 신청 (상세 및 대시보드)]
+ if (target.closest('#btn-cancel-subscription') || target.closest('#btn-member-cancel-sub')) {
+   const sub = getUserSubscription();
+   const nextDate = sub?.nextBillingDate || '다음 결제일';
+   if (confirm(`정기구독을 해지하시겠습니까? (${nextDate}까지 이용 가능)`)) {
+     cancelUserSubscription();
+     alert('해지 처리되었습니다. 당월 잔여일까지 이용 가능합니다.');
+     this.render(appState.getState());
+   }
+   return;
+ }
+ // [7일 이내 청약철회 환불 신청 접수 (이용자)]
+ if (target.closest('#btn-member-refund-sub')) {
+   const sub = getUserSubscription();
+   const amountStr = sub ? sub.amount.toLocaleString() : '9,900';
+   const reason = prompt('환불 심사 신청 사유를 입력하세요:', '단순 변심');
+   if (reason !== null) {
+     const res = requestUserSubscriptionRefund(reason.trim() || '서비스 미이용');
+     alert(res.message);
+     this.render(appState.getState());
+   }
+   return;
+ }
+ // [구독 환불 최종 승인 (관리자)]
+ const approveSubRefundBtn = target.closest('.btn-approve-sub-refund') as HTMLElement | null;
+ if (approveSubRefundBtn) {
+   const orderId = approveSubRefundBtn.getAttribute('data-order-id');
+   if (orderId && confirm(`[주문번호: ${orderId}] 환불을 승인하시겠습니까?`)) {
+     const res = approveAdminSubscriptionRefund(orderId);
+     alert(res.message);
+     this.render(appState.getState());
+   }
+   return;
+ }
+ // [구독 환불 반려 (관리자)]
+ const rejectSubRefundBtn = target.closest('.btn-reject-sub-refund') as HTMLElement | null;
+ if (rejectSubRefundBtn) {
+   const orderId = rejectSubRefundBtn.getAttribute('data-order-id');
+   if (orderId) {
+     const reason = prompt(`[주문번호: ${orderId}] 환불 반려 사유를 입력하세요:`, `디지털 콘텐츠(사주 리포트·도서·강의) 열람 이력이 확인되어 전자상거래법 제17조에 따라 환불 불가`);
+     if (reason !== null) {
+       const res = rejectAdminSubscriptionRefund(orderId, reason.trim());
+       alert(res.message);
+       this.render(appState.getState());
+     }
+   }
+   return;
+ }
+ // [구독 다시 시작하기]
+ if (target.closest('#btn-member-reactivate-sub')) {
+   reactivateUserSubscription();
+   alert('마보살 프라임 정기 구독이 다시 활성화되었습니다.');
+   this.render(appState.getState());
+   return;
+ }
+
+  // [관리자: 최고관리자 구독 즉시 활성화/재등록 버튼]
+  if (target.closest('#btn-admin-auto-subscribe-master')) {
+    const u = AuthService.getCurrentUser();
+    const now = new Date();
+    const nextBilling = new Date();
+    nextBilling.setMonth(nextBilling.getMonth() + 1);
+
+    const adminSub = {
+      orderId: 'SUB-ADMIN-MASTER',
+      planName: '마보살 프라임 멤버십 (최고관리자 인증)',
+      amount: 9900,
+      buyerName: u.name || '최고관리자 (Master)',
+      buyerPhone: u.phone || '010-0000-0000',
+      buyerEmail: u.email || 'master@mabosal.com',
+      paymentMethod: 'card',
+      subscribedAt: now.toISOString().split('T')[0],
+      nextBillingDate: nextBilling.toISOString().split('T')[0],
+      status: 'active' as const,
+    };
+    saveUserSubscription(adminSub);
+    alert('최고관리자(Master) 계정의 마보살 프라임 구독이 정상 활성화/등록되었습니다.');
+    this.render(appState.getState());
+    return;
+  }
+
+  // [관리자: 회원 구독 직접 등록/승인 모달 열기]
+  if (target.closest('#btn-open-admin-add-sub-modal')) {
+    const slot = document.getElementById('admin-sub-modal-slot');
+    if (slot) {
+      slot.innerHTML = `
+        <div id="modal-admin-add-sub" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(6px);">
+          <div style="background: #131824; border: 1.5px solid var(--primary); border-radius: 14px; max-width: 480px; width: 100%; padding: 1.5rem; box-shadow: 0 12px 35px rgba(0,0,0,0.7); box-sizing: border-box;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.75rem;">
+              <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.4rem;">
+                <span class="material-symbols-outlined" style="color: var(--primary);">person_add</span>
+                신규 구독 등록
+              </h3>
+              <button type="button" class="btn-close-admin-sub-modal" style="background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer;">✕</button>
+            </div>
+            <form id="form-admin-add-sub" style="display: flex; flex-direction: column; gap: 0.85rem;">
+              <div>
+                <label style="display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem;">회원 성명 *</label>
+                <input type="text" id="admin-sub-input-name" required placeholder="예: 홍길동" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.85rem;" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem;">휴대폰 번호 *</label>
+                <input type="tel" id="admin-sub-input-phone" required placeholder="010-0000-0000" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.85rem;" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem;">이메일 주소 *</label>
+                <input type="email" id="admin-sub-input-email" required placeholder="customer@example.com" style="width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.85rem;" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem;">구독 플랜</label>
+                <select id="admin-sub-select-plan" style="width: 100%; box-sizing: border-box; background: #1c2230; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.55rem; border-radius: 6px; font-size: 0.85rem;">
+                  <option value="마보살 프라임 멤버십 (관리자 승인)">마보살 프라임 멤버십 (월 ₩ 9,900)</option>
+                  <option value="마보살 VIP 프리미엄 연간 구독">마보살 VIP 프리미엄 (연 ₩ 99,000)</option>
+                </select>
+              </div>
+              <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                <button type="button" class="btn-close-admin-sub-modal" style="flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 0.6rem; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 700;">취소</button>
+                <button type="submit" style="flex: 2; background: var(--primary); border: none; color: #1c1500; padding: 0.6rem; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 800;">구독 등록 및 승인</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+    return;
+  }
+
+  // [관리자: 회원 구독 등록 모달 닫기]
+  if (target.closest('.btn-close-admin-sub-modal')) {
+    const slot = document.getElementById('admin-sub-modal-slot');
+    if (slot) slot.innerHTML = '';
+    return;
+  }
+
+  // [관리자: 회원 구독 강제 활성화/승인 버튼 클릭]
+  const forceActiveBtn = target.closest('.btn-admin-force-active-sub') as HTMLElement | null;
+  if (forceActiveBtn) {
+    const orderId = forceActiveBtn.getAttribute('data-order-id');
+    if (orderId) {
+      const list = getAllSubscriptions();
+      const targetSub = list.find(s => s.orderId === orderId);
+      if (targetSub) {
+        targetSub.status = 'active';
+        delete targetSub.cancelledAt;
+        delete targetSub.refundedAt;
+        delete targetSub.refundRequestedAt;
+        delete targetSub.refundReason;
+        const nextDate = new Date();
+        nextDate.setMonth(nextDate.getMonth() + 1);
+        targetSub.nextBillingDate = nextDate.toISOString().split('T')[0];
+        saveAllSubscriptions(list);
+
+        const cur = getUserSubscription();
+        if (cur && cur.orderId === orderId) {
+          saveUserSubscription(targetSub);
+        }
+        alert(`[주문번호: ${orderId}] 회원의 구독 상태가 '이용 중(active)'으로 정상 승인/활성화되었습니다.`);
+        this.render(appState.getState());
+      }
+    }
+    return;
+  }
+
+  // [관리자: 회원 구독 강제 해지 처리 버튼 클릭]
+  const forceCancelBtn = target.closest('.btn-admin-force-cancel-sub') as HTMLElement | null;
+  if (forceCancelBtn) {
+    const orderId = forceCancelBtn.getAttribute('data-order-id');
+    if (orderId && confirm(`[주문번호: ${orderId}] 구독을 해지하시겠습니까?`)) {
+      const list = getAllSubscriptions();
+      const targetSub = list.find(s => s.orderId === orderId);
+      if (targetSub) {
+        targetSub.status = 'cancelled';
+        targetSub.cancelledAt = new Date().toISOString().split('T')[0];
+        saveAllSubscriptions(list);
+
+        const cur = getUserSubscription();
+        if (cur && cur.orderId === orderId) {
+          saveUserSubscription(targetSub);
+        }
+        alert(`[주문번호: ${orderId}] 회원의 구독이 해지 처리되었습니다.`);
+        this.render(appState.getState());
+      }
+    }
+    return;
+  }
  if (target.closest('#dock-btn-consult')) {
  appState.setView('consult');
  window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -4328,11 +4600,12 @@ ${content}
       window.scrollTo({ top: 0, behavior: 'smooth' });
       alert(`[회원가입 완료]\n\n${res.message}\n파트너 포털로 이동합니다.`);
     } else {
-      // 1:1 맞춤 사주 원국 등록 필수 온보딩 화면(/analyze?mode=onboarding)으로 직행!
-      appState.setOnboarding(true);
+      // 일반 회원: 자유롭게 사이트를 둘러볼 수 있도록 메인 홈으로 진입
+      appState.setOnboarding(false);
       appState.setUserName(name || username);
-      navigateTo('/analyze?mode=onboarding');
+      navigateTo('/');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      alert(`[회원가입 완료]\n\n환영합니다, ${name || username}님!\n마보살 사이트를 자유롭게 둘러보실 수 있습니다.`);
     }
     return;
   }
@@ -5125,9 +5398,9 @@ ${content}
        const deliveryBadge = document.getElementById('detail-delivery-badge-text');
        if (deliveryBadge) {
          if (optDelivery === 'shipping') {
-           deliveryBadge.innerHTML = `<span class="material-symbols-outlined" style="font-size: 16px; color: #38bdf8;">local_shipping</span><span>택배 무료 배송</span>`;
+           deliveryBadge.innerHTML = `<span class="material-symbols-outlined" style="font-size: 16px; color: #38bdf8;">local_shipping</span><span>택배 배송</span>`;
          } else {
-           deliveryBadge.innerHTML = `<span class="material-symbols-outlined" style="font-size: 16px; color: #4ade80;">download_done</span><span>결제 즉시 PDF 다운로드 &amp; 영구 소장</span>`;
+           deliveryBadge.innerHTML = `<span class="material-symbols-outlined" style="font-size: 16px; color: #4ade80;">download_done</span><span>다운로드</span>`;
          }
        }
      }
@@ -5168,6 +5441,35 @@ ${content}
   e.preventDefault();
   const form = e.target as HTMLFormElement;
   if (!form) return;
+
+  // [관리자: 회원 구독 직접 등록 폼 제출]
+  if (form.id === 'form-admin-add-sub') {
+    const name = (document.getElementById('admin-sub-input-name') as HTMLInputElement)?.value;
+    const phone = (document.getElementById('admin-sub-input-phone') as HTMLInputElement)?.value;
+    const email = (document.getElementById('admin-sub-input-email') as HTMLInputElement)?.value;
+    const plan = (document.getElementById('admin-sub-select-plan') as HTMLSelectElement)?.value || '마보살 프라임 멤버십 (관리자 승인)';
+
+    if (!name || !phone || !email) {
+      alert('회원 성명, 연락처, 이메일을 모두 입력해 주세요.');
+      return;
+    }
+
+    const newSub = adminRegisterOrApproveSubscription({
+      buyerName: name,
+      buyerPhone: phone,
+      buyerEmail: email,
+      planName: plan,
+      amount: plan.includes('연간') ? 99000 : 9900,
+      paymentMethod: 'card',
+      status: 'active',
+    });
+
+    const slot = document.getElementById('admin-sub-modal-slot');
+    if (slot) slot.innerHTML = '';
+    alert(`[등록 완료] 주문번호: ${newSub.orderId} (${newSub.buyerName})`);
+    this.render(appState.getState());
+    return;
+  }
 
   // [정식 주문서 작성 보드(view=checkout) 최종 결제 제출]
   if (form.id === 'checkout-main-form') {

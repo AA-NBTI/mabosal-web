@@ -181,7 +181,7 @@ export function renderCartBoardView(): string {
                     <div style="flex: 1; min-width: 0;">
                       <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
                         <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 4px;">
-                          ${isPhysical ? '실물 배송' : (it.deliveryType === 'voucher_code' ? '모바일 상품권' : '디지털 리포트')}
+                          ${isPhysical ? '실물 배송' : (it.deliveryType === 'voucher_code' ? '할인 쿠폰' : '디지털 리포트')}
                         </span>
                         <span style="font-size: 0.72rem; color: #94a3b8;">
                           ${isPhysical ? '배송비 3,000원 (5만원↑ 무료)' : '즉시 열람 / 무료 배송'}

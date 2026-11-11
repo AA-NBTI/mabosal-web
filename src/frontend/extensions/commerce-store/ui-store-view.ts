@@ -78,7 +78,7 @@ export function selectStoreProduct(productId: string | null, updateHistory: bool
     } else {
       url.searchParams.delete('product');
       window.history.pushState({ view: 'store' }, '', url.toString());
-      document.title = '마보살 스토어 | 정통 맞춤 개운 부적 & 처방 굿즈';
+      document.title = '마보살 스토어 | 사주 · 전자책 · 강의 · 굿즈';
     }
   }
 }
@@ -95,8 +95,8 @@ export function setLastStoreOrder(order: StoreOrder | null): void {
 const STORE_SHORT_LABELS: Record<string, { short: string; desc: string; subItems: string[]; tags: string[] }> = {
   all: {
     short: '전체',
-    desc: '마보살 인하우스 14대 운세 리포트 · 상품권 · 전자책 · 상담권 전 품목',
-    subItems: ['대표 플래그십 39,900원 사주풀이', '2027 정묘년 신년운세', 'VIP 5만원 상품권', '1:1 심층 상담'],
+    desc: '마보살 인하우스 정밀 사주 리포트 · 전자책 · 강의 · 굿즈 전 품목',
+    subItems: ['정통 사주 분석 리포트', '2027 정묘년 신년운세', '명리학 실전 전자책', '온라인 마스터 클래스'],
     tags: ['#전품목', '#베스트셀러', '#즉시열람', '#인기상품']
   },
   report: {
@@ -105,14 +105,8 @@ const STORE_SHORT_LABELS: Record<string, { short: string; desc: string; subItems
     subItems: ['마보살 정통 유료 사주풀이', '2027 정묘년 신년운세 비결서', '평생 재물운 & 파재살 방어', '직업·이직·사업운 리포트', '애정·궁합·재회 리포트', '오행 건강 체질'],
     tags: ['#평생대운', '#신년운세', '#재물운', '#이직운', '#애정궁합']
   },
-  voucher: {
-    short: '상품권',
-    desc: '소중한 분께 선물하거나 본인 충전용 고유 바우처 코드 즉시 발급권',
-    subItems: ['50,000원 VIP 사주 기프트 상품권', '30,000원 정통 사주 상품권', '10,000원 모바일 기프트 쿠폰'],
-    tags: ['#모바일상품권', '#선물하기', '#코드즉시발급', '#전액차감']
-  },
   ebook: {
-    short: '전자책',
+    short: '도서',
     desc: '비전문가도 30분 만에 내 사주를 스스로 읽는 실전 명리 PDF 소장판',
     subItems: ['마보살 명리학 실전 독법 전자책 (PDF 소장판)'],
     tags: ['#PDF소장판', '#자가진단', '#실전독법']
@@ -123,17 +117,11 @@ const STORE_SHORT_LABELS: Record<string, { short: string; desc: string; subItems
     subItems: ['명리 개운학 온라인 마스터 클래스 (전 8강 VOD)'],
     tags: ['#온라인강의', '#8강완강', '#개운비법']
   },
-  consulting: {
-    short: '상담',
-    desc: '검증된 정통 명리 상담사와의 1:1 비공개 심층 프라이빗 예약권',
-    subItems: ['전문 명리 상담사 1:1 심층 상담권 (30분 전화/채팅)'],
-    tags: ['#1대1상담', '#비공개상담', '#실시간예약']
-  },
   goods: {
     short: '굿즈',
-    desc: '사주의 부족한 기운을 보완하고 액운을 막아주는 마보살 비전 수제 전통 호신 부적',
-    subItems: ['마보살 비전 황금 재물부적 (경면주사 수제 부적)'],
-    tags: ['#경면주사', '#호신부적', '#재물유입']
+    desc: '공간의 기운을 정돈하고 일상을 보조하는 마보살 라이프스타일 굿즈 소품',
+    subItems: ['마보살 인테리어 소품', '탁상용 오브제', '라이프스타일 굿즈'],
+    tags: ['#굿즈', '#인테리어', '#소품', '#라이프스타일']
   }
 };
 
@@ -425,19 +413,19 @@ export function renderCommerceStoreView(state: AppStateData): string {
                 <span id="detail-delivery-badge-text" style="font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 0.3rem;">
                   ${p.deliveryType === 'shipping' ? `
                     <span class="material-symbols-outlined" style="font-size: 15px; color: #38bdf8;">local_shipping</span>
-                    <span>택배 무료 배송</span>
+                    <span>택배 배송</span>
                   ` : p.deliveryType === 'ebook' || p.deliveryType === 'digital_download' ? `
                     <span class="material-symbols-outlined" style="font-size: 15px; color: #4ade80;">download_done</span>
-                    <span>결제 즉시 PDF 다운로드 &amp; 영구 소장</span>
+                    <span>다운로드</span>
                   ` : p.deliveryType === 'voucher_code' ? `
                     <span class="material-symbols-outlined" style="font-size: 15px; color: var(--primary);">card_giftcard</span>
-                    <span>바우처 코드 즉시 발급</span>
+                    <span>디지털 발급</span>
                   ` : p.deliveryType === 'consulting_booking' ? `
                     <span class="material-symbols-outlined" style="font-size: 15px; color: #c084fc;">calendar_clock</span>
-                    <span>1:1 상담 예약 확정</span>
+                    <span>온라인 신청</span>
                   ` : `
                     <span class="material-symbols-outlined" style="font-size: 15px; color: var(--primary);">bolt</span>
-                    <span>즉시 정밀 감정 리포트 생성</span>
+                    <span>온라인 열람</span>
                   `}
                 </span>
               </div>
@@ -514,9 +502,9 @@ export function renderCommerceStoreView(state: AppStateData): string {
                 </div>
 
                 ${p.category === 'ebook' ? `
-                  <a href="/reader?bookId=${p.id}" data-nav="/reader?bookId=${p.id}" style="display: flex; align-items: center; justify-content: center; gap: 0.45rem; background: linear-gradient(135deg, rgba(242, 202, 80, 0.2), rgba(242, 202, 80, 0.08)); border: 1.5px solid var(--primary); color: #fff; font-weight: 800; font-size: 0.88rem; padding: 0.65rem 0.5rem; border-radius: 8px; text-decoration: none; margin-bottom: 0.5rem; box-shadow: 0 4px 12px rgba(242, 202, 80, 0.2); transition: all 0.15s ease;">
+                  <a href="/reader?bookId=${p.id}&from=store&page=1" data-nav="/reader?bookId=${p.id}&from=store&page=1" style="display: flex; align-items: center; justify-content: center; gap: 0.45rem; background: linear-gradient(135deg, rgba(242, 202, 80, 0.2), rgba(242, 202, 80, 0.08)); border: 1.5px solid var(--primary); color: #fff; font-weight: 800; font-size: 0.88rem; padding: 0.65rem 0.5rem; border-radius: 8px; text-decoration: none; margin-bottom: 0.5rem; box-shadow: 0 4px 12px rgba(242, 202, 80, 0.2); transition: all 0.15s ease;">
                     <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">auto_stories</span>
-                    <span>실제 책장 규격 웹 뷰어로 즉시 열람 (무료 01~03p)</span>
+                    <span>미리보기</span>
                   </a>
                 ` : ''}
 
@@ -560,57 +548,39 @@ export function renderCommerceStoreView(state: AppStateData): string {
             <!-- 일반 쇼핑몰 규격 상품 기본 정보 표 -->
             ${(() => {
               const formatMeta = (() => {
-                if (p.category === 'report') {
+                if (p.category === 'report' || (p.category as string) === 'saju') {
                   return {
-                    typeLabel: '상품 분류', typeVal: '4대 정밀 감정 리포트',
-                    formatLabel: '제공 형태', formatVal: '온라인 대시보드 열람 + PDF/TXT 소장본',
-                    deliveryLabel: '열람 방식', deliveryVal: '결제 확인 즉시 실시간 해금 및 영구 소장',
-                    authorLabel: '분석 엔진', authorVal: '마보살 10만 임상 정밀 명리엔진',
-                    sectionTitle: '리포트 상세 소개'
-                  };
-                }
-                if (p.category === 'voucher') {
-                  return {
-                    typeLabel: '상품 분류', typeVal: '모바일 바우처 / 기프트 상품권',
-                    formatLabel: '제공 형태', formatVal: '16자리 고유 쿠폰 코드 즉시 발급',
-                    deliveryLabel: '사용 방식', deliveryVal: '마이페이지 등록 또는 주문서 결제 시 전액 차감',
-                    authorLabel: '발행처', authorVal: '마보살 공식 디지털 랩',
-                    sectionTitle: '상품권 상세 소개'
+                    typeLabel: '상품 분류', typeVal: '사주',
+                    formatLabel: '제공 형태', formatVal: '온라인 리포트',
+                    deliveryLabel: '열람 방식', deliveryVal: '온라인 열람',
+                    authorLabel: '분석 엔진', authorVal: '마보살 명리엔진',
+                    sectionTitle: '상세 정보'
                   };
                 }
                 if (p.category === 'lecture') {
                   return {
-                    typeLabel: '상품 분류', typeVal: '온라인 강의 · VOD',
-                    formatLabel: '제공 형태', formatVal: '고화질 스트리밍 영상 + 강의 교재 PDF',
-                    deliveryLabel: '수강 방식', deliveryVal: '결제 완료 즉시 마이페이지 내 강의실 열람',
-                    authorLabel: '강사 / 연구원', authorVal: '마보살 역학 전임 학술팀',
-                    sectionTitle: '강의 상세 소개'
-                  };
-                }
-                if (p.category === 'consulting') {
-                  return {
-                    typeLabel: '상품 분류', typeVal: '1:1 역학 전문 상담권',
-                    formatLabel: '제공 형태', formatVal: '전문 역학 상담사 맞춤 1:1 심층 상담',
-                    deliveryLabel: '예약 방식', deliveryVal: '결제 완료 후 상담 캘린더 날짜/시간 선택',
-                    authorLabel: '상담 기관', authorVal: '마보살 천명원 전문 상담 센터',
-                    sectionTitle: '상담권 상세 소개'
+                    typeLabel: '상품 분류', typeVal: '강의',
+                    formatLabel: '제공 형태', formatVal: 'VOD',
+                    deliveryLabel: '수강 방식', deliveryVal: '온라인 스트리밍',
+                    authorLabel: '강사', authorVal: '마보살 학술팀',
+                    sectionTitle: '상세 정보'
                   };
                 }
                 if (p.category === 'goods') {
                   return {
-                    typeLabel: '상품 분류', typeVal: '개운 굿즈 · 부적',
-                    formatLabel: '제공 형태', formatVal: '실물 상품 안전 택배 배송',
-                    deliveryLabel: '배송 기간', deliveryVal: '결제 완료 후 1~3 영업일 이내 출고',
-                    authorLabel: '제작 / 유통', authorVal: '마보살 공식 굿즈 스튜디오',
-                    sectionTitle: '상품 상세 소개'
+                    typeLabel: '상품 분류', typeVal: '굿즈',
+                    formatLabel: '제공 형태', formatVal: '실물 상품',
+                    deliveryLabel: '배송 방식', deliveryVal: '택배 배송',
+                    authorLabel: '제작처', authorVal: '마보살 스튜디오',
+                    sectionTitle: '상세 정보'
                   };
                 }
                 return {
-                  typeLabel: '도서 형태', typeVal: '전자책 (PDF) / 소장용 양장본',
-                  formatLabel: '파일 포맷', formatVal: '고해상도 벡터 PDF + 텍스트',
-                  deliveryLabel: '제공 방식', deliveryVal: "결제 완료 즉시 '내 서재' 다운로드 & 열람",
-                  authorLabel: '저자 / 편저', authorVal: '마보살 명리학 연구소',
-                  sectionTitle: '도서 상세 소개'
+                  typeLabel: '상품 분류', typeVal: '도서',
+                  formatLabel: '파일 포맷', formatVal: 'PDF',
+                  deliveryLabel: '제공 방식', deliveryVal: '다운로드',
+                  authorLabel: '저자', authorVal: '마보살 연구소',
+                  sectionTitle: '상세 정보'
                 };
               })();
 
@@ -690,22 +660,20 @@ export function renderCommerceStoreView(state: AppStateData): string {
               </h4>
               <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.75; display: flex; flex-direction: column; gap: 0.75rem;">
                 <div>
-                  <strong style="color: #fff;">1. 디지털 콘텐츠 (전자책 · 사주 리포트)</strong><br/>
-                  • 「전자상거래 등에서의 소비자보호에 관한 법률」 제17조 제2항 제5호에 의거하여, <strong>다운로드 링크 발급 또는 열람이 개시된 디지털 콘텐츠는 청약철회(환불)가 제한</strong>됩니다.<br/>
-                  • 결제 완료 후 열람이나 다운로드가 개시되지 않은 주문은 결제일로부터 7일 이내 전액 청약철회가 가능합니다.<br/>
-                  • 파일 손상, 다운로드 장애 등 전산 시스템 오류로 정상 이용이 불가능한 경우 7일 이내 고객센터를 통해 정상 파일 재발송 또는 전액 환불을 받으실 수 있습니다.
+                  <strong style="color: #fff;">1. 디지털 콘텐츠 (사주 리포트 · 도서 · 강의)</strong><br/>
+                  • <strong>서비스 제공 및 열람 기간</strong>: 결제 완료일로부터 7일간 온라인 열람 및 다운로드가 제공됩니다.<br/>
+                  • 「전자상거래 등에서의 소비자보호에 관한 법률」 제17조 제2항 제5호에 따라, <strong>온라인 열람 또는 파일 다운로드가 개시된 디지털 콘텐츠는 청약철회(환불)가 제한</strong>됩니다.<br/>
+                  • 결제 완료 후 7일 이내 열람이나 다운로드를 개시하지 않은 미이용 건은 결제일로부터 7일 이내 요청 시 100% 전액 환불됩니다.<br/>
+                  • 결제일로부터 7일이 경과한 건은 서비스 제공 기간 만료로 취소 및 환불이 불가합니다.<br/>
+                  • 전산 시스템 장애 등으로 정상 이용이 불가능한 경우 7일 이내 고객센터를 통해 재제공 또는 전액 환불 처리됩니다.
                 </div>
                 <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 0.65rem;">
-                  <strong style="color: #fff;">2. 실물 배송 상품 (부적 · 굿즈 소품)</strong><br/>
+                  <strong style="color: #fff;">2. 실물 배송 상품 (굿즈 소품)</strong><br/>
                   • 상품 수령일로부터 7일 이내에 반품 및 환불 신청이 가능합니다.<br/>
                   • 단, 고객의 귀책 사유로 상품이 훼손·멸실되었거나 사용 흔적이 있는 경우, 밀봉 포장을 개봉하여 상품 가치가 상실된 경우에는 반품이 불가합니다.<br/>
                   • 단순 변심에 의한 반품의 경우 왕복 배송비는 고객 부담입니다.
                 </div>
-                <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 0.65rem;">
-                  <strong style="color: #fff;">3. 1:1 상담권 및 모바일 바우처</strong><br/>
-                  • 미사용 모바일 바우처는 유효기간 내 환불 신청이 가능합니다.<br/>
-                  • 1:1 상담 예약권은 상담 개시 24시간 전까지 취소 시 전액 환불되며, 상담 당일 임의 불참 또는 상담 개시 후에는 환불이 제한됩니다.
-                </div>
+                
                 <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 0.65rem; color: #94a3b8; font-size: 0.78rem;">
                   ※ 취소 및 환불 접수: 마이페이지 [주문 내역] 내 [주문 취소/반품 신청] 버튼을 통해 온라인 접수하실 수 있습니다.
                 </div>

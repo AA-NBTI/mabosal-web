@@ -16,6 +16,8 @@ import {
   setReaderTocOpen,
   getReaderSettings,
   updateReaderSettings,
+  getReaderAccessSource,
+  isEbookFullAccessAllowed,
 } from './reader-state.js';
 import { getEbookById } from './ebook-registry.js';
 
@@ -33,15 +35,32 @@ export function bindEbookReaderEvents(renderApp: () => void, navigateTo?: (path:
     e.preventDefault();
   });
 
-  // 2. 뒤로가기 버튼
+  // 2. 뒤로가기 버튼 (상세 상품으로 정확히 복귀 & 브라우저 앞/뒤 내비게이션 완벽 보존)
   const backBtn = container.querySelector('.btn-ebook-back');
   if (backBtn) {
     backBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      if (navigateTo) {
-        navigateTo('/store');
+      const source = getReaderAccessSource();
+      const currentBookId = getCurrentBookId();
+      const book = getEbookById(currentBookId);
+      const productId = book?.storeProductId || currentBookId;
+
+      if (source === 'dashboard') {
+        if (navigateTo) navigateTo('/member-dashboard');
+        else window.history.back();
+      } else if (source === 'admin') {
+        if (navigateTo) navigateTo('/admin');
+        else window.history.back();
       } else {
-        window.history.back();
+        // 스토어 미리보기에서 온 경우: 브라우저 history.back()을 호출하여
+        // 직전 상품 상세 페이지(/store?product=...)로 복귀시키고 '앞으로 가기' 버튼도 활성화 유지!
+        if (typeof window !== 'undefined' && window.history.length > 1) {
+          window.history.back();
+        } else if (navigateTo) {
+          navigateTo('/store?product=' + encodeURIComponent(productId));
+        } else {
+          window.location.href = '/store?product=' + encodeURIComponent(productId);
+        }
       }
     });
   }
@@ -96,11 +115,54 @@ export function bindEbookReaderEvents(renderApp: () => void, navigateTo?: (path:
     });
   });
 
+  // 무료 맛보기 3페이지 중앙 안내 모달 제어 (X 버튼 및 배경 클릭 시 구매 상세페이지로 즉시 복귀)
+  const centerModal = container.querySelector('#ebook-preview-center-modal') as HTMLElement | null;
+  const exitDetailBtns = container.querySelectorAll('.btn-return-to-store-detail');
+  exitDetailBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const currentBookId = getCurrentBookId();
+      const book = getEbookById(currentBookId);
+      const productId = book?.storeProductId || currentBookId;
+      if (navigateTo) {
+        navigateTo('/store?product=' + encodeURIComponent(productId));
+      } else {
+        window.location.href = '/store?product=' + encodeURIComponent(productId);
+      }
+    });
+  });
+
+  if (centerModal) {
+    centerModal.addEventListener('click', (e) => {
+      if (e.target === centerModal) {
+        const currentBookId = getCurrentBookId();
+        const book = getEbookById(currentBookId);
+        const productId = book?.storeProductId || currentBookId;
+        if (navigateTo) {
+          navigateTo('/store?product=' + encodeURIComponent(productId));
+        } else {
+          window.location.href = '/store?product=' + encodeURIComponent(productId);
+        }
+      }
+    });
+  }
+
   const nextBtns = container.querySelectorAll('.btn-ebook-page-next');
   nextBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const current = getCurrentPageNumber();
-      const book = getEbookById(getCurrentBookId());
+      const bookId = getCurrentBookId();
+      const book = getEbookById(bookId);
+      const isFull = isEbookFullAccessAllowed(bookId);
+
+      if (!isFull && current >= 3) {
+        // 미리보기 3페이지에서 다음 쪽을 누르면 화면 중간 모달을 즉시 표시
+        if (centerModal) {
+          centerModal.style.display = 'flex';
+        }
+        return;
+      }
+
       if (book && current < book.totalPageCount) {
         setCurrentPageNumber(current + 1);
         renderApp();
@@ -185,7 +247,17 @@ export function bindEbookReaderEvents(renderApp: () => void, navigateTo?: (path:
         }
       } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         const cur = getCurrentPageNumber();
-        const b = getEbookById(getCurrentBookId());
+        const bookId = getCurrentBookId();
+        const b = getEbookById(bookId);
+        const isFull = isEbookFullAccessAllowed(bookId);
+
+        if (!isFull && cur >= 3) {
+          e.preventDefault();
+          const modal = document.querySelector('#ebook-preview-center-modal') as HTMLElement | null;
+          if (modal) modal.style.display = 'flex';
+          return;
+        }
+
         if (b && cur < b.totalPageCount) {
           e.preventDefault();
           setCurrentPageNumber(cur + 1);

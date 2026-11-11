@@ -214,11 +214,18 @@ export function renderAdminEbookLibraryPanel(): string {
                     </div>
                   </summary>
 
-                  <!-- 클릭 후 펼침 영역 (도서 상세 메타 및 실물 뷰어) -->
-                  <div style="padding: 1.25rem; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.15);">
+                  <!-- 클릭 후 펼침 영역 (도서 상세 메타 및 독립 열람 안내) -->
+                  <div style="padding: 1.25rem 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.2);">
                     
+                    <!-- 도서 요약 설명 -->
+                    ${b.description ? `
+                      <p style="font-size: 0.88rem; color: #cbd5e1; margin: 0 0 1rem; line-height: 1.6; background: rgba(255,255,255,0.03); padding: 0.75rem 1rem; border-radius: 6px; border-left: 3px solid var(--primary);">
+                        ${b.description}
+                      </p>
+                    ` : ''}
+
                     <!-- 도서 상세 정보 및 빠른 액션 바 -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.15rem; background: rgba(0, 0, 0, 0.35); padding: 0.85rem 1.15rem; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; background: rgba(0, 0, 0, 0.35); padding: 0.85rem 1.15rem; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08);">
                       <div style="font-size: 0.82rem; color: #cbd5e1; display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center;">
                         <div>• 규격: <strong style="color: #fff;">${b.format}</strong></div>
                         <div>• 정가: <strong style="color: var(--primary);">₩ ${b.price.toLocaleString()}</strong></div>
@@ -228,31 +235,19 @@ export function renderAdminEbookLibraryPanel(): string {
 
                       <div style="display: flex; gap: 0.5rem; align-items: center;">
                         ${b.viewerSupported ? `
-                          <a href="/reader?bookId=${b.id}" target="_blank" style="background: var(--primary); color: #1e1e1e; font-weight: 800; font-size: 0.8rem; padding: 0.45rem 0.85rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem; box-shadow: 0 2px 8px rgba(242,202,80,0.3);">
+                          <a href="/reader?bookId=${b.id}&from=admin" target="_blank" style="background: var(--primary); color: #1e1e1e; font-weight: 800; font-size: 0.82rem; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; box-shadow: 0 2px 8px rgba(242,202,80,0.3);">
                             <span class="material-symbols-outlined" style="font-size: 16px;">open_in_new</span>
                             <span>독립 전체화면 열람</span>
                           </a>
                         ` : ''}
                         ${b.storeProductId ? `
-                          <a href="/store?product=${b.storeProductId}" target="_blank" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #dfe2f1; font-size: 0.8rem; font-weight: 700; padding: 0.45rem 0.75rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;" title="스토어 상품 페이지 보기">
+                          <a href="/store?product=${b.storeProductId}" target="_blank" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #dfe2f1; font-size: 0.82rem; font-weight: 700; padding: 0.5rem 0.85rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;" title="스토어 상품 페이지 보기">
                             <span class="material-symbols-outlined" style="font-size: 16px;">storefront</span>
                             <span>스토어 상품 보기</span>
                           </a>
                         ` : ''}
                       </div>
                     </div>
-
-                    <!-- 펼침 실물 웹 뷰어 프레임 -->
-                    ${b.viewerSupported ? `
-                      <div style="width: 100%; height: 820px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.12); background: #0b0e14; box-shadow: inset 0 2px 12px rgba(0,0,0,0.6);">
-                        <iframe src="/reader?bookId=${b.id}" loading="lazy" style="width: 100%; height: 100%; border: none;" title="${b.title} 웹 뷰어 검수"></iframe>
-                      </div>
-                    ` : `
-                      <div style="padding: 2.5rem; text-align: center; color: #94a3b8; background: rgba(0,0,0,0.2); border-radius: 8px;">
-                        <span class="material-symbols-outlined" style="font-size: 32px; color: var(--text-muted); margin-bottom: 0.5rem;">hourglass_empty</span>
-                        <p style="margin: 0; font-size: 0.9rem;">현재 원고 조판 및 뷰어 발행 준비 중인 도서입니다.</p>
-                      </div>
-                    `}
 
                   </div>
                 </details>

@@ -7,6 +7,7 @@ export * from './WealthPage.js';
 export * from './LovePage.js';
 export * from './CalendarPage.js';
 export * from './StorePage.js';
+export * from './SubscriptionPage.js';
 export * from './StudyPage.js';
 export * from './AdminPage.js';
 export * from './MemberDashboardPage.js';
@@ -26,6 +27,7 @@ import { WealthPage } from './WealthPage.js';
 import { LovePage } from './LovePage.js';
 import { CalendarPage } from './CalendarPage.js';
 import { StorePage } from './StorePage.js';
+import { SubscriptionPage } from './SubscriptionPage.js';
 import { StudyPage } from './StudyPage.js';
 import { AdminPage } from './AdminPage.js';
 import { MemberDashboardPage } from './MemberDashboardPage.js';
@@ -45,6 +47,7 @@ export const PAGE_REGISTRY: Record<string, PageModule> = {
   '/love': LovePage,
   '/calendar': CalendarPage,
   '/store': StorePage,
+  '/subscription': SubscriptionPage,
   '/study': StudyPage,
   '/admin': AdminPage,
   '/member-dashboard': MemberDashboardPage,
@@ -59,6 +62,6 @@ export const PAGE_REGISTRY: Record<string, PageModule> = {
 };
 
 export function getPageByPathname(pathname: string): PageModule {
-  const cleanPath = pathname.replace(/\/+$/, '') || '/';
-  return PAGE_REGISTRY[cleanPath] || HomePage;
+  const pathOnly = pathname.split('?')[0].replace(/\/+$/, '') || '/';
+  return PAGE_REGISTRY[pathOnly] || HomePage;
 }

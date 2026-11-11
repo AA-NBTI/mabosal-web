@@ -6,7 +6,7 @@ export const OFFICIAL_BANK_ACCOUNT = {
 };
 /**
  * 마보살 인하우스 커머스 스토어 데이터 & 주문 서비스
- * 5대 특화 운세 리포트 + 자체 전자책, VOD, 상담권, 굿즈 완벽 지원
+ * 정밀 사주 리포트 + 전자책, VOD 강의, 굿즈 지원
  */
 
 import type { StoreCategory, StoreCategoryType, StoreOrder, StoreProduct } from './types.js';
@@ -29,12 +29,10 @@ const STORAGE_DELETED_PRODUCTS_KEY = 'mabosal_store_deleted_products_v1';
 
 export const INITIAL_STORE_CATEGORIES: StoreCategory[] = [
   { id: 'all', label: '전체 상품', icon: 'apps' },
-  { id: 'report', label: '4대 정밀 감정 리포트', icon: 'auto_awesome' },
-  { id: 'voucher', label: '상품권 · 바우처', icon: 'confirmation_number' },
-  { id: 'ebook', label: '전자책 · 가이드', icon: 'menu_book' },
-  { id: 'lecture', label: '강의 · VOD', icon: 'smart_display' },
-  { id: 'consulting', label: '1:1 상담권', icon: 'support_agent' },
-  { id: 'goods', label: '부적 · 굿즈', icon: 'token' },
+  { id: 'report', label: '사주', icon: 'auto_awesome' },
+  { id: 'ebook', label: '도서', icon: 'menu_book' },
+  { id: 'lecture', label: '강의', icon: 'smart_display' },
+  { id: 'goods', label: '굿즈', icon: 'token' },
 ];
 
 /** 등록된 동적 스토어 카테고리 목록 조회 */
@@ -47,7 +45,16 @@ export function getStoreCategories(): StoreCategory[] {
       return [...INITIAL_STORE_CATEGORIES];
     }
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      // 구버전 카테고리(voucher, consulting 등)가 포함되어 있거나 이전 명칭(리포트 등)인 경우 최신 카테고리로 자동 갱신
+      const hasOldCategory = parsed.some((c: any) => c.id === 'voucher' || c.id === 'consulting');
+      const hasOldLabel = parsed.some((c: any) => (c.id === 'report' && c.label !== '사주') || (c.id === 'ebook' && c.label !== '도서') || (c.id === 'lecture' && c.label !== '강의') || (c.id === 'goods' && c.label !== '굿즈'));
+      if (hasOldCategory || hasOldLabel) {
+        localStorage.setItem(STORAGE_CATEGORIES_KEY, JSON.stringify(INITIAL_STORE_CATEGORIES));
+        return [...INITIAL_STORE_CATEGORIES];
+      }
+      return parsed;
+    }
   } catch (e) {
     console.warn('[store-service] getStoreCategories load error:', e);
   }
@@ -147,99 +154,6 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
   SAJU_BOOK_VOL2_PRODUCT,
   SAJU_BOOK_VOL3_PRODUCT,
   SAJU_BOOK_VOL4_PRODUCT,
-
-  // [상품권 1. 마보살 50,000원 VIP 기프트 상품권]
-  {
-    id: 'prod-voucher-50k',
-    title: '마보살 50,000원 VIP 사주 기프트 상품권',
-    category: 'voucher',
-    price: 50000,
-    originalPrice: 50000,
-    tagLine: '모든 사주 리포트와 1:1 상담까지 자유롭게 결제 가능한 VIP 모바일 바우처',
-    badge: '선물 1위',
-    description: '가족, 친구, 연인에게 마음을 전할 수 있는 정식 마보살 모바일 상품권입니다. 결제 완료 즉시 16자리 바우처 고유 코드가 발급되며, 마보살 전 상품 주문 시 현금처럼 전액 차감 사용할 수 있습니다.',
-    detailsHtml: `
-      <div style="line-height: 1.7; font-size: 0.9rem; color: #d1d5db;">
-        <div style="background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-          <strong style="color: #f2ca50;">🎁 상품권 사용 안내</strong><br/>
-          • 결제 완료(무통장 입금 승인 또는 카드결제) 즉시 고유 바우처 쿠폰 코드가 발급됩니다.<br/>
-          • [쿠폰/바우처 등록] 탭에서 등록하여 적립하거나, 주문서 결제 시 코드를 입력하여 50,000원을 전액 차감할 수 있습니다.<br/>
-          • 유효기간: 발행일로부터 1년 (자동 연장 가능)<br/>
-          • 선물하기: 발급된 코드를 복사하여 카카오톡이나 문자로 소중한 분께 전달하세요.
-        </div>
-      </div>
-    `,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&auto=format&fit=crop&q=80',
-    galleryImages: [
-      'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1512909006721-3d6018887383?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=800&auto=format&fit=crop&q=80',
-    ],
-    thumbnailIcon: 'card_giftcard',
-    deliveryType: 'voucher_code',
-    contentPayload: 'VOUCHER_50000',
-    targetSignals: ['general.gift', 'future.planning'],
-    status: 'active',
-    createdAt: '2026-10-12',
-    salesCount: 42,
-  },
-  // [상품권 2. 마보살 30,000원 정통 사주 상품권]
-  {
-    id: 'prod-voucher-30k',
-    title: '마보살 30,000원 정통 사주 감정 상품권',
-    category: 'voucher',
-    price: 30000,
-    originalPrice: 30000,
-    tagLine: '신년운세, 재물운, 애정운 특화 리포트를 전액 결제할 수 있는 실속형 상품권',
-    badge: '인기 선물',
-    description: '30,000원 상당의 마보살 감정 리포트를 자유롭게 이용할 수 있는 바우처입니다. 결제 즉시 발급 코드가 생성됩니다.',
-    detailsHtml: `
-      <div style="line-height: 1.7; font-size: 0.9rem; color: #d1d5db;">
-        <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-          <strong style="color: #818cf8;">🎁 실속형 상품권 혜택</strong><br/>
-          • 2027 정묘년 신년운세, 평생 재물운, 직업운 리포트 전액 결제 가능<br/>
-          • 결제 완료 시 주문 상세 내역에서 발급 코드를 즉시 확인 가능합니다.
-        </div>
-      </div>
-    `,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1512909006721-3d6018887383?w=800&auto=format&fit=crop&q=80',
-    galleryImages: [
-      'https://images.unsplash.com/photo-1512909006721-3d6018887383?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=800&auto=format&fit=crop&q=80',
-    ],
-    thumbnailIcon: 'confirmation_number',
-    deliveryType: 'voucher_code',
-    contentPayload: 'VOUCHER_30000',
-    targetSignals: ['general.gift'],
-    status: 'active',
-    createdAt: '2026-10-12',
-    salesCount: 31,
-  },
-  // [상품권 3. 마보살 10,000원 기프트 쿠폰]
-  {
-    id: 'prod-voucher-10k',
-    title: '마보살 10,000원 모바일 기프트 쿠폰',
-    category: 'voucher',
-    price: 10000,
-    originalPrice: 10000,
-    tagLine: '모든 상품 주문 시 10,000원 즉시 할인받는 가벼운 선물용 쿠폰',
-    badge: '부담없는 선물',
-    description: '가볍게 마음을 전하는 10,000원 상당의 모바일 할인 쿠폰입니다.',
-    detailsHtml: `
-      <div style="line-height: 1.7; font-size: 0.9rem; color: #d1d5db;">
-        <p>• 마보살 전 상품 결제 시 10,000원 즉시 할인 적용 가능</p>
-      </div>
-    `,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1513885535751-8b9238bd345a?w=800&auto=format&fit=crop&q=80',
-    thumbnailIcon: 'redeem',
-    deliveryType: 'voucher_code',
-    contentPayload: 'VOUCHER_10000',
-    targetSignals: ['general.gift'],
-    status: 'active',
-    createdAt: '2026-10-12',
-    salesCount: 68,
-  },
   // [전자책 1. 마보살 사주 셀프 리딩 가이드 (실용 명리학 라이프 시리즈 01)]
   {
     id: 'prod-ebook-saju-self-guide',
@@ -734,40 +648,17 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
     salesCount: 88,
   },
   {
-    id: 'prod-consult-vip',
-    title: '수석 명리 마스터 1:1 심층 화상 컨설팅 (40분 상담권)',
-    category: 'consulting',
-    price: 99000,
-    originalPrice: 150000,
-    tagLine: '내 사주 원국과 현실 고민을 1:1로 집중 조율하는 프리미엄 세션',
-    description: '컴퓨터 진단서 너머, 마보살 수석 자문 명리학자와 1:1 비대면 화상으로 40분간 직접 대화하며 올해 반드시 풀어야 할 진로·사업·이성 문제를 해결하는 실시간 상담권입니다.',
-    detailsHtml: `
-      <div style="line-height: 1.7; font-size: 0.9rem; color: #d1d5db;">
-        <h4 style="color: #f2ca50; margin: 0 0 0.5rem 0;"> 상담 절차</h4>
-        <p style="margin: 0;">결제 완료 즉시 캘린더 예약 링크가 발송됩니다. 40분간 집중 1:1 심층 라이브 세션 진행.</p>
-      </div>
-    `,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&auto=format&fit=crop&q=80',
-    thumbnailIcon: 'support_agent',
-    deliveryType: 'consulting_booking',
-    contentPayload: 'https://calendly.com/mabosal-consulting/40min',
-    targetSignals: ['mind.stress', 'career.transition'],
-    status: 'active',
-    createdAt: '2026-10-08T00:00:00.000Z',
-    salesCount: 45,
-  },
-  {
     id: 'prod-goods-amulet',
-    title: '경면주사 정본 비단 액막이 부적 & 수호 엽전 키링 세트',
+    title: '마보살 시그니처 황동 엽전 키링 & 전통 비단 파우치 세트',
     category: 'goods',
     price: 19900,
     originalPrice: 35000,
-    tagLine: '사주 상충살과 삼재의 기운을 다스리는 수호 소품',
-    description: '전통 비단 노리개 주머니 안에 담긴 명리 비법 액막이 부적과 마보살 심볼 엽전 키링 세트입니다. 지갑이나 가방, 자동차에 걸어 악재와 구설을 방어하는 의미를 담았습니다.',
+    tagLine: '일상의 공간을 정돈하는 전통 공예 소품',
+    description: '전통 비단 노리개 주머니와 마보살 심볼 황동 엽전 키링 세트입니다. 열쇠고리, 가방, 차량용 인테리어 소품으로 활용할 수 있습니다.',
     detailsHtml: `
       <div style="line-height: 1.7; font-size: 0.9rem; color: #d1d5db;">
         <h4 style="color: #f2ca50; margin: 0 0 0.5rem 0;"> 구성품 및 배송 안내</h4>
-        <p style="margin: 0;">경면주사 액막이 부적 1매 + 황동 엽전 키링 1개 세트 (무료배송).</p>
+        <p style="margin: 0;">황동 엽전 키링 1개 + 전통 비단 파우치 1개 세트 (택배 배송).</p>
       </div>
     `,
     thumbnailUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80',
@@ -818,6 +709,19 @@ export function getAllStoreProducts(): StoreProduct[] {
     // 삭제된 상품이 localStorage에 남아있다면 즉시 제거
     if (saved.some(p => deletedIds.has(p.id))) {
       saved = saved.filter(p => !deletedIds.has(p.id));
+      localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(saved));
+    }
+    // [PG 심사용] 폐기된 카테고리/상품(상품권, 1:1 상담권 등) 및 부적 명칭 자동 소거
+    const deprecatedProductIds = new Set(['prod-voucher-50k', 'prod-voucher-30k', 'prod-voucher-10k', 'prod-consult-vip']);
+    if (saved.some(p => deprecatedProductIds.has(p.id) || p.category === 'voucher' || p.category === 'consulting')) {
+      saved = saved.filter(p => !deprecatedProductIds.has(p.id) && p.category !== 'voucher' && p.category !== 'consulting');
+      localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(saved));
+    }
+    const amuletProd = saved.find(p => p.id === 'prod-goods-amulet');
+    if (amuletProd && amuletProd.title.includes('부적')) {
+      amuletProd.title = '마보살 시그니처 황동 엽전 키링 & 전통 비단 파우치 세트';
+      amuletProd.description = '전통 비단 노리개 주머니와 마보살 심볼 황동 엽전 키링 세트입니다. 열쇠고리, 가방, 차량용 인테리어 소품으로 활용할 수 있습니다.';
+      amuletProd.tagLine = '일상의 공간을 정돈하는 전통 공예 소품';
       localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(saved));
     }
     // 초기 상품 목록 중 로컬 스토리지에 없는 상품들 자동 병합 (단, 관리자가 명시적으로 삭제한 상품은 절대 복원하지 않음)
@@ -875,6 +779,27 @@ export function getAllStoreProducts(): StoreProduct[] {
       }
       localStorage.setItem(GALLERY_SYNC_KEY, 'done');
     }
+
+    // [v1.9.8] 사주명리학 원론 제2권 실제 도서 이미지 및 상세 목차 동기화
+    const VOL2_SYNC_KEY = 'mabosal_store_vol2_sync_v198';
+    if (localStorage.getItem(VOL2_SYNC_KEY) !== 'done') {
+      const vol2Index = saved.findIndex(p => p.id === 'book-saju-principles-vol2');
+      if (vol2Index >= 0) {
+        saved[vol2Index] = {
+          ...saved[vol2Index],
+          thumbnailUrl: SAJU_BOOK_VOL2_PRODUCT.thumbnailUrl,
+          galleryImages: SAJU_BOOK_VOL2_PRODUCT.galleryImages,
+          detailImages: SAJU_BOOK_VOL2_PRODUCT.detailImages,
+          tagLine: SAJU_BOOK_VOL2_PRODUCT.tagLine,
+          summary: SAJU_BOOK_VOL2_PRODUCT.summary,
+          description: SAJU_BOOK_VOL2_PRODUCT.description,
+          detailsHtml: SAJU_BOOK_VOL2_PRODUCT.detailsHtml,
+          options: SAJU_BOOK_VOL2_PRODUCT.options,
+        };
+        merged = true;
+      }
+      localStorage.setItem(VOL2_SYNC_KEY, 'done');
+    }
     if (merged) {
       localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(saved));
     }
@@ -889,7 +814,13 @@ export function getStoreProductsByCategory(category: StoreCategoryType = 'all'):
   const all = getAllStoreProducts();
   return all
     .filter(p => p.status !== 'hidden')
-    .filter(p => (category === 'all' ? true : p.category === category));
+    .filter(p => {
+      if (category === 'all') return true;
+      if (category === 'report' || category === 'saju') {
+        return p.category === 'report' || p.category === 'saju' || p.category === 'voucher' || p.category === 'consulting';
+      }
+      return p.category === category;
+    });
 }
 
 export function getStoreProductById(id: string): StoreProduct | undefined {
@@ -1098,7 +1029,7 @@ export function setStoreProductStatus(id: string, status: 'active' | 'soldout' |
   return updateStoreProduct(id, { status });
 }
 
-/** 기본 시드 주문 (홍길동 회원 전자책 1권 정본 구매 내역 보장) */
+/** 기본 시드 주문 (홍길동 회원 전자책 구매 내역 보장) */
 const DEFAULT_SEED_ORDERS: StoreOrder[] = [
   {
     orderId: 'ORD-MVOK8OJZ-4CO',
@@ -1118,6 +1049,44 @@ const DEFAULT_SEED_ORDERS: StoreOrder[] = [
     status: 'completed',
     selectedOptionName: '[기본형] 전자책(PDF) 마스터 판본 (즉시 다운로드)',
     reportTier: 'COMPREHENSIVE'
+  },
+  {
+    orderId: 'ORD-VOL2-HONG-88A',
+    productId: 'book-saju-principles-vol2',
+    productTitle: '[전자책] 정통 사주명리학 원론 제2권: 십성(육친)의 심리학과 격국(格局)·용신(用神)론',
+    category: 'ebook',
+    amount: 29000,
+    deliveryType: 'digital_download',
+    accessUrl: '/assets/downloads/saju_principles_vol2_master.pdf',
+    contentPayload: '/assets/downloads/saju_principles_vol2_master.pdf',
+    buyerName: '홍길동',
+    buyerEmail: 'hong@mabosal.com',
+    buyerPhone: '010-9876-5432',
+    paymentMethod: 'card',
+    userId: 'acc_user_01',
+    paidAt: '2026-10-27T10:15:00.000Z',
+    status: 'completed',
+    selectedOptionName: '[기본형] 전자책(PDF) 마스터 판본 (즉시 다운로드)',
+    reportTier: 'COMPREHENSIVE'
+  },
+  {
+    orderId: 'ORD-GUIDE-HONG-11B',
+    productId: 'prod-ebook-saju-self-guide',
+    productTitle: '[전자책] 마보살의 사주 셀프 리딩 가이드: 한자 몰라도 3분 만에 읽는 나만의 인생 내비게이션',
+    category: 'ebook',
+    amount: 14900,
+    deliveryType: 'digital_download',
+    accessUrl: '/downloads/mabosal_saju_self_reading_guide.pdf',
+    contentPayload: '/downloads/mabosal_saju_self_reading_guide.pdf',
+    buyerName: '홍길동',
+    buyerEmail: 'hong@mabosal.com',
+    buyerPhone: '010-9876-5432',
+    paymentMethod: 'card',
+    userId: 'acc_user_01',
+    paidAt: '2026-10-27T15:20:00.000Z',
+    status: 'completed',
+    selectedOptionName: '[기본형] 전자책(PDF) 마스터 판본 (즉시 다운로드)',
+    reportTier: 'COMPREHENSIVE'
   }
 ];
 
@@ -1127,24 +1096,26 @@ export function getAllStoreOrders(): StoreOrder[] {
     const raw = getStorage().getItem(STORAGE_ORDERS_KEY);
     let orders: StoreOrder[] = raw ? JSON.parse(raw) : [];
 
-    // 홍길동 회원의 대표 전자책 주문이 누락되지 않도록 보장
-    const hasVol1Order = orders.some(o => o.orderId === 'ORD-MVOK8OJZ-4CO' || o.productId === 'book-saju-principles-vol1');
-    if (!hasVol1Order) {
-      orders = [...DEFAULT_SEED_ORDERS, ...orders];
-      getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders.slice(0, 500)));
-    } else {
-      // 기존 주문의 소유자 정보가 누락되어 홍길동에게 안 보이던 현상 보정
-      let updated = false;
-      orders = orders.map(o => {
-        if (o.orderId === 'ORD-MVOK8OJZ-4CO' && !o.userId) {
-          updated = true;
-          return { ...o, userId: 'acc_user_01', buyerEmail: o.buyerEmail || 'hong@mabosal.com' };
-        }
-        return o;
-      });
-      if (updated) {
-        getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders.slice(0, 500)));
+    // 홍길동 회원의 대표 전자책 주문들이 누락되지 않도록 보장
+    let updated = false;
+    for (const seed of DEFAULT_SEED_ORDERS) {
+      if (!orders.some(o => o.orderId === seed.orderId || o.productId === seed.productId)) {
+        orders.unshift(seed);
+        updated = true;
       }
+    }
+
+    // 기존 주문의 소유자 정보가 누락되어 홍길동에게 안 보이던 현상 보정
+    orders = orders.map(o => {
+      if ((o.orderId === 'ORD-MVOK8OJZ-4CO' || o.orderId === 'ORD-VOL2-HONG-88A' || o.orderId === 'ORD-GUIDE-HONG-11B') && !o.userId) {
+        updated = true;
+        return { ...o, userId: 'acc_user_01', buyerEmail: o.buyerEmail || 'hong@mabosal.com' };
+      }
+      return o;
+    });
+
+    if (updated) {
+      getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders.slice(0, 500)));
     }
 
     return orders;
@@ -1213,7 +1184,7 @@ export interface VoucherRedeemResult {
 export function redeemStoreVoucher(rawCode: string, buyerInfo?: { name: string; phone?: string; email?: string }): VoucherRedeemResult {
   const code = (rawCode || '').trim().toUpperCase();
   if (!code) {
-    return { success: false, message: '쿠폰 또는 상품권 코드를 입력해 주세요.' };
+    return { success: false, message: '쿠폰 코드를 입력해 주세요.' };
   }
 
   let targetProdId = '';
@@ -1226,7 +1197,7 @@ export function redeemStoreVoucher(rawCode: string, buyerInfo?: { name: string; 
     targetProdId = matched.targetProduct === 'all' ? 'prod-paid-saju-premium' : matched.targetProduct;
     discountDesc = `${matched.name} (${matched.discountAmount ? matched.discountAmount.toLocaleString() + '원 할인' : matched.discountRate + '% 할인'})`;
   } else {
-    return { success: false, message: '유효하지 않거나 이미 사용된 쿠폰/상품권 코드입니다. 코드를 다시 확인해 주세요.' };
+    return { success: false, message: '유효하지 않거나 이미 사용된 쿠폰 코드입니다. 코드를 다시 확인해 주세요.' };
   }
 
   const prod = getStoreProductById(targetProdId);
@@ -1237,7 +1208,7 @@ export function redeemStoreVoucher(rawCode: string, buyerInfo?: { name: string; 
   // 주문 자동 생성 및 결제 완료 처리
   const newOrder = createStoreOrder({
     productId: prod.id,
-    buyerName: buyerInfo?.name || '쿠폰/상품권 고객',
+    buyerName: buyerInfo?.name || '쿠폰 이용 고객',
     buyerPhone: buyerInfo?.phone || '010-0000-0000',
     buyerEmail: buyerInfo?.email || 'voucher@mabosal.com',
     paymentMethod: 'voucher' as any,

@@ -212,7 +212,7 @@ export function renderFunnelLandingView(state: AppStateData): string {
         <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(242,202,80,0.3); border-radius: 12px; padding: 1rem 0.75rem; text-align: center;">
           <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: #1c1500; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem;">3</div>
           <strong style="font-size: 0.85rem; color: var(--primary); display: block; margin-bottom: 0.2rem;">유료 정밀 처방</strong>
-          <p style="font-size: 0.72rem; color: #dfe2f1; margin: 0; line-height: 1.4;">8대 심층 로드맵 해금 및 시기별 실행 계획 영구 보관</p>
+          <p style="font-size: 0.72rem; color: #dfe2f1; margin: 0; line-height: 1.4;">8대 심층 로드맵 및 시기별 실행 계획 제공</p>
         </div>
       </div>
     </section>

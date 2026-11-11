@@ -981,7 +981,7 @@ export function renderCheonmyeongwonTalismanCard(options?: CheonmyeongwonTalisma
  <span style="font-family: var(--font-display); font-size: 0.7rem; color: var(--primary); background: rgba(242,202,80,0.15); padding: 0.2rem 0.6rem; border-radius: 9999px; font-weight: 700; border: 1px solid rgba(242,202,80,0.3);">
  天命院 • 大吉 結實符
  </span>
- <span style="font-family: var(--font-display); font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.08em;">SACRED TALISMAN</span>
+ <span style="font-family: var(--font-display); font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.08em;">SACRED CARD</span>
  </div>
 
  <div style="text-align: center; margin: 0.75rem 0 1.25rem;">
@@ -1047,7 +1047,7 @@ export function renderCheonmyeongwonTalismanCard(options?: CheonmyeongwonTalisma
  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
  <button type="button" id="btn-save-talisman" class="btn-cta-secondary" style="padding: 0.65rem; border-radius: 10px; background: rgba(38,42,53,0.9); border: 1px solid rgba(255,255,255,0.12); color: #dfe2f1; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
  <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
- 부적 이미지 저장
+ 수호 카드 저장
  </button>
  <button type="button" id="btn-open-share-modal" class="btn-cta-primary" style="padding: 0.65rem; border-radius: 10px; background: var(--primary); color: #241a00; font-size: 0.8rem; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem; box-shadow: 0 4px 14px rgba(242,202,80,0.3);">
  <span class="material-symbols-outlined" style="font-size: 16px;">share</span>
@@ -1059,7 +1059,7 @@ export function renderCheonmyeongwonTalismanCard(options?: CheonmyeongwonTalisma
 }
 
 // ============================================================================
-// 12. 천명원 3번 규격: 부적 길운 나누기 바텀시트 공유 모달
+// 12. 천명원 3번 규격: 길운 카드 나누기 바텀시트 공유 모달
 // ============================================================================
 export function renderCheonmyeongwonShareModal(): string {
  return `
@@ -1079,10 +1079,10 @@ export function renderCheonmyeongwonShareModal(): string {
  </div>
 
  <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 700; color: #dfe2f1; margin: 0 0 0.35rem; text-align: center;">
- 부적의 길운(吉運)을 나누어보세요
+ 수호 카드의 길운(吉運)을 나누어보세요
  </h3>
  <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin: 0 0 1.25rem;">
- 지인에게 황금 결실 부적을 공유하면 <strong>+100 엽전</strong>이 즉시 적립됩니다.
+ 지인에게 수호 카드를 공유하면 <strong>+100 엽전</strong>이 즉시 적립됩니다.
  </p>
 
  <!-- Social Share Channels -->
@@ -1091,7 +1091,7 @@ export function renderCheonmyeongwonShareModal(): string {
  <button type="button" class="btn-share-channel" data-channel="kakao" style="width: 100%; padding: 0.85rem 1rem; border-radius: 14px; background: #fee500; color: #191919; border: none; font-size: 0.92rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
  <div style="display: flex; align-items: center; gap: 0.65rem;">
  <span class="material-symbols-outlined" style="font-size: 22px;">chat_bubble</span>
- <span>카카오톡으로 부적 보내기</span>
+ <span>카카오톡으로 수호 카드 보내기</span>
  </div>
  <span style="font-size: 0.75rem; background: rgba(0,0,0,0.1); padding: 0.2rem 0.5rem; border-radius: 6px;">+100엽</span>
  </button>

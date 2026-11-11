@@ -38,7 +38,7 @@ export function renderMemberVoucherWidget(): string {
     <!-- 2단 그리드: 좌측(행운쿠폰 등록 & 보유 목록) <-> 우측(무통장 입금 신청 & 승인 상태) -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.25rem;">
       
-      <!-- 패널 1: 행운쿠폰 & 상품권 등록 및 보유 목록 -->
+      <!-- 패널 1: 할인 쿠폰 등록 및 보유 목록 -->
       <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 1.25rem; box-shadow: var(--shadow-sm); display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; gap: 0.45rem; margin-bottom: 1rem;">
           <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">confirmation_number</span>

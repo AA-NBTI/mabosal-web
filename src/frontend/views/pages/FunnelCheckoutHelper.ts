@@ -5,7 +5,7 @@
  * - 최종 주문 내역 확인 (상품명, 의뢰인 사주, 결제 금액 ₩39,900)
  * - 결제 성공·실패·취소 및 중복 결제 방지
  * - 서버/스토어 데이터 검증 및 마이페이지 영구 보관
- * - 결제 완료 후 8대 심층 리포트 즉시 해금
+ * - 결제 완료 후 8대 심층 리포트 즉시 제공
  */
 
 import { appState } from '../../state/app-state.js';
@@ -104,7 +104,7 @@ export class FunnelCheckoutHelper {
             예금주: <strong style="color: #fff;">${OFFICIAL_BANK_ACCOUNT.holder}</strong>
           </div>
           <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 0.35rem; line-height: 1.4;">
-            ※ 입금 신청 후 관리자가 입금을 확인하면 8대 심층 리포트가 즉시 해금됩니다.
+            ※ 입금 확인 후 온라인 리포트가 즉시 제공됩니다.
           </div>
         </div>
 
@@ -120,7 +120,7 @@ export class FunnelCheckoutHelper {
   }
 
   /**
-   * 결제 실행 및 권한 해금 처리 (무통장 입금 접수)
+   * 결제 실행 및 권한 승인 처리 (무통장 입금 접수)
    */
   public static async executePayment(): Promise<{ success: boolean; message: string }> {
     const state = appState.getState();
@@ -160,7 +160,7 @@ export class FunnelCheckoutHelper {
 
       return {
         success: true,
-        message: `[무통장 입금 신청 완료]\n주문번호: #${order.orderId.slice(-8)}\n입금계좌: ${OFFICIAL_BANK_ACCOUNT.bankName} ${OFFICIAL_BANK_ACCOUNT.accountNumber} (${OFFICIAL_BANK_ACCOUNT.holder})\n입금 확인 즉시 8대 심층 리포트가 정상 해금됩니다.`
+        message: `[무통장 입금 신청 완료]\n주문번호: #${order.orderId.slice(-8)}\n입금계좌: ${OFFICIAL_BANK_ACCOUNT.bankName} ${OFFICIAL_BANK_ACCOUNT.accountNumber} (${OFFICIAL_BANK_ACCOUNT.holder})\n입금 확인 즉시 8대 심층 리포트가 정상 제공됩니다.`
       };
     } catch (err: any) {
       console.error('[FunnelCheckout] execution error:', err);

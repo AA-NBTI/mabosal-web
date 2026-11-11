@@ -12,9 +12,9 @@ export function renderPartnerPortalView(currentCode: string = 'vip_creator'): st
  const stats: PartnerStats = PartnerTracker.getPartnerStats(partnerCode);
  const partnerUrl = PartnerTracker.generatePartnerUrl(partnerCode);
 
- // 통합 정산금 계산: 홍보 커미션 30% + 1:1 상담료 80%
+ // 통합 정산금 계산: 홍보 커미션 30% + 전문 분석료 80%
  const affiliateCommission = stats.earnedCommission || 119700;
- const consultationEarnings = 320000; // 1:1 상담료 누적 (80%)
+ const consultationEarnings = 320000; // 전문 분석료 누적 (80%)
  const totalAvailablePayout = affiliateCommission + consultationEarnings;
 
  return `
@@ -30,7 +30,7 @@ export function renderPartnerPortalView(currentCode: string = 'vip_creator'): st
  ${currentUser.name || '도선도사'} 파트너스 센터
  </h1>
  <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0; max-width: 600px; line-height: 1.5;">
- 홍보 링크(30% 커미션)와 1:1 상담 예약(80% 상담료)을 하나의 통합 지갑으로 관리하고 정산받으세요.
+ 홍보 링크(30% 커미션)와 전문 분석(80% 수수료)을 하나의 통합 지갑으로 관리하고 정산받으세요.
  </p>
  </div>
  <div style="display: flex; gap: 0.5rem; align-items: center;">
@@ -47,7 +47,7 @@ export function renderPartnerPortalView(currentCode: string = 'vip_creator'): st
  <!-- 상단 통합 정산 잔액 요약 바 -->
  <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.25rem 1.75rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
  <div>
- <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.25rem;">출금 가능 통합 잔액 (홍보 커미션 + 1:1 상담료)</div>
+ <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.25rem;">출금 가능 통합 잔액 (홍보 커미션 + 전문 분석료)</div>
  <div style="font-family: var(--font-display); font-size: 2rem; font-weight: 800; color: var(--primary);">
  ₩ ${totalAvailablePayout.toLocaleString()}
  </div>
@@ -63,7 +63,7 @@ export function renderPartnerPortalView(currentCode: string = 'vip_creator'): st
  홍보 링크 &amp; 30% 수수료
  </button>
  <button type="button" class="partner-tab-btn" data-tab="ptab-consult" style="padding: 0.6rem 1.25rem; border-radius: 10px; background: var(--surface-container); color: #dfe2f1; font-weight: 600; font-size: 0.88rem; border: 1px solid rgba(255,255,255,0.06); cursor: pointer;">
- 1:1 상담 예약 &amp; 사전 질문지
+ 전문 분석 의뢰 &amp; 질문지
  </button>
  <button type="button" class="partner-tab-btn" data-tab="ptab-settlement" style="padding: 0.6rem 1.25rem; border-radius: 10px; background: var(--surface-container); color: #dfe2f1; font-weight: 600; font-size: 0.88rem; border: 1px solid rgba(255,255,255,0.06); cursor: pointer;">
  통합 정산 및 계좌 관리
@@ -113,7 +113,7 @@ export function renderPartnerPortalView(currentCode: string = 'vip_creator'): st
  </div>
  </div>
 
- <!-- [탭 2] 1:1 상담 예약 & 사전 질문지 (상담사) -->
+ <!-- [탭 2] 전문 분석 의뢰 & 질문지 (전문가) -->
  <div id="ptab-consult" class="partner-tab-panel" style="display: none;">
  <div style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1.5rem;">
  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
@@ -145,7 +145,7 @@ export function renderPartnerPortalView(currentCode: string = 'vip_creator'): st
  </div>
  </div>
  <button type="button" class="btn-start-consultation btn-cta-primary" style="padding: 0.45rem 1rem; font-size: 0.82rem; font-weight: 700; border-radius: 8px;">
- 1:1 상담실 입장
+ 분석실 입장
  </button>
  </div>
  <!-- 3문 3답 본문 -->
