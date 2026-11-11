@@ -49,9 +49,9 @@ describe('관리자 삭제/상태 유지 회귀', () => {
 
   it('리포트 상품 숨김 상태는 이후 조회에서 판매중으로 덮어써지지 않는다', () => {
     getAllStoreProducts(); // 최초 시드 + 1회성 마이그레이션
-    updateStoreProduct('prod-report-career', { status: 'hidden' });
+    updateStoreProduct('prod-paid-saju-premium', { status: 'hidden' });
     for (let i = 0; i < 3; i++) {
-      const p = getAllStoreProducts().find(x => x.id === 'prod-report-career');
+      const p = getAllStoreProducts().find(x => x.id === 'prod-paid-saju-premium');
       expect(p?.status).toBe('hidden');
     }
   });
