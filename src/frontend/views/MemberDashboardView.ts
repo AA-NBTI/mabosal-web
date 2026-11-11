@@ -686,7 +686,7 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
 
               <!-- 수정 저장 버튼 -->
               <div style="display: flex; justify-content: flex-end; gap: 0.65rem; padding-top: 0.5rem;">
-                <button type="button" id="btn-save-user-profile" style="background: #ffffff; color: #000; font-weight: 800; font-size: 0.85rem; padding: 0.65rem 1.6rem; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; transition: all 0.15s ease;">
+                <button type="button" id="btn-save-user-profile" style="background: var(--primary); color: #241a00; font-weight: 800; font-size: 0.85rem; padding: 0.65rem 1.6rem; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; box-shadow: 0 4px 14px rgba(242, 202, 80, 0.35); transition: all 0.15s ease;">
                   <span class="material-symbols-outlined" style="font-size: 18px;">check</span>
                   <span>회원 정보 수정 저장</span>
                 </button>

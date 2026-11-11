@@ -261,7 +261,7 @@ export function renderAdminDashboardView(): string {
         <div>
           <div style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 800; color: #dfe2f1; line-height: 1.15; display: flex; align-items: center; gap: 0.45rem;">
             마보살 관리자
-            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v2.0.3</span>
+            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v2.0.4</span>
           </div>
           <div style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.05em;">ADMIN CONTROL TOWER</div>
         </div>
@@ -826,7 +826,7 @@ export function renderAdminDashboardView(): string {
  <input type="text" id="new-prod-desc" placeholder="상품에 대한 핵심 해설 및 포함 섹션 요약" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.5rem 0.7rem; color: #dfe2f1; font-size: 0.85rem;" required />
  </div>
  <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end;">
- <button type="submit" id="btn-submit-add-product" style="background: #ffffff; color: #000; font-weight: 800; border: none; padding: 0.5rem 1.25rem; border-radius: 6px; cursor: pointer;" style="padding: 0.6rem 1.4rem; font-weight: 700; font-size: 0.85rem; border-radius: 8px;">
+ <button type="submit" id="btn-submit-add-product" style="background: var(--primary); color: #241a00; font-weight: 800; border: none; padding: 0.6rem 1.4rem; border-radius: 8px; font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 14px rgba(242, 202, 80, 0.35);">
  + 상품 신규 등록 완료
  </button>
  </div>

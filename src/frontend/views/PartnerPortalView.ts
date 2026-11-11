@@ -52,7 +52,7 @@ export function renderPartnerPortalView(currentCode: string = 'vip_creator'): st
  ₩ ${totalAvailablePayout.toLocaleString()}
  </div>
  </div>
- <button type="button" id="btn-quick-withdraw" class="btn-cta-primary" style="padding: 0.65rem 1.5rem; font-weight: 700; border-radius: 10px;">
+ <button type="button" id="btn-quick-withdraw" class="btn-cta-primary" style="padding: 0.65rem 1.5rem; font-weight: 800; border-radius: 10px; background: var(--primary); color: #241a00; border: none; cursor: pointer;">
  지금 바로 출금 신청
  </button>
  </div>
@@ -84,7 +84,7 @@ export function renderPartnerPortalView(currentCode: string = 'vip_creator'): st
  </div>
  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
  <input type="text" id="input-partner-url" value="${partnerUrl}" readonly style="flex: 1; min-width: 260px; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.75rem 1rem; color: #dfe2f1; font-size: 0.92rem; font-family: monospace;" />
- <button type="button" class="btn-cta-primary" id="btn-copy-partner-url" style="padding: 0.75rem 1.5rem; font-weight: 700;">
+ <button type="button" class="btn-cta-primary" id="btn-copy-partner-url" style="padding: 0.75rem 1.5rem; font-weight: 800; background: var(--primary); color: #241a00; border: none; border-radius: 8px; cursor: pointer;">
  링크 복사
  </button>
  </div>
@@ -144,7 +144,7 @@ export function renderPartnerPortalView(currentCode: string = 'vip_creator'): st
  상담 분야: <strong>이직 및 커리어 타이밍</strong> • 상담료: ₩ 50,000 (정산 수령액: ₩ 40,000)
  </div>
  </div>
- <button type="button" class="btn-start-consultation btn-cta-primary" style="padding: 0.45rem 1rem; font-size: 0.82rem; font-weight: 700; border-radius: 8px;">
+ <button type="button" class="btn-start-consultation btn-cta-primary" style="padding: 0.45rem 1rem; font-size: 0.82rem; font-weight: 800; border-radius: 8px; background: var(--primary); color: #241a00; border: none; cursor: pointer;">
  분석실 입장
  </button>
  </div>
@@ -204,7 +204,7 @@ export function renderPartnerPortalView(currentCode: string = 'vip_creator'): st
  </div>
  </div>
 
- <button type="button" id="btn-submit-payout-request" class="btn-cta-primary" style="width: 100%; padding: 0.85rem; font-weight: 700; border-radius: 10px;">
+ <button type="button" id="btn-submit-payout-request" class="btn-cta-primary" style="width: 100%; padding: 0.85rem; font-weight: 800; border-radius: 10px; background: var(--primary); color: #241a00; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(242, 202, 80, 0.35);">
  ₩ ${totalAvailablePayout.toLocaleString()} 전액 출금 신청 (관리자 승인 요청)
  </button>
  </div>

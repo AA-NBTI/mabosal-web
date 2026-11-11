@@ -253,7 +253,7 @@ export function renderUserOrderHistoryWidget(): string {
                     ` : ''}
 
                     ${o.status === 'completed' && o.deliveryType === 'saju_report' ? `
-                      <button type="button" class="btn-open-user-report" data-order-id="${o.orderId}" data-product-id="${o.productId}" style="background: #ffffff; color: #0f131d; font-weight: 800; font-size: 0.82rem; padding: 0.45rem 1rem; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
+                      <button type="button" class="btn-open-user-report" data-order-id="${o.orderId}" data-product-id="${o.productId}" style="background: var(--primary); color: #241a00; font-weight: 800; font-size: 0.82rem; padding: 0.45rem 1rem; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.3rem; box-shadow: 0 2px 8px rgba(242, 202, 80, 0.3);">
                         <span>리포트 열람</span>
                         <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
                       </button>

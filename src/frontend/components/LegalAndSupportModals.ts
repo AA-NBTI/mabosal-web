@@ -81,7 +81,7 @@ export function renderLegalAndSupportModals(): string {
 
       <!-- 모달 푸터 -->
       <div style="padding: 1rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: flex-end; background: rgba(0,0,0,0.2);">
-        <button type="button" class="btn-close-legal-modal btn-cta-primary" data-modal="modal-terms-container" style="padding: 0.55rem 1.5rem; font-size: 0.85rem; font-weight: 700; border-radius: 8px;">
+        <button type="button" class="btn-close-legal-modal btn-cta-primary" data-modal="modal-terms-container" style="padding: 0.55rem 1.5rem; font-size: 0.85rem; font-weight: 800; border-radius: 8px; background: var(--primary); color: #241a00; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(242, 202, 80, 0.35);">
           확인 및 닫기
         </button>
       </div>
@@ -303,7 +303,7 @@ export function renderLegalAndSupportModals(): string {
           <button type="button" class="btn-close-legal-modal btn-cta-secondary" data-modal="modal-support-container" style="padding: 0.65rem 1.25rem; font-size: 0.85rem; font-weight: 700; border-radius: 8px;">
             취소
           </button>
-          <button type="submit" id="btn-submit-support" class="btn-cta-primary" style="padding: 0.65rem 1.6rem; font-size: 0.85rem; font-weight: 800; border-radius: 8px; display: flex; align-items: center; gap: 0.4rem;">
+          <button type="submit" id="btn-submit-support" class="btn-cta-primary" style="padding: 0.65rem 1.6rem; font-size: 0.85rem; font-weight: 800; border-radius: 8px; display: flex; align-items: center; gap: 0.4rem; background: var(--primary); color: #241a00; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(242, 202, 80, 0.35);">
             <span class="material-symbols-outlined" style="font-size: 18px;">send</span>
             <span>문의 접수하기</span>
           </button>
@@ -363,7 +363,7 @@ export function renderLegalAndSupportModals(): string {
 
       <!-- 모달 푸터 -->
       <div style="padding: 1rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: flex-end; background: rgba(0,0,0,0.2);">
-        <button type="button" class="btn-close-legal-modal btn-cta-primary" data-modal="modal-refund-container" style="padding: 0.55rem 1.5rem; font-size: 0.85rem; font-weight: 700; border-radius: 8px;">
+        <button type="button" class="btn-close-legal-modal btn-cta-primary" data-modal="modal-refund-container" style="padding: 0.55rem 1.5rem; font-size: 0.85rem; font-weight: 800; border-radius: 8px; background: var(--primary); color: #241a00; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(242, 202, 80, 0.35);">
           확인 및 닫기
         </button>
       </div>

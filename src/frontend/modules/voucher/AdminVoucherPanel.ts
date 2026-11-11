@@ -90,7 +90,7 @@ export function renderAdminBankTransferPanel(): string {
                   </td>
                   <td style="padding: 0.85rem 0.75rem; text-align: right;">
                     <div style="display: flex; gap: 0.4rem; justify-content: flex-end;">
-                      <button type="button" class="btn-approve-transfer" data-transfer-id="${t.id}" style="padding: 0.4rem 0.75rem; background: #ffffff; color: #000000; font-weight: 800; font-size: 0.78rem; border: none; border-radius: 6px; cursor: pointer; transition: all 0.15s ease;">
+                      <button type="button" class="btn-approve-transfer" data-transfer-id="${t.id}" style="padding: 0.4rem 0.75rem; background: var(--primary); color: #241a00; font-weight: 800; font-size: 0.78rem; border: none; border-radius: 6px; cursor: pointer; transition: all 0.15s ease;">
                         확인
                       </button>
                       <button type="button" class="btn-reject-transfer" data-transfer-id="${t.id}" style="padding: 0.4rem 0.6rem; background: rgba(255, 107, 107, 0.15); color: #ff8585; font-size: 0.78rem; border: 1px solid rgba(255, 107, 107, 0.3); border-radius: 6px; cursor: pointer;">

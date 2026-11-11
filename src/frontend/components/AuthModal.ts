@@ -51,7 +51,7 @@ export function renderAuthModal(): string {
  <input type="password" id="input-login-password" placeholder="비밀번호 입력" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.75rem 1rem; color: #dfe2f1; font-size: 0.92rem;" autocomplete="current-password" />
  </div>
 
- <button type="submit" id="btn-submit-login" class="btn-cta-primary" style="width: 100%; padding: 0.85rem; font-weight: 700; border-radius: 10px; font-size: 0.95rem; margin-top: 0.25rem;">
+ <button type="submit" id="btn-submit-login" class="btn-cta-primary" style="width: 100%; padding: 0.85rem; font-weight: 800; border-radius: 10px; font-size: 0.95rem; margin-top: 0.25rem; background: var(--primary); color: #241a00; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(242, 202, 80, 0.35); transition: opacity 0.15s ease;">
  로그인
  </button>
  </form>

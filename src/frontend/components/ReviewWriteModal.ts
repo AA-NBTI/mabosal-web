@@ -97,7 +97,7 @@ export function renderReviewWriteModal(options: ReviewWriteModalOptions): string
           <button type="button" id="btn-cancel-review-write" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; padding: 0.65rem 1.25rem; font-size: 0.85rem; font-weight: 700; border-radius: 8px; cursor: pointer;">
             취소
           </button>
-          <button type="submit" id="btn-submit-review" class="btn-cta-primary" style="padding: 0.65rem 1.6rem; font-size: 0.85rem; font-weight: 800; border-radius: 8px; display: flex; align-items: center; gap: 0.4rem;">
+          <button type="submit" id="btn-submit-review" class="btn-cta-primary" style="padding: 0.65rem 1.6rem; font-size: 0.85rem; font-weight: 800; border-radius: 8px; display: flex; align-items: center; gap: 0.4rem; background: var(--primary); color: #241a00; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(242, 202, 80, 0.35);">
             <span class="material-symbols-outlined" style="font-size: 18px;">check</span>
             <span>후기 등록하기</span>
           </button>
