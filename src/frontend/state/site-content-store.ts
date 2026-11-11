@@ -32,12 +32,12 @@ export interface SiteContentConfig {
   };
 }
 
-const STORAGE_KEY = 'mabosal_site_content_config_v7';
+const STORAGE_KEY = 'mabosal_site_content_config_v8';
 
 export const DEFAULT_SITE_CONTENT: SiteContentConfig = {
   header: {
     brandName: '마보살',
-    domainText: 'mabosal.com',
+    domainText: '',
   },
   hero: {
     mainTitle: '당신의 사주를 읽고\n지금 무엇이 중요한지 알려드립니다',
@@ -95,6 +95,10 @@ export class SiteContentStore {
             hero: { ...DEFAULT_SITE_CONTENT.hero, ...(parsed.hero || {}) },
             footer: { ...DEFAULT_SITE_CONTENT.footer, ...(parsed.footer || {}) },
           };
+          if (this.config.header.domainText === 'mabosal.com') {
+            this.config.header.domainText = '';
+            this.save();
+          }
           return;
         }
       }

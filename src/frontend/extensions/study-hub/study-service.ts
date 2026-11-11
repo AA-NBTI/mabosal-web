@@ -1,8 +1,8 @@
 import { StudyArticle, StudyCategory, StudyComment } from './types.js';
 
-const STORAGE_KEY_CATEGORIES = 'mabosal_study_categories_v2';
-const STORAGE_KEY_ARTICLES = 'mabosal_study_articles_v2';
-const STORAGE_KEY_COMMENTS = 'mabosal_study_comments_v2';
+const STORAGE_KEY_CATEGORIES = 'mabosal_study_categories_v3';
+const STORAGE_KEY_ARTICLES = 'mabosal_study_articles_v3';
+const STORAGE_KEY_COMMENTS = 'mabosal_study_comments_v3';
 
 export function generateKoreanSlug(title: string): string {
   const clean = title.trim()
@@ -188,15 +188,16 @@ export class StudyService {
       this.categories = loadedCats;
     }
 
-    // 아티클 로드 (기존 v1 데이터 마이그레이션 지원)
-    const rawA = typeof localStorage !== 'undefined'
-      ? (localStorage.getItem(STORAGE_KEY_ARTICLES) || localStorage.getItem('mabosal_study_articles_v1'))
-      : null;
+    // 아티클 로드 (v3 단일 진실 공급원 및 하위호환 마이그레이션)
+    const rawA = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY_ARTICLES) : null;
     if (rawA) {
       try {
         const parsedA = JSON.parse(rawA);
         if (Array.isArray(parsedA) && parsedA.length > 0) {
-          this.articles = parsedA;
+          // 기본 글 누락 여부 확인 및 병합
+          const existingIds = new Set(parsedA.map((a: any) => a.id));
+          const toAdd = INITIAL_ARTICLES.filter(initA => !existingIds.has(initA.id));
+          this.articles = [...parsedA, ...toAdd];
         } else {
           this.articles = [...INITIAL_ARTICLES];
           this.saveArticlesToStorage();
@@ -206,7 +207,20 @@ export class StudyService {
         this.saveArticlesToStorage();
       }
     } else {
-      this.articles = [...INITIAL_ARTICLES];
+      // v3 최초 로드 시 이전 v2/v1 글이 있다면 병합, 없으면 최신 INITIAL_ARTICLES로 고정
+      let legacyArticles: StudyArticle[] = [];
+      if (typeof localStorage !== 'undefined') {
+        const legacyRaw = localStorage.getItem('mabosal_study_articles_v2') || localStorage.getItem('mabosal_study_articles_v1');
+        if (legacyRaw) {
+          try {
+            const parsed = JSON.parse(legacyRaw);
+            if (Array.isArray(parsed) && parsed.length > 0) legacyArticles = parsed;
+          } catch {}
+        }
+      }
+      const existingIds = new Set(legacyArticles.map(a => a.id));
+      const toAdd = INITIAL_ARTICLES.filter(initA => !existingIds.has(initA.id));
+      this.articles = [...legacyArticles, ...toAdd];
       this.saveArticlesToStorage();
     }
 

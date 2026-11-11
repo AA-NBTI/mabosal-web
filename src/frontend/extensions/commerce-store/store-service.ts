@@ -14,7 +14,10 @@ import { UserSajuStore } from '../../state/user-saju-store.js';
 import { getIdentity, ownsRecord } from '../../modules/identity/index.js';
 import { getStorage } from '../../modules/persistence/index.js';
 import {
-  SAJU_BOOK_VOL1_PRODUCT
+  SAJU_BOOK_VOL1_PRODUCT,
+  SAJU_BOOK_VOL2_PRODUCT,
+  SAJU_BOOK_VOL3_PRODUCT,
+  SAJU_BOOK_VOL4_PRODUCT
 } from './saju-book-data.js';
 import { VoucherStore } from '../../modules/voucher/voucher-store.js';
 import { supabase } from '../../modules/supabase/supabase-client.js';
@@ -146,7 +149,11 @@ export function deleteStoreCategory(id: string): { success: boolean; message: st
 export const STORE_CATEGORIES: StoreCategory[] = INITIAL_STORE_CATEGORIES;
 
 export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
-  // 1. [전자책] 정통 사주명리학 원론 제1권: 음양오행(陰陽五行)과 천간·지지·지장간… (29,000원)
+  // =========================================================================
+  // [현재 활성 상품 4종 (고객 스토어 메인 화면 노출 - PC 도메인 세팅 상태)]
+  // =========================================================================
+
+  // 1. [전자책] 정통 사주명리학 원론 제1권 (29,000원)
   SAJU_BOOK_VOL1_PRODUCT,
 
   // 2. [전자책] 마보살의 사주 셀프 리딩 가이드 (14,900원)
@@ -161,7 +168,6 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
     description: '어려운 한자나 고전 암기 없이, 10개 일간 도감, 오행 에너지 밸런스 개운법, 십신 커리어 무기, 10년 대운 타이밍 설계를 3분 만에 스스로 읽어낼 수 있는 마보살 디지털 랩의 실용 명리학 라이프 공식 가이드북(PDF 소장본)입니다.',
     detailsHtml: `
       <div style="line-height: 1.7; font-size: 0.9rem; color: #d1d5db;">
-        <!-- 상단 혜택 안내 -->
         <div style="background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
           <h4 style="color: var(--primary); margin: 0 0 0.5rem 0; font-size: 1rem; display: flex; align-items: center; gap: 0.4rem;">
             <span class="material-symbols-outlined" style="font-size: 20px;">menu_book</span>
@@ -175,43 +181,6 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
             <li><strong>발행처</strong>: 마보살 디지털 랩 (Mabosal Digital Lab) • 2026-2027 정식 발행본</li>
             <li><strong>제공 혜택</strong>: 결제 완료 즉시 평생 소장 가능한 PDF 파일 다운로드 링크 발급 및 인쇄 허용</li>
           </ul>
-        </div>
-
-        <!-- 상세 목차 구성 -->
-        <h4 style="color: #ffffff; margin: 0 0 0.75rem 0; font-size: 1.05rem;">
-          [전자책 핵심 목차 &amp; 구성]
-        </h4>
-        <div style="display: flex; flex-direction: column; gap: 0.65rem; margin-bottom: 1.5rem;">
-          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
-            <strong style="color: var(--primary);">프롤로그 | 운명을 믿지 않아도 사주를 알아야 하는 이유</strong>
-            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">MBTI를 넘어선 51만 8,400가지 영혼의 하드웨어 스펙과 동양의 계절학적 심리 행동 통계</p>
-          </div>
-          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
-            <strong style="color: var(--primary);">1장 | 3분 만에 내 사주 원국 소환하기 (마보살 만세력 가이드)</strong>
-            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">년·월·일·시 4개 기둥의 의미와 내 게임 캐릭터의 본체인 핵심 '일간(日干)' 확인법</p>
-          </div>
-          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
-            <strong style="color: var(--primary);">2장 | 나를 정의하는 진짜 캐릭터: 10개 일간(日干) 도감</strong>
-            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">갑목(거목)부터 계수(봄비)까지 10대 자연 원형으로 풀어낸 타고난 포텐셜과 개운 처방전</p>
-          </div>
-          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
-            <strong style="color: var(--primary);">3장 | 내 삶의 에너지 밸런스: 오행(목·화·토·금·수)과 개운법</strong>
-            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">오행 에너지 흐름과 일상에서 부족한 기운을 즉각 채우는 마보살 실천 라이프 해킹</p>
-          </div>
-          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
-            <strong style="color: var(--primary);">4장 | 사회적 무기와 현실 자산: 십신(十神)으로 읽는 커리어와 돈</strong>
-            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">비겁·식상·재성·관성·인성으로 판별하는 직장인 체질 vs 사업가 체질 맞춤 처방</p>
-          </div>
-          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem 1rem;">
-            <strong style="color: var(--primary);">5장 | 기회의 파도를 타는 법: 대운과 세운의 타이밍 설계</strong>
-            <p style="margin: 0.2rem 0 0 0; font-size: 0.82rem; color: #94a3b8;">10년 단위 계절(대운)과 매년의 날씨(세운)를 활용한 인생 액션 플랜 및 교운기 극복 지혜</p>
-          </div>
-        </div>
-
-        <!-- 리딩 팁 -->
-        <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 1rem;">
-          <strong style="color: #38bdf8;">💡 전자책 200% 활용 리딩 팁</strong><br/>
-          순서대로 통독하셔도 좋고, mabosal.com에서 내 사주 원국을 먼저 확인한 뒤 내 일간(2장)이나 대운(5장)을 바로 찾아 읽으셔도 좋습니다.
         </div>
       </div>
     `,
@@ -298,6 +267,264 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
     createdAt: '2026-10-01',
     salesCount: 94,
   },
+
+  // =========================================================================
+  // [관리자 보존 / 일부러 꺼둔(hidden) 프리미엄 & 특화 상품군 (언제든 ON 가능)]
+  // =========================================================================
+
+  // 5. [VIP 최고급 리포트] 29개 챕터 전수 완결본 & 1:1 복합 처방 (149,000원) - [꺼둠]
+  {
+    id: 'prod-paid-saju-vip',
+    title: 'VIP통합: 29개 챕터 전수 완결본 & 1:1 복합 처방',
+    category: 'report',
+    price: 149000,
+    originalPrice: 250000,
+    tagLine: '원국·격국·용신·대운·세운 전면 개방, 4주 맞춤 개운 로드맵 수록',
+    badge: 'VIP 최고급',
+    description: '명리학 5대 고전의 격국과 억부, 조후, 통관 용신을 총동원한 29개 챕터 완결형 VIP 리포트입니다. 평생 대운의 10년 주기와 4주 로드맵, 맞춤 솔루션을 전면 제공합니다.',
+    detailsHtml: `
+      <div style="line-height: 1.7; font-size: 0.9rem; color: #d1d5db;">
+        <h4 style="color: var(--primary); margin: 0 0 0.5rem 0;">VIP 프리미엄 29대 전수 챕터 구성</h4>
+        <ul style="margin: 0; padding-left: 1.2rem; color: #cbd5e1; font-size: 0.88rem;">
+          <li>29개 VIP 서술형 리포트 전문 평생 소장</li>
+          <li>평생 10년 대운 그래프 및 세운 교운기 비책</li>
+          <li>A/B 현실 선택 대안 및 4주 액션 플랜</li>
+        </ul>
+      </div>
+    `,
+    thumbnailUrl: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&auto=format&fit=crop&q=80',
+    galleryImages: [
+      'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&auto=format&fit=crop&q=80',
+    ],
+    thumbnailIcon: 'diamond',
+    deliveryType: 'saju_report',
+    contentPayload: 'PREMIUM_VIP',
+    reportTier: 'PREMIUM',
+    targetSignals: ['wealth.flow', 'career.change', 'mind.stress'],
+    status: 'hidden',
+    createdAt: '2026-10-01',
+    salesCount: 68,
+  },
+
+  // 6. [무료 체험] 마보살 기초 원국 & 13개 체험 분석 (0원) - [꺼둠]
+  {
+    id: 'prod-free-experience',
+    title: '무료진단: 마보살 기초 원국 & 13개 체험 분석',
+    category: 'report',
+    price: 0,
+    originalPrice: 19900,
+    tagLine: '자신의 타고난 기운과 오행 기본 구조를 확인하는 13개 체험 섹션 무료 진단서',
+    badge: '무료 체험',
+    description: '사주 원국과 오행 분포, 일간의 본질을 확인하고 마(Ma)의 징후를 진단하는 13개 체험 섹션 리포트입니다.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'explore',
+    deliveryType: 'saju_report',
+    contentPayload: 'FREE_EXPERIENCE',
+    reportTier: 'FREE',
+    targetSignals: ['general.knowledge'],
+    status: 'hidden',
+    createdAt: '2026-10-01',
+    salesCount: 520,
+  },
+
+  // 7. [런칭 프로모션] 마보살 정통 사주 진단서 (19,900원) - [꺼둠]
+  {
+    id: 'prod-saju-entry-promo',
+    title: '마보살 정통 사주 진단서 (입문 원국 & 오행 정밀 분석)',
+    category: 'report',
+    price: 19900,
+    originalPrice: 19900,
+    tagLine: '4주 8자 천명 원국표와 오행 과다·결핍 균형을 정밀 판별하는 입문 리포트',
+    badge: '런칭 쿠폰 무료',
+    description: '사주 원국표와 일간의 기운, 오행 분포도를 체계적으로 진단해 드리는 입문 진단서입니다.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'fact_check',
+    deliveryType: 'saju_report',
+    contentPayload: 'PROMO_ENTRY',
+    reportTier: 'ENTRY',
+    targetSignals: ['wealth.flow', 'career.change'],
+    status: 'hidden',
+    createdAt: '2026-10-12',
+    salesCount: 389,
+  },
+
+  // 8. [5대 특화 운세 리포트군 - 신년/직장/재물/애정/재회/궁합] - [꺼둠]
+  {
+    id: 'prod-report-year2027',
+    title: '신년운세: 2027 정미년 신년운세 & 월별 대운 비책',
+    category: 'report',
+    price: 19900,
+    originalPrice: 30000,
+    tagLine: '2027년 상반기 대운과 월별 기회·위험 정밀 총정리 리포트',
+    description: '2027년 세운과 내 사주의 상호작용을 정밀 추명하여 월별 행동 지침을 알려주는 신년 리포트입니다.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'calendar_today',
+    deliveryType: 'saju_report',
+    contentPayload: 'YEAR_2027',
+    reportTier: 'YEAR_2027',
+    targetSignals: ['career.change', 'money.gain'],
+    status: 'hidden',
+    badge: 'BEST',
+    createdAt: '2026-10-01T00:00:00.000Z',
+    salesCount: 310,
+  },
+  {
+    id: 'prod-report-career',
+    title: '직장운세: 퇴사 vs 잔류 & 이직 판단 리포트',
+    category: 'report',
+    price: 19900,
+    originalPrice: 30000,
+    tagLine: '부서 이동, 이직 타이밍과 최적의 승진 시점 명리 진단',
+    description: '관성과 역마의 흐름을 심층 분석하여 이직과 잔류의 유불리를 명쾌하게 판정합니다.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'work',
+    deliveryType: 'saju_report',
+    contentPayload: 'CAREER',
+    reportTier: 'CAREER',
+    targetSignals: ['career.change', 'career.transition'],
+    status: 'hidden',
+    badge: '인기',
+    createdAt: '2026-10-02T00:00:00.000Z',
+    salesCount: 245,
+  },
+  {
+    id: 'prod-report-wealth',
+    title: '재물운세: 손재마 방어 & 자산 증식 리포트',
+    category: 'report',
+    price: 19900,
+    originalPrice: 30000,
+    tagLine: '돈 나가는 시기(손재마)와 기회 시기 정밀 진단서',
+    description: '재성의 강약과 겁재/손재마의 동향을 파악하여 자산 증식 타이밍을 짚어냅니다.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=600&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'payments',
+    deliveryType: 'saju_report',
+    contentPayload: 'WEALTH',
+    reportTier: 'WEALTH',
+    targetSignals: ['money.loss', 'money.gain'],
+    status: 'hidden',
+    badge: 'MD추천',
+    createdAt: '2026-10-03T00:00:00.000Z',
+    salesCount: 189,
+  },
+  {
+    id: 'prod-report-relation',
+    title: '애정운세: 인연의 흐름 & 갈등 완화 리포트',
+    category: 'report',
+    price: 19900,
+    originalPrice: 30000,
+    tagLine: '인연이 찾아오는 시기와 이성 관계 갈등 해소 명리 처방',
+    description: '도화살과 배우자궁의 합/충을 분석하여 새로운 인연의 출현 시기를 안내합니다.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'favorite',
+    deliveryType: 'saju_report',
+    contentPayload: 'RELATION',
+    reportTier: 'RELATION',
+    targetSignals: ['mind.stress'],
+    status: 'hidden',
+    createdAt: '2026-10-04T00:00:00.000Z',
+    salesCount: 165,
+  },
+  {
+    id: 'prod-report-reunion',
+    title: '재회운세: 상대방 속마음 & 재회 골든타임 리포트',
+    category: 'report',
+    price: 19900,
+    originalPrice: 30000,
+    tagLine: '상대방 연락 가능성 월별 지수와 재회 골든타임 처방',
+    description: '상대방의 현재 심리 상태와 연락 가능성이 가장 높은 월별 시점을 진단합니다.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'favorite',
+    deliveryType: 'saju_report',
+    contentPayload: 'REUNION',
+    reportTier: 'REUNION',
+    targetSignals: ['mind.stress'],
+    status: 'hidden',
+    badge: '인기',
+    createdAt: '2026-10-04T00:00:00.000Z',
+    salesCount: 165,
+  },
+  {
+    id: 'prod-report-chemistry',
+    title: '궁합운세: 두 사람의 인연 & 화해 대화 리포트',
+    category: 'report',
+    price: 29900,
+    originalPrice: 50000,
+    tagLine: '반복 싸움 유발 요인 3가지와 즉시 화해 대화 스크립트',
+    description: '두 사람의 사주 원국과 오행 상생/상극을 대조하여 궁합 솔루션을 제공합니다.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'favorite',
+    deliveryType: 'saju_report',
+    contentPayload: 'CHEMISTRY',
+    reportTier: 'CHEMISTRY',
+    targetSignals: ['mind.stress'],
+    status: 'hidden',
+    badge: '정밀역학',
+    createdAt: '2026-10-05T00:00:00.000Z',
+    salesCount: 140,
+  },
+
+  // 9. [원론 마스터북 2권~4권] - [꺼둠]
+  { ...SAJU_BOOK_VOL2_PRODUCT, status: 'hidden' },
+  { ...SAJU_BOOK_VOL3_PRODUCT, status: 'hidden' },
+  { ...SAJU_BOOK_VOL4_PRODUCT, status: 'hidden' },
+
+  // 10. [엑셀북, 강의 VOD, 굿즈] - [꺼둠]
+  {
+    id: 'prod-ebook-wealth',
+    title: '손재마 탈출! 새는 돈 막는 30분 가계 재무 방어 엑셀북',
+    category: 'ebook',
+    price: 29000,
+    originalPrice: 49000,
+    tagLine: '재물 누수를 막고 안전한 현금 흐름을 설계하는 실전 템플릿',
+    description: '고정비 축소와 통장 쪼개기 실천 가이드북 및 Excel 시트입니다.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'savings',
+    deliveryType: 'digital_download',
+    contentPayload: 'https://mabosal.com/downloads/wealth-defense-2026.pdf',
+    targetSignals: ['money.loss'],
+    status: 'hidden',
+    badge: 'BEST',
+    createdAt: '2026-10-06T00:00:00.000Z',
+    salesCount: 142,
+  },
+  {
+    id: 'prod-vod-career',
+    title: '천을귀인 이직 비책: 연봉 20% 올리는 커리어 피봇 VOD',
+    category: 'lecture',
+    price: 49000,
+    originalPrice: 89000,
+    tagLine: '사주 이동수(역마/관성)를 기회로 바꾸는 5강 완성 핵심 특강',
+    description: '헤드헌터 레이더에 걸리는 이력서 작성법과 면접 협상 2시간 완성 VOD 코스입니다.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'work',
+    deliveryType: 'digital_url',
+    contentPayload: 'https://mabosal.com/classroom/career-pivot-vod',
+    targetSignals: ['career.change', 'career.transition'],
+    status: 'hidden',
+    badge: 'MD추천',
+    createdAt: '2026-10-07T00:00:00.000Z',
+    salesCount: 88,
+  },
+  {
+    id: 'prod-goods-amulet',
+    title: '마보살 시그니처 황동 엽전 키링 & 전통 비단 파우치 세트',
+    category: 'goods',
+    price: 19900,
+    originalPrice: 35000,
+    tagLine: '일상의 공간을 정돈하는 전통 공예 소품',
+    description: '전통 비단 노리개 주머니와 마보살 심볼 황동 엽전 키링 세트입니다.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80',
+    thumbnailIcon: 'token',
+    deliveryType: 'shipping',
+    contentPayload: '배송 상품',
+    targetSignals: ['mind.stress', 'legal.dispute'],
+    status: 'hidden',
+    createdAt: '2026-10-09T00:00:00.000Z',
+    salesCount: 120,
+  },
 ];
 
 
@@ -339,18 +566,44 @@ export function getAllStoreProducts(): StoreProduct[] {
       saved = saved.filter(p => !deletedIds.has(p.id));
       localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(saved));
     }
-    // [v2.0.6] 폐기/종료된 구버전 상품 전면 소거 (PC에서 종료/제거된 상품이 모바일 및 다른 기기에 노출되지 않도록 영구 격리)
-    const deprecatedProductIds = new Set([
-      'prod-voucher-50k', 'prod-voucher-30k', 'prod-voucher-10k', 'prod-consult-vip',
-      'book-saju-principles-vol2', 'book-saju-principles-vol3', 'book-saju-principles-vol4',
-      'prod-free-experience', 'prod-paid-saju-vip', 'prod-saju-entry-promo',
-      'prod-report-year2027', 'prod-report-career', 'prod-report-wealth',
-      'prod-report-relation', 'prod-report-reunion', 'prod-report-chemistry',
-      'prod-ebook-wealth', 'prod-vod-career', 'prod-goods-amulet'
-    ]);
+    // [PG 심사용] 폐기된 카테고리/상품(상품권, 1:1 상담권 등) 자동 소거
+    const deprecatedProductIds = new Set(['prod-voucher-50k', 'prod-voucher-30k', 'prod-voucher-10k', 'prod-consult-vip']);
     if (saved.some(p => deprecatedProductIds.has(p.id) || p.category === 'voucher' || p.category === 'consulting')) {
       saved = saved.filter(p => !deprecatedProductIds.has(p.id) && p.category !== 'voucher' && p.category !== 'consulting');
       localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(saved));
+    }
+
+    // [v2.0.7] PC 도메인 세팅 기반 단일 진실 공급원(SSOT) 통합 동기화
+    // 활성 4대 상품(도서 1권, 셀프리딩, 정통사주, 상충마살)은 active로 고정되어 고객 화면에 노출되며,
+    // 149,000원 VIP 상품, 무료체험, 5대 특화 리포트, 원론 2~4권 등은 hidden(꺼둠) 상태로 관리자 목록에 온전히 보존
+    const SSOT_SYNC_KEY = 'mabosal_store_ssot_sync_v207';
+    if (localStorage.getItem(SSOT_SYNC_KEY) !== 'done') {
+      const activeIds = new Set([
+        'book-saju-principles-vol1',
+        'prod-ebook-saju-self-guide',
+        'prod-paid-saju-premium',
+        'prod-saju-conflict'
+      ]);
+      const mergedList: StoreProduct[] = [];
+      for (const initP of INITIAL_STORE_PRODUCTS) {
+        const existing = saved.find(p => p.id === initP.id);
+        if (existing) {
+          mergedList.push({
+            ...initP,
+            status: activeIds.has(initP.id) ? 'active' : 'hidden',
+            salesCount: existing.salesCount || initP.salesCount,
+          });
+        } else {
+          mergedList.push({
+            ...initP,
+            status: activeIds.has(initP.id) ? 'active' : 'hidden',
+          });
+        }
+      }
+      saved = mergedList;
+      localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(saved));
+      localStorage.setItem(SSOT_SYNC_KEY, 'done');
+      return saved;
     }
     // 초기 상품 목록 중 로컬 스토리지에 없는 상품들 자동 병합 (단, 관리자가 명시적으로 삭제한 상품은 절대 복원하지 않음)
     let merged = false;
