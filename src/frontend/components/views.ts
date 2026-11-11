@@ -137,7 +137,6 @@ export function renderHeader(state: AppStateData): string {
    const cms = SiteContentStore.getConfig();
    return `
    <span style="font-family: var(--font-serif); font-size: 1.3rem; font-weight: 800; color: var(--primary); letter-spacing: -0.01em;">${cms.header.brandName}</span>
-   <span style="font-family: var(--font-display); font-size: 0.72rem; color: var(--text-muted); letter-spacing: 0.05em; font-weight: 600;">${cms.header.domainText}</span>
    `;
  })()}
  </div>

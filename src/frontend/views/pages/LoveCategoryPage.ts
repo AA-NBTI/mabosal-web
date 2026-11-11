@@ -8,9 +8,6 @@ import { renderBreadcrumbs, renderCategoryNavTabs, renderCategoryHeader, renderC
 export function renderLoveCategoryPage(state?: AppStateData): string {
   return `
   <div class="category-page-container love-category-page" style="max-width: 960px; margin: 0 auto; padding: 1rem 1rem 4rem;">
-    <!-- 브레드크럼 -->
-    ${renderBreadcrumbs([{ label: '연애·재회·궁합' }])}
-
     <!-- 헤더 -->
     ${renderCategoryHeader({
       tag: 'RELATIONSHIP & CHEMISTRY',

@@ -13,9 +13,6 @@ export function renderCalendarCategoryPage(state: AppStateData): string {
 
   return `
   <div class="category-page-container calendar-category-page" style="max-width: 960px; margin: 0 auto; padding: 1rem 1rem 4rem;">
-    <!-- 브레드크럼 -->
-    ${renderBreadcrumbs([{ label: '마기·길일 달력' }])}
-
     <!-- 헤더 -->
     ${renderCategoryHeader({
       tag: 'MAGI & AUSPICIOUS CALENDAR',

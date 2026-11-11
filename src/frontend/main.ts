@@ -4557,7 +4557,7 @@ ${content}
  return;
  }
 
-  // 2. [신규 회원가입 제출: 1단계 가입 완료 -> 2단계 사주 입력(analyze) 필수 직행]
+  // 2. [회원가입 제출: 가입 완료 후 메인 진입 (사주 정보는 필요 시 추가 입력)]
   if (target.closest('#btn-submit-register')) {
     const username = (document.getElementById('input-reg-username') as HTMLInputElement)?.value.trim() || '';
     const password = (document.getElementById('input-reg-password') as HTMLInputElement)?.value || '';
@@ -4588,12 +4588,12 @@ ${content}
       window.scrollTo({ top: 0, behavior: 'smooth' });
       alert(`[회원가입 완료]\n\n${res.message}\n파트너 포털로 이동합니다.`);
     } else {
-      // 일반 회원: 자유롭게 사이트를 둘러볼 수 있도록 메인 홈으로 진입
+      // 가입은 간편하게 완료하고 메인 홈으로 진입 (사주 필요 시 추가 입력)
       appState.setOnboarding(false);
       appState.setUserName(name || username);
       navigateTo('/');
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      alert(`[회원가입 완료]\n\n환영합니다, ${name || username}님!\n마보살 사이트를 자유롭게 둘러보실 수 있습니다.`);
+      alert(`[회원가입 완료]\n\n회원가입이 완료되었습니다.`);
     }
     return;
   }

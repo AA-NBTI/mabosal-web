@@ -30,7 +30,7 @@ export function renderAuthModal(): string {
  로그인
  </button>
  <button type="button" class="auth-main-tab-btn" id="tab-btn-show-register" style="flex: 1; padding: 0.6rem; border-radius: 8px; border: none; font-size: 0.88rem; font-weight: 600; background: transparent; color: #dfe2f1; cursor: pointer;">
- 신규 회원가입
+ 회원가입
  </button>
  </div>
 
@@ -105,9 +105,8 @@ export function renderAuthModal(): string {
 
  
 
- <button type="submit" id="btn-submit-register" class="btn-cta-primary" style="width: 100%; padding: 0.85rem; font-weight: 700; border-radius: 10px; font-size: 0.95rem; margin-top: 0.35rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
- <span>회원가입 진행 (사주 입력 단계로 이동)</span>
- <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
+ <button type="submit" id="btn-submit-register" style="width: 100%; padding: 0.85rem; font-weight: 800; border-radius: 10px; font-size: 0.95rem; margin-top: 0.35rem; background: var(--primary); color: #241a00; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(242, 202, 80, 0.35); transition: opacity 0.15s ease;">
+ 회원가입
  </button>
  </form>
 
