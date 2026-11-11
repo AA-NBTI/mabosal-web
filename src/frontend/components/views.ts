@@ -145,7 +145,7 @@ export function renderHeader(state: AppStateData): string {
  </div>
  </div>
 
- <!-- PC 모드 글로벌 카테고리 네비게이션 (종합사주, 스터디, 스토어, 구독) -->
+ <!-- PC 모드 글로벌 카테고리 네비게이션 (종합사주, 스터디, 스토어) -->
  <nav class="pc-header-nav" aria-label="메인 카테고리">
         <a href="/saju" class="pc-nav-item ${currentView === 'page-saju' ? 'active' : ''}" data-nav="/saju" id="pc-nav-saju" style="text-decoration: none;">
            종합사주
@@ -155,9 +155,6 @@ export function renderHeader(state: AppStateData): string {
         </a>
         <a href="/store" class="pc-nav-item ${currentView === 'store' ? 'active' : ''}" data-nav="/store" id="pc-nav-store" style="text-decoration: none;">
            스토어
-        </a>
-        <a href="/subscription" class="pc-nav-item ${currentView === 'subscription' ? 'active' : ''}" data-nav="/subscription" id="pc-nav-subscription" style="text-decoration: none;">
-           구독
         </a>
  </nav>
 
@@ -247,10 +244,6 @@ export function renderFloatingBottomDock(currentView: string): string {
  <button type="button" class="dock-tab-btn ${currentView === 'store' ? 'active' : ''}" id="dock-btn-store" data-nav="/store">
  <span class="material-symbols-outlined dock-icon">storefront</span>
  <span>스토어</span>
- </button>
- <button type="button" class="dock-tab-btn ${currentView === 'subscription' ? 'active' : ''}" id="dock-btn-subscription" data-nav="/subscription">
- <span class="material-symbols-outlined dock-icon">card_membership</span>
- <span>구독</span>
  </button>
  ${showConsult ? `
  <button type="button" class="dock-tab-btn ${currentView === 'consult' ? 'active' : ''}" id="dock-btn-consult">
@@ -2319,11 +2312,8 @@ export function renderMobileNavDrawer(state: AppStateData): string {
       <a href="/study" class="mobile-drawer-item ${currentView === 'study' ? 'active' : ''}" data-nav="/study" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'study' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
            스터디
       </a>
-      <a href="/store" class="mobile-drawer-item ${currentView === 'store' ? 'active' : ''}" data-nav="/store" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'store' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
+      <a href="/store" class="mobile-drawer-item ${currentView === 'store' ? 'active' : ''}" data-nav="/store" style="padding: 0.9rem 1.75rem; color: ${currentView === 'store' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
            스토어
-      </a>
-      <a href="/subscription" class="mobile-drawer-item ${currentView === 'subscription' ? 'active' : ''}" data-nav="/subscription" style="padding: 0.9rem 1.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: ${currentView === 'subscription' ? 'var(--primary)' : '#ffffff'}; font-weight: 700; font-size: 1rem; text-decoration: none; display: flex; align-items: center; gap: 0.65rem;">
-           구독
       </a>
     </nav>
   </div>
