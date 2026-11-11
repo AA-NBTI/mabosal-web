@@ -2229,7 +2229,7 @@ export function renderEvidenceTraceModal(state: AppStateData): string {
 export { renderMemberDashboardView, setMemberActiveTab, getMemberActiveTab } from '../views/MemberDashboardView.js';
 
 // ==========================================
-// 사이트 기본 푸터 (대한민국 웹 표준 전자상거래 기본 규격)
+// 사이트 기본 푸터 (대한민국 웹 표준 전자상거래 기본 규격 - 모노톤)
 // ==========================================
 export function renderFooter(): string {
   const cms = SiteContentStore.getConfig();
@@ -2242,71 +2242,63 @@ export function renderFooter(): string {
   const cleanBizNo = (cms.footer.bizNumber || '107-88-44796').replace(/[^0-9]/g, '');
 
   return `
-  <footer class="mabosal-site-footer" id="mabosal-site-footer" style="width: 100%; background: #0c0f17; border-top: 1px solid var(--border-subtle); padding: 2.25rem 1rem 3rem; margin-top: 1rem; color: var(--text-muted); font-size: 0.78rem; line-height: 1.6; box-sizing: border-box; text-align: center;">
-    <div style="max-width: 1440px; margin: 0 auto; padding: 0 1.25rem; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem; text-align: center;">
+  <footer class="mabosal-site-footer" id="mabosal-site-footer" style="width: 100%; background: #0a0d14; border-top: 1px solid rgba(255, 255, 255, 0.05); padding: 2.25rem 1rem 3rem; margin-top: 2rem; color: #64748b; font-size: 0.76rem; line-height: 1.7; box-sizing: border-box; text-align: center; font-weight: 400;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; text-align: center;">
       
-      <!-- 상단 규정 및 고객센터 바로가기 링크 (중앙 정렬) -->
-      <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 1rem; width: 100%;">
-        <button type="button" id="btn-footer-terms" style="background: none; border: none; color: #dfe2f1; font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 4px; transition: color 0.15s ease;">이용약관</button>
-        <span style="color: rgba(255,255,255,0.2);">|</span>
-        <button type="button" id="btn-footer-privacy" style="background: none; border: none; color: #dfe2f1; font-size: 0.8rem; font-weight: 700; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 4px; transition: color 0.15s ease;">개인정보처리방침</button>
-        <span style="color: rgba(255,255,255,0.2);">|</span>
-        <button type="button" id="btn-footer-refund" style="background: none; border: none; color: #dfe2f1; font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0.2rem 0.4rem; border-radius: 4px; transition: color 0.15s ease;">취소/환불 규정</button>
-        <span style="color: rgba(255,255,255,0.2);">|</span>
-        <button type="button" id="btn-footer-support" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0.25rem 0.75rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.15s ease;">
-          <span class="material-symbols-outlined" style="font-size: 15px; color: #ffffff;">support_agent</span>
-          고객센터 (051-208-8746)
-        </button>
+      <!-- 상단 규정 및 고객센터 바로가기 링크 (평범한 모노톤 텍스트) -->
+      <div style="display: flex; flex-wrap: wrap; gap: 0.85rem; align-items: center; justify-content: center; width: 100%; font-size: 0.78rem;">
+        <button type="button" id="btn-footer-terms" style="background: none; border: none; color: #94a3b8; font-size: inherit; font-weight: 400; cursor: pointer; padding: 0.2rem 0.3rem;">이용약관</button>
+        <span style="color: rgba(255,255,255,0.12);">|</span>
+        <button type="button" id="btn-footer-privacy" style="background: none; border: none; color: #94a3b8; font-size: inherit; font-weight: 400; cursor: pointer; padding: 0.2rem 0.3rem;">개인정보처리방침</button>
+        <span style="color: rgba(255,255,255,0.12);">|</span>
+        <button type="button" id="btn-footer-refund" style="background: none; border: none; color: #94a3b8; font-size: inherit; font-weight: 400; cursor: pointer; padding: 0.2rem 0.3rem;">취소/환불 규정</button>
+        <span style="color: rgba(255,255,255,0.12);">|</span>
+        <button type="button" id="btn-footer-support" style="background: none; border: none; color: #94a3b8; font-size: inherit; font-weight: 400; cursor: pointer; padding: 0.2rem 0.3rem;">고객센터 (051-208-8746)</button>
       </div>
 
-      <!-- 정식 사업자 법정 정보 (전자상거래 표준 규격 100% 충족) -->
-      <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.76rem; color: #94a3b8; align-items: center; text-align: center; max-width: 960px; line-height: 1.6;">
-        <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; justify-content: center;">
-          <span>상호: <strong>${cms.footer.companyName}</strong></span>
-          <span style="color: rgba(255,255,255,0.15);">|</span>
-          <span>대표자: <strong>${ceo}</strong></span>
-          <span style="color: rgba(255,255,255,0.15);">|</span>
-          <span>사업자등록번호: <strong>${cms.footer.bizNumber}</strong>
-            <a href="https://www.ftc.go.kr/bizCommPop.do?wrkr_no=${cleanBizNo}" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: underline; margin-left: 0.25rem; font-weight: 700;">[사업자정보확인]</a>
+      <!-- 정식 사업자 법정 정보 (모노톤 플랫 규격) -->
+      <div style="display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.74rem; color: #64748b; align-items: center; text-align: center; max-width: 900px; line-height: 1.6; font-weight: 400;">
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center;">
+          <span>상호: ${cms.footer.companyName}</span>
+          <span style="color: rgba(255,255,255,0.1);">|</span>
+          <span>대표자: ${ceo}</span>
+          <span style="color: rgba(255,255,255,0.1);">|</span>
+          <span>사업자등록번호: ${cms.footer.bizNumber}
+            <a href="https://www.ftc.go.kr/bizCommPop.do?wrkr_no=${cleanBizNo}" target="_blank" rel="noopener noreferrer" style="color: #64748b; text-decoration: underline; margin-left: 0.25rem;">[사업자정보확인]</a>
           </span>
-          <span style="color: rgba(255,255,255,0.15);">|</span>
-          <span>통신판매업신고: <strong>${cms.footer.mailOrderNumber}</strong></span>
+          <span style="color: rgba(255,255,255,0.1);">|</span>
+          <span>통신판매업신고: ${cms.footer.mailOrderNumber}</span>
         </div>
 
-        <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; justify-content: center;">
-          <span>사업장 소재지: <strong>${address}</strong></span>
-          <span style="color: rgba(255,255,255,0.15);">|</span>
-          <span>대표전화: <strong>${phone}</strong></span>
-          <span style="color: rgba(255,255,255,0.15);">|</span>
-          <span>전자우편: <strong>${email}</strong></span>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center;">
+          <span>사업장 소재지: ${address}</span>
+          <span style="color: rgba(255,255,255,0.1);">|</span>
+          <span>대표전화: ${phone}</span>
+          <span style="color: rgba(255,255,255,0.1);">|</span>
+          <span>전자우편: ${email}</span>
         </div>
 
-        <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; justify-content: center;">
-          <span>개인정보보호책임자: <strong>${cpo}</strong></span>
-          <span style="color: rgba(255,255,255,0.15);">|</span>
-          <span>호스팅서비스: <strong>${hosting}</strong></span>
-          <span style="color: rgba(255,255,255,0.15);">|</span>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center;">
+          <span>개인정보보호책임자: ${cpo}</span>
+          <span style="color: rgba(255,255,255,0.1);">|</span>
+          <span>호스팅서비스: ${hosting}</span>
+          <span style="color: rgba(255,255,255,0.1);">|</span>
           <span>고객센터 운영시간: 평일 10:00 ~ 18:00 (주말 및 공휴일 휴무)</span>
         </div>
 
-        <!-- 에스크로(구매안전서비스) 및 전자결제 연동 수탁 안내 배너 (항상 안정적인 2줄 구조) -->
-        <div style="margin-top: 0.5rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 8px; padding: 0.65rem 1rem; max-width: 860px; width: 100%; box-sizing: border-box; font-size: 0.72rem; color: #cbd5e1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; line-height: 1.5; text-align: center;">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 0.35rem; flex-wrap: wrap;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-            <span><strong>구매안전서비스(에스크로) 안내:</strong> 고객님의 안전한 거래를 위해 현금 결제 시 구매안전서비스를 이용하실 수 있습니다.</span>
-          </div>
-          <div>
-            <span><strong>전자결제 연동 수탁 고지:</strong> 전자결제 연동 업무는 「개인정보 보호법」 제26조에 따라 수탁사인 <strong>(주)코리아포트원</strong>에 위탁 운영됩니다.</span>
-          </div>
+        <!-- 에스크로 및 전자결제 위탁 안내 (강조 테두리/볼드 없이 모노톤 텍스트) -->
+        <div style="margin-top: 0.4rem; font-size: 0.72rem; color: #64748b; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; line-height: 1.5; text-align: center;">
+          <div>구매안전서비스(에스크로) 안내: 고객님의 안전한 거래를 위해 현금 결제 시 구매안전서비스를 이용하실 수 있습니다.</div>
+          <div>전자결제 연동 수탁 고지: 전자결제 연동 업무는 「개인정보 보호법」 제26조에 따라 수탁사인 (주)코리아포트원에 위탁 운영됩니다.</div>
         </div>
 
-        <div style="color: rgba(148, 163, 184, 0.6); font-size: 0.7rem; margin-top: 0.25rem; line-height: 1.45; max-width: 820px; text-align: center;">
+        <div style="font-size: 0.7rem; color: #475569; margin-top: 0.25rem; line-height: 1.45; max-width: 800px; text-align: center;">
           ※ 본 서비스의 명리 해석 및 운세 감정 결과는 전통 통계 명리학 데이터를 기반으로 한 참고 정보이며, 개인의 최종 결정과 행위에 대한 법적 책임을 지지 않습니다.
         </div>
       </div>
 
       <!-- 카피라이트 (중앙 정렬) -->
-      <div style="font-size: 0.72rem; color: rgba(168, 172, 193, 0.45); padding-top: 0.15rem; text-align: center;">
+      <div style="font-size: 0.72rem; color: #475569; padding-top: 0.1rem; text-align: center;">
         ${cms.footer.copyright || '© 2026 mabosal.com. All rights reserved.'}
       </div>
     </div>
