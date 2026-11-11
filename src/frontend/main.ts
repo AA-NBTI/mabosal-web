@@ -4513,18 +4513,6 @@ ${content}
  return;
  }
 
- // 빠른 테스트 계정 프리셋 칩 클릭
- const presetBtn = target.closest('.btn-preset-login') as HTMLElement;
- if (presetBtn) {
- const u = presetBtn.dataset.user || '';
- const p = presetBtn.dataset.pass || '';
- const inputU = document.getElementById('input-login-username') as HTMLInputElement;
- const inputP = document.getElementById('input-login-password') as HTMLInputElement;
- if (inputU) inputU.value = u;
- if (inputP) inputP.value = p;
- return;
- }
-
  // 1. [정석 아이디/비밀번호 로그인 제출]
  if (target.closest('#btn-submit-login')) {
  const inputU = document.getElementById('input-login-username') as HTMLInputElement;

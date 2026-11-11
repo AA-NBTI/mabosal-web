@@ -51,19 +51,6 @@ export function renderAuthModal(): string {
  <input type="password" id="input-login-password" placeholder="비밀번호 입력" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.75rem 1rem; color: #dfe2f1; font-size: 0.92rem;" autocomplete="current-password" />
  </div>
 
- <!-- 테스트 계정 원클릭 프리셋 칩 -->
- <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.65rem 0.75rem;">
- <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.4rem;">빠른 테스트 계정 자동 입력:</div>
- <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
- <button type="button" class="btn-preset-login" data-user="user1" data-pass="1234" style="background: rgba(242,202,80,0.12); border: 1px solid rgba(242,202,80,0.3); color: var(--primary); font-size: 0.72rem; padding: 0.25rem 0.5rem; border-radius: 6px; cursor: pointer;">
- 일반회원 (user1)
- </button>
- <button type="button" class="btn-preset-login" data-user="partner1" data-pass="1234" style="background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.3); color: #f2ca50; font-size: 0.72rem; padding: 0.25rem 0.5rem; border-radius: 6px; cursor: pointer;">
- 파트너 (partner1)
- </button>
- </div>
- </div>
-
  <button type="submit" id="btn-submit-login" class="btn-cta-primary" style="width: 100%; padding: 0.85rem; font-weight: 700; border-radius: 10px; font-size: 0.95rem; margin-top: 0.25rem;">
  로그인
  </button>
