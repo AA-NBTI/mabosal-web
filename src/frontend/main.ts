@@ -362,36 +362,51 @@ class MabosalApp {
  this.init();
  }
 
- private openAuthModal(defaultPanel: 'login' | 'register' = 'login') {
- const modal = document.getElementById('modal-auth-container');
- if (!modal) return;
- modal.style.display = 'flex';
- this.switchAuthPanel(defaultPanel);
- }
+  private resetAuthModalInputs() {
+    const formLogin = document.getElementById('form-auth-login') as HTMLFormElement | null;
+    if (formLogin) formLogin.reset();
+    const formRegister = document.getElementById('form-auth-register') as HTMLFormElement | null;
+    if (formRegister) formRegister.reset();
+    const dupMsg = document.getElementById('msg-username-check');
+    if (dupMsg) {
+      dupMsg.style.display = 'none';
+      dupMsg.textContent = '';
+    }
+  }
 
- private switchAuthPanel(panel: 'login' | 'register') {
- const tabLogin = document.getElementById('tab-btn-show-login');
- const tabRegister = document.getElementById('tab-btn-show-register');
- const panelLogin = document.getElementById('auth-panel-login');
- const panelRegister = document.getElementById('auth-panel-register');
+  private openAuthModal(defaultPanel: 'login' | 'register' = 'login') {
+    this.resetAuthModalInputs();
+    const modal = document.getElementById('modal-auth-container');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    this.switchAuthPanel(defaultPanel);
+  }
 
- if (panel === 'login') {
- if (tabLogin) { tabLogin.style.background = 'var(--primary)'; tabLogin.style.color = '#241a00'; }
- if (tabRegister) { tabRegister.style.background = 'transparent'; tabRegister.style.color = '#dfe2f1'; }
- if (panelLogin) panelLogin.style.display = 'block';
- if (panelRegister) panelRegister.style.display = 'none';
- } else {
- if (tabLogin) { tabLogin.style.background = 'transparent'; tabLogin.style.color = '#dfe2f1'; }
- if (tabRegister) { tabRegister.style.background = 'var(--primary)'; tabRegister.style.color = '#241a00'; }
- if (panelLogin) panelLogin.style.display = 'none';
- if (panelRegister) panelRegister.style.display = 'block';
- }
- }
+  private switchAuthPanel(panel: 'login' | 'register') {
+    this.resetAuthModalInputs();
+    const tabLogin = document.getElementById('tab-btn-show-login');
+    const tabRegister = document.getElementById('tab-btn-show-register');
+    const panelLogin = document.getElementById('auth-panel-login');
+    const panelRegister = document.getElementById('auth-panel-register');
 
- private closeAuthModal() {
- const modal = document.getElementById('modal-auth-container');
- if (modal) modal.style.display = 'none';
- }
+    if (panel === 'login') {
+      if (tabLogin) { tabLogin.style.background = 'var(--primary)'; tabLogin.style.color = '#241a00'; }
+      if (tabRegister) { tabRegister.style.background = 'transparent'; tabRegister.style.color = '#dfe2f1'; }
+      if (panelLogin) panelLogin.style.display = 'block';
+      if (panelRegister) panelRegister.style.display = 'none';
+    } else {
+      if (tabLogin) { tabLogin.style.background = 'transparent'; tabLogin.style.color = '#dfe2f1'; }
+      if (tabRegister) { tabRegister.style.background = 'var(--primary)'; tabRegister.style.color = '#241a00'; }
+      if (panelLogin) panelLogin.style.display = 'none';
+      if (panelRegister) panelRegister.style.display = 'block';
+    }
+  }
+
+  private closeAuthModal() {
+    this.resetAuthModalInputs();
+    const modal = document.getElementById('modal-auth-container');
+    if (modal) modal.style.display = 'none';
+  }
 
  private pendingCheckoutData: any = null;
 
@@ -1958,6 +1973,10 @@ ${content}
       target.closest('.btn-open-support')
     ) {
       e.preventDefault();
+      const supportForm = document.getElementById('form-submit-support-inquiry') as HTMLFormElement | null;
+      if (supportForm) supportForm.reset();
+      const successBox = document.getElementById('support-success-message');
+      if (successBox) successBox.style.display = 'none';
       const modal = document.getElementById('modal-support-container');
       if (modal) {
         modal.style.display = 'flex';
@@ -4742,6 +4761,10 @@ ${content}
 
  // 2-1. 사주 미등록 회원 알림 배너 -> 온보딩 모달 오픈
  if (target.closest('.btn-open-saju-onboarding')) {
+    const birthDateInput = document.getElementById('onboarding-birthdate') as HTMLInputElement | null;
+    const birthTimeSelect = document.getElementById('onboarding-birthtime') as HTMLSelectElement | null;
+    if (birthDateInput) birthDateInput.value = '';
+    if (birthTimeSelect) birthTimeSelect.value = '';
    const onboardingModal = document.getElementById('modal-saju-onboarding');
    if (onboardingModal) onboardingModal.style.display = 'flex';
    return;
