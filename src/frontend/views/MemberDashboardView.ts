@@ -52,15 +52,13 @@ export function renderMemberDashboardView(state: AppStateData): string {
     return i.userName === userName || i.userId === 'guest';
   });
 
-  // 카테고리 탭 목록 (구독관리를 회원정보 아래로 배치)
+  // 카테고리 탭 목록 (PG 결제 실사 최적화: 행운쿠폰, 구독관리 제거)
   const tabs = [
     { id: 'tab-daily', icon: 'auto_fix_high', label: '행운처방', badge: '' },
     { id: 'tab-lucky-calendar', icon: 'event_available', label: '행운달력', badge: '' },
     { id: 'tab-magi-calendar', icon: 'event_busy', label: '마기달력', badge: '' },
-    { id: 'tab-vouchers', icon: 'confirmation_number', label: '행운쿠폰', badge: summary.issuedVouchers.length > 0 ? `${summary.issuedVouchers.length}개` : '' },
     { id: 'tab-orders', icon: 'receipt_long', label: '주문내역', badge: summary.pendingTransfers.length > 0 ? `${summary.pendingTransfers.length}건 대기` : '' },
     { id: 'tab-account', icon: 'manage_accounts', label: '회원정보', badge: '' },
-    { id: 'tab-subscription', icon: 'card_membership', label: '구독관리', badge: isSubActive ? '이용중' : (isSubCancelled ? '해지' : '') },
     { id: 'tab-inquiries', icon: 'support_agent', label: '고객센터', badge: myInquiries.some(i => i.status === 'pending') ? '답변대기' : '' },
   ];
 
@@ -274,156 +272,6 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
       `;
     }
 
-    // 구독 관리
-    case 'tab-subscription': {
-      const sub = getUserSubscription();
-      const isActive = sub && sub.status === 'active';
-      const isCancelled = sub && sub.status === 'cancelled';
-      const isRefundPending = sub && sub.status === 'refund_pending';
-      const isRefunded = sub && sub.status === 'refunded';
-      const canRefund = isEligibleFor7DayRefund(sub) && (isActive || isCancelled);
-
-      return `
-        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-          
-          <!-- 상단 헤더 카드 -->
-          <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.75rem;">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
-              <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(242, 202, 80, 0.15); border: 1px solid var(--primary); display: flex; align-items: center; justify-content: center; color: var(--primary);">
-                  <span class="material-symbols-outlined" style="font-size: 24px;">card_membership</span>
-                </div>
-                <div>
-                  <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #fff;">구독 관리</h3>
-                </div>
-              </div>
-
-              ${isActive ? `
-                <span style="background: rgba(242, 202, 80, 0.12); border: 1px solid var(--primary); color: var(--primary); padding: 0.35rem 0.85rem; border-radius: 9999px; font-size: 0.82rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.3rem;">
-                  <span class="material-symbols-outlined" style="font-size: 16px;">verified</span> 이용 중
-                </span>
-              ` : (isRefundPending ? `
-                <span style="background: rgba(234, 179, 8, 0.15); border: 1px solid #eab308; color: #fde047; padding: 0.35rem 0.85rem; border-radius: 9999px; font-size: 0.82rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.3rem;">
-                  <span class="material-symbols-outlined" style="font-size: 16px;">hourglass_top</span> 심사 대기
-                </span>
-              ` : (isCancelled ? `
-                <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #cbd5e1; padding: 0.35rem 0.85rem; border-radius: 9999px; font-size: 0.82rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.3rem;">
-                  <span class="material-symbols-outlined" style="font-size: 16px;">pending</span> 해지 예약
-                </span>
-              ` : (isRefunded ? `
-                <span style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); color: #94a3b8; padding: 0.35rem 0.85rem; border-radius: 9999px; font-size: 0.82rem; font-weight: 800;">
-                  환불 완료
-                </span>
-              ` : `
-                <a href="/subscription" data-nav="/subscription" class="btn-cta-primary" style="padding: 0.5rem 1.25rem; font-size: 0.85rem; font-weight: 800; border-radius: 8px; text-decoration: none;">구독 신청</a>
-              `)))}
-            </div>
-
-            ${sub && !isRefunded ? `
-              <!-- 결제 정보 요약 그리드 -->
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.25rem;">
-                <div>
-                  <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem;">플랜</div>
-                  <strong style="color: #fff; font-size: 0.95rem;">${sub.planName}</strong>
-                </div>
-                <div>
-                  <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem;">결제 금액</div>
-                  <strong style="color: var(--primary); font-size: 0.95rem;">₩ ${sub.amount.toLocaleString()}</strong>
-                </div>
-                <div>
-                  <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem;">결제일</div>
-                  <strong style="color: #cbd5e1; font-size: 0.9rem;">${sub.subscribedAt}</strong>
-                </div>
-                <div>
-                  <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem;">갱신예정일</div>
-                  <strong style="color: #cbd5e1; font-size: 0.9rem;">${isActive ? sub.nextBillingDate : '-'}</strong>
-                </div>
-              </div>
-            ` : `
-              <!-- 미구독자 안내 배너 -->
-              <div style="background: rgba(242, 202, 80, 0.08); border: 1px dashed rgba(242, 202, 80, 0.35); border-radius: 12px; padding: 2rem; text-align: center;">
-                <p style="font-size: 0.95rem; color: #fff; font-weight: 700; margin: 0 0 1rem;">이용 중인 구독이 없습니다.</p>
-                <a href="/subscription" data-nav="/subscription" class="btn-cta-primary" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.65rem 1.5rem; font-size: 0.9rem; font-weight: 800; border-radius: 8px; text-decoration: none;">
-                  <span class="material-symbols-outlined" style="font-size: 18px;">workspace_premium</span>
-                  <span>구독 신청</span>
-                </a>
-              </div>
-            `}
-          </div>
-
-          ${sub && !isRefunded ? `
-            <!-- 바로가기 -->
-            <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
-              <h4 style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 0 0 1rem;">구독 서비스</h4>
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
-                <a href="/saju" data-nav="/saju" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 0.9rem; border-radius: 10px; text-decoration: none; display: flex; align-items: center; gap: 0.65rem; color: #fff;">
-                  <span class="material-symbols-outlined" style="color: var(--primary);">auto_awesome</span>
-                  <div style="font-size: 0.84rem; font-weight: 700;">사주 리포트</div>
-                </a>
-                <a href="/store?category=ebook" data-nav="/store?category=ebook" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 0.9rem; border-radius: 10px; text-decoration: none; display: flex; align-items: center; gap: 0.65rem; color: #fff;">
-                  <span class="material-symbols-outlined" style="color: #38bdf8;">menu_book</span>
-                  <div style="font-size: 0.84rem; font-weight: 700;">도서관</div>
-                </a>
-                <a href="/store?category=lecture" data-nav="/store?category=lecture" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 0.9rem; border-radius: 10px; text-decoration: none; display: flex; align-items: center; gap: 0.65rem; color: #fff;">
-                  <span class="material-symbols-outlined" style="color: #c084fc;">smart_display</span>
-                  <div style="font-size: 0.84rem; font-weight: 700;">강의실</div>
-                </a>
-                <a href="/store" data-nav="/store" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 0.9rem; border-radius: 10px; text-decoration: none; display: flex; align-items: center; gap: 0.65rem; color: #fff;">
-                  <span class="material-symbols-outlined" style="color: #4ade80;">percent</span>
-                  <div style="font-size: 0.84rem; font-weight: 700;">스토어 할인</div>
-                </a>
-              </div>
-            </div>
-
-            <!-- 해지 및 환불 액션 -->
-            <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
-              <h4 style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 0 0 1rem; display: flex; align-items: center; gap: 0.4rem;">
-                <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">settings</span>
-                상태 관리
-              </h4>
-
-              ${isRefundPending ? `
-                <div style="background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 10px; padding: 1.15rem 1.25rem; font-size: 0.84rem; color: #fef08a; line-height: 1.6; margin-bottom: 1.25rem;">
-                  <div style="display: flex; align-items: center; gap: 0.4rem; font-weight: 800; color: var(--primary); margin-bottom: 0.35rem;">
-                    <span class="material-symbols-outlined" style="font-size: 18px;">hourglass_top</span>
-                    <span>환불 심사 진행 중</span>
-                  </div>
-                  <div>접수일시: ${sub.refundRequestedAt || sub.subscribedAt}</div>
-                </div>
-              ` : ''}
-
-              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
-                ${isActive ? `
-                  <button type="button" id="btn-member-cancel-sub" style="background: rgba(242, 202, 80, 0.1); border: 1.5px solid var(--primary); color: var(--primary); font-size: 0.88rem; font-weight: 800; padding: 0.75rem 1.4rem; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.15s ease;">
-                    <span class="material-symbols-outlined" style="font-size: 18px;">cancel</span>
-                    <span>해지 신청</span>
-                  </button>
-                ` : (isCancelled ? `
-                  <button type="button" id="btn-member-reactivate-sub" style="background: var(--primary); color: #1c1500; font-size: 0.88rem; font-weight: 900; padding: 0.75rem 1.4rem; border-radius: 8px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
-                    <span class="material-symbols-outlined" style="font-size: 18px;">restart_alt</span>
-                    <span>구독 재개</span>
-                  </button>
-                  <span style="font-size: 0.82rem; color: #cbd5e1; margin-left: 0.5rem;">해지 예약 상태 (${sub.nextBillingDate}까지 이용 가능)</span>
-                ` : '')}
-
-                ${canRefund && !isRefundPending ? `
-                  <button type="button" id="btn-member-refund-sub" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; font-size: 0.86rem; font-weight: 700; padding: 0.75rem 1.3rem; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
-                    <span class="material-symbols-outlined" style="font-size: 18px;">undo</span>
-                    <span>환불 신청</span>
-                  </button>
-                ` : (isRefundPending ? `
-                  <span style="font-size: 0.84rem; color: var(--primary); font-weight: 700;">심사 대기</span>
-                ` : (isRefunded ? `
-                  <span style="font-size: 0.82rem; color: var(--primary); font-weight: 700;">환불 완료</span>
-                ` : ''))}
-              </div>
-            </div>
-          ` : ''}
-
-        </div>
-      `;
-    }
-
     // 2. 주문내역
     case 'tab-orders':
       return `
@@ -439,20 +287,6 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
               </button>
             </div>
             ${renderUserOrderHistoryWidget()}
-          </div>
-        </div>
-      `;
-
-    // 3. 행운쿠폰 (바우처 보관함)
-    case 'tab-vouchers':
-      return `
-        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-          <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
-            <div style="margin-bottom: 1.25rem;">
-              <h2 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 0.25rem 0;">행운쿠폰 / 상품권 보관함</h2>
-              <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">승인 완료된 VIP 기프트 상품권과 발급 코드를 안전하게 관리하고 복사하여 사용하세요.</p>
-            </div>
-            ${renderMemberVoucherWidget()}
           </div>
         </div>
       `;
