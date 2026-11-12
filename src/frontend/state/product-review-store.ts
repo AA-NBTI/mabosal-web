@@ -6,6 +6,7 @@
  */
 
 import { AuthService } from './auth-service.js';
+import { supabase } from '../modules/supabase/supabase-client.js';
 
 export interface ProductReview {
   id: string;               // 예: REV-20261015-4421
@@ -80,6 +81,7 @@ export class ProductReviewStore {
   public static getReviews(): ProductReview[] {
     if (!this.reviews) {
       this.load();
+      void this.syncFromSupabase();
     }
     return [...this.reviews!];
   }
@@ -115,6 +117,23 @@ export class ProductReviewStore {
     this.reviews = list;
     this.save();
 
+    // [Supabase DB 실시간 동기화]
+    try {
+      supabase.from('site_settings').select('value').eq('key', 'product_reviews_data').maybeSingle().then(({ data }) => {
+        let remoteList: ProductReview[] = Array.isArray(data?.value) ? data.value : [];
+        remoteList.unshift(newReview);
+        supabase.from('site_settings').upsert({
+          key: 'product_reviews_data',
+          value: remoteList.slice(0, 200),
+          updated_at: new Date().toISOString(),
+        }).then(({ error }) => {
+          if (error) console.warn('[ProductReviewStore] Supabase sync deferred:', error.message);
+        });
+      });
+    } catch (e) {
+      console.warn('[ProductReviewStore] Supabase save error:', e);
+    }
+
     // [리뷰 작성 보너스 리워드] 엽전 500엽 즉시 지급
     try {
       const user = AuthService.getCurrentUser();
@@ -146,6 +165,29 @@ export class ProductReviewStore {
     this.reviews = list;
     this.save();
     return true;
+  }
+
+  public static async syncFromSupabase(): Promise<void> {
+    try {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'product_reviews_data')
+        .maybeSingle();
+
+      if (!error && data && Array.isArray(data.value) && data.value.length > 0) {
+        const local = this.getReviews();
+        const map = new Map<string, ProductReview>();
+        local.forEach(r => map.set(r.id, r));
+        (data.value as ProductReview[]).forEach(r => map.set(r.id, r));
+        this.reviews = Array.from(map.values()).sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        this.save();
+      }
+    } catch (e) {
+      console.warn('[ProductReviewStore] Supabase load deferred:', e);
+    }
   }
 
   private static load(): void {

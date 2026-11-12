@@ -70,6 +70,7 @@ export class CustomerInquiryStore {
   public static getInquiries(): CustomerInquiry[] {
     if (!this.inquiries) {
       this.load();
+      void this.syncFromSupabase();
     }
     return [...this.inquiries!];
   }
