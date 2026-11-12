@@ -1,4 +1,5 @@
 import { StudyArticle, StudyCategory, StudyComment } from './types.js';
+import { supabase } from '../../modules/supabase/supabase-client.js';
 
 const STORAGE_KEY_CATEGORIES = 'mabosal_study_categories_v3';
 const STORAGE_KEY_ARTICLES = 'mabosal_study_articles_v3';
@@ -156,7 +157,7 @@ export class StudyService {
   static init(): void {
     if (this.initialized && this.categories && this.categories.length > 0) return;
 
-    // 카테고리 로드
+    // 1. 카테고리 로컬 캐시 로드
     let loadedCats: StudyCategory[] = [];
     try {
       const rawCats = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY_CATEGORIES) : null;
@@ -188,16 +189,13 @@ export class StudyService {
       this.categories = loadedCats;
     }
 
-    // 아티클 로드 (v3 단일 진실 공급원 및 하위호환 마이그레이션)
+    // 2. 아티클 로컬 캐시 로드
     const rawA = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY_ARTICLES) : null;
     if (rawA) {
       try {
         const parsedA = JSON.parse(rawA);
         if (Array.isArray(parsedA) && parsedA.length > 0) {
-          // 기본 글 누락 여부 확인 및 병합
-          const existingIds = new Set(parsedA.map((a: any) => a.id));
-          const toAdd = INITIAL_ARTICLES.filter(initA => !existingIds.has(initA.id));
-          this.articles = [...parsedA, ...toAdd];
+          this.articles = parsedA;
         } else {
           this.articles = [...INITIAL_ARTICLES];
           this.saveArticlesToStorage();
@@ -207,20 +205,7 @@ export class StudyService {
         this.saveArticlesToStorage();
       }
     } else {
-      // v3 최초 로드 시 이전 v2/v1 글이 있다면 병합, 없으면 최신 INITIAL_ARTICLES로 고정
-      let legacyArticles: StudyArticle[] = [];
-      if (typeof localStorage !== 'undefined') {
-        const legacyRaw = localStorage.getItem('mabosal_study_articles_v2') || localStorage.getItem('mabosal_study_articles_v1');
-        if (legacyRaw) {
-          try {
-            const parsed = JSON.parse(legacyRaw);
-            if (Array.isArray(parsed) && parsed.length > 0) legacyArticles = parsed;
-          } catch {}
-        }
-      }
-      const existingIds = new Set(legacyArticles.map(a => a.id));
-      const toAdd = INITIAL_ARTICLES.filter(initA => !existingIds.has(initA.id));
-      this.articles = [...legacyArticles, ...toAdd];
+      this.articles = [...INITIAL_ARTICLES];
       this.saveArticlesToStorage();
     }
 
@@ -235,6 +220,61 @@ export class StudyService {
     this.comments = rawC ? JSON.parse(rawC) : [];
 
     this.initialized = true;
+
+    // 3. 백그라운드 수파베이스 원격 동기화 즉시 트리거
+    this.syncFromSupabase();
+  }
+
+  /**
+   * 수파베이스 원격 DB와 실시간 동기화
+   */
+  static async syncFromSupabase(): Promise<void> {
+    try {
+      // 1) 원격 카테고리 로드
+      const { data: remoteCats, error: catErr } = await supabase
+        .from('study_categories')
+        .select('*')
+        .order('order', { ascending: true });
+
+      if (!catErr && remoteCats && remoteCats.length > 0) {
+        this.categories = remoteCats.map((c: any) => ({
+          id: c.id,
+          name: c.name,
+          slug: c.slug || c.id,
+          order: c.order || 1,
+          description: c.description || '',
+          icon: 'menu_book',
+        }));
+        this.saveCategoriesToStorage();
+      }
+
+      // 2) 원격 아티클 로드
+      const { data: remoteArticles, error: artErr } = await supabase
+        .from('study_articles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!artErr && remoteArticles && remoteArticles.length > 0) {
+        this.articles = remoteArticles.map((a: any) => ({
+          id: a.id,
+          slug: a.slug || a.id,
+          title: a.title,
+          summary: a.summary || '',
+          content: a.content,
+          category: a.category,
+          categoryName: a.category_name || '',
+          author: a.author || '마보살 학술팀',
+          views: a.views || 0,
+          commentsCount: a.comments_count || 0,
+          createdAt: a.created_at,
+          tags: Array.isArray(a.tags) ? a.tags : [],
+          isPublished: a.is_published ?? true,
+        }));
+        this.saveArticlesToStorage();
+      }
+    } catch (e) {
+      console.warn('[study-service] Supabase 실시간 동기화 실패 (오프라인 모드 유지):', e);
+    }
   }
 
   // ==========================================
@@ -271,6 +311,18 @@ export class StudyService {
 
     this.categories.push(newCat);
     this.saveCategoriesToStorage();
+
+    // Supabase 비동기 업서트
+    supabase.from('study_categories').upsert({
+      id: newCat.id,
+      name: newCat.name,
+      slug: newCat.slug,
+      order: newCat.order,
+      description: newCat.description || '',
+    }).then(({ error }) => {
+      if (error) console.error('[study-service] Supabase 카테고리 추가 실패:', error);
+    });
+
     return newCat;
   }
 
@@ -282,6 +334,14 @@ export class StudyService {
     cat.name = name.trim() || cat.name;
     cat.description = description.trim();
     this.saveCategoriesToStorage();
+
+    // Supabase 비동기 업데이트
+    supabase.from('study_categories').update({
+      name: cat.name,
+      description: cat.description,
+    }).eq('id', cat.id).then(({ error }) => {
+      if (error) console.error('[study-service] Supabase 카테고리 수정 실패:', error);
+    });
 
     // 해당 카테고리를 가진 글들의 categoryName 동기화
     this.articles.forEach(art => {
@@ -302,6 +362,11 @@ export class StudyService {
     const deletedCat = this.categories[idx];
     this.categories.splice(idx, 1);
     this.saveCategoriesToStorage();
+
+    // Supabase 비동기 삭제
+    supabase.from('study_categories').delete().eq('id', deletedCat.id).then(({ error }) => {
+      if (error) console.error('[study-service] Supabase 카테고리 삭제 실패:', error);
+    });
 
     // 해당 카테고리에 속한 글들은 'saju_basics' 또는 첫 번째 카테고리로 재할당
     const fallbackCat = this.categories[0]?.id || 'saju_basics';
@@ -374,6 +439,26 @@ export class StudyService {
 
     this.articles.unshift(newArt);
     this.saveArticlesToStorage();
+
+    // Supabase 비동기 업서트
+    supabase.from('study_articles').upsert({
+      id: newArt.id,
+      slug: newArt.slug,
+      title: newArt.title,
+      summary: newArt.summary,
+      content: newArt.content,
+      category: newArt.category,
+      category_name: newArt.categoryName,
+      author: newArt.author,
+      views: newArt.views,
+      comments_count: newArt.commentsCount,
+      created_at: newArt.createdAt,
+      tags: newArt.tags,
+      is_published: newArt.isPublished,
+    }).then(({ error }) => {
+      if (error) console.error('[study-service] Supabase 아티클 생성 실패:', error);
+    });
+
     return newArt;
   }
 
@@ -405,6 +490,22 @@ export class StudyService {
 
     art.updatedAt = new Date().toISOString().slice(0, 10);
     this.saveArticlesToStorage();
+
+    // Supabase 비동기 업데이트
+    supabase.from('study_articles').update({
+      title: art.title,
+      summary: art.summary,
+      content: art.content,
+      category: art.category,
+      category_name: art.categoryName,
+      author: art.author,
+      tags: art.tags,
+      slug: art.slug,
+      updated_at: new Date().toISOString(),
+    }).eq('id', art.id).then(({ error }) => {
+      if (error) console.error('[study-service] Supabase 아티클 수정 실패:', error);
+    });
+
     return art;
   }
 
@@ -414,6 +515,12 @@ export class StudyService {
     this.articles = this.articles.filter(a => a.id !== id);
     if (this.articles.length !== initialLen) {
       this.saveArticlesToStorage();
+
+      // Supabase 비동기 삭제
+      supabase.from('study_articles').delete().eq('id', id).then(({ error }) => {
+        if (error) console.error('[study-service] Supabase 아티클 삭제 실패:', error);
+      });
+
       return true;
     }
     return false;

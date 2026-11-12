@@ -45,3 +45,6 @@ backups/
 up/
 *.tmp
 supabase/.temp/
+
+.vercel
+.env*
