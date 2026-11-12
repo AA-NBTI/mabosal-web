@@ -255,21 +255,24 @@ export class StudyService {
         .order('created_at', { ascending: false });
 
       if (!artErr && remoteArticles && remoteArticles.length > 0) {
-        this.articles = remoteArticles.map((a: any) => ({
-          id: a.id,
-          slug: a.slug || a.id,
-          title: a.title,
-          summary: a.summary || '',
-          content: a.content,
-          category: a.category,
-          categoryName: a.category_name || '',
-          author: a.author || '마보살 학술팀',
-          views: a.views || 0,
-          commentsCount: a.comments_count || 0,
-          createdAt: a.created_at,
-          tags: Array.isArray(a.tags) ? a.tags : [],
-          isPublished: a.is_published ?? true,
-        }));
+        this.articles = remoteArticles.map((a: any) => {
+          const matchedCat = this.categories.find(c => c.id === a.category || c.slug === a.category);
+          return {
+            id: a.id,
+            slug: a.slug || a.id,
+            title: a.title,
+            summary: a.summary || '',
+            content: a.content,
+            category: a.category,
+            categoryName: matchedCat ? matchedCat.name : (a.category_name || ''),
+            author: a.author || '마보살 학술팀',
+            views: a.views || 0,
+            commentsCount: a.comments_count || 0,
+            createdAt: a.created_at,
+            tags: Array.isArray(a.tags) ? a.tags : [],
+            isPublished: a.is_published ?? true,
+          };
+        });
         this.saveArticlesToStorage();
       }
     } catch (e) {
@@ -341,6 +344,13 @@ export class StudyService {
       description: cat.description,
     }).eq('id', cat.id).then(({ error }) => {
       if (error) console.error('[study-service] Supabase 카테고리 수정 실패:', error);
+    });
+
+    // Supabase study_articles 테이블의 글들도 새 카테고리명으로 일괄 동기화
+    supabase.from('study_articles').update({
+      category_name: cat.name,
+    }).eq('category', cat.id).then(({ error }) => {
+      if (error) console.warn('[study-service] Supabase 아티클 카테고리명 동기화 deferred:', error);
     });
 
     // 해당 카테고리를 가진 글들의 categoryName 동기화

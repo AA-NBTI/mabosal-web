@@ -380,7 +380,7 @@ function renderArticleDetail(art: StudyArticle): string {
 
       <!-- 카테고리 뱃지 & 발행 메타정보 -->
       <div style="font-size: 0.82rem; color: var(--primary); font-weight: 800; margin-bottom: 0.5rem; text-transform: uppercase;">
-        ${art.categoryName || art.category}
+        ${StudyService.getCategoryById(art.category)?.name || art.categoryName || art.category}
       </div>
 
       <h1 style="color: #ffffff; font-size: 1.85rem; font-weight: 800; margin: 0 0 1.15rem; line-height: 1.35; letter-spacing: -0.02em;">
