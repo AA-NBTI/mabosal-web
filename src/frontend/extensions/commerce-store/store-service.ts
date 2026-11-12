@@ -677,29 +677,39 @@ export async function syncStoreProductsFromSupabase(): Promise<StoreProduct[]> {
       .order('sales_count', { ascending: false });
 
     if (error || !data || data.length === 0) {
+      // 원격 DB에 상품이 없거나 비어있는 경우, 로컬 2.0.7 상품 목록을 원격 DB로 최초 동기화
+      void pushAllProductsToSupabase();
       return getAllStoreProducts();
     }
 
-    const remoteProducts: StoreProduct[] = data.map((p: any) => ({
-      id: p.id,
-      title: p.title,
-      category: p.category,
-      price: Number(p.price),
-      originalPrice: p.original_price ? Number(p.original_price) : undefined,
-      tagLine: p.tag_line || '',
-      description: p.description || '',
-      detailsHtml: p.details_html || '',
-      thumbnailUrl: p.thumbnail_url || '',
-      thumbnailIcon: p.thumbnail_icon || undefined,
-      deliveryType: p.delivery_type,
-      contentPayload: p.content_payload || '',
-      targetSignals: p.target_signals || [],
-      status: p.status || 'active',
-      badge: p.badge || undefined,
-      reportTier: p.report_tier || undefined,
-      salesCount: Number(p.sales_count || 0),
-      createdAt: p.created_at || new Date().toISOString(),
-    }));
+    // 원격 상품이 있더라도 필수 필드(options, summary, detailImages 등)가 누락되지 않도록 로컬 최신 마스터 데이터와 안전하게 병합
+    const localAll = getAllStoreProducts();
+    const localMap = new Map(localAll.map(p => [p.id, p]));
+
+    const remoteProducts: StoreProduct[] = data.map((p: any) => {
+      const local = localMap.get(p.id);
+      return {
+        ...(local || {}),
+        id: p.id,
+        title: p.title || local?.title || '',
+        category: p.category || local?.category || 'report',
+        price: p.price !== undefined && p.price !== null ? Number(p.price) : (local?.price || 0),
+        originalPrice: p.original_price ? Number(p.original_price) : local?.originalPrice,
+        tagLine: p.tag_line || local?.tagLine || '',
+        description: p.description || local?.description || '',
+        detailsHtml: p.details_html || local?.detailsHtml || '',
+        thumbnailUrl: p.thumbnail_url || local?.thumbnailUrl || '',
+        thumbnailIcon: p.thumbnail_icon || local?.thumbnailIcon,
+        deliveryType: p.delivery_type || local?.deliveryType || 'saju_report',
+        contentPayload: p.content_payload || local?.contentPayload || '',
+        targetSignals: p.target_signals || local?.targetSignals || [],
+        status: p.status || local?.status || 'hidden',
+        badge: p.badge || local?.badge,
+        reportTier: p.report_tier || local?.reportTier,
+        salesCount: Number(p.sales_count ?? local?.salesCount ?? 0),
+        createdAt: p.created_at || local?.createdAt || new Date().toISOString(),
+      } as StoreProduct;
+    });
 
     if (typeof localStorage !== 'undefined' && remoteProducts.length > 0) {
       localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(remoteProducts));
@@ -928,7 +938,7 @@ const DEFAULT_SEED_ORDERS: StoreOrder[] = [
   }
 ];
 
-/** 주문 목록 조회 */
+/** 주문 목록 조회 (로컬 캐시 즉시 반환 + Supabase 원격 주문 비동기 병합) */
 export function getAllStoreOrders(): StoreOrder[] {
   try {
     const raw = getStorage().getItem(STORAGE_ORDERS_KEY);
@@ -956,9 +966,58 @@ export function getAllStoreOrders(): StoreOrder[] {
       getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders.slice(0, 500)));
     }
 
+    // Supabase 원격 주문 비동기 동기화 트리거
+    void syncOrdersFromSupabase();
+
     return orders;
   } catch {
     return DEFAULT_SEED_ORDERS;
+  }
+}
+
+/** Supabase 원격 DB에서 주문 목록을 가져와 로컬 장부와 병합 */
+export async function syncOrdersFromSupabase(): Promise<void> {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data && data.length > 0) {
+      const raw = getStorage().getItem(STORAGE_ORDERS_KEY);
+      let localOrders: StoreOrder[] = raw ? JSON.parse(raw) : [];
+      const localIds = new Set(localOrders.map(o => o.orderId));
+
+      let hasNew = false;
+      for (const ro of data) {
+        if (!localIds.has(ro.id)) {
+          const prod = getStoreProductById(ro.product_id);
+          localOrders.unshift({
+            orderId: ro.id,
+            productId: ro.product_id,
+            productTitle: prod ? prod.title : '사주 상품',
+            category: (prod?.category || 'report') as any,
+            amount: Number(ro.amount || 0),
+            deliveryType: (ro.delivery_type || prod?.deliveryType || 'saju_report') as any,
+            accessUrl: '/?view=result',
+            buyerName: ro.buyer_name || '구매자',
+            buyerPhone: ro.buyer_phone || '',
+            buyerEmail: ro.buyer_email || '',
+            paymentMethod: ro.payment_method || 'card',
+            userId: ro.user_id || undefined,
+            paidAt: ro.created_at || new Date().toISOString(),
+            status: ro.status || 'completed',
+          });
+          hasNew = true;
+        }
+      }
+
+      if (hasNew) {
+        getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(localOrders.slice(0, 500)));
+      }
+    }
+  } catch (e) {
+    console.warn('[store-service] Supabase orders sync deferred:', e);
   }
 }
 
@@ -1004,6 +1063,27 @@ export function createStoreOrder(orderData: {
   };
   orders.unshift(newOrder);
   getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders.slice(0, 500)));
+
+  // [Supabase DB 실시간 주문 동기화]
+  try {
+    supabase.from('orders').insert({
+      id: newOrder.orderId,
+      user_id: newOrder.userId || null,
+      product_id: newOrder.productId,
+      amount: newOrder.amount,
+      status: newOrder.status,
+      payment_method: newOrder.paymentMethod,
+      buyer_name: newOrder.buyerName,
+      buyer_phone: newOrder.buyerPhone,
+      buyer_email: newOrder.buyerEmail,
+      delivery_type: newOrder.deliveryType,
+      created_at: newOrder.paidAt,
+    }).then(({ error }: any) => {
+      if (error) console.warn('[store-service] Supabase order insert deferred:', error.message);
+    });
+  } catch (e) {
+    console.warn('[store-service] Supabase order insert skipped:', e);
+  }
 
   // 해당 상품 판매수 +1 (결제 완료된 주문만)
   if (prod && newOrder.status === 'completed') {

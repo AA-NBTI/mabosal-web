@@ -7,6 +7,8 @@
  * LocalStorage 기반 영구 보존 및 실시간 화면 반영
  */
 
+import { supabase } from '../modules/supabase/supabase-client.js';
+
 export interface SiteContentConfig {
   header: {
     brandName: string;
@@ -77,6 +79,19 @@ export class SiteContentStore {
       footer: { ...current.footer, ...(newConfig.footer || {}) },
     };
     this.save();
+
+    // Supabase site_settings 비동기 저장
+    try {
+      supabase.from('site_settings').upsert({
+        key: 'site_content_config',
+        value: this.config,
+        updated_at: new Date().toISOString(),
+      }).then(({ error }: any) => {
+        if (error) console.warn('[SiteContentStore] Supabase sync deferred:', error.message);
+      });
+    } catch (e) {
+      console.warn('[SiteContentStore] Supabase sync error:', e);
+    }
   }
 
   public static resetToDefault(): void {
@@ -99,6 +114,8 @@ export class SiteContentStore {
             this.config.header.domainText = '';
             this.save();
           }
+          // Supabase 원격 설정 비동기 로드
+          void this.syncFromSupabase();
           return;
         }
       }
@@ -106,6 +123,29 @@ export class SiteContentStore {
       console.warn('SiteContentStore load error:', e);
     }
     this.config = JSON.parse(JSON.stringify(DEFAULT_SITE_CONTENT));
+    void this.syncFromSupabase();
+  }
+
+  private static async syncFromSupabase(): Promise<void> {
+    try {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'site_content_config')
+        .maybeSingle();
+
+      if (!error && data && data.value) {
+        const remote = data.value;
+        this.config = {
+          header: { ...DEFAULT_SITE_CONTENT.header, ...(remote.header || {}) },
+          hero: { ...DEFAULT_SITE_CONTENT.hero, ...(remote.hero || {}) },
+          footer: { ...DEFAULT_SITE_CONTENT.footer, ...(remote.footer || {}) },
+        };
+        this.save();
+      }
+    } catch (e) {
+      console.warn('[SiteContentStore] Supabase load deferred:', e);
+    }
   }
 
   private static save(): void {
