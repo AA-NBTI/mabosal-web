@@ -4520,7 +4520,7 @@ ${content}
  const username = inputU?.value || '';
  const password = inputP?.value || '';
 
- const res = AuthService.login(username, password);
+ const res = await AuthService.login(username, password);
  if (!res.success) {
  alert(`️ 로그인 실패\n\n${res.message}`);
  return;
@@ -4566,7 +4566,7 @@ ${content}
     const phone = (document.getElementById('input-reg-phone') as HTMLInputElement)?.value.trim() || '';
     const role = ((document.getElementById('select-reg-role') as HTMLSelectElement)?.value as any) || 'user';
 
-    const res = AuthService.register({
+    const res = await AuthService.register({
       username,
       password,
       passwordConfirm,

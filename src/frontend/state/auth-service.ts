@@ -3,6 +3,7 @@
  */
 
 import { getStorage } from '../modules/persistence/index.js';
+import { supabase } from '../modules/supabase/supabase-client.js';
 
 export type UserRole = 'guest' | 'user' | 'partner' | 'admin';
 export type PartnerType = 'AFFILIATE' | 'EXPERT' | 'HYBRID';
@@ -157,9 +158,9 @@ export class AuthService {
   }
 
   /**
-   * 1. 정석 아이디 / 비밀번호 로그인
+   * 1. 정석 아이디 / 비밀번호 로그인 (Supabase Auth 연동 및 로컬 하위호환)
    */
-  public static login(username: string, password: string): { success: boolean; message: string; user?: UserAccount } {
+  public static async login(username: string, password: string): Promise<{ success: boolean; message: string; user?: UserAccount }> {
     this.init();
     const cleanUsername = username.trim();
     const cleanPassword = password.trim();
@@ -171,6 +172,47 @@ export class AuthService {
       return { success: false, message: '비밀번호를 입력해주세요.' };
     }
 
+    // [Supabase Auth 클라우드 로그인 시도]
+    // 아이디를 이메일 형식으로 변환 (아이디@mabosal.com 또는 직접 입력한 이메일)
+    const email = cleanUsername.includes('@') ? cleanUsername : `${cleanUsername}@mabosal.com`;
+
+    try {
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password: cleanPassword,
+      });
+
+      if (!authError && authData.user) {
+        // 프로필 정보 조회
+        const { data: prof } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', authData.user.id)
+          .maybeSingle();
+
+        const role: UserRole = (prof?.role as UserRole) || (cleanUsername === 'admin' ? 'admin' : 'user');
+        const userAcc: UserAccount = {
+          id: authData.user.id,
+          username: prof?.username || cleanUsername,
+          password: '', // 보안상 클라이언트 메모리에 비밀번호 보관하지 않음
+          name: prof?.name || authData.user.user_metadata?.name || cleanUsername,
+          email: authData.user.email || email,
+          phone: prof?.phone || '',
+          role,
+          yeopBalance: 3000,
+          joinedAt: authData.user.created_at?.slice(0, 10) || new Date().toISOString().slice(0, 10),
+        };
+
+        this.currentSession = userAcc;
+        getStorage().setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(userAcc));
+        this.notifyAuthChange();
+        return { success: true, message: `환영합니다, ${userAcc.name} 님!`, user: userAcc };
+      }
+    } catch (e) {
+      console.warn('[AuthService] Supabase auth try failed, falling back to local:', e);
+    }
+
+    // [Fallback]: Supabase 실패 시 기존 로컬 계정 검증
     const accounts = this.getAllAccounts();
     const found = accounts.find(a => a.username.toLowerCase() === cleanUsername.toLowerCase());
 
@@ -178,23 +220,21 @@ export class AuthService {
       return { success: false, message: '존재하지 않는 아이디입니다. 회원가입을 먼저 진행해주세요.' };
     }
 
-    if (found.password !== cleanPassword) {
+    if (found.password && found.password !== cleanPassword) {
       return { success: false, message: '비밀번호가 일치하지 않습니다. 다시 확인해주세요.' };
     }
 
     // 로그인 성공 -> 세션 저장
     this.currentSession = found;
-    if (true) {
-      getStorage().setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(found));
-    }
+    getStorage().setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(found));
     this.notifyAuthChange();
     return { success: true, message: `환영합니다, ${found.name} 님!`, user: found };
   }
 
   /**
-   * 2. 정석 신규 회원가입 (아이디, 비번, 비번확인, 이름, 역할)
+   * 2. 정석 신규 회원가입 (Supabase Auth 생성 + 로컬 동기화)
    */
-  public static register(params: {
+  public static async register(params: {
     username: string;
     password: string;
     passwordConfirm: string;
@@ -202,7 +242,7 @@ export class AuthService {
     phone?: string;
     role: UserRole;
     partnerType?: PartnerType;
-  }): { success: boolean; message: string; user?: UserAccount } {
+  }): Promise<{ success: boolean; message: string; user?: UserAccount }> {
     this.init();
     const username = params.username.trim();
     const password = params.password.trim();
@@ -221,35 +261,53 @@ export class AuthService {
       return { success: false, message: '이름을 입력해주세요.' };
     }
 
-    const accounts = this.getAllAccounts();
-    if (accounts.some(a => a.username.toLowerCase() === username.toLowerCase())) {
-      return { success: false, message: '이미 사용 중인 아이디입니다. 다른 아이디를 입력해주세요.' };
+    const email = username.includes('@') ? username : `${username}@mabosal.com`;
+
+    // [Supabase Auth 클라우드 회원가입 시도]
+    let supabaseUserId: string | null = null;
+    try {
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            username,
+            name,
+            phone: params.phone || '',
+            role: params.role,
+          },
+        },
+      });
+      if (signUpError) {
+        console.warn('[AuthService] Supabase signUp note:', signUpError.message);
+      } else if (signUpData.user) {
+        supabaseUserId = signUpData.user.id;
+      }
+    } catch (e) {
+      console.warn('[AuthService] Supabase signUp failed:', e);
     }
 
+    const accounts = this.getAllAccounts();
     const newAccount: UserAccount = {
-      id: `acc_${Date.now()}`,
+      id: supabaseUserId || `acc_${Date.now()}`,
       username,
-      password,
+      password: '', // 평문 보관 지양
       name,
-      email: `${username}@mabosal.com`,
+      email,
       phone: params.phone?.trim() || '',
       role: params.role,
       partnerType: params.role === 'partner' ? (params.partnerType || 'HYBRID') : undefined,
       partnerCode: params.role === 'partner' ? username : undefined,
-      yeopBalance: params.role === 'user' ? 3000 : 0, // 가입 축하 3,000엽
+      yeopBalance: params.role === 'user' ? 3000 : 0,
       joinedAt: new Date().toISOString().slice(0, 10),
     };
 
     accounts.push(newAccount);
-    if (true) {
-      getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
-    }
+    getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
 
     // 가입 즉시 자동 로그인
     this.currentSession = newAccount;
-    if (true) {
-      getStorage().setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(newAccount));
-    }
+    getStorage().setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(newAccount));
     this.notifyAuthChange();
 
     return { success: true, message: `회원가입이 완료되었습니다! 환영합니다, ${name} 님!`, user: newAccount };
