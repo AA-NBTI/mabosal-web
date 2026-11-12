@@ -158,6 +158,40 @@ export class AuthService {
   }
 
   /**
+   * 아이디 중복 여부 실시간 확인 (로컬 및 Supabase profiles)
+   */
+  public static async checkUsernameAvailable(username: string): Promise<{ available: boolean; message: string }> {
+    this.init();
+    const clean = username.trim().toLowerCase();
+    if (!clean || clean.length < 3) {
+      return { available: false, message: '아이디는 최소 3자 이상 입력해 주세요.' };
+    }
+
+    // 1. 로컬 계정 확인
+    const localAccounts = this.getAllAccounts();
+    if (localAccounts.some(a => a.username.toLowerCase() === clean)) {
+      return { available: false, message: '이미 사용 중인 아이디입니다.' };
+    }
+
+    // 2. Supabase profiles 확인
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', clean)
+        .maybeSingle();
+
+      if (!error && data) {
+        return { available: false, message: '이미 사용 중인 아이디입니다.' };
+      }
+    } catch (e) {
+      console.warn('[AuthService] checkUsernameAvailable remote deferred:', e);
+    }
+
+    return { available: true, message: '사용 가능한 아이디입니다.' };
+  }
+
+  /**
    * 1. 정석 아이디 / 비밀번호 로그인 (Supabase Auth 연동 및 로컬 하위호환)
    */
   public static async login(username: string, password: string): Promise<{ success: boolean; message: string; user?: UserAccount }> {

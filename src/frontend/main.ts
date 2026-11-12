@@ -4557,21 +4557,52 @@ ${content}
  return;
  }
 
+  // 1-1. [아이디 중복 확인 버튼 클릭]
+  if (target.closest('#btn-check-username-dup')) {
+    const inputU = document.getElementById('input-reg-username') as HTMLInputElement;
+    const msgEl = document.getElementById('msg-username-check') as HTMLElement;
+    const username = inputU?.value.trim() || '';
+
+    if (!username) {
+      if (msgEl) {
+        msgEl.style.display = 'block';
+        msgEl.style.color = '#ef4444';
+        msgEl.textContent = '아이디를 입력해 주세요.';
+      } else {
+        alert('아이디를 입력해 주세요.');
+      }
+      return;
+    }
+
+    const checkRes = await AuthService.checkUsernameAvailable(username);
+    if (msgEl) {
+      msgEl.style.display = 'block';
+      msgEl.style.color = checkRes.available ? '#22c55e' : '#ef4444';
+      msgEl.textContent = checkRes.message;
+    } else {
+      alert(checkRes.message);
+    }
+    return;
+  }
+
   // 2. [회원가입 제출: 가입 완료 후 메인 진입 (사주 정보는 필요 시 추가 입력)]
   if (target.closest('#btn-submit-register')) {
     const username = (document.getElementById('input-reg-username') as HTMLInputElement)?.value.trim() || '';
     const password = (document.getElementById('input-reg-password') as HTMLInputElement)?.value || '';
     const passwordConfirm = (document.getElementById('input-reg-password-confirm') as HTMLInputElement)?.value || '';
     const name = (document.getElementById('input-reg-name') as HTMLInputElement)?.value.trim() || '';
-    const phone = (document.getElementById('input-reg-phone') as HTMLInputElement)?.value.trim() || '';
     const role = ((document.getElementById('select-reg-role') as HTMLSelectElement)?.value as any) || 'user';
+
+    if (!username || !password || !passwordConfirm || !name) {
+      alert('모든 필수 항목(*)을 빠짐없이 입력해 주세요.');
+      return;
+    }
 
     const res = await AuthService.register({
       username,
       password,
       passwordConfirm,
       name,
-      phone,
       role,
     });
 

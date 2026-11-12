@@ -19,9 +19,6 @@ export function renderAuthModal(): string {
  <h2 style="font-family: var(--font-serif); font-size: 1.45rem; font-weight: 700; color: #dfe2f1; margin: 0 0 0.35rem;">
  마보살 통합 멤버십
  </h2>
- <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">
- 아이디와 비밀번호로 안전하게 로그인하세요.
- </p>
  </div>
 
  <!-- 로그인 / 회원가입 2대 탭 -->
@@ -38,17 +35,17 @@ export function renderAuthModal(): string {
  <div id="auth-panel-login" style="display: block;">
  <form id="form-auth-login" onsubmit="return false;" style="display: flex; flex-direction: column; gap: 0.85rem;">
  <div>
- <label for="input-login-username" style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">
- 아이디 (Username)
+ <label for="input-login-username" style="font-size: 0.8rem; font-weight: 700; color: #dfe2f1; display: block; margin-bottom: 0.35rem;">
+ 아이디 <span style="color: #ef4444;">*</span>
  </label>
- <input type="text" id="input-login-username" placeholder="아이디 입력 (예: user1 또는 admin)" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.75rem 1rem; color: #dfe2f1; font-size: 0.92rem;" autocomplete="username" />
+ <input type="text" id="input-login-username" placeholder="" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.75rem 1rem; color: #dfe2f1; font-size: 0.92rem;" autocomplete="username" />
  </div>
 
  <div>
- <label for="input-login-password" style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">
- 비밀번호 (Password)
+ <label for="input-login-password" style="font-size: 0.8rem; font-weight: 700; color: #dfe2f1; display: block; margin-bottom: 0.35rem;">
+ 비밀번호 <span style="color: #ef4444;">*</span>
  </label>
- <input type="password" id="input-login-password" placeholder="비밀번호 입력" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.75rem 1rem; color: #dfe2f1; font-size: 0.92rem;" autocomplete="current-password" />
+ <input type="password" id="input-login-password" placeholder="" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.75rem 1rem; color: #dfe2f1; font-size: 0.92rem;" autocomplete="current-password" />
  </div>
 
  <button type="submit" id="btn-submit-login" class="btn-cta-primary" style="width: 100%; padding: 0.85rem; font-weight: 800; border-radius: 10px; font-size: 0.95rem; margin-top: 0.25rem; background: var(--primary); color: #241a00; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(242, 202, 80, 0.35); transition: opacity 0.15s ease;">
@@ -68,42 +65,39 @@ export function renderAuthModal(): string {
  <div id="auth-panel-register" style="display: none;">
  <form id="form-auth-register" onsubmit="return false;" style="display: flex; flex-direction: column; gap: 0.75rem;">
  <div>
- <label for="input-reg-username" style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">
- 아이디 (3자 이상)
+ <label for="input-reg-username" style="font-size: 0.8rem; font-weight: 700; color: #dfe2f1; display: block; margin-bottom: 0.25rem;">
+ 아이디 <span style="color: #ef4444;">*</span>
  </label>
- <input type="text" id="input-reg-username" placeholder="사용할 아이디" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.65rem 0.85rem; color: #dfe2f1; font-size: 0.88rem;" />
+ <div style="display: flex; gap: 0.5rem;">
+   <input type="text" id="input-reg-username" placeholder="" style="flex: 1; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.65rem 0.85rem; color: #dfe2f1; font-size: 0.88rem;" />
+   <button type="button" id="btn-check-username-dup" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #dfe2f1; padding: 0.65rem 0.85rem; border-radius: 10px; font-size: 0.82rem; font-weight: 700; cursor: pointer; white-space: nowrap;">
+     중복 확인
+   </button>
+ </div>
+ <div id="msg-username-check" style="font-size: 0.76rem; margin-top: 0.25rem; display: none;"></div>
  </div>
 
  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
  <div>
- <label for="input-reg-password" style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">
- 비밀번호
+ <label for="input-reg-password" style="font-size: 0.8rem; font-weight: 700; color: #dfe2f1; display: block; margin-bottom: 0.25rem;">
+ 비밀번호 <span style="color: #ef4444;">*</span>
  </label>
- <input type="password" id="input-reg-password" placeholder="4자 이상" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.65rem 0.85rem; color: #dfe2f1; font-size: 0.88rem;" />
+ <input type="password" id="input-reg-password" placeholder="" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.65rem 0.85rem; color: #dfe2f1; font-size: 0.88rem;" />
  </div>
  <div>
- <label for="input-reg-password-confirm" style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">
- 비밀번호 확인
+ <label for="input-reg-password-confirm" style="font-size: 0.8rem; font-weight: 700; color: #dfe2f1; display: block; margin-bottom: 0.25rem;">
+ 비밀번호 확인 <span style="color: #ef4444;">*</span>
  </label>
- <input type="password" id="input-reg-password-confirm" placeholder="비밀번호 재입력" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.65rem 0.85rem; color: #dfe2f1; font-size: 0.88rem;" />
+ <input type="password" id="input-reg-password-confirm" placeholder="" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.65rem 0.85rem; color: #dfe2f1; font-size: 0.88rem;" />
  </div>
  </div>
 
  <div>
- <label for="input-reg-name" style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">
- 이름 (실명 또는 활동명)
+ <label for="input-reg-name" style="font-size: 0.8rem; font-weight: 700; color: #dfe2f1; display: block; margin-bottom: 0.25rem;">
+ 이름 <span style="color: #ef4444;">*</span>
  </label>
- <input type="text" id="input-reg-name" placeholder="이름 입력 (예: 홍길동)" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.65rem 0.85rem; color: #dfe2f1; font-size: 0.88rem;" />
+ <input type="text" id="input-reg-name" placeholder="" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.65rem 0.85rem; color: #dfe2f1; font-size: 0.88rem;" />
  </div>
-
- <div>
- <label for="input-reg-phone" style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">
- 휴대폰 번호
- </label>
- <input type="tel" id="input-reg-phone" placeholder="010-0000-0000" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.65rem 0.85rem; color: #dfe2f1; font-size: 0.88rem;" />
- </div>
-
- 
 
  <button type="submit" id="btn-submit-register" style="width: 100%; padding: 0.85rem; font-weight: 800; border-radius: 10px; font-size: 0.95rem; margin-top: 0.35rem; background: var(--primary); color: #241a00; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(242, 202, 80, 0.35); transition: opacity 0.15s ease;">
  회원가입
