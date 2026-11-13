@@ -19,6 +19,19 @@ export default defineConfig({
         ddi: resolve(__dirname, 'ddi.html'),
         sonFree: resolve(__dirname, 'son-free.html'),
       },
+      output: {
+        manualChunks(id) {
+          if (id.includes('@supabase/')) {
+            return 'vendor-supabase';
+          }
+          if (id.includes('AdminDashboardView') || id.includes('AdminMembersPanel') || id.includes('AdminInquiriesPanel') || id.includes('AdminReviewsPanel') || id.includes('AdminLifeAnalysisPanel') || id.includes('AdminSeoWikiHubPanel') || id.includes('AdminEbookLibraryPanel')) {
+            return 'admin-dashboard';
+          }
+          if (id.includes('extensions/ebook-reader/')) {
+            return 'ebook-reader';
+          }
+        },
+      },
     },
   },
 });

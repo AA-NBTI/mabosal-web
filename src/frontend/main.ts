@@ -67,9 +67,7 @@ import { appState, AppStateData } from './state/app-state.js';
 import { ReportDepthMode } from '../modules/phase10/phase10-types.js';
 import { ProductTier } from '../modules/phase17_25/index.js';
 import { PartnerTracker } from './modules/partner-tracker.js';
-import { renderPartnerPortalView } from './views/PartnerPortalView.js';
 import {
-  renderAdminDashboardView,
   setAdminActiveTab,
   getAdminActiveTab,
   setEditingStoreProductId,
@@ -78,7 +76,7 @@ import {
   toggleAdminSubGroup,
   setEditingStudyArticleId,
   getEditingStudyArticleId,
-} from './views/AdminDashboardView.js';
+} from './state/admin-tab-state.js';
 import {
   setInquiryFilter,
   toggleInquiryExpanded,

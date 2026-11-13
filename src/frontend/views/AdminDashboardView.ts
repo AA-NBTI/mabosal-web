@@ -24,86 +24,37 @@ import { renderAdminSeoWikiHubPanel } from './AdminSeoWikiHubPanel.js';
 import { renderAdminEbookLibraryPanel } from './AdminEbookLibraryPanel.js';
 import { renderAdminSubscriptionsPanel, getAllSubscriptions } from './SubscriptionView.js';
 import { renderAdminMembersPanel } from './AdminMembersPanel.js';
+import {
+  setEditingStudyArticleId,
+  getEditingStudyArticleId,
+  setEditingStoreProductId,
+  getEditingStoreProductId,
+  setAdminActiveTab,
+  getAdminActiveTab,
+  getActiveAdminTabIdSync,
+  toggleAdminGroup,
+  setAdminGroupExpanded,
+  toggleAdminSubGroup,
+  isGroupExpanded,
+  getGroupToggleState,
+  getSubGroupToggleState,
+} from '../state/admin-tab-state.js';
 
+export {
+  setEditingStudyArticleId,
+  getEditingStudyArticleId,
+  setEditingStoreProductId,
+  getEditingStoreProductId,
+  setAdminActiveTab,
+  getAdminActiveTab,
+  toggleAdminGroup,
+  setAdminGroupExpanded,
+  toggleAdminSubGroup,
+  isGroupExpanded,
+};
 
-let activeEditingStudyArticleId: string | null = null;
-export function setEditingStudyArticleId(id: string | null): void {
-  activeEditingStudyArticleId = id;
-}
-export function getEditingStudyArticleId(): string | null {
-  return activeEditingStudyArticleId;
-}
-
-let activeEditingStoreProductId: string | null = null;
-export function setEditingStoreProductId(id: string | null): void {
-  activeEditingStoreProductId = id;
-}
-export function getEditingStoreProductId(): string | null {
-  return activeEditingStoreProductId;
-}
-
-const ADMIN_TAB_STORAGE_KEY = 'mm_admin_active_tab';
-
-let activeAdminTabId = (typeof localStorage !== 'undefined' && localStorage.getItem(ADMIN_TAB_STORAGE_KEY)) || 'tab-overview';
-
-export function setAdminActiveTab(tabId: string): void {
-  activeAdminTabId = tabId;
-  if (typeof localStorage !== 'undefined') {
-    try {
-      localStorage.setItem(ADMIN_TAB_STORAGE_KEY, tabId);
-    } catch {}
-  }
-  if (typeof window !== 'undefined' && window.history && window.location) {
-    try {
-      const url = new URL(window.location.href);
-      url.searchParams.set('tab', tabId);
-      window.history.replaceState({ ...window.history.state, adminTab: tabId }, '', url.toString());
-    } catch {}
-  }
-}
-
-export function getAdminActiveTab(): string {
-  if (typeof window !== 'undefined') {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tabParam = urlParams.get('tab');
-    if (tabParam) {
-      return tabParam.startsWith('tab-') ? tabParam : `tab-${tabParam}`;
-    }
-  }
-  if (typeof localStorage !== 'undefined') {
-    const saved = localStorage.getItem(ADMIN_TAB_STORAGE_KEY);
-    if (saved) return saved;
-  }
-  return activeAdminTabId;
-}
-
-// 상위 카테고리 아코디언(펼침/닫힘) 상태 관리
-const groupToggleState = new Map<string, boolean>();
-
-// 2차 서브 카테고리(3단 아코디언) 상태 관리: 상품관리/스터디는 기본 펼침
-const subGroupToggleState = new Map<string, boolean>();
-
-export function toggleAdminGroup(groupId: string, fallbackExpanded: boolean = false): void {
-  const current = groupToggleState.has(groupId) ? groupToggleState.get(groupId)! : fallbackExpanded;
-  groupToggleState.set(groupId, !current);
-}
-
-export function setAdminGroupExpanded(groupId: string, expanded: boolean): void {
-  groupToggleState.set(groupId, expanded);
-}
-
-export function toggleAdminSubGroup(subGroupId: string, forceExpanded?: boolean): void {
-  if (typeof forceExpanded === 'boolean') {
-    subGroupToggleState.set(subGroupId, forceExpanded);
-    return;
-  }
-  const current = subGroupToggleState.has(subGroupId) ? subGroupToggleState.get(subGroupId)! : true;
-  subGroupToggleState.set(subGroupId, !current);
-}
-
-export function isGroupExpanded(groupId: string): boolean {
-  return groupToggleState.get(groupId) === true;
-}
+const groupToggleState = getGroupToggleState();
+const subGroupToggleState = getSubGroupToggleState();
 
 export function renderAdminDashboardView(): string {
   const products = CatalogStore.getProducts();
@@ -117,7 +68,7 @@ export function renderAdminDashboardView(): string {
   const activeModulesCount = allModules.filter(m => m.enabled).length;
   const activeMasterCount = masterToggles.filter(m => m.enabled).length;
 
-  const currentTab = activeAdminTabId;
+  const currentTab = getActiveAdminTabIdSync();
   const pendingInquiriesCount = CustomerInquiryStore.getPendingCount();
 
   // [상위 대주제 카테고리 및 서브 카테고리 정의 - 요구사항 1번 고객센터/고객문의 반영]
@@ -1424,7 +1375,7 @@ export function renderAdminDashboardView(): string {
           </div>
 
           <div id="tab-store" class="admin-tab-panel" style="display: ${['tab-store', 'tab-store-register', 'tab-store-orders', 'tab-store-categories'].includes(currentTab) ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
-            ${renderAdminStorePanel(activeEditingStoreProductId, activeEditingStoreProductId ? 'register' : (currentTab === 'tab-store-register' ? 'register' : (currentTab === 'tab-store-orders' ? 'orders' : (currentTab === 'tab-store-categories' ? 'categories' : 'products'))))}
+            ${renderAdminStorePanel(getEditingStoreProductId(), getEditingStoreProductId() ? 'register' : (currentTab === 'tab-store-register' ? 'register' : (currentTab === 'tab-store-orders' ? 'orders' : (currentTab === 'tab-store-categories' ? 'categories' : 'products'))))}
           </div>
 
           <!-- [패널] 컨텐츠 > 전자책 디지털 도서관 (발행 & 검수 센터) -->
