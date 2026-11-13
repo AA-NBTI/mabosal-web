@@ -123,12 +123,24 @@ export class AuthService {
     this.initialized = true;
   }
 
-  /** 등록된 모든 계정 조회 */
+  /** 등록된 모든 계정 조회 (동일 username 중복 레코드 자동 정리) */
   public static getAllAccounts(): UserAccount[] {
     this.init();
     try {
       const stored = getStorage().getItem(STORAGE_KEY_ACCOUNTS);
-      if (stored) return JSON.parse(stored);
+      if (stored) {
+        const parsed = JSON.parse(stored) as UserAccount[];
+        if (!Array.isArray(parsed)) {
+          return this.isLocalOrTestEnv() ? this.defaultAccounts : [];
+        }
+        const deduped = new Map<string, UserAccount>();
+        for (const acc of parsed) {
+          const key = (acc?.username || acc?.id || '').trim().toLowerCase();
+          if (!key) continue;
+          deduped.set(key, acc);
+        }
+        return Array.from(deduped.values());
+      }
       return this.isLocalOrTestEnv() ? this.defaultAccounts : [];
     } catch {
       return this.isLocalOrTestEnv() ? this.defaultAccounts : [];
@@ -186,8 +198,17 @@ export class AuthService {
       }
     }
 
-    // 2. Supabase profiles 확인
+    // 2. Supabase RPC / profiles 확인
     try {
+      const { data: rpcAvailable, error: rpcError } = await supabase.rpc('is_username_available', {
+        p_username: clean,
+      });
+      if (!rpcError && typeof rpcAvailable === 'boolean') {
+        return rpcAvailable
+          ? { available: true, message: '사용 가능한 아이디입니다.' }
+          : { available: false, message: '이미 사용 중인 아이디입니다.' };
+      }
+
       const { data, error } = await supabase
         .from('profiles')
         .select('id')
@@ -406,6 +427,10 @@ export class AuthService {
     }
 
     const accounts = this.getAllAccounts();
+    if (!isCloudBrowser && accounts.some(a => a.username.toLowerCase() === username.toLowerCase())) {
+      return { success: false, message: '이미 사용 중인 아이디입니다.' };
+    }
+
     const newAccount: UserAccount = {
       id: supabaseUserId || `acc_${Date.now()}`,
       username,
@@ -420,8 +445,9 @@ export class AuthService {
       joinedAt: new Date().toISOString().slice(0, 10),
     };
 
-    accounts.push(newAccount);
-    getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
+    const dedupedAccounts = accounts.filter(a => a.username.toLowerCase() !== username.toLowerCase());
+    dedupedAccounts.push(newAccount);
+    getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(dedupedAccounts));
 
     // 가입 즉시 자동 로그인
     this.currentSession = newAccount;

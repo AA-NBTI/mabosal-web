@@ -1,7 +1,18 @@
 import { PageModule, PageContext } from './types.js';
+import { getAdminActiveTab } from '../state/admin-tab-state.js';
+import { ensureAdminMembersLoaded } from '../views/AdminMembersPanel.js';
 
 let cachedRenderAdminDashboard: (() => string) | null = null;
 let adminLoadPromise: Promise<void> | null = null;
+
+function syncMembersIfActive(container: HTMLElement): void {
+  if (getAdminActiveTab() !== 'tab-members') return;
+  ensureAdminMembersLoaded(() => {
+    if (cachedRenderAdminDashboard && container.isConnected && getAdminActiveTab() === 'tab-members') {
+      container.innerHTML = cachedRenderAdminDashboard();
+    }
+  });
+}
 
 export const AdminPage: PageModule = {
   id: 'admin',
@@ -16,7 +27,10 @@ export const AdminPage: PageModule = {
     `;
   },
   onMount(container: HTMLElement): void {
-    if (cachedRenderAdminDashboard) return;
+    if (cachedRenderAdminDashboard) {
+      syncMembersIfActive(container);
+      return;
+    }
     if (!adminLoadPromise) {
       adminLoadPromise = import('../views/AdminDashboardView.js')
         .then(mod => {
@@ -30,8 +44,9 @@ export const AdminPage: PageModule = {
         });
     }
     void adminLoadPromise.then(() => {
-      if (cachedRenderAdminDashboard) {
+      if (cachedRenderAdminDashboard && container.isConnected) {
         container.innerHTML = cachedRenderAdminDashboard();
+        syncMembersIfActive(container);
       }
     });
   },
