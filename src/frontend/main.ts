@@ -5750,7 +5750,8 @@ ${content}
             buyerName: nameInput?.value?.trim() || '구매자',
             buyerPhone: phoneInput?.value?.trim() || '01000000000',
             buyerEmail: emailInput?.value?.trim() || 'customer@mabosal.com',
-            payMethod: selectedPayMethod === 'kakaopay' ? 'EASY_PAY' : 'CARD',
+            // 통합 PG 채널키(신용카드/토스페이/카카오페이 공통)에서는 CARD 통합 결제창으로 호출
+            payMethod: 'CARD',
           }
         );
 
