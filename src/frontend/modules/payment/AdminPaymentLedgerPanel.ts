@@ -1,12 +1,37 @@
 /**
  * [Payment Module] 독립 결제 확인 · 환불 관리 패널 (스토어 상품관리와 분리된 결제 전용 장부)
  */
-import { getAllStoreOrders } from '../../extensions/commerce-store/store-service.js';
+import { getAllStoreOrders, syncOrdersFromSupabase, syncPortOnePaymentsIntoOrders } from '../../extensions/commerce-store/store-service.js';
 
 export type PaymentLedgerFilter = 'all' | 'completed' | 'pending' | 'refunded';
 
 let ledgerFilter: PaymentLedgerFilter = 'all';
 let ledgerSearch = '';
+let ledgerSyncInFlight = false;
+let lastLedgerSyncAt = 0;
+const AUTO_SYNC_COOLDOWN_MS = 15_000;
+
+/**
+ * 결제내역 탭 진입 시 Supabase DB + 포트원 V2 서버 내역을 자동으로 동기화한다.
+ * - 과도한 API 호출을 막기 위해 15초 쿨다운 적용, 변경이 있을 때만 화면을 재렌더링한다.
+ */
+export function ensurePaymentLedgerSynced(onUpdated: () => void): void {
+  if (ledgerSyncInFlight) return;
+  if (Date.now() - lastLedgerSyncAt < AUTO_SYNC_COOLDOWN_MS) return;
+
+  ledgerSyncInFlight = true;
+  Promise.all([syncOrdersFromSupabase(), syncPortOnePaymentsIntoOrders()])
+    .then(([dbChanged, portoneRes]) => {
+      lastLedgerSyncAt = Date.now();
+      if (dbChanged || portoneRes.changed) {
+        onUpdated();
+      }
+    })
+    .catch(() => {})
+    .finally(() => {
+      ledgerSyncInFlight = false;
+    });
+}
 
 export function setPaymentLedgerFilter(filter: PaymentLedgerFilter): void {
   ledgerFilter = filter;
