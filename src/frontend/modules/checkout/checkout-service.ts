@@ -4,7 +4,7 @@
 import { CartStore } from '../cart/cart-store.js';
 import { CartItem } from '../cart/types.js';
 import { StoreOrder, StoreOrderItem } from '../../extensions/commerce-store/types.js';
-import { getAllStoreOrders, updateStoreProduct, getStoreProductById } from '../../extensions/commerce-store/store-service.js';
+import { getAllStoreOrders, recordStoreOrder, updateStoreProduct, getStoreProductById } from '../../extensions/commerce-store/store-service.js';
 import { getStorage } from '../../modules/persistence/index.js';
 import { ReportRouterMapper } from './report-router-mapper.js';
 import { AuthService } from '../../state/auth-service.js';
@@ -229,18 +229,8 @@ export class CheckoutService {
       userId: currentUser.id,
     };
 
-    // 주문 저장
-    const allOrders = getAllStoreOrders();
-    allOrders.unshift(newOrder);
-    const serializedOrders = JSON.stringify(allOrders.slice(0, 500));
-    try {
-      getStorage().setItem(STORAGE_ORDERS_KEY, serializedOrders);
-    } catch {}
-    if (typeof localStorage !== 'undefined') {
-      try {
-        localStorage.setItem(STORAGE_ORDERS_KEY, serializedOrders);
-      } catch {}
-    }
+    // 주문 저장 (운영 브라우저는 메모리 + Supabase DB, 테스트는 localStorage)
+    recordStoreOrder(newOrder);
 
     // 무통장 입금 신청 건 자동 생성 (pending 상태인 경우 관리자 승인 대기열 및 마이페이지 연동)
     if (newOrder.status === 'pending' && payload.paymentMethod === 'bank_transfer') {

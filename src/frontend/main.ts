@@ -528,6 +528,8 @@ class MabosalApp {
       };
       window.addEventListener('mabosal:products-updated', safeAsyncRerender);
       window.addEventListener('mabosal:addresses-updated', safeAsyncRerender);
+      window.addEventListener('mabosal:orders-updated', safeAsyncRerender);
+      window.addEventListener('mabosal:transfers-updated', safeAsyncRerender);
       const urlParams = new URLSearchParams(window.location.search);
       const parsed = parseRouteFromLocation();
       let initialView = parsed.view;

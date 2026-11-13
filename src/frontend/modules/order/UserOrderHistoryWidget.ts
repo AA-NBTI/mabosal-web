@@ -8,6 +8,7 @@ import { OFFICIAL_BANK_ACCOUNT, getMyStoreOrders, requestStoreOrderRefund, cance
 import { SAJU_BOOK_VOL1_PRODUCT } from '../../extensions/commerce-store/saju-book-data.js';
 import { UserSajuStore } from '../../state/user-saju-store.js';
 import { ProductReviewStore } from '../../state/product-review-store.js';
+import { VoucherStore } from '../voucher/voucher-store.js';
 
 export function renderUserOrderHistoryWidget(): string {
   const user = AuthService.getCurrentUser();
@@ -31,7 +32,7 @@ export function renderUserOrderHistoryWidget(): string {
     // 입금 전 직접 취소(cancelled)한 미결제 주문은 사용자 주문 내역 목록에서 제외 (원장/감사 기록은 store에 유지)
     userOrders = getMyStoreOrders().filter(o => o.status !== 'cancelled');
 
-    const rawTransfers = JSON.parse(localStorage.getItem('mabosal_bank_transfers') || '[]');
+    const rawTransfers = VoucherStore.getBankTransfers();
     userTransfers = rawTransfers.filter((t: any) => t.orderId && userOrders.some(o => o.orderId === t.orderId));
   } catch (e) {
     console.warn('[UserOrderHistoryWidget] local read error:', e);

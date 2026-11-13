@@ -1028,13 +1028,107 @@ const DEFAULT_SEED_ORDERS: StoreOrder[] = [
   }
 ];
 
-/** 주문 목록 조회 (로컬 캐시 즉시 반환 + Supabase 원격 주문 비동기 병합) */
+let memoryOrders: StoreOrder[] | null = null;
+let ordersSynced = false;
+let ordersSyncing = false;
+const ORDER_UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function mapRemoteOrderRow(ro: any): StoreOrder {
+  const prod = getStoreProductById(ro.product_id);
+  return {
+    orderId: ro.id,
+    productId: ro.product_id,
+    productTitle: ro.product_title || (prod ? prod.title : '사주 상품'),
+    category: (ro.category || prod?.category || 'report') as any,
+    amount: Number(ro.amount || 0),
+    deliveryType: (ro.delivery_type || prod?.deliveryType || 'saju_report') as any,
+    accessUrl: ro.access_url || '/?view=result',
+    buyerName: ro.buyer_name || '구매자',
+    buyerPhone: ro.buyer_phone || '',
+    buyerEmail: ro.buyer_email || '',
+    paymentMethod: ro.payment_method || 'card',
+    paymentKey: ro.payment_key || undefined,
+    userId: ro.user_id || undefined,
+    paidAt: ro.paid_at || ro.created_at || new Date().toISOString(),
+    status: ro.status || 'completed',
+    shippingAddress: ro.shipping_address || undefined,
+    shippingMemo: ro.shipping_memo || undefined,
+    refundRequested: Boolean(ro.refund_requested),
+    refundReason: ro.refund_reason || undefined,
+    viewedAt: ro.viewed_at || undefined,
+  };
+}
+
+async function insertOrderToSupabase(order: StoreOrder): Promise<void> {
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const authUid = sessionData?.session?.user?.id;
+    const resolvedUid = authUid && ORDER_UUID_REGEX.test(authUid)
+      ? authUid
+      : (order.userId && ORDER_UUID_REGEX.test(order.userId) ? order.userId : null);
+
+    const { error } = await supabase.from('orders').insert({
+      id: order.orderId,
+      user_id: resolvedUid,
+      product_id: order.productId,
+      product_title: order.productTitle,
+      category: order.category,
+      amount: order.amount,
+      status: order.status,
+      payment_method: order.paymentMethod,
+      payment_key: order.paymentKey || null,
+      buyer_name: order.buyerName,
+      buyer_phone: order.buyerPhone,
+      buyer_email: order.buyerEmail,
+      delivery_type: order.deliveryType,
+      access_url: order.accessUrl || '',
+      shipping_address: order.shippingAddress || null,
+      shipping_memo: order.shippingMemo || null,
+      paid_at: order.paidAt,
+      created_at: order.paidAt,
+    });
+    if (error) {
+      console.error('[store-service] Supabase order insert failed:', error.message);
+    }
+  } catch (e) {
+    console.warn('[store-service] Supabase order insert skipped:', e);
+  }
+}
+
+async function updateOrderInSupabase(orderId: string, patch: Partial<StoreOrder>): Promise<void> {
+  try {
+    const dbPatch: Record<string, any> = {};
+    if (patch.status !== undefined) dbPatch.status = patch.status;
+    if (patch.paymentKey !== undefined) dbPatch.payment_key = patch.paymentKey;
+    if (patch.refundRequested !== undefined) dbPatch.refund_requested = patch.refundRequested;
+    if (patch.refundReason !== undefined) dbPatch.refund_reason = patch.refundReason;
+    if (patch.viewedAt !== undefined) dbPatch.viewed_at = patch.viewedAt;
+    if (patch.paidAt !== undefined) dbPatch.paid_at = patch.paidAt;
+    if (Object.keys(dbPatch).length === 0) return;
+
+    const { error } = await supabase.from('orders').update(dbPatch).eq('id', orderId);
+    if (error) {
+      console.error('[store-service] Supabase order update failed:', error.message);
+    }
+  } catch (e) {
+    console.warn('[store-service] Supabase order update skipped:', e);
+  }
+}
+
+/** 주문 목록 조회 (운영 브라우저는 메모리 캐시 + Supabase SSOT, 테스트 환경은 localStorage) */
 export function getAllStoreOrders(): StoreOrder[] {
+  if (isBrowserRuntime()) {
+    if (!ordersSynced && !ordersSyncing) {
+      void syncOrdersFromSupabase();
+    }
+    return memoryOrders ? [...memoryOrders] : [];
+  }
+
   try {
     const raw = getStorage().getItem(STORAGE_ORDERS_KEY);
     let orders: StoreOrder[] = raw ? JSON.parse(raw) : [];
 
-    // 홍길동 회원의 대표 전자책 주문들이 누락되지 않도록 보장
+    // 홍길동 회원의 대표 전자책 주문들이 누락되지 않도록 보장 (테스트/로컬 전용)
     let updated = false;
     for (const seed of DEFAULT_SEED_ORDERS) {
       if (!orders.some(o => o.orderId === seed.orderId || o.productId === seed.productId)) {
@@ -1056,24 +1150,38 @@ export function getAllStoreOrders(): StoreOrder[] {
       getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders.slice(0, 500)));
     }
 
-    // Supabase 원격 주문 비동기 동기화 트리거
-    void syncOrdersFromSupabase();
-
     return orders;
   } catch {
     return DEFAULT_SEED_ORDERS;
   }
 }
 
-/** Supabase 원격 DB에서 주문 목록을 가져와 로컬 장부와 병합 (변경 여부 반환) */
+/** Supabase 원격 DB에서 주문 목록을 가져와 동기화 (운영 브라우저는 DB SSOT로 메모리 갱신) */
 export async function syncOrdersFromSupabase(): Promise<boolean> {
+  if (ordersSyncing) return false;
+  ordersSyncing = true;
   try {
     const { data, error } = await supabase
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (!error && data && data.length > 0) {
+    ordersSynced = true;
+
+    if (error) {
+      console.warn('[store-service] Supabase orders fetch error:', error.message);
+      return false;
+    }
+
+    if (isBrowserRuntime()) {
+      const remoteOrders: StoreOrder[] = (data || []).map(mapRemoteOrderRow);
+      memoryOrders = remoteOrders;
+      try { localStorage.removeItem(STORAGE_ORDERS_KEY); } catch {}
+      window.dispatchEvent(new CustomEvent('mabosal:orders-updated'));
+      return true;
+    }
+
+    if (data && data.length > 0) {
       const raw = getStorage().getItem(STORAGE_ORDERS_KEY);
       let localOrders: StoreOrder[] = raw ? JSON.parse(raw) : [];
       const localMap = new Map(localOrders.map(o => [o.orderId, o]));
@@ -1082,24 +1190,7 @@ export async function syncOrdersFromSupabase(): Promise<boolean> {
       for (const ro of data) {
         const existing = localMap.get(ro.id);
         if (!existing) {
-          const prod = getStoreProductById(ro.product_id);
-          localOrders.unshift({
-            orderId: ro.id,
-            productId: ro.product_id,
-            productTitle: ro.product_title || (prod ? prod.title : '사주 상품'),
-            category: (ro.category || prod?.category || 'report') as any,
-            amount: Number(ro.amount || 0),
-            deliveryType: (ro.delivery_type || prod?.deliveryType || 'saju_report') as any,
-            accessUrl: '/?view=result',
-            buyerName: ro.buyer_name || '구매자',
-            buyerPhone: ro.buyer_phone || '',
-            buyerEmail: ro.buyer_email || '',
-            paymentMethod: ro.payment_method || 'card',
-            paymentKey: ro.payment_key || undefined,
-            userId: ro.user_id || undefined,
-            paidAt: ro.paid_at || ro.created_at || new Date().toISOString(),
-            status: ro.status || 'completed',
-          });
+          localOrders.unshift(mapRemoteOrderRow(ro));
           changed = true;
         } else {
           if (ro.status && existing.status !== ro.status) {
@@ -1122,6 +1213,8 @@ export async function syncOrdersFromSupabase(): Promise<boolean> {
   } catch (e) {
     console.warn('[store-service] Supabase orders sync deferred:', e);
     return false;
+  } finally {
+    ordersSyncing = false;
   }
 }
 
@@ -1138,8 +1231,7 @@ export async function syncPortOnePaymentsIntoOrders(): Promise<{
     return { changed: false, syncedCount: 0, error: res.error };
   }
 
-  const raw = getStorage().getItem(STORAGE_ORDERS_KEY);
-  const localOrders: StoreOrder[] = raw ? JSON.parse(raw) : [];
+  const localOrders: StoreOrder[] = getAllStoreOrders();
   let changed = false;
   let syncedCount = 0;
 
@@ -1188,7 +1280,11 @@ export async function syncPortOnePaymentsIntoOrders(): Promise<{
   }
 
   if (changed) {
-    getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(localOrders.slice(0, 500)));
+    if (isBrowserRuntime()) {
+      memoryOrders = localOrders.slice(0, 500);
+    } else {
+      getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(localOrders.slice(0, 500)));
+    }
   }
 
   return { changed, syncedCount };
@@ -1201,7 +1297,18 @@ export function getMyStoreOrders(): StoreOrder[] {
   return getAllStoreOrders().filter(o => ownsRecord(o, me));
 }
 
-/** 신규 주문 생성 (결제 완료 시 호출) */
+/** 통합 주문 기록 헬퍼 (체크아웃/직접주문 공용) */
+export function recordStoreOrder(newOrder: StoreOrder): StoreOrder {
+  const orders = getAllStoreOrders();
+  orders.unshift(newOrder);
+  if (isBrowserRuntime()) {
+    memoryOrders = orders.slice(0, 500);
+  } else {
+    getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders.slice(0, 500)));
+  }
+  void insertOrderToSupabase(newOrder);
+  return newOrder;
+}
 export function createStoreOrder(orderData: {
   productId: string;
   buyerName: string;
@@ -1235,28 +1342,14 @@ export function createStoreOrder(orderData: {
     reportTier: prod?.reportTier || 'COMPREHENSIVE',
   };
   orders.unshift(newOrder);
-  getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders.slice(0, 500)));
+  if (isBrowserRuntime()) {
+    memoryOrders = orders.slice(0, 500);
+  } else {
+    getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders.slice(0, 500)));
+  }
 
   // [Supabase DB 실시간 주문 동기화]
-  try {
-    supabase.from('orders').insert({
-      id: newOrder.orderId,
-      user_id: newOrder.userId || null,
-      product_id: newOrder.productId,
-      amount: newOrder.amount,
-      status: newOrder.status,
-      payment_method: newOrder.paymentMethod,
-      buyer_name: newOrder.buyerName,
-      buyer_phone: newOrder.buyerPhone,
-      buyer_email: newOrder.buyerEmail,
-      delivery_type: newOrder.deliveryType,
-      created_at: newOrder.paidAt,
-    }).then(({ error }: any) => {
-      if (error) console.warn('[store-service] Supabase order insert deferred:', error.message);
-    });
-  } catch (e) {
-    console.warn('[store-service] Supabase order insert skipped:', e);
-  }
+  void insertOrderToSupabase(newOrder);
 
   // 해당 상품 판매수 +1 (결제 완료된 주문만)
   if (prod && newOrder.status === 'completed') {
@@ -1367,7 +1460,12 @@ export function updateStoreOrder(orderId: string, patch: Partial<StoreOrder>): S
   const prev = orders[idx];
   const next = { ...prev, ...patch } as StoreOrder;
   orders[idx] = next;
-  getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
+  if (isBrowserRuntime()) {
+    memoryOrders = orders;
+  } else {
+    getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
+  }
+  void updateOrderInSupabase(orderId, patch);
   if (prev.status !== 'completed' && next.status === 'completed') {
     const prod = getStoreProductById(next.productId);
     if (prod) updateStoreProduct(prod.id, { salesCount: (prod.salesCount || 0) + 1 });

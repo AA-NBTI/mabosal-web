@@ -143,7 +143,62 @@ export class VoucherStore {
   }
 
   // 2. 무통장 입금 신청 및 승인
+  private static memoryTransfers: BankTransferRequest[] | null = null;
+  private static transfersSynced = false;
+  private static transfersSyncing = false;
+
+  private static isBrowserRuntime(): boolean {
+    return (
+      typeof window !== 'undefined' &&
+      !(import.meta as any).env?.VITEST &&
+      (typeof navigator === 'undefined' || !/jsdom/i.test(navigator.userAgent || ''))
+    );
+  }
+
+  static async syncBankTransfersFromSupabase(): Promise<void> {
+    if (this.transfersSyncing) return;
+    this.transfersSyncing = true;
+    try {
+      const { data, error } = await supabase
+        .from('bank_transfers')
+        .select('*')
+        .order('created_at', { ascending: false });
+      this.transfersSynced = true;
+      if (error || !Array.isArray(data)) return;
+
+      const mapped: BankTransferRequest[] = data.map((row: any) => ({
+        id: row.id,
+        orderId: row.order_id || undefined,
+        depositorName: row.depositor_name || '',
+        requestedAmount: Number(row.requested_amount || 0),
+        targetProduct: row.target_product || '',
+        status: row.status || 'pending',
+        userIdentifier: row.user_id || '',
+        bankInfo: '기업은행 103-123733-04-012 (템바보드 주식회사)',
+        createdAt: row.created_at || new Date().toISOString(),
+        memo: row.memo || '',
+        appliedCouponCode: row.applied_coupon_code || undefined,
+      }));
+
+      if (this.isBrowserRuntime()) {
+        this.memoryTransfers = mapped;
+        try { localStorage.removeItem(STORAGE_KEY_TRANSFERS); } catch {}
+        window.dispatchEvent(new CustomEvent('mabosal:transfers-updated'));
+      }
+    } catch (e) {
+      console.warn('[VoucherStore] Supabase bank_transfers sync deferred:', e);
+    } finally {
+      this.transfersSyncing = false;
+    }
+  }
+
   static getBankTransfers(): BankTransferRequest[] {
+    if (this.isBrowserRuntime()) {
+      if (!this.transfersSynced && !this.transfersSyncing) {
+        void this.syncBankTransfersFromSupabase();
+      }
+      return this.memoryTransfers ? [...this.memoryTransfers] : [];
+    }
     try {
       const raw = localStorage.getItem(STORAGE_KEY_TRANSFERS);
       if (raw) {
@@ -160,6 +215,10 @@ export class VoucherStore {
   }
 
   static saveBankTransfers(transfers: BankTransferRequest[]): void {
+    if (this.isBrowserRuntime()) {
+      this.memoryTransfers = [...transfers];
+      return;
+    }
     localStorage.setItem(STORAGE_KEY_TRANSFERS, JSON.stringify(transfers));
   }
 
@@ -183,16 +242,24 @@ export class VoucherStore {
     transfers.unshift(newReq);
     this.saveBankTransfers(transfers);
     // [Supabase 동기화]
-    supabase.from('bank_transfers').insert({
-      order_id: orderId || null,
-      depositor_name: newReq.depositorName,
-      requested_amount: newReq.requestedAmount,
-      target_product: newReq.targetProduct,
-      status: 'pending',
-      memo: newReq.memo,
-    }).then(({ error }) => {
-      if (error) console.warn('[VoucherStore] Supabase transfer sync deferred:', error.message);
-    });
+    void (async () => {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const authUid = sessionData?.session?.user?.id || null;
+        const { error } = await supabase.from('bank_transfers').insert({
+          order_id: orderId || null,
+          user_id: authUid,
+          depositor_name: newReq.depositorName,
+          requested_amount: newReq.requestedAmount,
+          target_product: newReq.targetProduct,
+          status: 'pending',
+          memo: newReq.memo,
+        });
+        if (error) console.warn('[VoucherStore] Supabase transfer sync deferred:', error.message);
+      } catch (e) {
+        console.warn('[VoucherStore] Supabase transfer sync skipped:', e);
+      }
+    })();
 
     return newReq;
   }
@@ -352,6 +419,11 @@ export class VoucherStore {
       target.status = 'rejected';
       target.memo = '입금 내역 불일치 또는 미입금으로 반려 처리';
       this.saveBankTransfers(transfers);
+      if (target.orderId) {
+        void supabase.from('bank_transfers').update({ status: 'rejected', memo: target.memo }).eq('order_id', target.orderId);
+      } else {
+        void supabase.from('bank_transfers').update({ status: 'rejected', memo: target.memo }).eq('id', target.id);
+      }
       this.rejectHooks.forEach(h => h(target));
     }
   }
