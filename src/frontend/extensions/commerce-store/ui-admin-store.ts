@@ -556,7 +556,12 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                             </button>
                           </div>
                         ` : `
-                          <span style="background: rgba(52,211,153,0.15); color: #4ade80; font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700;">결제완료</span>
+                          <div style="display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
+                            <span style="background: rgba(52,211,153,0.15); color: #4ade80; font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700;">결제완료</span>
+                            <button type="button" class="btn-admin-approve-refund" data-order-id="${o.orderId}" style="background: rgba(239, 68, 68, 0.18); color: #fca5a5; font-size: 0.72rem; font-weight: 700; border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 4px; padding: 0.2rem 0.5rem; cursor: pointer;" title="관리자 직권 환불 및 포트원 결제 취소">
+                              결제취소
+                            </button>
+                          </div>
                         `))}
                       </td>
                     </tr>

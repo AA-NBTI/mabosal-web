@@ -21,6 +21,7 @@ import {
 } from './saju-book-data.js';
 import { VoucherStore } from '../../modules/voucher/voucher-store.js';
 import { supabase } from '../../modules/supabase/supabase-client.js';
+import { cancelPortOnePayment } from '../../modules/payment/portone-server-api.js';
 
 const STORAGE_PRODUCTS_KEY = 'mabosal_store_products_v7';
 const STORAGE_ORDERS_KEY = 'mabosal_store_orders';
@@ -1288,6 +1289,41 @@ export function approveStoreOrderRefund(orderId: string): { success: boolean; me
     success: true,
     message: `[주문번호: ${orderId}] 환불 처리가 최종 승인되어 결제 취소되었습니다.`,
   };
+}
+
+/**
+ * 최고 관리자의 환불 승인 처리 (포트원 온라인 결제는 서버 Edge Function으로 실제 카드/PG 취소 연동)
+ */
+export async function approveStoreOrderRefundWithPgCancel(
+  orderId: string
+): Promise<{ success: boolean; message: string }> {
+  const order = getAllStoreOrders().find(o => o.orderId === orderId);
+  if (!order) {
+    return { success: false, message: '주문 정보를 찾을 수 없습니다.' };
+  }
+
+  const isPgOrder =
+    order.paymentMethod !== 'bank_transfer' &&
+    order.paymentMethod !== 'voucher' &&
+    (order.amount || 0) > 0;
+
+  if (isPgOrder) {
+    const paymentId = order.paymentKey || order.orderId;
+    const cancelRes = await cancelPortOnePayment({
+      paymentId,
+      orderId: order.orderId,
+      reason: order.refundReason || '관리자 환불 승인',
+    });
+
+    if (!cancelRes.ok) {
+      return {
+        success: false,
+        message: `[주문번호: ${orderId}] 포트원 실제 결제 취소 실패\n사유: ${cancelRes.error || '알 수 없는 오류'}\n\n※ 실제 카드 결제가 취소되지 않아 주문 상태가 유지됩니다.`,
+      };
+    }
+  }
+
+  return approveStoreOrderRefund(orderId);
 }
 
 /**

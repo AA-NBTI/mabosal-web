@@ -140,6 +140,7 @@ import {
   calculateStoreCouponDiscount,
   requestStoreOrderRefund,
   approveStoreOrderRefund,
+  approveStoreOrderRefundWithPgCancel,
   approveStoreBankDeposit,
   addStoreCategory,
   updateStoreCategory,
@@ -4148,12 +4149,12 @@ ${content}
       return;
     }
 
-    // [최고 관리자 환불 승인 처리 클릭]
+    // [최고 관리자 환불 승인 / 결제 취소 처리 클릭]
     const approveRefundBtn = target.closest('.btn-admin-approve-refund') as HTMLElement;
     if (approveRefundBtn) {
       const orderId = approveRefundBtn.dataset.orderId;
-      if (orderId && confirm(`[주문번호: ${orderId}]\n\n정말 본 주문의 환불 처리를 최종 승인하시겠습니까?\n상태가 '환불완료'로 변경됩니다.`)) {
-        const res = approveStoreOrderRefund(orderId);
+      if (orderId && confirm(`[주문번호: ${orderId}]\n\n정말 본 주문의 환불/결제 취소를 진행하시겠습니까?\n포트원 온라인 결제 건은 실제 카드 승인도 함께 취소되며 상태가 '환불완료'로 변경됩니다.`)) {
+        const res = await approveStoreOrderRefundWithPgCancel(orderId);
         alert(res.message);
         this.render(appState.getState());
       }
