@@ -588,6 +588,10 @@ class MabosalApp {
         CartStore.syncSajuProfile(e?.detail || UserSajuStore.getProfile());
       });
 
+      window.addEventListener('open-saju-onboarding-modal', (e: any) => {
+        this.openSajuOnboardingModal(e?.detail);
+      });
+
       window.addEventListener('navigate-store-product', (e: any) => {
         const pid = e.detail?.productId;
         if (pid) {
@@ -3685,6 +3689,7 @@ ${content}
           alert('생년월일 형식이 올바르지 않습니다. (예: 1990-03-21)');
           return;
         }
+        CartStore.syncSajuProfile(UserSajuStore.getProfile(currentUser.id), true);
       }
 
       alert('회원 정보와 사주 프로필이 성공적으로 저장되었습니다.\n대시보드의 일진 처방이 갱신되었습니다.');
@@ -4037,18 +4042,17 @@ ${content}
         this.openAuthModal('login');
         return;
       }
-      const hasSaju = UserSajuStore.hasSajuProfile(currentUser.username || currentUser.id);
+      const hasSaju = UserSajuStore.hasSajuProfile(currentUser.id);
       if (!hasSaju) {
-        alert('정밀 사주 분석을 위해 먼저 사주 정보(성별·생년월일시)를 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
-        sessionStorage.setItem('mabosal_pending_saju_product', 'prod-paid-saju-premium');
-        appState.setView('analyze');
-        this.render(appState.getState());
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        this.openSajuOnboardingModal({
+          title: '사주 분석 대상 등록',
+          desc: '💡 정밀 사주 분석 및 결제를 위해 사주 정보를 1회 등록해 주세요.',
+        });
         return;
       }
       const prod = getStoreProductById('prod-paid-saju-premium');
       if (prod) {
-        const sajuSnap = UserSajuStore.getProfile(currentUser.username || currentUser.id) || undefined;
+        const sajuSnap = UserSajuStore.getProfile(currentUser.id) || undefined;
         CartStore.clear();
         CartStore.addItem(prod, 1, sajuSnap);
         appState.setActiveTierTab('PAID');
@@ -4450,7 +4454,7 @@ ${content}
         const prod = getStoreProductById(prodId);
         if (prod) {
           const currentUser = AuthService.getCurrentUser();
-          const savedProf = UserSajuStore.getProfile(currentUser.username || currentUser.id);
+          const savedProf = UserSajuStore.getProfile(currentUser.id);
           const optSelect = document.getElementById('store-product-option-select') as HTMLSelectElement | null;
           let selectedOpt: any = undefined;
           if (optSelect && optSelect.selectedOptions.length > 0) {
@@ -4467,11 +4471,10 @@ ${content}
 
           if (effectiveDeliveryType === 'saju_report' || prod.category === 'report') {
             if (!savedProf) {
-              alert('정밀 사주 분석 리포트를 구매하시려면 먼저 사주 정보를 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
-              sessionStorage.setItem('mabosal_pending_saju_product', prod.id);
-              appState.setView('analyze');
-              this.render(appState.getState());
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              this.openSajuOnboardingModal({
+                title: '사주 분석 대상 등록',
+                desc: '💡 사주 리포트 상품을 장바구니에 담기 전에 사주 정보를 1회 등록해 주세요.',
+              });
               return;
             }
           }
@@ -5277,7 +5280,7 @@ ${content}
   // 1:1 상담실 입장 버튼
   if (target.closest('.btn-start-consultation')) {
     const user = AuthService.getCurrentUser();
-    const prof = UserSajuStore.getProfile(user.username || user.id);
+    const prof = UserSajuStore.getProfile(user.id);
     const clientName = prof?.userName || (user.role !== 'guest' ? user.name : '의뢰인');
     const ageStr = prof?.birthYear ? ` (${new Date().getFullYear() - prof.birthYear + 1}세)` : '';
     alert(`[1:1 실시간 상담 연결]\n\n• 의뢰인: ${clientName} 님${ageStr}\n• 의뢰인의 정밀 사주 원국과 사전 분석 자료가 수석 역술가 상담 HUD에 로드되었습니다.\n• 실시간 상담실로 입장합니다.`);
@@ -5864,7 +5867,7 @@ ${content}
         }
 
         const currentUser = AuthService.getCurrentUser();
-        const savedProf = UserSajuStore.getProfile(currentUser.username || currentUser.id);
+        const savedProf = UserSajuStore.getProfile(currentUser.id);
 
         // 옵션 선택값 추출
         const optSelect = document.getElementById('store-product-option-select') as HTMLSelectElement | null;
@@ -5883,11 +5886,10 @@ ${content}
 
         if (effectiveDeliveryType === 'saju_report' || prod.category === 'report') {
           if (!savedProf) {
-            alert('정밀 사주 분석 리포트를 구매하시려면 먼저 사주 정보를 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
-            sessionStorage.setItem('mabosal_pending_saju_product', prod.id);
-            appState.setView('analyze');
-            this.render(appState.getState());
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            this.openSajuOnboardingModal({
+              title: '사주 분석 대상 등록',
+              desc: '💡 사주 리포트 상품을 구매하기 전에 사주 정보를 1회 등록해 주세요.',
+            });
             return;
           }
         }

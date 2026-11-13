@@ -274,4 +274,40 @@ describe('UI Consistency & Negative Gate Audit', () => {
     expect(checkoutRes.order?.status).toBe('pending');
     expect(checkoutRes.order?.sajuInput?.solarBirthDate).toBe('1992-05-14');
   });
+
+  it('클라우드 로그인(UUID 세션, 로컬 accounts 미등록 상태)에서도 username/id 어느 쪽으로 조회해도 사주와 회원정보가 통일된다', () => {
+    const cloudSession = {
+      id: 'uuid-cloud-test1234',
+      username: 'test1234',
+      password: '',
+      name: '클라우드회원',
+      email: 'test1234@mabosal.com',
+      phone: '010-1234-5678',
+      role: 'user',
+      yeopBalance: 3000,
+      joinedAt: '2026-11-13',
+      status: 'active',
+    };
+    (AuthService as any).currentSession = { ...cloudSession };
+
+    const synced = UserSajuStore.syncUserSajuProfile({
+      userId: cloudSession.id,
+      userName: '클라우드회원',
+      birthDate: '1991-07-07',
+      birthTime: '10:00',
+      calendarType: 'solar',
+      gender: 'female',
+      birthRegion: '서울',
+    });
+    expect(synced).not.toBeNull();
+
+    // id로 조회하든 username으로 조회하든 동일한 프로필 반환
+    expect(UserSajuStore.hasSajuProfile(cloudSession.id)).toBe(true);
+    expect(UserSajuStore.hasSajuProfile(cloudSession.username)).toBe(true);
+    expect(UserSajuStore.getProfile(cloudSession.username)?.solarBirthDate).toBe('1991-07-07');
+
+    // 회원정보(AuthService.getCurrentUser)에도 생년월일/성별이 즉시 동기화됨
+    expect(AuthService.getCurrentUser().birthDate).toBe('1991-07-07');
+    expect(AuthService.getCurrentUser().gender).toBe('female');
+  });
 });

@@ -584,7 +584,7 @@ export function renderBirthInputView(state: AppStateData): string {
   const isMember = currentUser && currentUser.role !== 'guest';
 
   // [철칙] 비로그인(게스트) 상태에서는 타인의 사주 정보나 하드코딩된 기본값을 일체 채우지 않고 깨끗한 빈칸으로 제공!
-  const savedProfile = isMember ? UserSajuStore.getProfile(currentUser.username || currentUser.id) : null;
+  const savedProfile = isMember ? UserSajuStore.getProfile(currentUser.id) : null;
   const hasExistingSaju = isMember && Boolean(savedProfile?.solarBirthDate || currentUser.birthDate);
 
   const defaultName = isMember ? (state.userName || savedProfile?.userName || currentUser.name || '') : '';

@@ -19,6 +19,9 @@ export function resolveProfileOwnerId(
   current: { id: string; username: string; isGuest: boolean }
 ): string {
   if (idOrUsername) {
+    if (!current.isGuest && (idOrUsername === current.id || idOrUsername.toLowerCase() === current.username.toLowerCase())) {
+      return current.id;
+    }
     const hit = accounts.find(a => a.id === idOrUsername) ||
       accounts.find(a => a.username.toLowerCase() === idOrUsername.toLowerCase());
     return hit ? hit.id : idOrUsername;

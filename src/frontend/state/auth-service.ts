@@ -292,18 +292,33 @@ export class AuthService {
         }
 
         const role: UserRole = (prof?.role as UserRole) || (cleanUsername === 'admin' ? 'admin' : 'user');
+        const accounts = this.getAllAccounts();
+        const existingLocal = accounts.find(
+          a => a.id === authData.user!.id || a.username.toLowerCase() === (prof?.username || cleanUsername).toLowerCase()
+        );
         const userAcc: UserAccount = {
           id: authData.user.id,
           username: prof?.username || cleanUsername,
           password: '', // 보안상 클라이언트 메모리에 비밀번호 보관하지 않음
-          name: prof?.name || authData.user.user_metadata?.name || cleanUsername,
+          name: prof?.name || existingLocal?.name || authData.user.user_metadata?.name || cleanUsername,
           email: authData.user.email || email,
-          phone: prof?.phone || '',
+          phone: prof?.phone || existingLocal?.phone || '',
+          birthDate: (prof as any)?.birth_date || existingLocal?.birthDate,
+          birthTime: (prof as any)?.birth_time || existingLocal?.birthTime,
+          calendarType: (prof as any)?.calendar_type || existingLocal?.calendarType,
+          isLeapMonth: (prof as any)?.is_leap_month ?? existingLocal?.isLeapMonth,
+          gender: (prof as any)?.gender || existingLocal?.gender,
           role,
-          yeopBalance: 3000,
-          joinedAt: authData.user.created_at?.slice(0, 10) || new Date().toISOString().slice(0, 10),
+          yeopBalance: existingLocal?.yeopBalance ?? 3000,
+          joinedAt: authData.user.created_at?.slice(0, 10) || existingLocal?.joinedAt || new Date().toISOString().slice(0, 10),
           status: (prof?.status as MemberStatus) || 'active',
         };
+
+        const mergedAccounts = [
+          userAcc,
+          ...accounts.filter(a => a.id !== userAcc.id && a.username.toLowerCase() !== userAcc.username.toLowerCase()),
+        ];
+        getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(mergedAccounts));
 
         this.currentSession = userAcc;
         getStorage().setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(userAcc));
@@ -601,13 +616,17 @@ export class AuthService {
       return { success: false, message: '로그인이 필요합니다.' };
     }
     const accounts = this.getAllAccounts();
-    const acc = accounts.find(a => a.id === current.id);
-    if (!acc) {
-      return { success: false, message: '계정 정보를 찾을 수 없습니다.' };
+    const idx = accounts.findIndex(a => a.id === current.id || a.username.toLowerCase() === current.username.toLowerCase());
+    const updatedAcc: UserAccount = idx >= 0
+      ? { ...accounts[idx], ...patch, id: current.id }
+      : { ...current, ...patch };
+    if (idx >= 0) {
+      accounts[idx] = updatedAcc;
+    } else {
+      accounts.unshift(updatedAcc);
     }
-    Object.assign(acc, patch);
     getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
-    this.currentSession = { ...acc };
+    this.currentSession = { ...updatedAcc };
     getStorage().setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(this.currentSession));
     return { success: true, message: '프로필이 갱신되었습니다.' };
   }
