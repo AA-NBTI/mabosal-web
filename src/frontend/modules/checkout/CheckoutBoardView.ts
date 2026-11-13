@@ -264,7 +264,12 @@ export function renderCheckoutBoardView(): string {
                       <label style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.35rem; font-weight: 700;">
                         배송받으실 주소 (도로명 / 지번 및 상세 동/호수)
                       </label>
-                      <input type="text" id="checkout-shipping-address" value="${esc(initShippingAddress)}" placeholder="예: 서울시 강남구 테헤란로 152, 강남파이낸스센터 12층" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem; color: #fff; font-size: 0.9rem;" />
+                      <div style="display: flex; gap: 0.5rem; align-items: stretch;">
+                        <input type="text" id="checkout-shipping-address" value="${esc(initShippingAddress)}" placeholder="주소 검색 또는 직접 입력 (예: 서울시 강남구 테헤란로 152, 12층)" style="flex: 1; min-width: 0; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.7rem; color: #fff; font-size: 0.9rem;" />
+                        <button type="button" id="btn-search-checkout-postcode" style="background: rgba(242,202,80,0.16); border: 1px solid rgba(242,202,80,0.45); color: var(--primary); font-weight: 800; font-size: 0.82rem; padding: 0 0.95rem; border-radius: 8px; cursor: pointer; white-space: nowrap;">
+                          주소 검색
+                        </button>
+                      </div>
                     </div>
                     <div>
                       <label style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.3rem;">배송 시 요청사항 (선택)</label>

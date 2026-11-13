@@ -561,7 +561,7 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
                           ${a.isDefault ? '<span style="background: var(--primary); color: #000; font-size: 0.68rem; padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 900;">기본 배송지</span>' : ''}
                           <span>${a.recipientName} (${a.recipientPhone})</span>
                         </div>
-                        <div style="color: #cbd5e1; margin-top: 0.35rem; font-size: 0.83rem;">${a.address} ${a.detailAddress || ''}</div>
+                        <div style="color: #cbd5e1; margin-top: 0.35rem; font-size: 0.83rem;">${a.zipCode ? `[${a.zipCode}] ` : ''}${a.address} ${a.detailAddress || ''}</div>
                         ${a.deliveryMemo ? `<div style="color: #94a3b8; font-size: 0.78rem; margin-top: 0.2rem;">배송 메모: ${a.deliveryMemo}</div>` : ''}
                       </div>
                       <div style="display: flex; align-items: center; gap: 0.5rem;">

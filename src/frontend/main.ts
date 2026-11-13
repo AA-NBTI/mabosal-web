@@ -168,6 +168,7 @@ import { CartStore } from './state/cart-store.js';
 import { CustomerInquiryStore } from './state/customer-inquiry-store.js';
 import { ProductReviewStore } from './state/product-review-store.js';
 import { UserAddressStore } from './state/user-address-store.js';
+import { openKakaoPostcode, formatKoreanPhone } from './utils/postcode-helper.js';
 import { renderCartBoardView } from './modules/cart/index.js';
 import { renderCheckoutBoardView, CheckoutService, ReportRouterMapper } from './modules/checkout/index.js';
 import { renderCartModal, renderOrderReviewModal } from './components/CartAndReviewModal.js';
@@ -3782,8 +3783,14 @@ ${content}
               <input type="tel" id="addr-input-phone" required value="${targetAddr?.recipientPhone || ''}" placeholder="010-0000-0000" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.55rem;border-radius:6px;font-size:0.85rem;" />
             </div>
             <div>
-              <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">배송지 주소 (도로명 / 지번) *</label>
-              <input type="text" id="addr-input-address" required value="${targetAddr?.address || ''}" placeholder="예: 서울특별시 강남구 테헤란로 152" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.55rem;border-radius:6px;font-size:0.85rem;" />
+              <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">우편번호 및 주소 (도로명 / 지번) *</label>
+              <div style="display:flex;gap:0.45rem;margin-bottom:0.45rem;">
+                <input type="text" id="addr-input-zipcode" readonly value="${targetAddr?.zipCode || ''}" placeholder="우편번호" style="width:110px;box-sizing:border-box;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.15);color:#cbd5e1;padding:0.55rem;border-radius:6px;font-size:0.85rem;text-align:center;" />
+                <button type="button" id="btn-search-modal-postcode" style="background:rgba(242,202,80,0.18);border:1px solid rgba(242,202,80,0.45);color:var(--primary);padding:0.5rem 0.9rem;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:800;white-space:nowrap;">
+                  주소 검색
+                </button>
+              </div>
+              <input type="text" id="addr-input-address" required value="${targetAddr?.address || ''}" placeholder="주소 검색 또는 직접 입력 (예: 서울특별시 강남구 테헤란로 152)" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.55rem;border-radius:6px;font-size:0.85rem;" />
             </div>
             <div>
               <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;">상세 주소 (동/호수/건물명)</label>
@@ -3811,12 +3818,29 @@ ${content}
       modal.querySelector('#btn-cancel-addr-modal')?.addEventListener('click', closeModal);
       modal.addEventListener('click', (ev) => { if (ev.target === modal) closeModal(); });
 
+      const modalPhoneInput = modal.querySelector('#addr-input-phone') as HTMLInputElement | null;
+      modalPhoneInput?.addEventListener('input', () => {
+        modalPhoneInput.value = formatKoreanPhone(modalPhoneInput.value);
+      });
+
+      modal.querySelector('#btn-search-modal-postcode')?.addEventListener('click', () => {
+        void openKakaoPostcode(({ zipCode, address }) => {
+          const zipEl = modal?.querySelector('#addr-input-zipcode') as HTMLInputElement | null;
+          const addrEl = modal?.querySelector('#addr-input-address') as HTMLInputElement | null;
+          const detailEl = modal?.querySelector('#addr-input-detail') as HTMLInputElement | null;
+          if (zipEl) zipEl.value = zipCode;
+          if (addrEl) addrEl.value = address;
+          detailEl?.focus();
+        });
+      });
+
       const form = modal.querySelector('#form-save-member-address') as HTMLFormElement;
       form?.addEventListener('submit', (ev) => {
         ev.preventDefault();
         const id = (modal?.querySelector('#addr-input-id') as HTMLInputElement)?.value.trim() || undefined;
         const name = (modal?.querySelector('#addr-input-name') as HTMLInputElement)?.value.trim();
-        const phone = (modal?.querySelector('#addr-input-phone') as HTMLInputElement)?.value.trim();
+        const phone = formatKoreanPhone((modal?.querySelector('#addr-input-phone') as HTMLInputElement)?.value.trim());
+        const zipCode = (modal?.querySelector('#addr-input-zipcode') as HTMLInputElement)?.value.trim() || '';
         const address = (modal?.querySelector('#addr-input-address') as HTMLInputElement)?.value.trim();
         const detail = (modal?.querySelector('#addr-input-detail') as HTMLInputElement)?.value.trim() || '';
         const memo = (modal?.querySelector('#addr-input-memo') as HTMLInputElement)?.value.trim() || '';
@@ -3831,6 +3855,7 @@ ${content}
           id,
           recipientName: name,
           recipientPhone: phone,
+          zipCode,
           address,
           detailAddress: detail,
           deliveryMemo: memo,
@@ -3847,6 +3872,19 @@ ${content}
     if (target.closest('#btn-add-member-address')) {
       e.preventDefault();
       openAddressEditModal();
+      return;
+    }
+
+    // [주문 결제창: 카카오 우편번호 주소 검색 클릭]
+    if (target.closest('#btn-search-checkout-postcode')) {
+      e.preventDefault();
+      void openKakaoPostcode(({ zipCode, address }) => {
+        const shippingInput = document.getElementById('checkout-shipping-address') as HTMLInputElement | null;
+        if (shippingInput) {
+          shippingInput.value = `${zipCode ? `[${zipCode}] ` : ''}${address} `;
+          shippingInput.focus();
+        }
+      });
       return;
     }
 
