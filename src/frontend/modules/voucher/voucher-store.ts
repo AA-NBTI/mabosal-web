@@ -1,5 +1,6 @@
 import { updateStoreOrder } from '../../extensions/commerce-store/store-service.js';
 import { supabase } from '../supabase/supabase-client.js';
+import { isBrowserRuntime } from '../../utils/runtime-env.js';
 import { getIdentity } from '../identity/index.js';
 import { getStorage } from '../persistence/index.js';
 /**
@@ -148,11 +149,7 @@ export class VoucherStore {
   private static transfersSyncing = false;
 
   private static isBrowserRuntime(): boolean {
-    return (
-      typeof window !== 'undefined' &&
-      !(import.meta as any).env?.VITEST &&
-      (typeof navigator === 'undefined' || !/jsdom/i.test(navigator.userAgent || ''))
-    );
+    return isBrowserRuntime();
   }
 
   static async syncBankTransfersFromSupabase(): Promise<void> {

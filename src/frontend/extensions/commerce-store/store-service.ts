@@ -547,15 +547,9 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
 ];
 
 
-let memoryProducts: StoreProduct[] | null = null;
+import { isBrowserRuntime } from '../../utils/runtime-env.js';
 
-function isBrowserRuntime(): boolean {
-  return (
-    typeof window !== 'undefined' &&
-    !(import.meta as any).env?.VITEST &&
-    (typeof navigator === 'undefined' || !/jsdom/i.test(navigator.userAgent || ''))
-  );
-}
+let memoryProducts: StoreProduct[] | null = null;
 
 /** 삭제된 상품 ID 세트 조회 (테스트/오프라인 전용) */
 export function getDeletedStoreProductIds(): Set<string> {

@@ -8,6 +8,7 @@
  */
 
 import { supabase } from '../modules/supabase/supabase-client.js';
+import { isBrowserRuntime } from '../utils/runtime-env.js';
 
 export interface SiteContentConfig {
   header: {
@@ -100,6 +101,12 @@ export class SiteContentStore {
   }
 
   private static load(): void {
+    if (isBrowserRuntime()) {
+      this.config = JSON.parse(JSON.stringify(DEFAULT_SITE_CONTENT));
+      try { localStorage.removeItem(STORAGE_KEY); } catch {}
+      void this.syncFromSupabase();
+      return;
+    }
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -149,6 +156,7 @@ export class SiteContentStore {
   }
 
   private static save(): void {
+    if (isBrowserRuntime()) return;
     try {
       if (typeof window !== 'undefined' && window.localStorage && this.config) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(this.config));

@@ -7,6 +7,7 @@
 
 import { AuthService } from './auth-service.js';
 import { supabase } from '../modules/supabase/supabase-client.js';
+import { isBrowserRuntime } from '../utils/runtime-env.js';
 
 export interface ProductReview {
   id: string;               // 예: REV-20261015-4421
@@ -175,15 +176,24 @@ export class ProductReviewStore {
         .eq('key', 'product_reviews_data')
         .maybeSingle();
 
-      if (!error && data && Array.isArray(data.value) && data.value.length > 0) {
-        const local = this.getReviews();
-        const map = new Map<string, ProductReview>();
-        local.forEach(r => map.set(r.id, r));
-        (data.value as ProductReview[]).forEach(r => map.set(r.id, r));
-        this.reviews = Array.from(map.values()).sort((a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        this.save();
+      if (!error && data && Array.isArray(data.value)) {
+        if (isBrowserRuntime()) {
+          this.reviews = (data.value as ProductReview[]).sort((a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          try { localStorage.removeItem(STORAGE_KEY); } catch {}
+          return;
+        }
+        if (data.value.length > 0) {
+          const local = this.getReviews();
+          const map = new Map<string, ProductReview>();
+          local.forEach(r => map.set(r.id, r));
+          (data.value as ProductReview[]).forEach(r => map.set(r.id, r));
+          this.reviews = Array.from(map.values()).sort((a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          this.save();
+        }
       }
     } catch (e) {
       console.warn('[ProductReviewStore] Supabase load deferred:', e);
@@ -191,6 +201,12 @@ export class ProductReviewStore {
   }
 
   private static load(): void {
+    if (isBrowserRuntime()) {
+      this.reviews = JSON.parse(JSON.stringify(INITIAL_REVIEWS));
+      try { localStorage.removeItem(STORAGE_KEY); } catch {}
+      void this.syncFromSupabase();
+      return;
+    }
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -207,6 +223,7 @@ export class ProductReviewStore {
   }
 
   private static save(): void {
+    if (isBrowserRuntime()) return;
     try {
       if (typeof window !== 'undefined' && window.localStorage && this.reviews) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(this.reviews));

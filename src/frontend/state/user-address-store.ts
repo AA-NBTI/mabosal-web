@@ -24,13 +24,7 @@ export interface UserAddress {
 const STORAGE_KEY = 'mabosal_user_addresses_v1';
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function isBrowserRuntime(): boolean {
-  return (
-    typeof window !== 'undefined' &&
-    !(import.meta as any).env?.VITEST &&
-    (typeof navigator === 'undefined' || !/jsdom/i.test(navigator.userAgent || ''))
-  );
-}
+import { isBrowserRuntime } from '../utils/runtime-env.js';
 
 export class UserAddressStore {
   private static memoryList: UserAddress[] = [];

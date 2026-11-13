@@ -4,6 +4,7 @@
  * - LocalStorage 기반 영구 보존 및 실시간 화면 반응형 연동
  */
 import { supabase } from '../modules/supabase/supabase-client.js';
+import { isBrowserRuntime } from '../utils/runtime-env.js';
 
 export interface CustomerInquiry {
   id: string;               // 예: INQ-20261015-8921
@@ -180,6 +181,14 @@ export class CustomerInquiryStore {
         answeredAt: row.answered_at || undefined,
       }));
 
+      if (isBrowserRuntime()) {
+        this.inquiries = remoteInquiries.sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        try { localStorage.removeItem(STORAGE_KEY); } catch {}
+        return this.inquiries;
+      }
+
       // 로컬 항목과 병합 (원격 우선)
       const local = this.getInquiries();
       const map = new Map<string, CustomerInquiry>();
@@ -205,10 +214,17 @@ export class CustomerInquiryStore {
 
     this.inquiries = list;
     this.save();
+    void supabase.from('customer_inquiries').delete().eq('id', id);
     return true;
   }
 
   private static load(): void {
+    if (isBrowserRuntime()) {
+      this.inquiries = [];
+      try { localStorage.removeItem(STORAGE_KEY); } catch {}
+      void this.syncFromSupabase();
+      return;
+    }
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -225,6 +241,7 @@ export class CustomerInquiryStore {
   }
 
   private static save(): void {
+    if (isBrowserRuntime()) return;
     try {
       if (typeof window !== 'undefined' && window.localStorage && this.inquiries) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(this.inquiries));
