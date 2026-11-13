@@ -2,6 +2,7 @@ import { renderUserOrderHistoryWidget } from '../modules/order/UserOrderHistoryW
 import { renderMemberVoucherWidget } from '../modules/voucher/MemberVoucherWidget.js';
 import { SiteContentStore } from '../state/site-content-store.js';
 import { CartStore } from '../state/cart-store.js';
+import { getStoreProductById } from '../extensions/commerce-store/store-service.js';
 /**
  * Phase 29~37: Frontend View Components (프로덕션 프리미엄 명리 상담 서비스 UI)
  * 
@@ -314,89 +315,103 @@ ${(() => {
       </div>
 
       <div class="landing-product-list">
-        <!-- 상품 1: 무료 사주 진단 -->
-        <div class="product-showcase-card">
-          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-              <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">verified_user</span>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
-              <div style="display: flex; align-items: center; gap: 0.45rem;">
-                <span style="background: rgba(242, 202, 80, 0.12); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">체험 진단</span>
-                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">무료 사주 진단</h3>
+        ${([
+          {
+            id: 'prod-free-experience',
+            icon: 'verified_user',
+            iconBg: 'rgba(242, 202, 80, 0.12)',
+            iconBorder: 'rgba(242, 202, 80, 0.4)',
+            badge: '체험 진단',
+            badgeBg: 'rgba(242, 202, 80, 0.12)',
+            badgeWeight: '700',
+            title: '무료 사주 진단',
+            priceLabel: '0원',
+            ctaLabel: '무료 체험',
+            ctaClass: 'btn-cta-secondary',
+            ctaStyle: 'background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary);',
+          },
+          {
+            id: 'prod-paid-saju-premium',
+            icon: 'diamond',
+            iconBg: 'rgba(242, 202, 80, 0.15)',
+            iconBorder: 'rgba(242, 202, 80, 0.45)',
+            badge: '정밀 사주',
+            badgeBg: 'rgba(242, 202, 80, 0.15)',
+            badgeWeight: '700',
+            title: '유료 사주풀이',
+            priceLabel: '39,900원',
+            ctaLabel: '구매하기',
+            ctaClass: 'btn-cta-primary',
+            ctaStyle: 'background: var(--primary); color: #241a00; border: none;',
+          },
+          {
+            id: 'prod-saju-conflict',
+            icon: 'bolt',
+            iconBg: 'rgba(242, 202, 80, 0.15)',
+            iconBorder: 'rgba(242, 202, 80, 0.45)',
+            badge: '갈등 특화',
+            badgeBg: 'rgba(242, 202, 80, 0.15)',
+            badgeWeight: '700',
+            title: '상충·마·살 특화',
+            priceLabel: '79,900원',
+            ctaLabel: '구매하기',
+            ctaClass: 'btn-cta-primary',
+            ctaStyle: 'background: var(--primary); color: #241a00; border: none;',
+          },
+          {
+            id: 'prod-paid-saju-vip',
+            icon: 'workspace_premium',
+            iconBg: 'rgba(242, 202, 80, 0.18)',
+            iconBorder: 'var(--primary)',
+            badge: 'VIP 완결판',
+            badgeBg: 'rgba(242, 202, 80, 0.2)',
+            badgeWeight: '800',
+            title: '프리미엄 통합',
+            priceLabel: '149,900원',
+            ctaLabel: '구매하기',
+            ctaClass: 'btn-cta-primary',
+            ctaStyle: 'background: var(--primary); color: #241a00; border: none;',
+          },
+        ] as const)
+          .filter(card => {
+            const storeProd = getStoreProductById(card.id);
+            return !storeProd || storeProd.status !== 'hidden';
+          })
+          .map(card => {
+            const storeProd = getStoreProductById(card.id);
+            const isSoldOut = storeProd?.status === 'soldout';
+            const displayPrice = storeProd
+              ? (storeProd.price === 0 ? '0원' : `${storeProd.price.toLocaleString()}원`)
+              : card.priceLabel;
+            return `
+              <div class="product-showcase-card">
+                <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
+                  <div style="width: 44px; height: 44px; border-radius: 10px; background: ${card.iconBg}; border: 1px solid ${card.iconBorder}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">${card.icon}</span>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
+                    <div style="display: flex; align-items: center; gap: 0.45rem;">
+                      <span style="background: ${card.badgeBg}; color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: ${card.badgeWeight};">${card.badge}</span>
+                      <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">${storeProd?.title || card.title}</h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="product-action-box">
+                  <div class="product-price-label">${displayPrice}</div>
+                  ${isSoldOut ? `
+                    <button type="button" class="btn-cta-secondary" disabled style="background: rgba(148, 163, 184, 0.12); border: 1px solid rgba(148, 163, 184, 0.3); color: #94a3b8; cursor: not-allowed;">
+                      품절
+                    </button>
+                  ` : `
+                    <button type="button" class="${card.ctaClass} btn-select-product btn-goto-store-product-detail" data-product-id="${card.id}" style="${card.ctaStyle}">
+                      ${card.ctaLabel}
+                    </button>
+                  `}
+                </div>
               </div>
-            </div>
-          </div>
-          <div class="product-action-box">
-            <div class="product-price-label">0원</div>
-            <button type="button" class="btn-cta-secondary btn-select-product btn-goto-store-product-detail" data-product-id="prod-free-experience" style="background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary);">
-              무료 체험
-            </button>
-          </div>
-        </div>
-
-        <!-- 상품 2: 유료 사주풀이 (39,900원) -->
-        <div class="product-showcase-card">
-          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.45); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-              <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">diamond</span>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
-              <div style="display: flex; align-items: center; gap: 0.45rem;">
-                <span style="background: rgba(242, 202, 80, 0.15); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">정밀 사주</span>
-                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">유료 사주풀이</h3>
-              </div>
-            </div>
-          </div>
-          <div class="product-action-box">
-            <div class="product-price-label">39,900원</div>
-            <button type="button" class="btn-cta-primary btn-select-product btn-goto-store-product-detail" data-product-id="prod-paid-saju-premium" style="background: var(--primary); color: #241a00; border: none;">
-              구매하기
-            </button>
-          </div>
-        </div>
-
-        <!-- 상품 3: 상충·마·살 특화 (79,900원) -->
-        <div class="product-showcase-card">
-          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.45); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-              <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">bolt</span>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
-              <div style="display: flex; align-items: center; gap: 0.45rem;">
-                <span style="background: rgba(242, 202, 80, 0.15); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">갈등 특화</span>
-                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">상충·마·살 특화</h3>
-              </div>
-            </div>
-          </div>
-          <div class="product-action-box">
-            <div class="product-price-label">79,900원</div>
-            <button type="button" class="btn-cta-primary btn-select-product btn-goto-store-product-detail" data-product-id="prod-saju-conflict" style="background: var(--primary); color: #241a00; border: none;">
-              구매하기
-            </button>
-          </div>
-        </div>
-
-        <!-- 상품 4: 프리미엄 통합 (149,900원) -->
-        <div class="product-showcase-card">
-          <div style="display: flex; align-items: center; gap: 0.95rem; flex: 1; min-width: 0;">
-            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(242, 202, 80, 0.18); border: 1px solid var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-              <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">workspace_premium</span>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 0.25rem; min-width: 0;">
-              <div style="display: flex; align-items: center; gap: 0.45rem;">
-                <span style="background: rgba(242, 202, 80, 0.2); color: var(--primary); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 800;">VIP 완결판</span>
-                <h3 style="font-size: 1.08rem; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: -0.01em;">프리미엄 통합</h3>
-              </div>
-            </div>
-          </div>
-          <div class="product-action-box">
-            <div class="product-price-label">149,900원</div>
-            <button type="button" class="btn-cta-primary btn-select-product btn-goto-store-product-detail" data-product-id="prod-paid-saju-vip" style="background: var(--primary); color: #241a00; border: none;">
-              구매하기
-            </button>
-          </div>
-        </div>
+            `;
+          })
+          .join('')}
     </div>
     
     <!-- ④ [천명원 핵심] 공인 1:1 수석 명리 상담사 입점 마켓플레이스 그리드 -->

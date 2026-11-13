@@ -534,6 +534,11 @@ class MabosalApp {
       window.addEventListener('navigate-store-product', (e: any) => {
         const pid = e.detail?.productId;
         if (pid) {
+          const prod = getStoreProductById(pid);
+          if (!prod || prod.status === 'hidden') {
+            alert('현재 판매가 종료된 상품입니다.');
+            return;
+          }
           selectStoreProduct(pid, true);
         }
         appState.setView('store');
@@ -3836,6 +3841,11 @@ ${content}
       e.preventDefault();
       const pid = gotoStoreProductBtn.dataset.productId;
       if (pid) {
+        const prod = getStoreProductById(pid);
+        if (!prod || prod.status === 'hidden') {
+          alert('현재 판매가 종료된 상품입니다.');
+          return;
+        }
         selectStoreProduct(pid, false);
       }
       navigateTo(`/store?product=${encodeURIComponent(pid || '')}`);

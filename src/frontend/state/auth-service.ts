@@ -3,7 +3,7 @@
  */
 
 import { getStorage } from '../modules/persistence/index.js';
-import { supabase } from '../modules/supabase/supabase-client.js';
+import { supabase, SUPABASE_CONFIG } from '../modules/supabase/supabase-client.js';
 
 export type UserRole = 'guest' | 'user' | 'partner' | 'admin';
 export type PartnerType = 'AFFILIATE' | 'EXPERT' | 'HYBRID';
@@ -167,10 +167,14 @@ export class AuthService {
       return { available: false, message: '아이디는 최소 3자 이상 입력해 주세요.' };
     }
 
-    // 1. 로컬 계정 확인
-    const localAccounts = this.getAllAccounts();
-    if (localAccounts.some(a => a.username.toLowerCase() === clean)) {
-      return { available: false, message: '이미 사용 중인 아이디입니다.' };
+    const isCloudBrowser = typeof window !== 'undefined' && !SUPABASE_CONFIG.isLocal;
+
+    // 1. 로컬/테스트 환경 전용 계정 확인 (클라우드 환경에서는 stale localStorage로 인한 재가입 차단을 방지)
+    if (!isCloudBrowser) {
+      const localAccounts = this.getAllAccounts();
+      if (localAccounts.some(a => a.username.toLowerCase() === clean)) {
+        return { available: false, message: '이미 사용 중인 아이디입니다.' };
+      }
     }
 
     // 2. Supabase profiles 확인
@@ -210,11 +214,20 @@ export class AuthService {
     // 아이디를 이메일 형식으로 변환 (아이디@mabosal.com 또는 직접 입력한 이메일)
     const email = cleanUsername.includes('@') ? cleanUsername : `${cleanUsername}@mabosal.com`;
 
+    const isCloudBrowser = typeof window !== 'undefined' && !SUPABASE_CONFIG.isLocal;
+
     try {
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password: cleanPassword,
       });
+
+      if (authError && authError.message.toLowerCase().includes('email not confirmed')) {
+        return {
+          success: false,
+          message: '이메일 인증이 완료되지 않은 계정입니다. Supabase에서 이메일 인증(Confirm email)을 끄거나 계정을 인증해주세요.',
+        };
+      }
 
       if (!authError && authData.user) {
         // 프로필 정보 조회
@@ -246,12 +259,17 @@ export class AuthService {
       console.warn('[AuthService] Supabase auth try failed, falling back to local:', e);
     }
 
-    // [Fallback]: Supabase 실패 시 기존 로컬 계정 검증
+    // [Fallback]: Supabase 실패 시 기존 로컬 계정 검증 (데모 시드 계정 및 테스트 환경)
     const accounts = this.getAllAccounts();
     const found = accounts.find(a => a.username.toLowerCase() === cleanUsername.toLowerCase());
 
     if (!found) {
       return { success: false, message: '존재하지 않는 아이디입니다. 회원가입을 먼저 진행해주세요.' };
+    }
+
+    // 클라우드 환경에서는 비밀번호가 비어있는 로컬 캐시 계정의 무조건 통과를 차단
+    if (isCloudBrowser && !found.password) {
+      return { success: false, message: '아이디 또는 비밀번호가 일치하지 않습니다. 다시 확인해주세요.' };
     }
 
     if (found.password && found.password !== cleanPassword) {
@@ -296,6 +314,7 @@ export class AuthService {
     }
 
     const email = username.includes('@') ? username : `${username}@mabosal.com`;
+    const isCloudBrowser = typeof window !== 'undefined' && !SUPABASE_CONFIG.isLocal;
 
     // [Supabase Auth 클라우드 회원가입 시도]
     let supabaseUserId: string | null = null;
@@ -314,18 +333,40 @@ export class AuthService {
       });
       if (signUpError) {
         console.warn('[AuthService] Supabase signUp note:', signUpError.message);
+        if (isCloudBrowser) {
+          const msg = signUpError.message.toLowerCase();
+          if (msg.includes('already registered') || msg.includes('already exists')) {
+            return { success: false, message: '이미 가입된 아이디입니다. 로그인을 진행해주세요.' };
+          }
+          if (msg.includes('password') || msg.includes('at least')) {
+            return { success: false, message: '비밀번호는 6자 이상으로 입력해주세요.' };
+          }
+          return { success: false, message: `회원가입 처리 중 오류가 발생했습니다: ${signUpError.message}` };
+        }
       } else if (signUpData.user) {
+        if (isCloudBrowser && signUpData.user.identities && signUpData.user.identities.length === 0) {
+          return { success: false, message: '이미 가입된 아이디입니다. 로그인을 진행해주세요.' };
+        }
+        if (isCloudBrowser && !signUpData.session) {
+          return {
+            success: false,
+            message: '서버의 이메일 인증(Confirm email) 설정이 켜져 있어 즉시 가입이 완료되지 않았습니다. Supabase 설정에서 Confirm email을 비활성화해주세요.',
+          };
+        }
         supabaseUserId = signUpData.user.id;
       }
     } catch (e) {
       console.warn('[AuthService] Supabase signUp failed:', e);
+      if (isCloudBrowser) {
+        return { success: false, message: '회원가입 서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.' };
+      }
     }
 
     const accounts = this.getAllAccounts();
     const newAccount: UserAccount = {
       id: supabaseUserId || `acc_${Date.now()}`,
       username,
-      password: '', // 평문 보관 지양
+      password: supabaseUserId ? '' : password, // Supabase 연동 시 평문 미보관, 로컬/테스트 폴백 시 검증용 보관
       name,
       email,
       phone: params.phone?.trim() || '',

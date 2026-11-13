@@ -6,6 +6,8 @@
  * - Category SEO FAQ Accordion
  */
 
+import { getStoreProductById } from '../../extensions/commerce-store/store-service.js';
+
 export interface CategoryTabItem {
   id: string;
   path: string;
@@ -141,4 +143,25 @@ export function renderCategoryFaq(faqs: { question: string; answer: string }[]):
     </div>
   </section>
   `;
+}
+
+/** 스토어 상품 상태(active/soldout/hidden)를 반영한 구매/상세 이동 버튼 생성 */
+export function renderStoreProductButton(options: {
+  productId: string;
+  label?: string;
+  className?: string;
+  style?: string;
+  extraAttrs?: string;
+}): string {
+  const prod = getStoreProductById(options.productId);
+  const status = prod?.status;
+  const baseClass = options.className || 'btn-cta-primary';
+  const baseStyle = options.style || '';
+
+  if (status === 'hidden' || status === 'soldout') {
+    const disabledLabel = status === 'hidden' ? '판매 종료' : '품절';
+    return `<button type="button" class="${baseClass}" disabled style="${baseStyle} background: rgba(148, 163, 184, 0.14); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); box-shadow: none; cursor: not-allowed;">${disabledLabel}</button>`;
+  }
+
+  return `<button type="button" class="${baseClass} btn-goto-store-product-detail" data-product-id="${options.productId}" ${options.extraAttrs || ''} style="${baseStyle}">${options.label || '구매하기'}</button>`;
 }

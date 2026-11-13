@@ -10,6 +10,7 @@ import { AppStateData } from '../state/app-state.js';
 import { extractReportContext, getConflictMalSalReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
 import { renderMiniSajuPillarsCard, renderAffiliatePromoBanner } from '../components/common-components.js';
 import { renderCheonmyeongwonFiveElementsMultiBar, renderCheonmyeongwonDayMasterArchetype } from '../components/VisualCharts.js';
+import { renderStoreProductButton } from './pages/CategoryCommon.js';
 
 export function renderConflictResultView(state: AppStateData): string {
  const session = state.sessionState;
@@ -128,9 +129,12 @@ export function renderConflictResultView(state: AppStateData): string {
  원국·격국·신살·대운·세운 전수 분석과 현실 딜레마 A/B 대안, 4주 실행 로드맵 완비
  </div>
  </div>
- <button type="button" class="btn-cta-primary btn-goto-store-product-detail" data-product-id="prod-paid-saju-vip" data-title="마보살 프리미엄 정밀 사주 진단" data-price="149900" data-original="250000" style="padding: 0.65rem 1.25rem; font-weight: 700; font-size: 0.88rem;">
- 구매하기
- </button>
+ ${renderStoreProductButton({
+   productId: 'prod-paid-saju-vip',
+   label: '구매하기',
+   style: 'padding: 0.65rem 1.25rem; font-weight: 700; font-size: 0.88rem;',
+   extraAttrs: 'data-title="마보살 프리미엄 정밀 사주 진단" data-price="149900" data-original="250000"',
+ })}
  </div>
 
  <!-- 공통 2: 마보살 파트너스 제휴 마케팅 배너 -->

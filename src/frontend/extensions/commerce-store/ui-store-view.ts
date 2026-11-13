@@ -249,6 +249,22 @@ export function renderCommerceStoreView(state: AppStateData): string {
         </div>
       </div>
     `;
+  } else if (selectedProduct && selectedProduct.status === 'hidden') {
+    // 판매 종료(hidden) 상품 접근 차단 안내
+    rightContentHtml = `
+      <div style="background: var(--surface-container); border: 1px solid rgba(148, 163, 184, 0.25); border-radius: 18px; padding: 3rem 2rem; text-align: center; box-shadow: var(--shadow-sm);">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(148, 163, 184, 0.12); border: 1px solid rgba(148, 163, 184, 0.35); color: #94a3b8; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
+          <span class="material-symbols-outlined" style="font-size: 34px;">visibility_off</span>
+        </div>
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: #fff; margin: 0 0 0.5rem 0;">판매가 종료된 상품입니다</h2>
+        <p style="font-size: 0.92rem; color: #94a3b8; margin: 0 0 1.75rem 0; line-height: 1.6;">
+          요청하신 <strong style="color: #e2e8f0;">${esc(selectedProduct.title)}</strong> 상품은 현재 판매가 종료되어 구매 및 상세 열람이 제한되었습니다.
+        </p>
+        <button type="button" id="btn-store-back-to-list" class="btn-back-to-store-list" style="background: var(--primary); color: #1c1500; border: none; padding: 0.75rem 1.5rem; border-radius: 10px; font-size: 0.92rem; font-weight: 800; cursor: pointer;">
+          스토어 상품 목록으로 돌아가기
+        </button>
+      </div>
+    `;
   } else if (selectedProduct) {
     // 2. 상품 상세 페이지 모드 (팝업 없이 인라인 2단 쇼핑몰 구조)
     const p = selectedProduct;
@@ -509,15 +525,23 @@ export function renderCommerceStoreView(state: AppStateData): string {
                 ` : ''}
 
                 <!-- 액션 버튼 2단 (장바구니 + 바로구매) -->
-                <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 0.45rem; margin-top: 0.1rem;">
-                  <button type="button" class="btn-add-to-cart-from-detail" data-product-id="${p.id}" style="background: rgba(242, 202, 80, 0.1); color: var(--primary); border: 1px solid rgba(242, 202, 80, 0.35); font-size: 0.84rem; font-weight: 800; border-radius: 8px; padding: 0.7rem 0.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem; transition: all 0.15s ease;">
-                    <span class="material-symbols-outlined" style="font-size: 17px;">shopping_bag</span>
-                    장바구니
-                  </button>
-                  <button type="submit" style="width: 100%; background: var(--primary); color: #1c1500; font-size: 0.92rem; font-weight: 800; border: none; border-radius: 8px; padding: 0.7rem; cursor: pointer; box-shadow: 0 4px 14px rgba(242,202,80,0.3); transition: transform 0.15s ease;">
-                    ${p.price === 0 ? '무료 체험하기' : '바로구매'}
-                  </button>
-                </div>
+                ${p.status === 'soldout' ? `
+                  <div style="margin-top: 0.1rem;">
+                    <button type="button" disabled style="width: 100%; background: rgba(148, 163, 184, 0.12); color: #94a3b8; font-size: 0.92rem; font-weight: 800; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 8px; padding: 0.75rem; cursor: not-allowed;">
+                      품절된 상품입니다
+                    </button>
+                  </div>
+                ` : `
+                  <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 0.45rem; margin-top: 0.1rem;">
+                    <button type="button" class="btn-add-to-cart-from-detail" data-product-id="${p.id}" style="background: rgba(242, 202, 80, 0.1); color: var(--primary); border: 1px solid rgba(242, 202, 80, 0.35); font-size: 0.84rem; font-weight: 800; border-radius: 8px; padding: 0.7rem 0.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem; transition: all 0.15s ease;">
+                      <span class="material-symbols-outlined" style="font-size: 17px;">shopping_bag</span>
+                      장바구니
+                    </button>
+                    <button type="submit" style="width: 100%; background: var(--primary); color: #1c1500; font-size: 0.92rem; font-weight: 800; border: none; border-radius: 8px; padding: 0.7rem; cursor: pointer; box-shadow: 0 4px 14px rgba(242,202,80,0.3); transition: transform 0.15s ease;">
+                      ${p.price === 0 ? '무료 체험하기' : '바로구매'}
+                    </button>
+                  </div>
+                `}
               </form>
 
             </div>
