@@ -236,7 +236,7 @@ export function renderAdminDashboardView(): string {
         <div>
           <div style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 800; color: #dfe2f1; line-height: 1.15; display: flex; align-items: center; gap: 0.45rem;">
             마보살 관리자
-            <span style="font-size: 0.78rem; font-family: 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, sans-serif; font-variant-numeric: tabular-nums; font-weight: 800; background: rgba(242, 202, 80, 0.22); color: #fde68a; border: 1px solid rgba(242, 202, 80, 0.55); padding: 0.14rem 0.48rem; border-radius: 6px; letter-spacing: 0.03em; line-height: 1.2;">v3.0.5</span>
+            <span style="font-size: 0.78rem; font-family: 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, sans-serif; font-variant-numeric: tabular-nums; font-weight: 800; background: rgba(242, 202, 80, 0.22); color: #fde68a; border: 1px solid rgba(242, 202, 80, 0.55); padding: 0.14rem 0.48rem; border-radius: 6px; letter-spacing: 0.03em; line-height: 1.2;">v3.0.6</span>
           </div>
           <div style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.05em;">ADMIN CONTROL TOWER</div>
         </div>

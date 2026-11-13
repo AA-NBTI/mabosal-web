@@ -2180,8 +2180,9 @@ ${content}
     // 스토어 상품 상세 후기 배너 -> 회원 주문내역 바로가기
     if (target.closest('.btn-go-order-history')) {
       e.preventDefault();
-      setMemberActiveTab('orders');
+      setMemberActiveTab('tab-orders');
       appState.setView('member-dashboard');
+      void syncOrdersFromSupabase();
       this.render(appState.getState());
       return;
     }
@@ -4038,6 +4039,9 @@ ${content}
           backdrop.classList.remove('open');
         }
         setMemberActiveTab(tabId);
+        if (tabId === 'tab-orders') {
+          void syncOrdersFromSupabase();
+        }
         this.render(appState.getState());
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;

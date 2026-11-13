@@ -1027,6 +1027,14 @@ let ordersSynced = false;
 let ordersSyncing = false;
 const ORDER_UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+if (typeof window !== 'undefined') {
+  window.addEventListener('mm-auth-changed', () => {
+    memoryOrders = null;
+    ordersSynced = false;
+    void syncOrdersFromSupabase();
+  });
+}
+
 function mapRemoteOrderRow(ro: any): StoreOrder {
   const prod = getStoreProductById(ro.product_id);
   return {
