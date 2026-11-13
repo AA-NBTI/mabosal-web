@@ -1025,13 +1025,18 @@ const DEFAULT_SEED_ORDERS: StoreOrder[] = [
 let memoryOrders: StoreOrder[] | null = null;
 let ordersSynced = false;
 let ordersSyncing = false;
+let ordersSyncQueued = false;
 const ORDER_UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 if (typeof window !== 'undefined') {
   window.addEventListener('mm-auth-changed', () => {
     memoryOrders = null;
     ordersSynced = false;
-    void syncOrdersFromSupabase();
+    if (ordersSyncing) {
+      ordersSyncQueued = true;
+    } else {
+      void syncOrdersFromSupabase();
+    }
   });
 }
 
@@ -1196,7 +1201,10 @@ export function getAllStoreOrders(): StoreOrder[] {
 
 /** Supabase 원격 DB에서 주문 목록을 가져와 동기화 (운영 브라우저는 DB SSOT로 메모리 갱신) */
 export async function syncOrdersFromSupabase(): Promise<boolean> {
-  if (ordersSyncing) return false;
+  if (ordersSyncing) {
+    ordersSyncQueued = true;
+    return false;
+  }
   ordersSyncing = true;
   try {
     const { data, error } = await supabase
@@ -1281,6 +1289,10 @@ export async function syncOrdersFromSupabase(): Promise<boolean> {
     return false;
   } finally {
     ordersSyncing = false;
+    if (ordersSyncQueued) {
+      ordersSyncQueued = false;
+      void syncOrdersFromSupabase();
+    }
   }
 }
 

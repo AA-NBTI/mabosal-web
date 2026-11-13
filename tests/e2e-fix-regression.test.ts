@@ -277,5 +277,15 @@ describe('E2E 결함 수정 회귀 테스트', () => {
     expect(adminViewTs).toContain('결제 환불 심사 대기');
     expect(adminViewTs).toContain('data-ledger-filter="refund_requested"');
   });
+
+  it('10. syncOrdersFromSupabase() 진행 중 mm-auth-changed가 발생해도 드롭되지 않고 재동기화가 예약(ordersSyncQueued)된다', () => {
+    const storeServiceTs = readFileSync(
+      resolve(process.cwd(), 'src/frontend/extensions/commerce-store/store-service.ts'),
+      'utf8'
+    );
+    expect(storeServiceTs).toContain('let ordersSyncQueued = false;');
+    expect(storeServiceTs).toContain('ordersSyncQueued = true;');
+    expect(storeServiceTs).toContain('if (ordersSyncQueued)');
+  });
 });
 
