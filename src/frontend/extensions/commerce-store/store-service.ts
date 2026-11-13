@@ -558,6 +558,8 @@ export function getAllStoreProducts(): StoreProduct[] {
     if (!raw) {
       const initialFiltered = INITIAL_STORE_PRODUCTS.filter(p => !deletedIds.has(p.id));
       localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(initialFiltered));
+      localStorage.setItem('mabosal_store_ssot_sync_v207', 'done');
+      localStorage.setItem('mabosal_store_sync_v206', 'done');
       return initialFiltered;
     }
     let saved = JSON.parse(raw) as StoreProduct[];

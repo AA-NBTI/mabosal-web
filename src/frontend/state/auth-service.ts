@@ -82,17 +82,20 @@ export class AuthService {
   private static currentSession: UserAccount | null = null;
   private static initialized = false;
 
+  private static isLocalOrTestEnv(): boolean {
+    return typeof window === 'undefined' || SUPABASE_CONFIG.isLocal || Boolean((import.meta as any).env?.DEV);
+  }
+
   public static init(): void {
     if (this.initialized) return;
 
-    if (true) {
-      try {
-        // 계정 DB 초기화 (없으면 기본 시드 삽입)
+    try {
+      // 로컬 개발 및 테스트 환경에서만 기본 데모 시드 계정 초기화
+      if (this.isLocalOrTestEnv()) {
         const storedAccounts = getStorage().getItem(STORAGE_KEY_ACCOUNTS);
         if (!storedAccounts) {
           getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(this.defaultAccounts));
         } else {
-          // 관리자 비밀번호 aa1111 최신 동기화 보장
           try {
             const list: UserAccount[] = JSON.parse(storedAccounts);
             let updated = false;
@@ -107,15 +110,15 @@ export class AuthService {
             }
           } catch {}
         }
-
-        // 현재 로그인 세션 복원
-        const storedSession = getStorage().getItem(STORAGE_KEY_CURRENT_SESSION);
-        if (storedSession) {
-          this.currentSession = JSON.parse(storedSession);
-        }
-      } catch (e) {
-        console.warn('[AuthService] Init error', e);
       }
+
+      // 현재 로그인 세션 복원
+      const storedSession = getStorage().getItem(STORAGE_KEY_CURRENT_SESSION);
+      if (storedSession) {
+        this.currentSession = JSON.parse(storedSession);
+      }
+    } catch (e) {
+      console.warn('[AuthService] Init error', e);
     }
     this.initialized = true;
   }
@@ -123,11 +126,12 @@ export class AuthService {
   /** 등록된 모든 계정 조회 */
   public static getAllAccounts(): UserAccount[] {
     this.init();
-        try {
+    try {
       const stored = getStorage().getItem(STORAGE_KEY_ACCOUNTS);
-      return stored ? JSON.parse(stored) : this.defaultAccounts;
+      if (stored) return JSON.parse(stored);
+      return this.isLocalOrTestEnv() ? this.defaultAccounts : [];
     } catch {
-      return this.defaultAccounts;
+      return this.isLocalOrTestEnv() ? this.defaultAccounts : [];
     }
   }
 

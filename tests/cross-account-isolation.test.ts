@@ -16,9 +16,9 @@ describe('다중 계정 교차 격리(Cross-Account Isolation) 종합 검증', (
     AuthService.logout();
   });
 
-  it('A 계정의 장바구니, 쿠폰지갑, 캐시, 엽전, 사주프로필, 주문내역이 B 계정에게 전혀 노출되지 않아야 한다', () => {
+  it('A 계정의 장바구니, 쿠폰지갑, 캐시, 엽전, 사주프로필, 주문내역이 B 계정에게 전혀 노출되지 않아야 한다', async () => {
     // 1. A 계정 등록 및 로그인
-    const regA = AuthService.register({
+    const regA = await AuthService.register({
       username: 'user_alpha',
       password: 'password1234',
       passwordConfirm: 'password1234',
@@ -81,7 +81,7 @@ describe('다중 계정 교차 격리(Cross-Account Isolation) 종합 검증', (
     AuthService.logout();
     expect(AuthService.getCurrentUser().role).toBe('guest');
 
-    const regB = AuthService.register({
+    const regB = await AuthService.register({
       username: 'user_beta',
       password: 'password1234',
       passwordConfirm: 'password1234',

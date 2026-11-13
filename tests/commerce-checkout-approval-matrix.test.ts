@@ -32,14 +32,14 @@ const mockStorage = new MemoryMockStorage();
 (globalThis as any).localStorage = mockStorage;
 
 describe('Commerce Checkout & Approval Full-Matrix Audit', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     mockStorage.clear();
     setStorageBackend(createMemoryStorage());
     CartStore.clear();
     appState.resetAllUserData();
     AuthService.resetForTest();
     AuthService.init();
-    AuthService.login('user1', '1234');
+    await AuthService.login('user1', '1234');
   });
 
   // [시나리오 1] 전자책/도서 상품 + 무통장 입금 주문
