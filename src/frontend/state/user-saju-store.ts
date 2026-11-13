@@ -103,6 +103,9 @@ export class UserSajuStore {
       if (merged.isLeapMonth !== undefined) appState.setLeapMonth(merged.isLeapMonth);
       if (merged.userTroubleText) appState.setUserTroubleText(merged.userTroubleText);
       if (merged.desiredQuestion) appState.setDesiredQuestion(merged.desiredQuestion);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('mm-saju-updated', { detail: merged }));
+      }
     }
 
     return merged;

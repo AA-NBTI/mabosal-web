@@ -48,8 +48,10 @@ export class CartStore {
     selectedOption?: { id?: string; name: string; price?: number; originalPrice?: number; deliveryType?: any }
   ): CartItem {
     const items = this.getItems();
-    const isSajuReport = product.deliveryType === 'saju_report' || product.category === 'report';
-    const sajuSnap = isSajuReport ? (sajuProfile || UserSajuStore.getProfileOrDefault()) : undefined;
+    const itemDelivery = selectedOption?.deliveryType ?? product.deliveryType;
+    const isSajuReport = itemDelivery === 'saju_report' || product.category === 'report';
+    const resolvedSaju = isSajuReport ? (sajuProfile || UserSajuStore.getProfile() || undefined) : undefined;
+    const sajuSnap = (resolvedSaju && resolvedSaju.solarBirthDate?.trim()) ? resolvedSaju : undefined;
     const optName = selectedOption?.name;
 
     // 동일 상품 & 동일 사주 대상자명(리포트인 경우) & 동일 옵션인 경우 수량 증가
@@ -68,7 +70,6 @@ export class CartStore {
 
     const itemPrice = selectedOption?.price ?? product.price;
     const itemOrigPrice = selectedOption?.originalPrice ?? product.originalPrice;
-    const itemDelivery = selectedOption?.deliveryType ?? product.deliveryType;
 
     const newItem: CartItem = {
       id: `cart_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
@@ -180,7 +181,40 @@ export class CartStore {
   }
 
   public static hasSajuReportItems(): boolean {
-    return this.getItems().some(it => it.deliveryType === 'saju_report' || it.category === 'report');
+    return this.getItems().some(it => this.isItemSajuReport(it));
+  }
+
+  public static isItemSajuReport(item: Pick<CartItem, 'deliveryType' | 'category'>): boolean {
+    return item.deliveryType === 'saju_report' || item.category === 'report';
+  }
+
+  public static getEffectiveSajuProfile(item: Pick<CartItem, 'deliveryType' | 'category' | 'sajuSnapshot'>): UserSajuProfile | null {
+    if (!this.isItemSajuReport(item)) return null;
+    if (item.sajuSnapshot && item.sajuSnapshot.solarBirthDate?.trim()) {
+      return item.sajuSnapshot;
+    }
+    return UserSajuStore.getProfile();
+  }
+
+  public static isItemSajuReady(item: Pick<CartItem, 'deliveryType' | 'category' | 'sajuSnapshot'>): boolean {
+    if (!this.isItemSajuReport(item)) return true;
+    return Boolean(this.getEffectiveSajuProfile(item)?.solarBirthDate?.trim());
+  }
+
+  public static syncSajuProfile(profile: UserSajuProfile | null): void {
+    if (!profile || !profile.solarBirthDate?.trim()) return;
+    const items = this.getItems();
+    let changed = false;
+    const updated = items.map(it => {
+      if (this.isItemSajuReport(it) && (!it.sajuSnapshot || !it.sajuSnapshot.solarBirthDate?.trim())) {
+        changed = true;
+        return { ...it, sajuSnapshot: profile };
+      }
+      return it;
+    });
+    if (changed) {
+      this.saveItems(updated);
+    }
   }
 
   /**

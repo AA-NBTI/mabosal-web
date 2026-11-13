@@ -28,7 +28,8 @@ export class FunnelCheckoutHelper {
   public static renderCheckoutModal(): string {
     const state = appState.getState();
     const userName = state.userName || '의뢰인';
-    const sajuSnap = UserSajuStore.getProfileOrDefault();
+    const sajuSnap = UserSajuStore.getProfile();
+    const hasSaju = Boolean(sajuSnap && sajuSnap.solarBirthDate?.trim());
     const troubleText = state.userTroubleText || '최근 답답한 문제의 원인과 해결책 분석';
 
     return `
@@ -52,7 +53,11 @@ export class FunnelCheckoutHelper {
         <div style="background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem 1.15rem; margin-bottom: 1.25rem; font-size: 0.82rem; line-height: 1.6;">
           <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
             <span style="color: #94a3b8;">분석 대상자:</span>
-            <strong style="color: #fff;">${userName} (${sajuSnap.gender === 'female' ? '여성' : '남성'}, ${sajuSnap.solarBirthDate})</strong>
+            ${hasSaju && sajuSnap ? `
+              <strong style="color: #fff;">${userName} (${sajuSnap.gender === 'female' ? '여성' : '남성'}, ${sajuSnap.solarBirthDate})</strong>
+            ` : `
+              <strong style="color: #f87171;">미등록 (사주 입력 필수)</strong>
+            `}
           </div>
           <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
             <span style="color: #94a3b8;">핵심 고민:</span>
@@ -109,9 +114,9 @@ export class FunnelCheckoutHelper {
         </div>
 
         <!-- 최종 무통장 입금 신청 버튼 -->
-        <button type="button" id="btn-confirm-funnel-pay" style="width: 100%; background: var(--primary); color: #1c1500; border: none; border-radius: 12px; padding: 1.1rem; font-size: 1.05rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 4px 20px rgba(242, 202, 80, 0.4); transition: transform 0.15s ease;">
+        <button type="button" id="btn-confirm-funnel-pay" ${!hasSaju ? 'disabled' : ''} style="width: 100%; background: ${!hasSaju ? '#334155' : 'var(--primary)'}; color: ${!hasSaju ? '#94a3b8' : '#1c1500'}; border: none; border-radius: 12px; padding: 1.1rem; font-size: 1.05rem; font-weight: 900; cursor: ${!hasSaju ? 'not-allowed' : 'pointer'}; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: ${!hasSaju ? 'none' : '0 4px 20px rgba(242, 202, 80, 0.4)'}; transition: transform 0.15s ease;">
           <span class="material-symbols-outlined" style="font-size: 20px;">send</span>
-          <span>₩ ${FunnelCheckoutHelper.PRICE.toLocaleString()} 무통장 입금 신청하기</span>
+          <span>${!hasSaju ? '사주 입력 후 신청 가능' : `₩ ${FunnelCheckoutHelper.PRICE.toLocaleString()} 무통장 입금 신청하기`}</span>
         </button>
 
       </div>
@@ -126,6 +131,13 @@ export class FunnelCheckoutHelper {
     const state = appState.getState();
     const userName = state.userName || '의뢰인';
     const currentUser = AuthService.getCurrentUser();
+
+    if (!UserSajuStore.hasSajuProfile()) {
+      return {
+        success: false,
+        message: '사주 분석 대상 정보(성별·생년월일시)를 먼저 입력해 주세요.',
+      };
+    }
 
     // 중복 결제 방지 확인
     const already = isProductAlreadyPurchased(this.PRODUCT_ID, userName) || isProductAlreadyPurchased(this.PRODUCT_ID);

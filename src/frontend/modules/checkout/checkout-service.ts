@@ -86,6 +86,12 @@ export class CheckoutService {
           message: `'${it.title}' 상품은 현재 품절되어 결제할 수 없습니다. 장바구니에서 해당 상품을 삭제하거나 제외한 후 다시 시도해 주세요.`,
         };
       }
+      if (!CartStore.isItemSajuReady(it)) {
+        return {
+          valid: false,
+          message: `'${it.title}' 상품은 사주 분석 대상 정보(성별·생년월일시) 등록이 필수입니다. 사주 정보를 먼저 입력해 주세요.`,
+        };
+      }
     }
     return { valid: true, message: '' };
   }
@@ -94,6 +100,17 @@ export class CheckoutService {
    * 주문서 제출 및 주문 생성 처리
    */
   public static executeCheckout(payload: CheckoutPayload): CheckoutResult {
+    const currentUser = AuthService.getCurrentUser();
+    if (currentUser.role === 'guest') {
+      return { success: false, message: '로그인 후 주문 및 결제를 진행해 주세요.' };
+    }
+    if (currentUser.status === 'suspended') {
+      return { success: false, message: '이용이 정지된 계정으로는 결제할 수 없습니다.' };
+    }
+    if (currentUser.status === 'deleted') {
+      return { success: false, message: '탈퇴 또는 삭제된 계정으로는 결제할 수 없습니다.' };
+    }
+
     const items = (payload.selectedItems && payload.selectedItems.length > 0)
       ? payload.selectedItems
       : CartStore.getSelectedItems();
@@ -133,7 +150,6 @@ export class CheckoutService {
     const couponDiscount = discountRes.discountAmount;
 
     // 엽전 차감
-    const currentUser = AuthService.getCurrentUser();
     let usedYeop = 0;
     if (payload.usedYeop && payload.usedYeop > 0) {
       usedYeop = Math.min(payload.usedYeop, currentUser.yeopBalance || 0, Math.max(0, productAmount - couponDiscount));
@@ -171,7 +187,7 @@ export class CheckoutService {
       quantity: it.quantity,
       deliveryType: it.deliveryType,
       thumbnailUrl: it.thumbnailUrl,
-      sajuSnapshot: it.sajuSnapshot,
+      sajuSnapshot: CartStore.getEffectiveSajuProfile(it) || undefined,
       reportTier: it.reportTier || ReportRouterMapper.resolveTier(it.productId, it.reportTier),
       contentPayload: it.contentPayload,
       selectedOptionName: it.selectedOptionName,
@@ -192,7 +208,7 @@ export class CheckoutService {
       amount: totalPayAmount,
       buyerName: payload.buyerName.trim(),
       buyerPhone: payload.buyerPhone.trim(),
-      buyerEmail: payload.buyerEmail?.trim() || (currentUser.role !== 'guest' ? currentUser.email : 'user@mabosal.com'),
+      buyerEmail: payload.buyerEmail?.trim() || currentUser.email || 'user@mabosal.com',
       paymentMethod: payload.paymentMethod,
       // 0원 결제만 즉시 완료 처리. 무통장 입금 및 결제창 승인 전 상태는 엄격히 pending(대기) 유지
       status: isZeroPayment ? 'completed' : 'pending',
@@ -201,7 +217,7 @@ export class CheckoutService {
       accessUrl: (primaryItem.deliveryType === 'ebook' || primaryItem.deliveryType === 'digital_download' || primaryItem.category === 'ebook')
         ? (primaryItem.contentPayload || '/?view=store')
         : (primaryItem.deliveryType === 'voucher_code' ? '/?view=store' : '/?view=result'),
-      sajuInput: primaryItem.sajuSnapshot,
+      sajuInput: CartStore.getEffectiveSajuProfile(reportItem || primaryItem) || undefined,
       reportTier: primaryTier,
       items: orderItems,
       shippingAddress: payload.shippingAddress?.trim(),
@@ -210,7 +226,7 @@ export class CheckoutService {
       appliedCouponCode: payload.couponCode?.trim(),
       discountAmount: couponDiscount + usedYeop,
       usedYeop,
-      userId: currentUser.role !== 'guest' ? currentUser.id : undefined,
+      userId: currentUser.id,
     };
 
     // 주문 저장

@@ -295,4 +295,57 @@ describe('Commerce Checkout & Approval Full-Matrix Audit', () => {
     setStoreProductStatus(prodA.id, 'active');
     setStoreProductStatus(prodB.id, 'active');
   });
+
+  // [시나리오 9] 사주 미등록 상태에서 사주 리포트 장바구니/무통장 결제 차단 및 사주 등록 후 실시간 동기화 검증
+  it('시나리오 9: 사주 미등록 상태에서 saju_report 무통장 주문 차단 및 사주 입력 후 동기화 결제 허용', async () => {
+    await AuthService.register({
+      username: 'nosaju_buyer',
+      password: 'password123',
+      passwordConfirm: 'password123',
+      name: '미등록구매자',
+      role: 'user',
+    });
+
+    const reportProd = INITIAL_STORE_PRODUCTS.find(p => p.deliveryType === 'saju_report')!;
+    const addedItem = CartStore.addItem(reportProd, 1);
+
+    // 1. 사주 미등록 시 샘플 사주 자동 대입 없이 미준비 상태여야 함
+    expect(addedItem.sajuSnapshot).toBeUndefined();
+    expect(CartStore.isItemSajuReady(addedItem)).toBe(false);
+
+    // 2. 무통장 입금 결제 시도 -> 차단 확인
+    const blockedRes = CheckoutService.executeCheckout({
+      buyerName: '미등록구매자',
+      buyerPhone: '010-1111-2222',
+      buyerEmail: 'nosaju@test.com',
+      paymentMethod: 'bank_transfer',
+      agreeTerms: true,
+    });
+    expect(blockedRes.success).toBe(false);
+    expect(blockedRes.message).toContain('사주 분석 대상 정보');
+    expect(getAllStoreOrders().some(o => o.buyerName === '미등록구매자')).toBe(false);
+
+    // 3. 사주 정보 등록 후 장바구니 동기화 -> 무통장 입금 접수 정상 통과 확인
+    UserSajuStore.syncUserSajuProfile({
+      userName: '미등록구매자',
+      birthDate: '1992-05-10',
+      birthTime: '14:30',
+      gender: 'female',
+      calendarType: 'solar',
+    });
+    CartStore.syncSajuProfile(UserSajuStore.getProfile());
+
+    const syncedItems = CartStore.getItems();
+    expect(CartStore.isItemSajuReady(syncedItems[0])).toBe(true);
+
+    const allowedRes = CheckoutService.executeCheckout({
+      buyerName: '미등록구매자',
+      buyerPhone: '010-1111-2222',
+      buyerEmail: 'nosaju@test.com',
+      paymentMethod: 'bank_transfer',
+      agreeTerms: true,
+    });
+    expect(allowedRes.success).toBe(true);
+    expect(allowedRes.order?.status).toBe('pending');
+  });
 });

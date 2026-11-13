@@ -45,8 +45,9 @@ export function renderCheckoutBoardView(): string {
 
   const selectedItems = CartStore.getSelectedItems();
   const summary = CartStore.getSummary();
-  const defaultProfile = UserSajuStore.getProfileOrDefault();
+  const savedProfile = UserSajuStore.getProfile();
   const primaryItem = selectedItems[0];
+  const hasMissingSaju = selectedItems.some(it => !CartStore.isItemSajuReady(it));
   const availableCoupons = VoucherStore.getEnabledCouponsForProduct(primaryItem?.productId);
 
   // 만약 장바구니에 선택된 상품이 없으면 안내
@@ -65,7 +66,7 @@ export function renderCheckoutBoardView(): string {
     `;
   }
 
-  const buyerName = currentUser.name || defaultProfile.userName;
+  const buyerName = currentUser.name || savedProfile?.userName || '의뢰인';
   const buyerPhone = currentUser.phone || '010-0000-0000';
   const buyerEmail = currentUser.email || 'user@mabosal.com';
 
@@ -138,10 +139,12 @@ export function renderCheckoutBoardView(): string {
                       ` : ''}
                       <div style="font-size: 0.78rem; color: #94a3b8; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                         <span>단가: ₩ ${it.price.toLocaleString()}</span>
-                        ${(it.deliveryType === 'saju_report' || it.category === 'report') ? `
-                          <span>•</span>
-                          <span style="color: #4ade80; font-weight: 700;">사주 분석 대상: 등록 완료</span>
-                        ` : ''}
+                        ${CartStore.isItemSajuReport(it) ? (() => {
+                          const effProf = CartStore.getEffectiveSajuProfile(it);
+                          return effProf?.solarBirthDate?.trim()
+                            ? `<span>•</span><span style="color: #4ade80; font-weight: 700;">사주 분석 대상: 등록 완료 (${esc(effProf.userName || '의뢰인')})</span>`
+                            : `<span>•</span><span style="color: #f87171; font-weight: 800;">사주 분석 대상: 미등록 (입력 필수)</span>`;
+                        })() : ''}
                       </div>
                     </div>
 
@@ -451,10 +454,20 @@ export function renderCheckoutBoardView(): string {
                 </div>
               </div>
 
+              ${hasMissingSaju ? `
+                <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 10px; padding: 0.75rem 0.9rem; margin-bottom: 0.85rem; font-size: 0.78rem; color: #fca5a5; line-height: 1.5;">
+                  <div style="font-weight: 800; color: #f87171; margin-bottom: 0.25rem;">사주 분석 대상 정보가 미등록 상태입니다</div>
+                  <div>사주 리포트 상품은 생년월일시 입력 후에만 주문/무통장 입금 신청이 가능합니다.</div>
+                  <button type="button" class="btn-goto-analyze-target" data-product-id="${esc(primaryItem?.productId || '')}" style="margin-top: 0.5rem; width: 100%; background: rgba(242,202,80,0.16); border: 1px solid rgba(242,202,80,0.45); color: var(--primary); font-size: 0.78rem; font-weight: 800; padding: 0.45rem 0.75rem; border-radius: 7px; cursor: pointer;">
+                    사주 정보 입력하러 가기 →
+                  </button>
+                </div>
+              ` : ''}
+
               <!-- 최종 결제 버튼 -->
-              <button type="submit" id="btn-submit-final-order" style="width: 100%; background: var(--primary); color: #0f131d; border: none; border-radius: 12px; padding: 1.1rem; font-size: 1.15rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 20px rgba(242, 202, 80, 0.4); display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: transform 0.15s ease;">
+              <button type="submit" id="btn-submit-final-order" ${hasMissingSaju ? 'disabled' : ''} style="width: 100%; background: ${hasMissingSaju ? '#334155' : 'var(--primary)'}; color: ${hasMissingSaju ? '#94a3b8' : '#0f131d'}; border: none; border-radius: 12px; padding: 1.1rem; font-size: 1.15rem; font-weight: 800; cursor: ${hasMissingSaju ? 'not-allowed' : 'pointer'}; box-shadow: ${hasMissingSaju ? 'none' : '0 4px 20px rgba(242, 202, 80, 0.4)'}; display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: transform 0.15s ease;">
                 <span class="material-symbols-outlined" style="font-size: 20px;">lock</span>
-                결제하기
+                ${hasMissingSaju ? '사주 입력 후 결제 가능' : '결제하기'}
               </button>
 
               <div style="margin-top: 1rem; text-align: center; font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;">

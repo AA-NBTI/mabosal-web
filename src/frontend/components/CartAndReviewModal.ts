@@ -59,12 +59,21 @@ export function renderCartModal(): string {
                       종료된 상품입니다.
                     </div>
                   ` : ''}
-                  ${(item.deliveryType === 'saju_report' || item.category === 'report') ? `
-                    <div style="font-size: 0.72rem; color: #4ade80; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.25rem; font-weight: 700;">
-                      <span class="material-symbols-outlined" style="font-size: 14px;">psychology</span>
-                      사주 분석 대상: 등록 완료
-                    </div>
-                  ` : ''}
+                  ${CartStore.isItemSajuReport(item) ? (() => {
+                    const effProf = CartStore.getEffectiveSajuProfile(item);
+                    const isReady = Boolean(effProf?.solarBirthDate?.trim());
+                    return isReady ? `
+                      <div style="font-size: 0.72rem; color: #4ade80; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.25rem; font-weight: 700;">
+                        <span class="material-symbols-outlined" style="font-size: 14px;">psychology</span>
+                        사주 분석 대상: 등록 완료 (${effProf?.userName || '의뢰인'})
+                      </div>
+                    ` : `
+                      <div style="font-size: 0.72rem; color: #f87171; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.25rem; font-weight: 700;">
+                        <span class="material-symbols-outlined" style="font-size: 14px;">warning</span>
+                        사주 분석 대상: 미등록 (결제 전 입력 필요)
+                      </div>
+                    `;
+                  })() : ''}
                   ${item.deliveryType === 'shipping' ? `
                     <div style="font-size: 0.72rem; color: #fbbf24; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.25rem;">
                       <span class="material-symbols-outlined" style="font-size: 14px;">local_shipping</span>

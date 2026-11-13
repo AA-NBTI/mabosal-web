@@ -536,6 +536,10 @@ class MabosalApp {
         this.updateCartBadges();
       });
 
+      window.addEventListener('mm-saju-updated', (e: any) => {
+        CartStore.syncSajuProfile(e?.detail || UserSajuStore.getProfile());
+      });
+
       window.addEventListener('navigate-store-product', (e: any) => {
         const pid = e.detail?.productId;
         if (pid) {
@@ -3996,7 +4000,7 @@ ${content}
       }
       const prod = getStoreProductById('prod-paid-saju-premium');
       if (prod) {
-        const sajuSnap = UserSajuStore.getProfile(currentUser.username || currentUser.id) || UserSajuStore.getProfileOrDefault();
+        const sajuSnap = UserSajuStore.getProfile(currentUser.username || currentUser.id) || undefined;
         CartStore.clear();
         CartStore.addItem(prod, 1, sajuSnap);
         appState.setActiveTierTab('PAID');
@@ -4402,20 +4406,6 @@ ${content}
         if (prod) {
           const currentUser = AuthService.getCurrentUser();
           const savedProf = UserSajuStore.getProfile(currentUser.username || currentUser.id);
-
-          if (prod.deliveryType === 'saju_report' || prod.category === 'report') {
-            if (!savedProf) {
-              alert('정밀 사주 분석 리포트를 구매하시려면 먼저 사주 정보를 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
-              sessionStorage.setItem('mabosal_pending_saju_product', prod.id);
-              appState.setView('analyze');
-              this.render(appState.getState());
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-              return;
-            }
-          }
-
-          const qty = parseInt((document.getElementById('detail-qty-input') as HTMLInputElement)?.value || '1', 10);
-          const sajuSnap = savedProf || UserSajuStore.getProfileOrDefault();
           const optSelect = document.getElementById('store-product-option-select') as HTMLSelectElement | null;
           let selectedOpt: any = undefined;
           if (optSelect && optSelect.selectedOptions.length > 0) {
@@ -4428,6 +4418,21 @@ ${content}
               deliveryType: sel.dataset.deliveryType || prod.deliveryType,
             };
           }
+          const effectiveDeliveryType = selectedOpt?.deliveryType || prod.deliveryType;
+
+          if (effectiveDeliveryType === 'saju_report' || prod.category === 'report') {
+            if (!savedProf) {
+              alert('정밀 사주 분석 리포트를 구매하시려면 먼저 사주 정보를 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
+              sessionStorage.setItem('mabosal_pending_saju_product', prod.id);
+              appState.setView('analyze');
+              this.render(appState.getState());
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              return;
+            }
+          }
+
+          const qty = parseInt((document.getElementById('detail-qty-input') as HTMLInputElement)?.value || '1', 10);
+          const sajuSnap = savedProf || undefined;
           CartStore.addItem(prod, qty, sajuSnap, selectedOpt);
           alert(`[${prod.title}]${selectedOpt ? ` (${selectedOpt.name})` : ''} (${qty}개) 상품이 장바구니에 담겼습니다.\n장바구니 화면으로 이동합니다.`);
           appState.setView('cart');
@@ -5810,19 +5815,6 @@ ${content}
         const currentUser = AuthService.getCurrentUser();
         const savedProf = UserSajuStore.getProfile(currentUser.username || currentUser.id);
 
-        if (prod.deliveryType === 'saju_report' || prod.category === 'report') {
-          if (!savedProf) {
-            alert('정밀 사주 분석 리포트를 구매하시려면 먼저 사주 정보를 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
-            sessionStorage.setItem('mabosal_pending_saju_product', prod.id);
-            appState.setView('analyze');
-            this.render(appState.getState());
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return;
-          }
-        }
-
-        const sajuSnap = savedProf || UserSajuStore.getProfileOrDefault();
-
         // 옵션 선택값 추출
         const optSelect = document.getElementById('store-product-option-select') as HTMLSelectElement | null;
         let selectedOpt: any = undefined;
@@ -5836,6 +5828,20 @@ ${content}
             deliveryType: sel.dataset.deliveryType || prod.deliveryType,
           };
         }
+        const effectiveDeliveryType = selectedOpt?.deliveryType || prod.deliveryType;
+
+        if (effectiveDeliveryType === 'saju_report' || prod.category === 'report') {
+          if (!savedProf) {
+            alert('정밀 사주 분석 리포트를 구매하시려면 먼저 사주 정보를 등록해 주세요.\n사주 입력 페이지로 이동합니다.');
+            sessionStorage.setItem('mabosal_pending_saju_product', prod.id);
+            appState.setView('analyze');
+            this.render(appState.getState());
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+          }
+        }
+
+        const sajuSnap = savedProf || undefined;
 
         // 해당 상품 수량 및 쿠폰 정보 반영 후 결제 이동
         const qty = parseInt((document.getElementById('detail-qty-input') as HTMLInputElement)?.value || '1', 10);

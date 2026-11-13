@@ -468,7 +468,8 @@ export function renderCommerceStoreView(state: AppStateData): string {
 
                 ${(() => {
                   const savedProf = UserSajuStore.getProfile();
-                  if (p.deliveryType === 'saju_report') {
+                  const defaultOptDelivery = (p.options && p.options.length > 0) ? (p.options[0].deliveryType || p.deliveryType) : p.deliveryType;
+                  if (defaultOptDelivery === 'saju_report' || p.deliveryType === 'saju_report' || p.category === 'report') {
                     const already = savedProf ? isProductAlreadyPurchased(p.id, savedProf.userName) : { purchased: false };
                     return `
                       <div style="background: rgba(242, 202, 80, 0.05); border: 1px solid rgba(242, 202, 80, 0.2); border-radius: 6px; padding: 0.55rem 0.75rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
