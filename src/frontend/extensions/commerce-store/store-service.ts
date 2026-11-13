@@ -522,7 +522,7 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
     deliveryType: 'digital_url',
     contentPayload: 'https://www.mabosal.com/',
     targetSignals: ['career.change'],
-    status: 'active',
+    status: 'hidden',
     badge: 'NEW',
     createdAt: '2026-11-13T08:30:00.000Z',
     salesCount: 0,
@@ -568,7 +568,7 @@ export function addDeletedStoreProductId(id: string): void {
   } catch {}
 }
 
-/** 등록된 모든 상품 조회 */
+/** 등록된 모든 상품 조회 (로컬 캐시 + 최초 1회 시드. 원격 DB 동기화는 syncStoreProductsFromSupabase가 SSOT로 덮어씀) */
 export function getAllStoreProducts(): StoreProduct[] {
   const deletedIds = getDeletedStoreProductIds();
   if (typeof localStorage === 'undefined') return INITIAL_STORE_PRODUCTS.filter(p => !deletedIds.has(p.id));
@@ -577,94 +577,30 @@ export function getAllStoreProducts(): StoreProduct[] {
     if (!raw) {
       const initialFiltered = INITIAL_STORE_PRODUCTS.filter(p => !deletedIds.has(p.id));
       localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(initialFiltered));
-      localStorage.setItem('mabosal_store_ssot_sync_v207', 'done');
-      localStorage.setItem('mabosal_store_sync_v206', 'done');
       return initialFiltered;
     }
     let saved = JSON.parse(raw) as StoreProduct[];
+    let changed = false;
+
     // 삭제된 상품이 localStorage에 남아있다면 즉시 제거
     if (saved.some(p => deletedIds.has(p.id))) {
       saved = saved.filter(p => !deletedIds.has(p.id));
-      localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(saved));
+      changed = true;
     }
+
     // [PG 심사용] 폐기된 카테고리/상품(상품권, 1:1 상담권 등) 자동 소거
     const deprecatedProductIds = new Set(['prod-voucher-50k', 'prod-voucher-30k', 'prod-voucher-10k', 'prod-consult-vip']);
     if (saved.some(p => deprecatedProductIds.has(p.id) || p.category === 'voucher' || p.category === 'consulting')) {
       saved = saved.filter(p => !deprecatedProductIds.has(p.id) && p.category !== 'voucher' && p.category !== 'consulting');
-      localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(saved));
+      changed = true;
     }
 
-    // [v2.0.7] PC 도메인 세팅 기반 단일 진실 공급원(SSOT) 통합 동기화
-    // 활성 4대 상품(도서 1권, 셀프리딩, 정통사주, 상충마살)은 active로 고정되어 고객 화면에 노출되며,
-    // 149,000원 VIP 상품, 무료체험, 5대 특화 리포트, 원론 2~4권 등은 hidden(꺼둠) 상태로 관리자 목록에 온전히 보존
-    const SSOT_SYNC_KEY = 'mabosal_store_ssot_sync_v207';
-    if (localStorage.getItem(SSOT_SYNC_KEY) !== 'done') {
-      const activeIds = new Set([
-        'book-saju-principles-vol1',
-        'prod-ebook-saju-self-guide',
-        'prod-paid-saju-premium',
-        'prod-saju-conflict'
-      ]);
-      const mergedList: StoreProduct[] = [];
-      for (const initP of INITIAL_STORE_PRODUCTS) {
-        const existing = saved.find(p => p.id === initP.id);
-        if (existing) {
-          mergedList.push({
-            ...initP,
-            status: activeIds.has(initP.id) ? 'active' : 'hidden',
-            salesCount: existing.salesCount || initP.salesCount,
-          });
-        } else {
-          mergedList.push({
-            ...initP,
-            status: activeIds.has(initP.id) ? 'active' : 'hidden',
-          });
-        }
-      }
-      saved = mergedList;
-      localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(saved));
-      localStorage.setItem(SSOT_SYNC_KEY, 'done');
-      return saved;
-    }
-    // 초기 상품 목록 중 로컬 스토리지에 없는 상품들 자동 병합 (단, 관리자가 명시적으로 삭제한 상품은 절대 복원하지 않음)
-    let merged = false;
-    for (const initP of INITIAL_STORE_PRODUCTS) {
-      if (!deletedIds.has(initP.id) && !saved.some(p => p.id === initP.id)) {
-        saved.push(initP);
-        merged = true;
-      }
-    }
-    // [v2.0.6] 정예 4대 상품 (제1권 원론, 셀프리딩, 정통사주, 상충마살) 최신 타이틀 및 데이터 동기화
-    const V206_SYNC_KEY = 'mabosal_store_sync_v206';
-    if (localStorage.getItem(V206_SYNC_KEY) !== 'done') {
-      const initMap = new Map(INITIAL_STORE_PRODUCTS.map(p => [p.id, p]));
-      for (let i = 0; i < saved.length; i++) {
-        const initP = initMap.get(saved[i].id);
-        if (initP) {
-          saved[i] = {
-            ...saved[i],
-            title: initP.title,
-            category: initP.category,
-            price: initP.price,
-            originalPrice: initP.originalPrice,
-            badge: initP.badge,
-            tagLine: initP.tagLine,
-            description: initP.description,
-            detailsHtml: initP.detailsHtml,
-            thumbnailUrl: initP.thumbnailUrl,
-            galleryImages: initP.galleryImages || saved[i].galleryImages,
-          };
-          merged = true;
-        }
-      }
-      localStorage.setItem(V206_SYNC_KEY, 'done');
-    }
-    if (merged) {
+    if (changed) {
       localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(saved));
     }
     return saved;
   } catch {
-    return [...INITIAL_STORE_PRODUCTS];
+    return INITIAL_STORE_PRODUCTS.filter(p => !deletedIds.has(p.id));
   }
 }
 
@@ -697,13 +633,21 @@ export async function syncStoreProductsFromSupabase(): Promise<StoreProduct[]> {
       .select('*')
       .order('sales_count', { ascending: false });
 
-    if (error || !data || data.length === 0) {
-      // 원격 DB에 상품이 없거나 비어있는 경우, 로컬 2.0.7 상품 목록을 원격 DB로 최초 동기화
-      void pushAllProductsToSupabase();
+    if (error) {
+      console.warn('[store-service] Supabase products fetch error:', error.message);
       return getAllStoreProducts();
     }
 
-    // 원격 상품이 있더라도 필수 필드(options, summary, detailImages 등)가 누락되지 않도록 로컬 최신 마스터 데이터와 안전하게 병합
+    if (!data || data.length === 0) {
+      // 원격 DB가 완전히 비어 있을 때만, 로그인 세션이 있는 경우 1회 초기 시드 푸시
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData?.session?.user) {
+        void pushAllProductsToSupabase();
+      }
+      return getAllStoreProducts();
+    }
+
+    // 원격 DB를 단일 진실 공급원(SSOT)으로 사용 (로컬 상세 메타데이터만 보조 병합)
     const localAll = getAllStoreProducts();
     const localMap = new Map(localAll.map(p => [p.id, p]));
 
@@ -734,6 +678,9 @@ export async function syncStoreProductsFromSupabase(): Promise<StoreProduct[]> {
 
     if (typeof localStorage !== 'undefined' && remoteProducts.length > 0) {
       localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(remoteProducts));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('mabosal:products-updated'));
+      }
     }
     return remoteProducts;
   } catch (e) {
@@ -778,6 +725,11 @@ export async function pushAllProductsToSupabase(): Promise<{ success: boolean; c
   }
 }
 
+function handleProductDbResult(action: string, error: any): void {
+  if (!error) return;
+  console.error(`[store-service] Supabase product ${action} failed:`, error.message || error);
+}
+
 /** 상품 저장 (신규 등록) */
 export function saveStoreProduct(productInput: Omit<StoreProduct, 'id' | 'createdAt' | 'salesCount'>): StoreProduct {
   const list = getAllStoreProducts();
@@ -813,10 +765,8 @@ export function saveStoreProduct(productInput: Omit<StoreProduct, 'id' | 'create
       sales_count: newProduct.salesCount,
       created_at: newProduct.createdAt,
     }).then(
-      ({ error }: any) => {
-        if (error) console.warn('[store-service] Supabase product insert deferred:', error.message);
-      },
-      (e: any) => console.warn('[store-service] Supabase product insert error:', e)
+      ({ error }: any) => handleProductDbResult('insert', error),
+      (e: any) => handleProductDbResult('insert', e)
     );
   } catch (e) {
     console.warn('[store-service] Supabase product insert skipped:', e);
@@ -856,10 +806,8 @@ export function updateStoreProduct(id: string, updates: Partial<StoreProduct>): 
 
     if (Object.keys(dbPayload).length > 0) {
       supabase.from('products').update(dbPayload).eq('id', id).then(
-        ({ error }: any) => {
-          if (error) console.warn('[store-service] Supabase product update deferred:', error.message);
-        },
-        (e: any) => console.warn('[store-service] Supabase product update error:', e)
+        ({ error }: any) => handleProductDbResult('update', error),
+        (e: any) => handleProductDbResult('update', e)
       );
     }
   } catch (e) {
@@ -881,10 +829,8 @@ export function deleteStoreProduct(id: string): boolean {
   // [Supabase DB 실시간 동기화]
   try {
     supabase.from('products').delete().eq('id', id).then(
-      ({ error }: any) => {
-        if (error) console.warn('[store-service] Supabase product delete deferred:', error.message);
-      },
-      (e: any) => console.warn('[store-service] Supabase product delete error:', e)
+      ({ error }: any) => handleProductDbResult('delete', error),
+      (e: any) => handleProductDbResult('delete', e)
     );
   } catch (e) {
     console.warn('[store-service] Supabase product delete skipped:', e);
