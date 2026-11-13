@@ -2,6 +2,8 @@ import { OrderAuthGuard } from './modules/order/order-auth-guard.js';
 import { PaymentService, PortOneGateway } from './modules/payment/payment-service.js';
 import { updateStoreOrder } from './extensions/commerce-store/store-service.js';
 import { savePaymentConfigFromDom } from './modules/payment/AdminPaymentPanel.js';
+import { setPaymentLedgerFilter, setPaymentLedgerSearch, type PaymentLedgerFilter } from './modules/payment/AdminPaymentLedgerPanel.js';
+import { verifyPortOnePayment } from './modules/payment/portone-server-api.js';
 import {
   ensureAdminMembersLoaded,
   syncAdminMembersFromCloud,
@@ -142,6 +144,7 @@ import {
   approveStoreOrderRefund,
   approveStoreOrderRefundWithPgCancel,
   approveStoreBankDeposit,
+  syncOrdersFromSupabase,
   addStoreCategory,
   updateStoreCategory,
   deleteStoreCategory,
@@ -1392,6 +1395,15 @@ ${content}
  } else if (target?.id === 'input-birth-time') {
  const cleaned = target.value.replace(/[^0-9:]/g, '').slice(0, 5);
  if (cleaned !== target.value) target.value = cleaned;
+ } else if (target?.id === 'input-payment-ledger-search') {
+   const pos = target.selectionStart ?? target.value.length;
+   setPaymentLedgerSearch(target.value);
+   this.render(appState.getState());
+   const nextInput = document.getElementById('input-payment-ledger-search') as HTMLInputElement | null;
+   if (nextInput) {
+     nextInput.focus();
+     nextInput.setSelectionRange(pos, pos);
+   }
  }
  });
 
@@ -2335,6 +2347,39 @@ ${content}
     // [모듈 연동] 결제 연동 설정 저장
     if (target.closest('#btn-save-payment-config')) {
       if (savePaymentConfigFromDom()) this.render(appState.getState());
+      return;
+    }
+
+    // [결제 · 환불 독립 패널] Supabase 주문 DB 즉시 새로고침
+    if (target.closest('#btn-refresh-payment-ledger')) {
+      const btn = target.closest('#btn-refresh-payment-ledger') as HTMLButtonElement;
+      btn.disabled = true;
+      await syncOrdersFromSupabase();
+      this.render(appState.getState());
+      return;
+    }
+
+    // [결제 · 환불 독립 패널] 상태 필터 전환
+    const ledgerFilterBtn = target.closest('.btn-payment-ledger-filter') as HTMLElement | null;
+    if (ledgerFilterBtn) {
+      const nextFilter = (ledgerFilterBtn.dataset.filter || 'all') as PaymentLedgerFilter;
+      setPaymentLedgerFilter(nextFilter);
+      this.render(appState.getState());
+      return;
+    }
+
+    // [결제 · 환불 독립 패널] 포트원 V2 서버 실시간 결제 상태 확인
+    const verifyPortoneBtn = target.closest('.btn-admin-verify-portone') as HTMLElement | null;
+    if (verifyPortoneBtn) {
+      const paymentId = verifyPortoneBtn.dataset.paymentId || '';
+      if (paymentId) {
+        const res = await verifyPortOnePayment(paymentId);
+        if (res.ok) {
+          alert(`[포트원 서버 실시간 조회]\n• 결제키: ${paymentId}\n• 상태: ${res.status}\n• 결제 금액: ₩ ${(res.amount ?? 0).toLocaleString()}`);
+        } else {
+          alert(`[포트원 조회 실패]\n사유: ${res.error || '알 수 없는 오류'}`);
+        }
+      }
       return;
     }
 

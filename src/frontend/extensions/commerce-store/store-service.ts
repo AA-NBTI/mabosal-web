@@ -996,8 +996,8 @@ export function getAllStoreOrders(): StoreOrder[] {
   }
 }
 
-/** Supabase 원격 DB에서 주문 목록을 가져와 로컬 장부와 병합 */
-export async function syncOrdersFromSupabase(): Promise<void> {
+/** Supabase 원격 DB에서 주문 목록을 가져와 로컬 장부와 병합 (변경 여부 반환) */
+export async function syncOrdersFromSupabase(): Promise<boolean> {
   try {
     const { data, error } = await supabase
       .from('orders')
@@ -1007,17 +1007,18 @@ export async function syncOrdersFromSupabase(): Promise<void> {
     if (!error && data && data.length > 0) {
       const raw = getStorage().getItem(STORAGE_ORDERS_KEY);
       let localOrders: StoreOrder[] = raw ? JSON.parse(raw) : [];
-      const localIds = new Set(localOrders.map(o => o.orderId));
+      const localMap = new Map(localOrders.map(o => [o.orderId, o]));
 
-      let hasNew = false;
+      let changed = false;
       for (const ro of data) {
-        if (!localIds.has(ro.id)) {
+        const existing = localMap.get(ro.id);
+        if (!existing) {
           const prod = getStoreProductById(ro.product_id);
           localOrders.unshift({
             orderId: ro.id,
             productId: ro.product_id,
-            productTitle: prod ? prod.title : '사주 상품',
-            category: (prod?.category || 'report') as any,
+            productTitle: ro.product_title || (prod ? prod.title : '사주 상품'),
+            category: (ro.category || prod?.category || 'report') as any,
             amount: Number(ro.amount || 0),
             deliveryType: (ro.delivery_type || prod?.deliveryType || 'saju_report') as any,
             accessUrl: '/?view=result',
@@ -1025,20 +1026,33 @@ export async function syncOrdersFromSupabase(): Promise<void> {
             buyerPhone: ro.buyer_phone || '',
             buyerEmail: ro.buyer_email || '',
             paymentMethod: ro.payment_method || 'card',
+            paymentKey: ro.payment_key || undefined,
             userId: ro.user_id || undefined,
-            paidAt: ro.created_at || new Date().toISOString(),
+            paidAt: ro.paid_at || ro.created_at || new Date().toISOString(),
             status: ro.status || 'completed',
           });
-          hasNew = true;
+          changed = true;
+        } else {
+          if (ro.status && existing.status !== ro.status) {
+            existing.status = ro.status;
+            changed = true;
+          }
+          if (ro.payment_key && !existing.paymentKey) {
+            existing.paymentKey = ro.payment_key;
+            changed = true;
+          }
         }
       }
 
-      if (hasNew) {
+      if (changed) {
         getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(localOrders.slice(0, 500)));
       }
+      return changed;
     }
+    return false;
   } catch (e) {
     console.warn('[store-service] Supabase orders sync deferred:', e);
+    return false;
   }
 }
 

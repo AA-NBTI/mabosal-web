@@ -2,6 +2,7 @@ import { StudyService, StudyArticle, StudyCategory, generateKoreanSlug } from '.
 import { renderAdminBankTransferPanel, renderAdminCouponPanel, renderAdminVoucherPanel, bindAdminVoucherEvents } from '../modules/voucher/AdminVoucherPanel.js';
 import { VoucherStore } from '../modules/voucher/voucher-store.js';
 import { renderAdminPaymentPanel } from '../modules/payment/AdminPaymentPanel.js';
+import { renderAdminPaymentLedgerPanel } from '../modules/payment/AdminPaymentLedgerPanel.js';
 import { SiteContentStore } from '../state/site-content-store.js';
 import { PartnerTracker } from '../modules/partner-tracker.js';
 import { CatalogStore } from '../state/catalog-store.js';
@@ -91,14 +92,21 @@ export function renderAdminDashboardView(): string {
           children: [
             { id: 'tab-store', label: '상품목록' },
             { id: 'tab-store-register', label: '상품등록' },
-            { id: 'tab-store-orders', label: '결제장부' },
             { id: 'tab-store-categories', label: '카테고리 관리' },
           ]
         },
         { id: 'tab-reviews', label: '리뷰 관리' },
-        { id: 'tab-transfers', label: '무통장 승인' },
         { id: 'tab-coupons', label: '쿠폰' },
-        { id: 'tab-payments', label: '결제 설정' },
+      ]
+    },
+    {
+      id: 'group-payment',
+      label: '결제 · 환불',
+      defaultTab: 'tab-store-orders',
+      subTabs: [
+        { id: 'tab-store-orders', label: '결제내역 / 환불' },
+        { id: 'tab-transfers', label: '무통장 승인' },
+        { id: 'tab-payments', label: 'PG 결제 설정' },
       ]
     },
     {
@@ -178,10 +186,12 @@ export function renderAdminDashboardView(): string {
     g.subTabs.some(st => st.id === currentTab || (st.children && st.children.some(c => c.id === currentTab)))
   );
   if (!activeGroup) {
-    if (currentTab === 'tab-subscriptions') activeGroup = adminGroups[2]; // group-subscription
-    else if (['tab-store', 'tab-store-register', 'tab-store-orders', 'tab-store-categories', 'tab-orders', 'tab-vouchers'].includes(currentTab)) activeGroup = adminGroups[1];
-    else if (['tab-study-articles', 'tab-study-write', 'tab-study-categories', 'tab-study', 'tab-ebook-library', 'tab-seo-wiki-hub'].includes(currentTab)) activeGroup = adminGroups[3];
-    else if (currentTab === 'tab-products') activeGroup = adminGroups[6];
+    const findGroup = (id: string) => adminGroups.find(g => g.id === id) || adminGroups[0];
+    if (currentTab === 'tab-subscriptions') activeGroup = findGroup('group-subscription');
+    else if (['tab-store-orders', 'tab-orders', 'tab-transfers', 'tab-payments', 'tab-vouchers'].includes(currentTab)) activeGroup = findGroup('group-payment');
+    else if (['tab-store', 'tab-store-register', 'tab-store-categories'].includes(currentTab)) activeGroup = findGroup('group-commerce');
+    else if (['tab-study-articles', 'tab-study-write', 'tab-study-categories', 'tab-study', 'tab-ebook-library', 'tab-seo-wiki-hub'].includes(currentTab)) activeGroup = findGroup('group-content');
+    else if (currentTab === 'tab-products') activeGroup = findGroup('group-settings');
     else activeGroup = adminGroups[0];
   }
 
@@ -1354,6 +1364,11 @@ export function renderAdminDashboardView(): string {
 
 
           <!-- [패널 7] 스토어 상품 관리 CMS & 실시간 주문 장부 -->
+          <!-- [결제 확인 · 환불 관리 독립 패널] -->
+          <div id="tab-store-orders" class="admin-tab-panel" style="display: ${['tab-store-orders', 'tab-orders'].includes(currentTab) ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+            ${renderAdminPaymentLedgerPanel()}
+          </div>
+
           <!-- [결제 연동 설정 패널] -->
           <div id="tab-payments" class="admin-tab-panel" style="display: ${currentTab === 'tab-payments' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
             ${renderAdminPaymentPanel()}
@@ -1374,8 +1389,8 @@ export function renderAdminDashboardView(): string {
             ${renderAdminVoucherPanel()}
           </div>
 
-          <div id="tab-store" class="admin-tab-panel" style="display: ${['tab-store', 'tab-store-register', 'tab-store-orders', 'tab-store-categories'].includes(currentTab) ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
-            ${renderAdminStorePanel(getEditingStoreProductId(), getEditingStoreProductId() ? 'register' : (currentTab === 'tab-store-register' ? 'register' : (currentTab === 'tab-store-orders' ? 'orders' : (currentTab === 'tab-store-categories' ? 'categories' : 'products'))))}
+          <div id="tab-store" class="admin-tab-panel" style="display: ${['tab-store', 'tab-store-register', 'tab-store-categories'].includes(currentTab) ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+            ${renderAdminStorePanel(getEditingStoreProductId(), getEditingStoreProductId() ? 'register' : (currentTab === 'tab-store-register' ? 'register' : (currentTab === 'tab-store-categories' ? 'categories' : 'products')))}
           </div>
 
           <!-- [패널] 컨텐츠 > 전자책 디지털 도서관 (발행 & 검수 센터) -->
