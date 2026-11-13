@@ -2074,19 +2074,19 @@ ${content}
 
     
     // --- [푸터 약관 / 개인정보 / 고객센터 1:1 온라인 문의 모달 제어] ---
-    if (target.closest('#btn-footer-terms')) {
+    if (target.closest('#btn-footer-terms') || target.closest('.btn-open-legal-terms')) {
       e.preventDefault();
       const modal = document.getElementById('modal-terms-container');
       if (modal) modal.style.display = 'flex';
       return;
     }
-    if (target.closest('#btn-footer-privacy')) {
+    if (target.closest('#btn-footer-privacy') || target.closest('.btn-open-legal-privacy')) {
       e.preventDefault();
       const modal = document.getElementById('modal-privacy-container');
       if (modal) modal.style.display = 'flex';
       return;
     }
-    if (target.closest('#btn-footer-refund')) {
+    if (target.closest('#btn-footer-refund') || target.closest('.btn-open-legal-refund')) {
       e.preventDefault();
       const modal = document.getElementById('modal-refund-container');
       if (modal) modal.style.display = 'flex';

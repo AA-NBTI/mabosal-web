@@ -92,3 +92,4 @@ export function getGroupToggleState(): Map<string, boolean> {
 export function getSubGroupToggleState(): Map<string, boolean> {
   return subGroupToggleState;
 }
+

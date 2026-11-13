@@ -176,3 +176,4 @@ DROP POLICY IF EXISTS site_settings_read ON public.site_settings;
 CREATE POLICY site_settings_read ON public.site_settings FOR SELECT USING (is_public OR public.is_admin());
 DROP POLICY IF EXISTS site_settings_admin ON public.site_settings;
 CREATE POLICY site_settings_admin ON public.site_settings FOR ALL USING (public.is_admin()) WITH CHECK (public.is_admin());
+

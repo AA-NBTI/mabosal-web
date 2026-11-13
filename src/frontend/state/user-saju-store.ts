@@ -308,13 +308,12 @@ export class UserSajuStore {
     // 상품 전용 티어 결정 (신년운세, 직장운, 재물운, 궁합 등 1:1 직결)
     const targetTier: ProductTierTab = ReportRouterMapper.resolveTier(order.productId, order.reportTier);
 
-    // 활성 주문 및 티어 영구 보존 (새로고침 시 100% 온전 복원용)
-    if (typeof localStorage !== 'undefined') {
-      if ((order as any).orderId) {
-        localStorage.setItem('mm_last_active_order_id', (order as any).orderId);
-      }
-      localStorage.setItem('mm_last_active_tier', targetTier);
+    // 활성 주문 및 티어 보존 (소유권 검증된 getStorage 사용, 브라우저 localStorage 직접 오염 방지)
+    const storage = getStorage();
+    if ((order as any).orderId) {
+      storage.setItem('mm_last_active_order_id', (order as any).orderId);
     }
+    storage.setItem('mm_last_active_tier', targetTier);
 
     // 상태 동기화
     appState.setUserName(customerName);
