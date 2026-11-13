@@ -5890,6 +5890,7 @@ ${content}
     const isZeroPayment = totalPayAmount === 0;
 
     let portonePaymentKey: string | undefined = undefined;
+    let preGeneratedOrderId: string | undefined = undefined;
 
     // [온라인 카드/간편결제] 결제창을 먼저 호출하여 승인 완료 시에만 주문 생성 및 장바구니 차감!
     if (isOnlinePay && !isZeroPayment) {
@@ -5897,6 +5898,7 @@ ${content}
       const primaryItem = items[0];
       const orderTitle = items.length === 1 ? primaryItem.title : `${primaryItem.title} 외 ${items.length - 1}건`;
       const tempOrderId = 'ORD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 5).toUpperCase();
+      preGeneratedOrderId = tempOrderId;
 
       if (submitBtn) {
         submitBtn.disabled = true;
@@ -5971,6 +5973,9 @@ ${content}
       couponCode: couponInput?.value,
       usedYeop: yeopInput ? parseInt(yeopInput.value, 10) || 0 : 0,
       agreeTerms: isAgreed,
+      orderId: preGeneratedOrderId,
+      paymentKey: portonePaymentKey,
+      preAuthorizedCompleted: Boolean(portonePaymentKey),
     });
 
     if (!checkoutRes.success) {
@@ -5980,15 +5985,6 @@ ${content}
         submitBtn.textContent = '결제하기';
       }
       return;
-    }
-
-    // 온라인 결제 승인 완료 건인 경우 주문 상태를 즉시 completed로 확정
-    if (portonePaymentKey && checkoutRes.order) {
-      updateStoreOrder(checkoutRes.order.orderId, {
-        status: 'completed',
-        paymentKey: portonePaymentKey,
-      });
-      checkoutRes.order.status = 'completed';
     }
 
     // 회원 기본 배송지 주소록 저장 체크 시 자동 등록

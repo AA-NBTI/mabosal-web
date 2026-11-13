@@ -1061,7 +1061,7 @@ async function insertOrderToSupabase(order: StoreOrder): Promise<void> {
       ? authUid
       : (order.userId && ORDER_UUID_REGEX.test(order.userId) ? order.userId : null);
 
-    const { error } = await supabase.from('orders').insert({
+    const { error } = await supabase.from('orders').upsert({
       id: order.orderId,
       user_id: resolvedUid,
       product_id: order.productId,
@@ -1080,7 +1080,7 @@ async function insertOrderToSupabase(order: StoreOrder): Promise<void> {
       shipping_memo: order.shippingMemo || null,
       paid_at: order.paidAt,
       created_at: order.paidAt,
-    });
+    }, { onConflict: 'id' });
     if (error) {
       console.error('[store-service] Supabase order insert failed:', error.message);
     }

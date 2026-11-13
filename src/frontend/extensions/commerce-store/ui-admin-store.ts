@@ -553,7 +553,7 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                               환불 반려
                             </button>
                           </div>
-                        ` : (o.status === 'pending' ? `
+                        ` : (o.status === 'pending' && o.paymentMethod === 'bank_transfer' ? `
                           <div style="display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
                             <span style="background: rgba(242, 202, 80, 0.18); color: #f2ca50; font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700; border: 1px solid rgba(242, 202, 80, 0.35);">입금대기</span>
                             <button type="button" class="btn-admin-approve-bank-deposit" data-order-id="${o.orderId}" style="background: var(--primary); color: #000; font-size: 0.72rem; font-weight: 800; border: none; border-radius: 4px; padding: 0.25rem 0.55rem; cursor: pointer; transition: all 0.15s ease;" title="입금 확인 후 즉시 주문 승인">

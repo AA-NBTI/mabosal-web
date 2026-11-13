@@ -306,7 +306,7 @@ export function renderUserOrderHistoryWidget(): string {
                 <!-- [고객 사후지원] 주문 취소 / 반품 신청 영역 -->
                 <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.6rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.74rem; color: #94a3b8; flex-wrap: wrap; gap: 0.5rem;">
                   <span>취소/환불 규정에 따라 신청 시 관리자가 검토 후 처리합니다.</span>
-                  ${o.status === 'pending' ? `
+                  ${o.status === 'pending' && o.paymentMethod === 'bank_transfer' ? `
                     <button type="button" class="btn-cancel-pending-order" data-order-id="${o.orderId}" data-title="${o.productTitle}" style="background: rgba(239,68,68,0.14); border: 1px solid rgba(239,68,68,0.35); color: #fca5a5; font-size: 0.72rem; font-weight: 700; padding: 0.3rem 0.65rem; border-radius: 4px; cursor: pointer;">
                       입금신청 취소
                     </button>

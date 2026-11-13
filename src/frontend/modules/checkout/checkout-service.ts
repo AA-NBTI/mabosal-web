@@ -22,6 +22,10 @@ export interface CheckoutPayload {
   usedYeop?: number;
   agreeTerms: boolean;
   selectedItems?: CartItem[];
+  /** 온라인 PG(포트원 등) 사전 승인 완료 시 동일 주문번호 및 완료 상태 직결용 */
+  orderId?: string;
+  paymentKey?: string;
+  preAuthorizedCompleted?: boolean;
 }
 
 export interface CheckoutResult {
@@ -197,7 +201,7 @@ export class CheckoutService {
     const reportItem = items.find(it => it.deliveryType === 'saju_report' || it.category === 'report');
     const primaryTier = ReportRouterMapper.resolveTier(reportItem?.productId || primaryItem.productId, reportItem?.reportTier);
 
-    const orderId = 'ORD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 5).toUpperCase();
+    const orderId = payload.orderId?.trim() || ('ORD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 5).toUpperCase());
 
     const newOrder: StoreOrder = {
       orderId,
@@ -210,8 +214,9 @@ export class CheckoutService {
       buyerPhone: payload.buyerPhone.trim(),
       buyerEmail: payload.buyerEmail?.trim() || currentUser.email || 'user@mabosal.com',
       paymentMethod: payload.paymentMethod,
-      // 0원 결제만 즉시 완료 처리. 무통장 입금 및 결제창 승인 전 상태는 엄격히 pending(대기) 유지
-      status: isZeroPayment ? 'completed' : 'pending',
+      paymentKey: payload.paymentKey,
+      // 0원 결제 및 PG 사전 승인 완료 건만 즉시 완료 처리. 무통장 입금은 pending(대기) 유지
+      status: (isZeroPayment || payload.preAuthorizedCompleted) ? 'completed' : 'pending',
       paidAt: new Date().toISOString(),
       deliveryType: primaryItem.deliveryType,
       accessUrl: (primaryItem.deliveryType === 'ebook' || primaryItem.deliveryType === 'digital_download' || primaryItem.category === 'ebook')
