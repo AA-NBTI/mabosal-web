@@ -1120,7 +1120,7 @@ async function insertOrderToSupabase(order: StoreOrder): Promise<void> {
   }
 }
 
-async function updateOrderInSupabase(orderId: string, patch: Partial<StoreOrder>): Promise<void> {
+async function updateOrderInSupabase(orderId: string, patch: Partial<StoreOrder>, fullOrder?: StoreOrder): Promise<void> {
   try {
     const dbPatch: Record<string, any> = {};
     if (patch.status !== undefined) dbPatch.status = patch.status;
@@ -1132,9 +1132,21 @@ async function updateOrderInSupabase(orderId: string, patch: Partial<StoreOrder>
     if (patch.paidAt !== undefined) dbPatch.paid_at = patch.paidAt;
     if (Object.keys(dbPatch).length === 0) return;
 
-    const { error } = await supabase.from('orders').update(dbPatch).eq('id', orderId);
+    const eqQuery = supabase.from('orders').update(dbPatch).eq('id', orderId);
+    const { data, error } =
+      typeof (eqQuery as any)?.select === 'function'
+        ? await eqQuery.select('id')
+        : await eqQuery;
     if (error) {
       console.error('[store-service] Supabase order update failed:', error.message);
+      if (fullOrder) {
+        await insertOrderToSupabase(fullOrder);
+      }
+      return;
+    }
+    // 아직 원격 DB에 행이 생성되지 않은 상태에서 상태 변경(환불 요청 등)이 먼저 일어난 경우 전체 주문 upsert 보장
+    if (Array.isArray(data) && data.length === 0 && fullOrder) {
+      await insertOrderToSupabase(fullOrder);
     }
   } catch (e) {
     console.warn('[store-service] Supabase order update skipped:', e);
@@ -1201,6 +1213,34 @@ export async function syncOrdersFromSupabase(): Promise<boolean> {
 
     if (isBrowserRuntime()) {
       const remoteOrders: StoreOrder[] = (data || []).map(mapRemoteOrderRow);
+      const prevMemory = memoryOrders ? [...memoryOrders] : [];
+      const remoteMap = new Map(remoteOrders.map(o => [o.orderId, o]));
+      const me = getIdentity();
+
+      // 1) 원격 DB에 이미 존재하는 주문이라도 로컬에서 방금 환불 신청(refundRequested) 또는 열람(viewedAt)한 상태가 아직 DB에 도달 중이면 보존
+      for (const prev of prevMemory) {
+        const rem = remoteMap.get(prev.orderId);
+        if (rem) {
+          if (prev.refundRequested && !rem.refundRequested && rem.status === 'completed') {
+            rem.refundRequested = true;
+            rem.refundReason = prev.refundReason || rem.refundReason;
+            void updateOrderInSupabase(rem.orderId, {
+              refundRequested: true,
+              refundReason: rem.refundReason,
+            }, rem);
+          }
+          if (prev.viewedAt && !rem.viewedAt) {
+            rem.viewedAt = prev.viewedAt;
+            void updateOrderInSupabase(rem.orderId, { viewedAt: rem.viewedAt }, rem);
+          }
+        } else if (!me.isGuest && ownsRecord(prev, me)) {
+          // 2) 방금 결제 완료되어 메모리에만 있고 원격 DB에 아직 반영되지 않은 본인 주문은 유실되지 않도록 보존 후 재동기화
+          remoteOrders.unshift(prev);
+          remoteMap.set(prev.orderId, prev);
+          void insertOrderToSupabase(prev);
+        }
+      }
+
       memoryOrders = remoteOrders;
       try { localStorage.removeItem(STORAGE_ORDERS_KEY); } catch {}
       window.dispatchEvent(new CustomEvent('mabosal:orders-updated'));
@@ -1491,7 +1531,7 @@ export function updateStoreOrder(orderId: string, patch: Partial<StoreOrder>): S
   } else {
     getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
   }
-  void updateOrderInSupabase(orderId, patch);
+  void updateOrderInSupabase(orderId, patch, next);
   if (prev.status !== 'completed' && next.status === 'completed') {
     const prod = getStoreProductById(next.productId);
     if (prod) updateStoreProduct(prod.id, { salesCount: (prod.salesCount || 0) + 1 });

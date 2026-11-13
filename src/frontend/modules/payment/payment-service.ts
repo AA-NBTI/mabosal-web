@@ -256,15 +256,6 @@ export class PaymentService {
     draft: PaymentDraft,
     order: StoreOrder
   ): void {
-    SupabaseStoreService.createOrder({
-      productId: draft.productId,
-      buyerName: draft.buyerName,
-      buyerPhone: draft.buyerPhone,
-      buyerEmail: draft.buyerEmail,
-      paymentMethod: 'portone_card',
-      orderId,
-    }).catch(err => console.warn('[PaymentService] Supabase card sync deferred:', err));
-
     void verifyPortOnePayment(paymentKey, {
       orderId,
       orderSnapshot: {

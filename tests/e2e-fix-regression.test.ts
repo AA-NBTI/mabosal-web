@@ -167,12 +167,76 @@ describe('E2E 결함 수정 회귀 테스트', () => {
     expect(transferSyncSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('7. portone-payment Edge Function이 payment_method 덮어쓰기 경합을 방지한다', () => {
+  it('7. portone-payment Edge Function이 payment_method 및 refund_requested 덮어쓰기 경합을 방지한다', () => {
     const fnCode = readFileSync(resolve(process.cwd(), 'supabase/functions/portone-payment/index.ts'), 'utf8');
     expect(fnCode).toContain('resolvePortOnePaymentMethod');
-    expect(fnCode).toContain("select('payment_method')");
+    expect(fnCode).toContain("select('payment_method, status, refund_requested, refund_reason, refunded_at')");
     expect(fnCode).toContain('snap.paymentMethod');
     expect(fnCode).not.toContain("payment_method: 'toss_card'");
+  });
+
+  it('8. 카드 결제 취소 요청(requestStoreOrderRefund) 시 주문이 삭제되지 않고 refundRequested: true(환불 심사 중)로 유지된다', async () => {
+    const updateMock = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        select: vi.fn().mockResolvedValue({ data: [], error: null }),
+      }),
+    });
+    const upsertMock = vi.fn().mockResolvedValue({ error: null });
+
+    vi.spyOn(supabase, 'from').mockImplementation((table: string) => {
+      if (table === 'orders') {
+        return {
+          upsert: upsertMock,
+          update: updateMock,
+          select: vi.fn().mockReturnValue({
+            order: vi.fn().mockResolvedValue({ data: [], error: null }),
+          }),
+        } as any;
+      }
+      return {
+        upsert: vi.fn().mockResolvedValue({ error: null }),
+        select: vi.fn().mockReturnValue({
+          order: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      } as any;
+    });
+
+    const { requestStoreOrderRefund } = await import('../src/frontend/extensions/commerce-store/store-service');
+
+    recordStoreOrder({
+      orderId: 'ORD-CARD-CANCEL-01',
+      productId: 'book-saju-principles-vol1',
+      productTitle: '정통 사주명리학 원론 제1권',
+      category: 'ebook',
+      amount: 29000,
+      buyerName: '송회원',
+      buyerEmail: 'song1205@mabosal.com',
+      buyerPhone: '010-1234-5678',
+      paymentMethod: 'portone_card',
+      status: 'completed',
+      paidAt: '2026-11-14T00:00:00.000Z',
+      deliveryType: 'digital_download',
+    });
+
+    const refundedReq = requestStoreOrderRefund('ORD-CARD-CANCEL-01', '단순 변심 취소 요청');
+    expect(refundedReq.success).toBe(true);
+
+    await new Promise(r => setTimeout(r, 20));
+
+    const remaining = getAllStoreOrders().find(o => o.orderId === 'ORD-CARD-CANCEL-01');
+    expect(remaining).toBeDefined();
+    expect(remaining?.status).toBe('completed');
+    expect(remaining?.refundRequested).toBe(true);
+    expect(remaining?.refundReason).toBe('단순 변심 취소 요청');
+    // DB에 기존 행이 없었을 경우(0건 업데이트) 자동으로 전체 주문 upsert 폴백 호출 확인
+    expect(upsertMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'ORD-CARD-CANCEL-01',
+        refund_requested: true,
+        refund_reason: '단순 변심 취소 요청',
+      }),
+      { onConflict: 'id' }
+    );
   });
 });
 

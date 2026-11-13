@@ -152,7 +152,7 @@ Deno.serve(async (req: Request) => {
         const orderId = (body.orderId || paymentId).trim();
         const { data: existingOrder } = await adminClient
           .from('orders')
-          .select('payment_method')
+          .select('payment_method, status, refund_requested, refund_reason, refunded_at')
           .eq('id', orderId)
           .maybeSingle();
         const resolvedPaymentMethod = resolvePortOnePaymentMethod(
@@ -160,6 +160,28 @@ Deno.serve(async (req: Request) => {
           snap.paymentMethod,
           data
         );
+
+        const safeDeliveryType =
+          snap.deliveryType === 'ebook'
+            ? 'digital_download'
+            : snap.deliveryType || 'digital_url';
+
+        await adminClient
+          .from('profiles')
+          .upsert(
+            {
+              id: caller.id,
+              email: caller.email || snap.buyerEmail || '',
+              username:
+                (caller.user_metadata?.username as string) ||
+                (caller.email ? caller.email.split('@')[0] : '') ||
+                'user',
+              name: (caller.user_metadata?.name as string) || snap.buyerName || '회원',
+              role: 'user',
+            },
+            { onConflict: 'id', ignoreDuplicates: true }
+          )
+          .then(() => undefined, () => undefined);
 
         await adminClient
           .from('products')
@@ -169,7 +191,7 @@ Deno.serve(async (req: Request) => {
               title: snap.productTitle || data.orderName || '마보살 상품',
               category: snap.category || 'report',
               price: Number(data.amount?.total ?? snap.amount ?? 0),
-              delivery_type: snap.deliveryType || 'digital_url',
+              delivery_type: safeDeliveryType,
               status: 'active',
             },
             { onConflict: 'id', ignoreDuplicates: true }
@@ -191,7 +213,10 @@ Deno.serve(async (req: Request) => {
               buyer_phone: snap.buyerPhone || data.customer?.phoneNumber || '',
               payment_method: resolvedPaymentMethod,
               payment_key: paymentId,
-              status: 'completed',
+              status: existingOrder?.status === 'refunded' ? 'refunded' : 'completed',
+              refund_requested: Boolean(existingOrder?.refund_requested),
+              refund_reason: existingOrder?.refund_reason || null,
+              refunded_at: existingOrder?.refunded_at || null,
               delivery_type: snap.deliveryType || 'digital_url',
               paid_at: data.paidAt || new Date().toISOString(),
             },
