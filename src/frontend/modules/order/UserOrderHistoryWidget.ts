@@ -28,7 +28,8 @@ export function renderUserOrderHistoryWidget(): string {
   let userOrders: any[] = [];
   let userTransfers: any[] = [];
   try {
-    userOrders = getMyStoreOrders();
+    // 입금 전 직접 취소(cancelled)한 미결제 주문은 사용자 주문 내역 목록에서 제외 (원장/감사 기록은 store에 유지)
+    userOrders = getMyStoreOrders().filter(o => o.status !== 'cancelled');
 
     const rawTransfers = JSON.parse(localStorage.getItem('mabosal_bank_transfers') || '[]');
     userTransfers = rawTransfers.filter((t: any) => t.orderId && userOrders.some(o => o.orderId === t.orderId));
@@ -193,7 +194,7 @@ export function renderUserOrderHistoryWidget(): string {
               <div class="btn-toggle-order-row" data-target="order-collapsible-${o.orderId}" style="padding: 0.8rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; cursor: pointer; user-select: none;">
                 <div style="display: flex; align-items: center; gap: 0.6rem; min-width: 0; flex: 1;">
                   <span style="font-size: 0.7rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700; background: ${o.status === 'refunded' ? 'rgba(239, 68, 68, 0.15)' : (o.status === 'completed' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)')}; color: ${o.status === 'refunded' ? '#f87171' : '#fff'}; border: 1px solid rgba(255, 255, 255, 0.15); white-space: nowrap;">
-                    ${o.status === 'refunded' ? '환불완료' : (o.refundRequested ? '환불심사' : (o.status === 'completed' ? '결제완료' : '입금대기'))}
+                    ${o.status === 'refunded' ? '환불완료' : (o.status === 'cancelled' ? '입금취소' : (o.refundRequested ? '환불심사' : (o.status === 'completed' ? '결제완료' : '입금대기')))}
                   </span>
                   <span style="font-size: 0.88rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                     ${o.productTitle}
