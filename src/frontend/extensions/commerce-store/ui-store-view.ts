@@ -473,12 +473,12 @@ export function renderCommerceStoreView(state: AppStateData): string {
                     const already = savedProf ? isProductAlreadyPurchased(p.id, savedProf.userName) : { purchased: false };
                     return `
                       <div style="background: rgba(242, 202, 80, 0.05); border: 1px solid rgba(242, 202, 80, 0.2); border-radius: 6px; padding: 0.55rem 0.75rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
-                        <div style="display: flex; align-items: center; gap: 0.4rem;">
+                        <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
                           <span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary);">psychology</span>
                           <span style="font-size: 0.78rem; font-weight: 700; color: #cbd5e1;">사주 분석 대상</span>
                           ${savedProf ? `
                             <span style="background: rgba(74, 222, 128, 0.15); border: 1px solid rgba(74, 222, 128, 0.4); color: #4ade80; font-size: 0.7rem; font-weight: 800; padding: 0.15rem 0.45rem; border-radius: 4px;">
-                              등록 완료
+                              등록 완료 · ${savedProf.userName || '의뢰인'}
                             </span>
                             ${already.purchased ? '<span style="background: rgba(242,202,80,0.15); border: 1px solid rgba(242,202,80,0.4); color: var(--primary); font-size: 0.7rem; font-weight: 800; padding: 0.15rem 0.45rem; border-radius: 4px;">구매완료</span>' : ''}
                           ` : `
@@ -487,9 +487,9 @@ export function renderCommerceStoreView(state: AppStateData): string {
                             </span>
                           `}
                         </div>
-                        <button type="button" class="btn-goto-analyze-target" data-product-id="${p.id}" style="background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.35); color: var(--primary); font-size: 0.74rem; font-weight: 700; padding: 0.22rem 0.6rem; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem;">
+                        <button type="button" class="btn-goto-analyze-target" data-product-id="${p.id}" style="background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.35); color: var(--primary); font-size: 0.74rem; font-weight: 700; padding: 0.22rem 0.6rem; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem; white-space: nowrap;">
                           <span class="material-symbols-outlined" style="font-size: 13px;">edit_calendar</span>
-                          <span>사주 입력</span>
+                          <span>${savedProf ? '대상자 변경' : '사주 등록'}</span>
                         </button>
                       </div>
                     `;

@@ -213,4 +213,65 @@ describe('UI Consistency & Negative Gate Audit', () => {
     expect(luckyA.replace(/김갑자/g, 'USER')).not.toBe(luckyB.replace(/이병오/g, 'USER'));
     expect(magiA.replace(/김갑자/g, 'USER')).not.toBe(magiB.replace(/이병오/g, 'USER'));
   });
+
+  it('test1234 계정이 로그인 후 통합 사주 모달 입력 1회만으로 스토어·장바구니·주문서 결제를 오류 없이 완료한다', async () => {
+    const reg = await AuthService.register({
+      username: 'test1234',
+      password: 'password123',
+      passwordConfirm: 'password123',
+      name: '테스트회원',
+      phone: '010-1234-5678',
+      role: 'user',
+    });
+    expect(reg.success).toBe(true);
+    expect(AuthService.isAuthenticated()).toBe(false);
+
+    const loginRes = await AuthService.login('test1234', 'password123');
+    expect(loginRes.success).toBe(true);
+    expect(UserSajuStore.hasSajuProfile(loginRes.user!.id)).toBe(false);
+
+    // 1. 통합 사주 모달 입력(1회)으로 프로필/세션/장바구니 동기화
+    const synced = UserSajuStore.syncUserSajuProfile({
+      userId: loginRes.user!.id,
+      userName: '테스트회원',
+      birthDate: '1992-05-14',
+      birthTime: '14:00',
+      calendarType: 'solar',
+      gender: 'male',
+      isLeapMonth: false,
+      birthRegion: '서울',
+    });
+    expect(synced).not.toBeNull();
+    expect(UserSajuStore.hasSajuProfile(loginRes.user!.id)).toBe(true);
+
+    // 2. 사주 리포트 상품 선택 및 장바구니 담기 시 '등록 완료' 및 '대상자 변경' 표시 확인
+    const reportProd = INITIAL_STORE_PRODUCTS.find(p => p.deliveryType === 'saju_report')!;
+    selectStoreProduct(reportProd.id, false);
+    const addedItem = CartStore.addItem(reportProd, 1);
+    expect(CartStore.isItemSajuReady(addedItem)).toBe(true);
+
+    const storeHtml = renderCommerceStoreView(appState.getState());
+    expect(storeHtml).toContain('등록 완료 · 테스트회원');
+    expect(storeHtml).toContain('대상자 변경');
+
+    const cartHtml = renderCartBoardView();
+    expect(cartHtml).toContain('등록 완료');
+    expect(cartHtml).toContain('대상자 변경');
+
+    const checkoutHtml = renderCheckoutBoardView();
+    expect(checkoutHtml).toContain('등록 완료');
+    expect(checkoutHtml).not.toContain('id="btn-submit-final-order" disabled');
+
+    // 3. 실제 결제 실행(무통장 입금 접수) 오류 없이 성공 검증
+    const checkoutRes = CheckoutService.executeCheckout({
+      buyerName: '테스트회원',
+      buyerPhone: '010-1234-5678',
+      buyerEmail: 'test1234@mabosal.com',
+      paymentMethod: 'bank_transfer',
+      agreeTerms: true,
+    });
+    expect(checkoutRes.success).toBe(true);
+    expect(checkoutRes.order?.status).toBe('pending');
+    expect(checkoutRes.order?.sajuInput?.solarBirthDate).toBe('1992-05-14');
+  });
 });

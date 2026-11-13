@@ -201,12 +201,12 @@ export class CartStore {
     return Boolean(this.getEffectiveSajuProfile(item)?.solarBirthDate?.trim());
   }
 
-  public static syncSajuProfile(profile: UserSajuProfile | null): void {
+  public static syncSajuProfile(profile: UserSajuProfile | null, forceOverwrite: boolean = false): void {
     if (!profile || !profile.solarBirthDate?.trim()) return;
     const items = this.getItems();
     let changed = false;
     const updated = items.map(it => {
-      if (this.isItemSajuReport(it) && (!it.sajuSnapshot || !it.sajuSnapshot.solarBirthDate?.trim())) {
+      if (this.isItemSajuReport(it) && (forceOverwrite || !it.sajuSnapshot || !it.sajuSnapshot.solarBirthDate?.trim())) {
         changed = true;
         return { ...it, sajuSnapshot: profile };
       }

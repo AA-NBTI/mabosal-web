@@ -214,9 +214,12 @@ export function renderCartBoardView(): string {
                         const effProf = CartStore.getEffectiveSajuProfile(it);
                         const isReady = Boolean(effProf?.solarBirthDate?.trim());
                         return isReady ? `
-                          <div style="background: rgba(242, 202, 80, 0.05); border: 1px solid rgba(242, 202, 80, 0.2); border-radius: 6px; padding: 0.25rem 0.55rem; display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.76rem; color: #cbd5e1; margin-top: 0.2rem;">
+                          <div style="background: rgba(242, 202, 80, 0.05); border: 1px solid rgba(242, 202, 80, 0.2); border-radius: 6px; padding: 0.25rem 0.55rem; display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.76rem; color: #cbd5e1; margin-top: 0.2rem; flex-wrap: wrap;">
                             <span class="material-symbols-outlined" style="font-size: 14px; color: var(--primary);">psychology</span>
                             <span>사주 분석 대상: <span style="color: #4ade80; font-weight: 700;">등록 완료</span> (${esc(effProf?.userName || '의뢰인')})</span>
+                            <button type="button" class="btn-goto-analyze-target" data-product-id="${esc(it.productId)}" style="background: rgba(242,202,80,0.12); border: 1px solid rgba(242,202,80,0.35); color: var(--primary); font-size: 0.68rem; font-weight: 700; padding: 0.1rem 0.4rem; border-radius: 4px; cursor: pointer;">
+                              대상자 변경
+                            </button>
                           </div>
                         ` : `
                           <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 6px; padding: 0.3rem 0.6rem; display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.76rem; color: #fca5a5; margin-top: 0.25rem; flex-wrap: wrap;">

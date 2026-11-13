@@ -413,11 +413,50 @@ class MabosalApp {
     if (modal) modal.style.display = 'none';
   }
 
-  private openSajuOnboardingModal() {
+  private openSajuOnboardingModal(options?: { title?: string; desc?: string }) {
+    const currentUser = AuthService.getCurrentUser();
+    const existing = UserSajuStore.getProfile(currentUser.id);
+    const titleEl = document.getElementById('onboarding-modal-title');
+    const descEl = document.getElementById('onboarding-modal-desc');
+    if (titleEl) titleEl.textContent = options?.title || '사주 정보 등록 · 변경';
+    if (descEl) {
+      descEl.innerHTML = options?.desc || '💡 <strong>생년월일시</strong>를 한 번 등록하면 <strong>1:1 맞춤 일진·행운처방</strong>과 <strong>스토어 사주 리포트 결제</strong>에 모두 자동으로 연동됩니다.';
+    }
+
+    const nameInput = document.getElementById('onboarding-name') as HTMLInputElement | null;
     const birthDateInput = document.getElementById('onboarding-birthdate') as HTMLInputElement | null;
+    const calendarSelect = document.getElementById('onboarding-calendar') as HTMLSelectElement | null;
+    const leapWrap = document.getElementById('onboarding-leap-month-wrap');
+    const leapCheck = document.getElementById('onboarding-leap-month') as HTMLInputElement | null;
+    const genderSelect = document.getElementById('onboarding-gender') as HTMLSelectElement | null;
     const birthTimeSelect = document.getElementById('onboarding-birthtime') as HTMLSelectElement | null;
-    if (birthDateInput) birthDateInput.value = '';
-    if (birthTimeSelect) birthTimeSelect.value = '';
+    const regionSelect = document.getElementById('onboarding-region') as HTMLSelectElement | null;
+
+    if (nameInput) nameInput.value = existing?.userName || (currentUser.role !== 'guest' ? currentUser.name : '') || '';
+    if (birthDateInput) birthDateInput.value = existing?.solarBirthDate || '';
+    const calVal = existing?.calendarType || 'solar';
+    if (calendarSelect) calendarSelect.value = calVal;
+    if (leapWrap) leapWrap.style.display = calVal === 'lunar' ? 'block' : 'none';
+    if (leapCheck) leapCheck.checked = Boolean(existing?.isLeapMonth);
+    if (genderSelect) genderSelect.value = existing?.gender || 'male';
+    if (birthTimeSelect) {
+      if (!existing || existing.isUnknownTime || !existing.birthTime) {
+        birthTimeSelect.value = '';
+      } else {
+        const hourNum = parseInt(existing.birthTime.split(':')[0] || '', 10);
+        const slot = Number.isFinite(hourNum) ? String(Math.floor(hourNum / 2) * 2) : '';
+        birthTimeSelect.value = slot;
+      }
+    }
+    if (regionSelect) regionSelect.value = existing?.birthRegion || '서울';
+
+    if (calendarSelect && !(calendarSelect as any).__leapBound) {
+      (calendarSelect as any).__leapBound = true;
+      calendarSelect.addEventListener('change', () => {
+        if (leapWrap) leapWrap.style.display = calendarSelect.value === 'lunar' ? 'block' : 'none';
+      });
+    }
+
     const onboardingModal = document.getElementById('modal-saju-onboarding');
     if (onboardingModal) onboardingModal.style.display = 'flex';
   }
@@ -4027,17 +4066,14 @@ ${content}
       return;
     }
 
-    // [스토어 상세: 대상자 사주 정보 정식 등록하러 가기]
+    // [스토어·장바구니·주문서: 대상자 사주 정보 통합 모달 오픈]
     const gotoAnalyzeTargetBtn = target.closest('.btn-goto-analyze-target') as HTMLElement | null;
     if (gotoAnalyzeTargetBtn) {
       e.preventDefault();
-      const pid = gotoAnalyzeTargetBtn.dataset.productId;
-      if (pid) {
-        sessionStorage.setItem('mabosal_pending_saju_product', pid);
-      }
-      appState.setView('analyze');
-      this.render(appState.getState());
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      this.openSajuOnboardingModal({
+        title: '사주 분석 대상 등록 · 변경',
+        desc: '💡 입력하신 사주 정보는 <strong>일진 대시보드</strong>와 <strong>사주 리포트 구매·결제</strong>에 동시에 반영됩니다.',
+      });
       return;
     }
 
@@ -4869,42 +4905,52 @@ ${content}
    return;
  }
 
- // 2-2. 1:1 맞춤 사주 온보딩 모달 제출 및 저장
+ // 2-2. 전역 공통 사주 정보 등록·변경 모달 제출 및 저장
  if (target.closest('#btn-submit-onboarding-saju')) {
    const currentUser = AuthService.getCurrentUser();
+   const targetName = (document.getElementById('onboarding-name') as HTMLInputElement)?.value?.trim();
    const birthDate = (document.getElementById('onboarding-birthdate') as HTMLInputElement)?.value;
    const calendarType = (document.getElementById('onboarding-calendar') as HTMLSelectElement)?.value as 'solar' | 'lunar';
+   const isLeapMonth = Boolean((document.getElementById('onboarding-leap-month') as HTMLInputElement)?.checked);
    const gender = (document.getElementById('onboarding-gender') as HTMLSelectElement)?.value as 'male' | 'female';
    const birthTime = (document.getElementById('onboarding-birthtime') as HTMLSelectElement)?.value;
+   const birthRegion = (document.getElementById('onboarding-region') as HTMLSelectElement)?.value;
 
    if (!birthDate) {
      alert('생년월일을 선택해 주세요.');
      return;
    }
 
-   // 계정·프로필·세션을 단일 입력점으로 동기화
+   // 계정·프로필·세션·장바구니를 단일 입력점으로 동기화
    const prevProfile = UserSajuStore.getProfile(currentUser.id);
    const synced = UserSajuStore.syncUserSajuProfile({
      userId: currentUser.id,
-     userName: currentUser.name || '의뢰인',
+     userName: targetName || currentUser.name || '의뢰인',
      birthDate,
      birthTime: birthTime || null,
      calendarType: calendarType || 'solar',
      gender: gender || 'male',
-     isLeapMonth: prevProfile?.isLeapMonth || false,
-     birthRegion: prevProfile?.birthRegion,
+     isLeapMonth: calendarType === 'lunar' ? isLeapMonth : false,
+     birthRegion: birthRegion || prevProfile?.birthRegion || '서울',
    });
    if (!synced) {
      alert('생년월일 형식이 올바르지 않습니다. (예: 1990-03-21)');
      return;
    }
 
-   // 3. 모달 닫기 및 대시보드 실시간 재계산 렌더링
+   CartStore.syncSajuProfile(UserSajuStore.getProfile(currentUser.id), true);
+
+   // 3. 모달 닫기 및 현재 화면(대시보드/스토어/장바구니/주문서) 즉시 재렌더링
    const onboardingModal = document.getElementById('modal-saju-onboarding');
    if (onboardingModal) onboardingModal.style.display = 'none';
 
+   const funnelModal = document.getElementById('funnel-checkout-modal-slot');
+   if (funnelModal && funnelModal.innerHTML.trim()) {
+     funnelModal.innerHTML = FunnelCheckoutHelper.renderCheckoutModal();
+   }
+
    this.render(appState.getState());
-   alert(`1:1 맞춤 사주 정보가 등록되었습니다!\n\n오늘의 일진과 ${currentUser.name} 님의 사주 원국을 대조한 맞춤 행운 처방과 지수가 활성화되었습니다.`);
+   alert(`사주 정보가 저장되었습니다!\n\n일진 대시보드와 스토어 사주 리포트 결제에 즉시 반영되었습니다.`);
    return;
  }
 
