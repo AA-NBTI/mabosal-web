@@ -413,6 +413,15 @@ class MabosalApp {
     if (modal) modal.style.display = 'none';
   }
 
+  private openSajuOnboardingModal() {
+    const birthDateInput = document.getElementById('onboarding-birthdate') as HTMLInputElement | null;
+    const birthTimeSelect = document.getElementById('onboarding-birthtime') as HTMLSelectElement | null;
+    if (birthDateInput) birthDateInput.value = '';
+    if (birthTimeSelect) birthTimeSelect.value = '';
+    const onboardingModal = document.getElementById('modal-saju-onboarding');
+    if (onboardingModal) onboardingModal.style.display = 'flex';
+  }
+
  private pendingCheckoutData: any = null;
 
  private updateCartBadges() {
@@ -4649,6 +4658,9 @@ ${content}
    appState.setView('store');
    this.render(appState.getState());
    window.scrollTo({ top: 0, behavior: 'smooth' });
+   if (res.user?.role === 'user' && !UserSajuStore.hasSajuProfile(res.user.id)) {
+     this.openSajuOnboardingModal();
+   }
    return;
  }
 
@@ -4664,8 +4676,13 @@ ${content}
    alert(` [파트너 로그인 성공]\n\n환영합니다, ${res.user.name} 님!\n마보살 파트너스 센터로 진입합니다.`);
  } else {
    appState.setView('member-dashboard');
+   this.render(appState.getState());
    window.scrollTo({ top: 0, behavior: 'smooth' });
-   alert(` [로그인 완료]\n\n환영합니다, ${res.user?.name} 님!\n회원 대시보드(마이페이지)로 이동합니다.`);
+   if (res.user && !UserSajuStore.hasSajuProfile(res.user.id)) {
+     this.openSajuOnboardingModal();
+   } else {
+     alert(` [로그인 완료]\n\n환영합니다, ${res.user?.name} 님!\n회원 대시보드(마이페이지)로 이동합니다.`);
+   }
  }
  return;
  }
@@ -4724,21 +4741,14 @@ ${content}
       return;
     }
 
-    this.closeAuthModal();
-
-    if (res.user?.role === 'partner') {
-      appState.setView('partner');
-      this.render(appState.getState());
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      alert(`[회원가입 완료]\n\n${res.message}\n파트너 포털로 이동합니다.`);
-    } else {
-      // 가입은 간편하게 완료하고 메인 홈으로 진입 (사주 필요 시 추가 입력)
-      appState.setOnboarding(false);
-      appState.setUserName(name || username);
-      navigateTo('/');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      alert(`[회원가입 완료]\n\n회원가입이 완료되었습니다.`);
-    }
+    // 가입 후 로그아웃 상태를 유지하고 로그인 모달을 바로 열어 재로그인 유도
+    this.openAuthModal('login');
+    const loginUserInput = document.getElementById('input-login-username') as HTMLInputElement | null;
+    const loginPassInput = document.getElementById('input-login-password') as HTMLInputElement | null;
+    if (loginUserInput) loginUserInput.value = username;
+    if (loginPassInput) loginPassInput.focus();
+    this.render(appState.getState());
+    alert(`[회원가입 완료]\n\n${res.message}\n방금 가입하신 아이디로 로그인해 주세요.`);
     return;
   }
 
@@ -4853,14 +4863,9 @@ ${content}
   }
 
 
- // 2-1. 사주 미등록 회원 알림 배너 -> 온보딩 모달 오픈
+ // 2-1. 사주 온보딩 모달 오픈
  if (target.closest('.btn-open-saju-onboarding')) {
-    const birthDateInput = document.getElementById('onboarding-birthdate') as HTMLInputElement | null;
-    const birthTimeSelect = document.getElementById('onboarding-birthtime') as HTMLSelectElement | null;
-    if (birthDateInput) birthDateInput.value = '';
-    if (birthTimeSelect) birthTimeSelect.value = '';
-   const onboardingModal = document.getElementById('modal-saju-onboarding');
-   if (onboardingModal) onboardingModal.style.display = 'flex';
+   this.openSajuOnboardingModal();
    return;
  }
 

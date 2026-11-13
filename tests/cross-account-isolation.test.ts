@@ -26,6 +26,9 @@ describe('다중 계정 교차 격리(Cross-Account Isolation) 종합 검증', (
       role: 'user',
     });
     expect(regA.success).toBe(true);
+    expect(AuthService.getCurrentUser().role).toBe('guest');
+    const loginA = await AuthService.login('user_alpha', 'password1234');
+    expect(loginA.success).toBe(true);
     expect(AuthService.getCurrentUser().username).toBe('user_alpha');
 
     // [A 활동 1] 사주 프로필 저장
@@ -89,6 +92,9 @@ describe('다중 계정 교차 격리(Cross-Account Isolation) 종합 검증', (
       role: 'user',
     });
     expect(regB.success).toBe(true);
+    expect(AuthService.getCurrentUser().role).toBe('guest');
+    const loginB = await AuthService.login('user_beta', 'password1234');
+    expect(loginB.success).toBe(true);
     expect(AuthService.getCurrentUser().username).toBe('user_beta');
 
     // -------------------------------------------------------------

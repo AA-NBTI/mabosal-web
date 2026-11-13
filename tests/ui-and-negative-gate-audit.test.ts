@@ -44,6 +44,9 @@ describe('UI Consistency & Negative Gate Audit', () => {
       name: '일관성테스터',
       role: 'user',
     });
+    expect(AuthService.isAuthenticated()).toBe(false);
+    await AuthService.login('ui_consistency_user', 'password123');
+    expect(AuthService.isAuthenticated()).toBe(true);
 
     const reportProd = INITIAL_STORE_PRODUCTS.find(p => p.deliveryType === 'saju_report')!;
     selectStoreProduct(reportProd.id, false);
@@ -128,6 +131,7 @@ describe('UI Consistency & Negative Gate Audit', () => {
       name: '차단테스터',
       role: 'user',
     });
+    await AuthService.login('negative_user', 'password123');
     const funnelBlocked = await FunnelCheckoutHelper.executePayment();
     expect(funnelBlocked.success).toBe(false);
     expect(funnelBlocked.message).toContain('사주 분석 대상 정보');

@@ -305,6 +305,7 @@ describe('Commerce Checkout & Approval Full-Matrix Audit', () => {
       name: '미등록구매자',
       role: 'user',
     });
+    await AuthService.login('nosaju_buyer', 'password123');
 
     const reportProd = INITIAL_STORE_PRODUCTS.find(p => p.deliveryType === 'saju_report')!;
     const addedItem = CartStore.addItem(reportProd, 1);

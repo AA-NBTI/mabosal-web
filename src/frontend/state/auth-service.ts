@@ -252,14 +252,14 @@ export class AuthService {
         password: cleanPassword,
       });
 
-      if (authError && authError.message.toLowerCase().includes('email not confirmed')) {
+      if (isCloudBrowser && authError && authError.message.toLowerCase().includes('email not confirmed')) {
         return {
           success: false,
           message: '이메일 인증이 완료되지 않은 계정입니다. Supabase에서 이메일 인증(Confirm email)을 끄거나 계정을 인증해주세요.',
         };
       }
 
-      if (authError && authError.message.toLowerCase().includes('banned')) {
+      if (isCloudBrowser && authError && authError.message.toLowerCase().includes('banned')) {
         return {
           success: false,
           message: '관리자에 의해 이용이 정지된 계정입니다.',
@@ -449,12 +449,17 @@ export class AuthService {
     dedupedAccounts.push(newAccount);
     getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(dedupedAccounts));
 
-    // 가입 즉시 자동 로그인
-    this.currentSession = newAccount;
-    getStorage().setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(newAccount));
+    // 회원가입 후 자동 로그인을 수행하지 않고 로그아웃 상태 유지 (로그인 분리 원칙)
+    if (supabaseUserId) {
+      try {
+        await supabase.auth.signOut();
+      } catch {}
+    }
+    this.currentSession = null;
+    getStorage().removeItem(STORAGE_KEY_CURRENT_SESSION);
     this.notifyAuthChange();
 
-    return { success: true, message: `회원가입이 완료되었습니다! 환영합니다, ${name} 님!`, user: newAccount };
+    return { success: true, message: `회원가입이 완료되었습니다! 로그인 후 이용해 주세요.`, user: newAccount };
   }
 
   /**
