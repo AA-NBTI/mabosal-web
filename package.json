@@ -7,6 +7,8 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "audit:commerce": "node scripts/audit-commerce-integrity.mjs",
+    "verify": "npm run audit:commerce && npx tsc --noEmit && npm test && npm run build",
     "build": "vite build",
     "dev": "vite"
   },
