@@ -141,6 +141,7 @@ import {
   isProductAlreadyPurchased,
   calculateStoreCouponDiscount,
   requestStoreOrderRefund,
+  cancelPendingStoreOrder,
   approveStoreOrderRefund,
   approveStoreOrderRefundWithPgCancel,
   approveStoreBankDeposit,
@@ -4184,6 +4185,19 @@ ${content}
           detailEl.style.display = isHidden ? 'block' : 'none';
           toggleDetailBtn.textContent = isHidden ? '주문 상세 및 지원 ▴' : '주문 상세 및 지원 ▾';
         }
+      }
+      return;
+    }
+
+    // [고객 입금대기(무통장) 주문 직접 취소 클릭]
+    const cancelPendingBtn = target.closest('.btn-cancel-pending-order') as HTMLElement;
+    if (cancelPendingBtn) {
+      const orderId = cancelPendingBtn.dataset.orderId;
+      const title = cancelPendingBtn.dataset.title || '주문 상품';
+      if (orderId && confirm(`[${title}]\n무통장 입금 신청을 취소하시겠습니까?\n취소 후 카드/간편결제 등으로 다시 주문하실 수 있습니다.`)) {
+        const res = cancelPendingStoreOrder(orderId);
+        alert(res.message);
+        this.render(appState.getState());
       }
       return;
     }
