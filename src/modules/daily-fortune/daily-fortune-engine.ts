@@ -96,7 +96,18 @@ export class DailyFortuneEngine {
     const yearBranch = BRANCHES[(yearOffset % 12 + 12) % 12];
 
     const ganjiDateStr = `${yearStem}${yearBranch}년 ${pillarName}일`;
-    const lunarDateStr = `음력 ${(now.getMonth() + 11) % 12 + 1}월 ${Math.min(29, now.getDate())}일`;
+    let lunarDateStr = `음력 ${(now.getMonth() + 11) % 12 + 1}월 ${Math.min(29, now.getDate())}일`;
+    try {
+      const fmt = new Intl.DateTimeFormat('ko-KR-u-ca-chinese', { month: 'numeric', day: 'numeric' });
+      const parts = fmt.formatToParts(now);
+      const monthPart = parts.find(p => p.type === 'month')?.value?.replace(/[^0-9윤]/g, '');
+      const dayPart = parts.find(p => p.type === 'day')?.value?.replace(/[^0-9]/g, '');
+      if (monthPart && dayPart) {
+        lunarDateStr = `음력 ${monthPart}월 ${dayPart}일`;
+      }
+    } catch {
+      // ICU 음력 미지원 런타임에서는 기본 근사치 유지
+    }
 
     return { stem, branch, pillarName, ganjiDateStr, lunarDateStr, yearStem, yearBranch };
   }

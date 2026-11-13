@@ -308,7 +308,73 @@ export function renderGoldProgressRing(score: number = 92, title: string = '성�
  * 4. 당일 2대 길시(吉時) 실시간 타임라인 위젯
  * 사시(巳時 09:30~11:30) & 미시(未時 13:30~15:30) 실시간 타임라인 & 엽전 퀘스트
  */
-export function renderDailyAuspiciousHoursWidget(): string {
+export interface AuspiciousHoursOptions {
+  targetElement?: string;
+  now?: Date;
+}
+
+const DAYTIME_BRANCH_SLOTS = [
+  { key: 'sashi', name: '진시(辰時)', range: '07:30 ~ 09:30', startMin: 7 * 60 + 30, endMin: 9 * 60 + 30, element: '토', tag: '기획·정돈 길시', desc: '하루의 방향을 세우고 핵심 과제를 정리하기 좋은 시간대' },
+  { key: 'sashi', name: '사시(巳時)', range: '09:30 ~ 11:30', startMin: 9 * 60 + 30, endMin: 11 * 60 + 30, element: '화', tag: '계약·문서 길시', desc: '중요 미팅 및 협상 타결 확률이 가장 높은 시간대' },
+  { key: 'sashi', name: '오시(午時)', range: '11:30 ~ 13:30', startMin: 11 * 60 + 30, endMin: 13 * 60 + 30, element: '화', tag: '소통·대외 길시', desc: '인맥 교류와 핵심 제안이 활기를 띠는 시간대' },
+  { key: 'mishi', name: '미시(未時)', range: '13:30 ~ 15:30', startMin: 13 * 60 + 30, endMin: 15 * 60 + 30, element: '토', tag: '재물·결실 길시', desc: '황금 재물 결실 타임 — 투자 판단 및 실무 마무리에 최적' },
+  { key: 'mishi', name: '신시(申時)', range: '15:30 ~ 17:30', startMin: 15 * 60 + 30, endMin: 17 * 60 + 30, element: '금', tag: '결단·실행 길시', desc: '명확한 의사결정과 수익 정산에 유리한 시간대' },
+  { key: 'mishi', name: '유시(酉時)', range: '17:30 ~ 19:30', startMin: 17 * 60 + 30, endMin: 19 * 60 + 30, element: '금', tag: '수확·협업 길시', desc: '하루의 성과를 거두고 귀인과 조율하기 좋은 시간대' },
+  { key: 'mishi', name: '술시(戌時)', range: '19:30 ~ 21:30', startMin: 19 * 60 + 30, endMin: 21 * 60 + 30, element: '토', tag: '안정·충전 길시', desc: '마음을 가다듬고 내일 일정을 설계하기 좋은 시간대' },
+];
+
+const SUPPORTING_ELEMENT: Record<string, string[]> = {
+  목: ['수', '목'],
+  화: ['목', '화'],
+  토: ['화', '토'],
+  금: ['토', '금'],
+  수: ['금', '수'],
+};
+
+export function renderDailyAuspiciousHoursWidget(options?: AuspiciousHoursOptions): string {
+  const now = options?.now || new Date();
+  const currentMin = now.getHours() * 60 + now.getMinutes();
+  const targetEl = options?.targetElement;
+  const preferredEls = targetEl && SUPPORTING_ELEMENT[targetEl] ? SUPPORTING_ELEMENT[targetEl] : ['화', '토'];
+
+  const matched = DAYTIME_BRANCH_SLOTS.filter(s => preferredEls.includes(s.element));
+  const pickedSlots = matched.length >= 2
+    ? [matched[0], matched[matched.length - 1]]
+    : [DAYTIME_BRANCH_SLOTS[1], DAYTIME_BRANCH_SLOTS[3]];
+
+  const renderSlot = (slot: typeof DAYTIME_BRANCH_SLOTS[number], modalKey: 'sashi' | 'mishi') => {
+    const isActive = currentMin >= slot.startMin && currentMin < slot.endMin;
+    const isDone = currentMin >= slot.endMin;
+    const statusLabel = isActive ? '진행 중' : isDone ? '완료' : '예정';
+    const cardBg = isActive ? 'rgba(242, 202, 80, 0.08)' : 'rgba(255, 255, 255, 0.03)';
+    const cardBorder = isActive ? '1px solid rgba(242, 202, 80, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)';
+    const titleColor = isActive ? 'var(--primary)' : '#fff';
+    const badgeStyle = isActive
+      ? 'font-size: 0.65rem; color: #241a00; background: var(--primary); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 800;'
+      : isDone
+        ? 'font-size: 0.65rem; color: #94a3b8; background: rgba(148, 163, 184, 0.15); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700;'
+        : 'font-size: 0.65rem; color: var(--primary); background: rgba(242, 202, 80, 0.15); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700;';
+
+    return `
+      <div class="interactive-auspicious-item" data-auspicious-hour="${modalKey}" style="background: ${cardBg}; border: ${cardBorder}; border-radius: 10px; padding: 0.75rem 0.9rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s ease;" title="클릭하여 상세 행동 가이드 보기">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+            <span style="font-weight: 800; font-size: 0.88rem; color: ${titleColor};">${slot.name} · ${slot.range}</span>
+            <span style="font-size: 0.65rem; color: var(--primary); background: rgba(242, 202, 80, 0.12); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700;">${slot.tag}</span>
+            <span style="${badgeStyle}">${statusLabel}</span>
+          </div>
+          <div style="font-size: 0.75rem; color: ${isActive ? 'var(--text-secondary)' : 'var(--text-muted)'}; margin-top: 0.2rem;">
+            ${slot.desc}
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.2rem; color: var(--primary); font-size: 0.72rem; font-weight: 700; flex-shrink: 0; padding-left: 0.5rem;">
+          <span>가이드</span>
+          <span class="material-symbols-outlined" style="font-size: 15px;">chevron_right</span>
+        </div>
+      </div>
+    `;
+  };
+
   return `
   <div class="auspicious-hours-card" style="background: rgba(15, 20, 34, 0.9); border: 1px solid rgba(242, 202, 80, 0.25); border-radius: 14px; padding: 1.1rem; margin-bottom: 1.5rem; text-align: left;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
@@ -322,39 +388,8 @@ export function renderDailyAuspiciousHoursWidget(): string {
     </div>
 
     <div style="display: flex; flex-direction: column; gap: 0.65rem;">
-      <!-- 제1 길시: 사시 (클릭 시 상세 가이드 모달) -->
-      <div class="interactive-auspicious-item" data-auspicious-hour="sashi" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 0.75rem 0.9rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s ease;" title="클릭하여 상세 행동 가이드 보기">
-        <div>
-          <div style="display: flex; align-items: center; gap: 0.4rem;">
-            <span style="font-weight: 800; font-size: 0.88rem; color: #fff;">사시(巳時 · 09:30 ~ 11:30)</span>
-            <span style="font-size: 0.65rem; color: var(--primary); background: rgba(242, 202, 80, 0.15); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700;">계약·문서 길시</span>
-          </div>
-          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
-            중요 미팅 및 협상 타결 확률이 가장 높은 시간대
-          </div>
-        </div>
-        <div style="display: flex; align-items: center; gap: 0.2rem; color: var(--primary); font-size: 0.72rem; font-weight: 700; flex-shrink: 0; padding-left: 0.5rem;">
-          <span>가이드</span>
-          <span class="material-symbols-outlined" style="font-size: 15px;">chevron_right</span>
-        </div>
-      </div>
-
-      <!-- 제2 길시: 미시 (현재 활성 하이라이트 + 클릭 시 상세 가이드 모달) -->
-      <div class="interactive-auspicious-item" data-auspicious-hour="mishi" style="background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.4); border-radius: 10px; padding: 0.75rem 0.9rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s ease;" title="클릭하여 상세 행동 가이드 보기">
-        <div>
-          <div style="display: flex; align-items: center; gap: 0.4rem;">
-            <span style="font-weight: 800; font-size: 0.88rem; color: var(--primary);">미시(未時 · 13:30 ~ 15:30)</span>
-            <span style="font-size: 0.65rem; color: #241a00; background: var(--primary); padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 800;">진행 중</span>
-          </div>
-          <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem;">
-            황금 재물 결실 타임 — 투자 판단 및 송금에 최적
-          </div>
-        </div>
-        <div style="display: flex; align-items: center; gap: 0.2rem; color: var(--primary); font-size: 0.72rem; font-weight: 700; flex-shrink: 0; padding-left: 0.5rem;">
-          <span>가이드</span>
-          <span class="material-symbols-outlined" style="font-size: 15px;">chevron_right</span>
-        </div>
-      </div>
+      ${renderSlot(pickedSlots[0], 'sashi')}
+      ${renderSlot(pickedSlots[1], 'mishi')}
     </div>
   </div>
   `;
@@ -787,7 +822,8 @@ export function renderCheonmyeongwonDailyDashboard(options?: CheonmyeongwonDaily
    };
    detectedTargetEl = stemMap[sChar] || '토';
  }
- const codex = calculateLuckyCodex(options?.yongshin || options?.targetElement || detectedTargetEl);
+ const dailySeed = now.getFullYear() * 366 + now.getMonth() * 31 + now.getDate();
+ const codex = calculateLuckyCodex(options?.yongshin || options?.targetElement || detectedTargetEl, { seedIndex: dailySeed });
  const luckyColor = options?.luckyColor || codex.luckyColor.name;
  const luckyColorHex = codex.luckyColor.hex;
  const luckyDirection = options?.luckyDirection || codex.luckyDirection.name;
@@ -941,7 +977,7 @@ export function renderCheonmyeongwonDailyDashboard(options?: CheonmyeongwonDaily
   </div>
 
   <!-- [3. 비전 바로가기 위쪽 배치] 오늘의 황금 길시(吉時) -->
-  ${renderDailyAuspiciousHoursWidget()}
+  ${renderDailyAuspiciousHoursWidget({ targetElement: codex.targetElement, now })}
 
   </div>
   `;
