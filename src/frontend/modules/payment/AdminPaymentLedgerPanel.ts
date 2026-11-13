@@ -119,7 +119,7 @@ export function renderAdminPaymentLedgerPanel(): string {
         <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
           <button type="button" id="btn-refresh-payment-ledger" style="background: rgba(242,202,80,0.14); border: 1px solid rgba(242,202,80,0.35); color: var(--primary); font-size: 0.78rem; font-weight: 700; padding: 0.42rem 0.8rem; border-radius: 7px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem;">
             <span class="material-symbols-outlined" style="font-size: 15px;">refresh</span>
-            DB 새로고침
+            DB · 포트원 동기화
           </button>
           <a href="https://admin.portone.io" target="_blank" rel="noopener noreferrer" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #e2e8f0; font-size: 0.78rem; font-weight: 700; padding: 0.42rem 0.8rem; border-radius: 7px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">
             포트원 콘솔 ↗
@@ -174,7 +174,10 @@ export function renderAdminPaymentLedgerPanel(): string {
                   <td style="padding: 0.6rem; color: var(--text-muted); font-size: 0.74rem;">${new Date(o.paidAt).toLocaleString()}</td>
                   <td style="padding: 0.6rem;">
                     ${o.status === 'refunded' ? `
-                      <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700;">환불완료</span>
+                      <div style="display: flex; flex-direction: column; gap: 0.15rem; align-items: flex-start;">
+                        <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700;">환불완료</span>
+                        ${o.refundedAt ? `<span style="font-size: 0.68rem; color: #94a3b8;">취소: ${new Date(o.refundedAt).toLocaleString()}</span>` : ''}
+                      </div>
                     ` : (o.refundRequested ? `
                       <button type="button" class="btn-admin-approve-refund" data-order-id="${esc(o.orderId)}" style="background: #ef4444; color: #fff; font-size: 0.72rem; font-weight: 800; border: none; border-radius: 6px; padding: 0.3rem 0.6rem; cursor: pointer;" title="사유: ${esc(o.refundReason || '')}">
                         환불 승인 (${esc(o.refundReason || '요청')})

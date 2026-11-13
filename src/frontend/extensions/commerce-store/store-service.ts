@@ -21,7 +21,7 @@ import {
 } from './saju-book-data.js';
 import { VoucherStore } from '../../modules/voucher/voucher-store.js';
 import { supabase } from '../../modules/supabase/supabase-client.js';
-import { cancelPortOnePayment } from '../../modules/payment/portone-server-api.js';
+import { cancelPortOnePayment, fetchPortOnePaymentHistory } from '../../modules/payment/portone-server-api.js';
 
 const STORAGE_PRODUCTS_KEY = 'mabosal_store_products_v7';
 const STORAGE_ORDERS_KEY = 'mabosal_store_orders';
@@ -1054,6 +1054,75 @@ export async function syncOrdersFromSupabase(): Promise<boolean> {
     console.warn('[store-service] Supabase orders sync deferred:', e);
     return false;
   }
+}
+
+/**
+ * 포트원 V2 서버의 실제 결제/취소 내역을 조회해 마보살 주문 장부와 동기화 (과거 결제·외부 취소 포함)
+ */
+export async function syncPortOnePaymentsIntoOrders(): Promise<{
+  changed: boolean;
+  syncedCount: number;
+  error?: string;
+}> {
+  const res = await fetchPortOnePaymentHistory(50);
+  if (!res.ok) {
+    return { changed: false, syncedCount: 0, error: res.error };
+  }
+
+  const raw = getStorage().getItem(STORAGE_ORDERS_KEY);
+  const localOrders: StoreOrder[] = raw ? JSON.parse(raw) : [];
+  let changed = false;
+  let syncedCount = 0;
+
+  for (const item of res.items) {
+    if (!item?.id) continue;
+    const isCancelled = item.status === 'CANCELLED' || item.status === 'PARTIAL_CANCELLED';
+    const isPaid = item.status === 'PAID';
+    if (!isCancelled && !isPaid) continue;
+
+    syncedCount += 1;
+    const targetStatus: StoreOrder['status'] = isCancelled ? 'refunded' : 'completed';
+    const matched = localOrders.find(o => o.orderId === item.id || o.paymentKey === item.id);
+
+    if (matched) {
+      if (!matched.paymentKey) {
+        matched.paymentKey = item.id;
+        changed = true;
+      }
+      if (matched.status !== targetStatus && (isCancelled || matched.status === 'pending')) {
+        matched.status = targetStatus;
+        if (isCancelled && !matched.refundedAt) {
+          matched.refundedAt = item.cancelledAt || new Date().toISOString();
+        }
+        changed = true;
+      }
+    } else {
+      localOrders.unshift({
+        orderId: item.id,
+        paymentKey: item.id,
+        productId: 'portone-synced',
+        productTitle: item.orderName || '포트원 결제 상품',
+        category: 'lecture',
+        amount: Number(item.amount?.total || 0),
+        deliveryType: 'digital_url',
+        accessUrl: '/?view=store',
+        buyerName: item.customer?.name || '포트원 구매자',
+        buyerPhone: item.customer?.phoneNumber || '',
+        buyerEmail: item.customer?.email || '',
+        paymentMethod: 'card',
+        paidAt: item.paidAt || item.requestedAt || new Date().toISOString(),
+        ...(isCancelled ? { refundedAt: item.cancelledAt || new Date().toISOString() } : {}),
+        status: targetStatus,
+      });
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    getStorage().setItem(STORAGE_ORDERS_KEY, JSON.stringify(localOrders.slice(0, 500)));
+  }
+
+  return { changed, syncedCount };
 }
 
 /** 현재 로그인 회원 본인의 주문만 반환 (소유자 필터 강제). 화면/권한 판정에는 이 함수만 사용한다. */

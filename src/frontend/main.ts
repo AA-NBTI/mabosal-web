@@ -145,6 +145,7 @@ import {
   approveStoreOrderRefundWithPgCancel,
   approveStoreBankDeposit,
   syncOrdersFromSupabase,
+  syncPortOnePaymentsIntoOrders,
   addStoreCategory,
   updateStoreCategory,
   deleteStoreCategory,
@@ -2350,12 +2351,20 @@ ${content}
       return;
     }
 
-    // [결제 · 환불 독립 패널] Supabase 주문 DB 즉시 새로고침
+    // [결제 · 환불 독립 패널] Supabase DB + 포트원 V2 서버 실제 결제/취소 이력 즉시 동기화
     if (target.closest('#btn-refresh-payment-ledger')) {
       const btn = target.closest('#btn-refresh-payment-ledger') as HTMLButtonElement;
       btn.disabled = true;
-      await syncOrdersFromSupabase();
+      const [, portoneRes] = await Promise.all([
+        syncOrdersFromSupabase(),
+        syncPortOnePaymentsIntoOrders(),
+      ]);
       this.render(appState.getState());
+      if (portoneRes.error) {
+        alert(`포트원 서버 동기화 참고: ${portoneRes.error}`);
+      } else {
+        alert(`동기화 완료: 포트원 실제 결제/취소 내역 ${portoneRes.syncedCount}건을 확인했습니다.`);
+      }
       return;
     }
 
@@ -5814,7 +5823,21 @@ ${content}
           return;
         }
 
-        portonePaymentKey = response?.paymentId || tempOrderId;
+        const resolvedPaymentKey = response?.paymentId || tempOrderId;
+        portonePaymentKey = resolvedPaymentKey;
+        void verifyPortOnePayment(resolvedPaymentKey, {
+          orderId: tempOrderId,
+          orderSnapshot: {
+            productId: primaryItem.productId,
+            productTitle: orderTitle,
+            category: primaryItem.category,
+            amount: totalPayAmount,
+            buyerName: nameInput?.value?.trim() || '구매자',
+            buyerEmail: emailInput?.value?.trim() || 'customer@mabosal.com',
+            buyerPhone: phoneInput?.value?.trim() || '01000000000',
+            deliveryType: primaryItem.deliveryType,
+          },
+        });
       } catch (err: any) {
         if (submitBtn) {
           submitBtn.disabled = false;

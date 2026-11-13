@@ -13,6 +13,23 @@ export interface PortOneVerifyResult {
   error?: string;
 }
 
+export interface PortOnePaymentRecord {
+  id: string;
+  status: string;
+  orderName?: string;
+  amount?: { total?: number; cancelled?: number };
+  paidAt?: string;
+  cancelledAt?: string;
+  requestedAt?: string;
+  customer?: { name?: string; phoneNumber?: string; email?: string };
+}
+
+export interface PortOneListResult {
+  ok: boolean;
+  items: PortOnePaymentRecord[];
+  error?: string;
+}
+
 /**
  * Supabase Edge Function(`portone-payment`)을 통해 포트원 V2 서버 결제 취소를 요청한다.
  */
@@ -46,18 +63,54 @@ export async function cancelPortOnePayment(params: {
 }
 
 /**
- * Supabase Edge Function(`portone-payment`)을 통해 포트원 V2 서버 결제 상태를 검증한다.
+ * Supabase Edge Function(`portone-payment`)을 통해 포트원 V2 서버 결제 상태를 검증하고 DB에 주문을 확정 저장한다.
  */
-export async function verifyPortOnePayment(paymentId: string): Promise<PortOneVerifyResult> {
+export async function verifyPortOnePayment(
+  paymentId: string,
+  options?: {
+    orderId?: string;
+    orderSnapshot?: {
+      productId?: string;
+      productTitle?: string;
+      category?: string;
+      amount?: number;
+      buyerName?: string;
+      buyerEmail?: string;
+      buyerPhone?: string;
+      deliveryType?: string;
+    };
+  }
+): Promise<PortOneVerifyResult> {
   try {
     const { data, error } = await supabase.functions.invoke('portone-payment', {
-      body: { action: 'verify', paymentId },
+      body: {
+        action: 'verify',
+        paymentId,
+        ...(options?.orderId ? { orderId: options.orderId } : {}),
+        ...(options?.orderSnapshot ? { orderSnapshot: options.orderSnapshot } : {}),
+      },
     });
     if (error) return { ok: false, error: error.message };
     if (!data?.ok) return { ok: false, error: data?.error || '결제 검증 실패' };
     return { ok: true, status: data.status, amount: data.amount };
   } catch (err: any) {
     return { ok: false, error: err?.message || '결제 검증 요청 중 오류가 발생했습니다.' };
+  }
+}
+
+/**
+ * Supabase Edge Function(`portone-payment`)을 통해 포트원 V2 실제 결제·취소 내역을 조회한다. (관리자 전용)
+ */
+export async function fetchPortOnePaymentHistory(pageSize = 50): Promise<PortOneListResult> {
+  try {
+    const { data, error } = await supabase.functions.invoke('portone-payment', {
+      body: { action: 'list_payments', pageSize },
+    });
+    if (error) return { ok: false, items: [], error: error.message };
+    if (!data?.ok) return { ok: false, items: [], error: data?.error || '포트원 내역 조회 실패' };
+    return { ok: true, items: Array.isArray(data.items) ? data.items : [] };
+  } catch (err: any) {
+    return { ok: false, items: [], error: err?.message || '포트원 내역 조회 중 오류가 발생했습니다.' };
   }
 }
 

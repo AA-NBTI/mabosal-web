@@ -7,11 +7,22 @@ const corsHeaders = {
 };
 
 interface PortOneActionPayload {
-  action: 'verify' | 'cancel';
-  paymentId: string;
+  action: 'verify' | 'cancel' | 'list_payments';
+  paymentId?: string;
   orderId?: string;
   reason?: string;
   amount?: number;
+  pageSize?: number;
+  orderSnapshot?: {
+    productId?: string;
+    productTitle?: string;
+    category?: string;
+    amount?: number;
+    buyerName?: string;
+    buyerEmail?: string;
+    buyerPhone?: string;
+    deliveryType?: string;
+  };
 }
 
 function jsonResponse(body: Record<string, unknown>, status = 200): Response {
@@ -53,12 +64,44 @@ Deno.serve(async (req: Request) => {
     }
 
     const body = (await req.json()) as PortOneActionPayload;
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+    if (body.action === 'list_payments') {
+      const { data: callerProfile } = await adminClient
+        .from('profiles')
+        .select('role')
+        .eq('id', caller.id)
+        .maybeSingle();
+
+      if (callerProfile?.role !== 'admin') {
+        return jsonResponse({ ok: false, error: 'Forbidden: admin role required' }, 403);
+      }
+
+      const queryObj = {
+        page: { number: 0, size: Math.min(Math.max(body.pageSize || 50, 1), 100) },
+      };
+      const url = `https://api.portone.io/payments?query=${encodeURIComponent(JSON.stringify(queryObj))}`;
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Authorization: `PortOne ${portoneSecret}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        return jsonResponse({ ok: false, error: data?.message || `PortOne list failed (${res.status})` }, res.status);
+      }
+      return jsonResponse({
+        ok: true,
+        items: Array.isArray(data.items) ? data.items : [],
+      });
+    }
+
     const paymentId = (body.paymentId || '').trim();
     if (!paymentId) {
       return jsonResponse({ ok: false, error: 'paymentId is required' }, 400);
     }
-
-    const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
     if (body.action === 'verify') {
       const res = await fetch(`https://api.portone.io/payments/${encodeURIComponent(paymentId)}`, {
@@ -72,6 +115,50 @@ Deno.serve(async (req: Request) => {
       if (!res.ok) {
         return jsonResponse({ ok: false, error: data?.message || `PortOne verify failed (${res.status})` }, res.status);
       }
+
+      // 결제 완료 건이면 service_role로 Supabase orders 테이블에도 동기화
+      if (data.status === 'PAID' && body.orderSnapshot?.productId) {
+        const snap = body.orderSnapshot;
+        const orderId = (body.orderId || paymentId).trim();
+        await adminClient
+          .from('products')
+          .upsert(
+            {
+              id: snap.productId,
+              title: snap.productTitle || data.orderName || '마보살 상품',
+              category: snap.category || 'report',
+              price: Number(data.amount?.total ?? snap.amount ?? 0),
+              delivery_type: snap.deliveryType || 'digital_url',
+              status: 'active',
+            },
+            { onConflict: 'id', ignoreDuplicates: true }
+          )
+          .then(() => undefined, () => undefined);
+
+        await adminClient
+          .from('orders')
+          .upsert(
+            {
+              id: orderId,
+              user_id: caller.id,
+              product_id: snap.productId,
+              product_title: snap.productTitle || data.orderName || '마보살 상품',
+              category: snap.category || 'report',
+              amount: Number(data.amount?.total ?? snap.amount ?? 0),
+              buyer_name: snap.buyerName || data.customer?.name || '구매자',
+              buyer_email: snap.buyerEmail || data.customer?.email || '',
+              buyer_phone: snap.buyerPhone || data.customer?.phoneNumber || '',
+              payment_method: 'toss_card',
+              payment_key: paymentId,
+              status: 'completed',
+              delivery_type: snap.deliveryType || 'digital_url',
+              paid_at: data.paidAt || new Date().toISOString(),
+            },
+            { onConflict: 'id' }
+          )
+          .then(() => undefined, () => undefined);
+      }
+
       return jsonResponse({
         ok: true,
         status: data.status,
