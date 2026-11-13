@@ -46,28 +46,50 @@ export class UserAddressStore {
   public static getAddresses(userId?: string): UserAddress[] {
     const uid = userId || AuthService.getCurrentUser().id;
     const all = this.loadAll();
-    const list = all.filter(a => a.userId === uid);
+    return all.filter(a => a.userId === uid);
+  }
 
-    // 기본 등록 배송지가 없는데 로그인 사용자 정보가 있는 경우 기본 예시 주소 생성
-    if (list.length === 0 && uid && AuthService.getCurrentUser().role !== 'guest') {
-      const user = AuthService.getCurrentUser();
-      const initial: UserAddress = {
-        id: 'addr-' + Date.now().toString(36),
-        userId: uid,
-        recipientName: user.name || '홍길동',
-        recipientPhone: '010-1234-5678',
-        address: '서울특별시 강남구 테헤란로 152',
-        detailAddress: '강남파이낸스센터 12층',
-        deliveryMemo: '부재 시 문 앞에 놓아주세요',
-        isDefault: true,
-        updatedAt: new Date().toISOString(),
-      };
-      all.push(initial);
-      this.saveAll(all);
-      return [initial];
+  /**
+   * 회원의 기본 개인정보(성함·연락처·생년월일·기본 주소) 완성도 점검
+   */
+  public static getProfileCompleteness(user?: {
+    id?: string;
+    role?: string;
+    name?: string;
+    phone?: string;
+    birthDate?: string;
+  }): { isComplete: boolean; missingFields: string[]; completionRate: number } {
+    const target = user || AuthService.getCurrentUser();
+    if (!target || target.role === 'guest') {
+      return { isComplete: true, missingFields: [], completionRate: 100 };
     }
 
-    return list;
+    const missingFields: string[] = [];
+    const trimmedName = (target.name || '').trim();
+    if (!trimmedName || trimmedName === '회원') {
+      missingFields.push('성함');
+    }
+
+    const trimmedPhone = (target.phone || '').trim();
+    if (!trimmedPhone || trimmedPhone === '010-0000-0000' || trimmedPhone === '010-1234-5678') {
+      missingFields.push('연락처');
+    }
+
+    if (!(target.birthDate || '').trim()) {
+      missingFields.push('생년월일');
+    }
+
+    if (this.getAddresses(target.id).length === 0) {
+      missingFields.push('기본 주소');
+    }
+
+    const total = 4;
+    const completed = total - missingFields.length;
+    return {
+      isComplete: missingFields.length === 0,
+      missingFields,
+      completionRate: Math.round((completed / total) * 100),
+    };
   }
 
   /**

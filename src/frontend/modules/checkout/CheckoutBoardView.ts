@@ -226,6 +226,12 @@ export function renderCheckoutBoardView(): string {
                 return `
                   ${isMember ? `
                     <!-- 회원 등록 배송지 주소록 선택 바 -->
+                    ${savedAddresses.length === 0 ? `
+                      <div style="background: rgba(242, 202, 80, 0.1); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 8px; padding: 0.7rem 0.9rem; margin-bottom: 0.85rem; font-size: 0.8rem; color: #fde68a; display: flex; align-items: center; gap: 0.45rem;">
+                        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">info</span>
+                        <span>등록된 기본 주소가 없습니다. 아래에 정확한 주소를 입력하시면 기본 주소록에도 함께 저장됩니다.</span>
+                      </div>
+                    ` : ''}
                     <div style="background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(242, 202, 80, 0.3); border-radius: 8px; padding: 0.65rem 0.85rem; margin-bottom: 0.85rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
                       <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: #cbd5e1;">
                         <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">bookmark</span>

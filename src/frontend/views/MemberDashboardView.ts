@@ -52,13 +52,15 @@ export function renderMemberDashboardView(state: AppStateData): string {
     return i.userName === userName || i.userId === 'guest';
   });
 
+  const profileStatus = UserAddressStore.getProfileCompleteness(user);
+
   // 카테고리 탭 목록 (PG 결제 실사 최적화: 행운쿠폰, 구독관리 제거)
   const tabs = [
     { id: 'tab-daily', icon: 'auto_fix_high', label: '행운처방', badge: '' },
     { id: 'tab-lucky-calendar', icon: 'event_available', label: '행운달력', badge: '' },
     { id: 'tab-magi-calendar', icon: 'event_busy', label: '마기달력', badge: '' },
     { id: 'tab-orders', icon: 'receipt_long', label: '주문내역', badge: summary.pendingTransfers.length > 0 ? `${summary.pendingTransfers.length}건 대기` : '' },
-    { id: 'tab-account', icon: 'manage_accounts', label: '회원정보', badge: '' },
+    { id: 'tab-account', icon: 'manage_accounts', label: '회원정보', badge: !profileStatus.isComplete ? '정보보완' : '' },
     { id: 'tab-inquiries', icon: 'support_agent', label: '고객센터', badge: myInquiries.some(i => i.status === 'pending') ? '답변대기' : '' },
   ];
 
@@ -138,7 +140,7 @@ export function renderMemberDashboardView(state: AppStateData): string {
         <nav style="display: flex; flex-direction: column; gap: 0.35rem;">
           ${tabs.map(t => {
             const isActive = currentTab === t.id;
-            const isRedBadge = t.badge === '답변대기';
+            const isRedBadge = t.badge === '답변대기' || t.badge === '정보보완';
 
             return `
             <button type="button" class="member-nav-item ${isActive ? 'active' : ''}" data-member-tab="${t.id}" style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0.75rem 0.85rem; border-radius: 10px; font-size: 0.88rem; font-weight: ${isActive ? '800' : '600'}; cursor: pointer; text-align: left; transition: all 0.15s ease; border: 1px solid ${isActive ? 'rgba(255,255,255,0.25)' : 'transparent'}; background: ${isActive ? 'rgba(255,255,255,0.1)' : 'transparent'}; color: ${isActive ? '#fff' : '#94a3b8'};">
@@ -159,6 +161,27 @@ export function renderMemberDashboardView(state: AppStateData): string {
 
       <!-- [우측 메인 워크스페이스] -->
       <main class="member-workspace" style="flex: 1; min-width: 0;">
+        ${!profileStatus.isComplete ? `
+          <div style="background: linear-gradient(135deg, rgba(242, 202, 80, 0.12), rgba(239, 68, 68, 0.08)); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+              <span class="material-symbols-outlined" style="color: var(--primary); font-size: 22px; margin-top: 0.1rem;">notification_important</span>
+              <div>
+                <div style="font-size: 0.9rem; font-weight: 800; color: #fff; margin-bottom: 0.2rem;">
+                  기본 개인정보 보완 안내 (완성도 ${profileStatus.completionRate}%)
+                </div>
+                <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.45;">
+                  정확한 본인 확인, 주문·결제 및 맞춤형 서비스 제공을 위해 미입력된 기본 정보를 등록해 주세요.<br/>
+                  <span style="color: #fca5a5; font-weight: 700;">미입력 항목: ${profileStatus.missingFields.join(', ')}</span>
+                </div>
+              </div>
+            </div>
+            ${currentTab !== 'tab-account' ? `
+              <button type="button" data-member-tab="tab-account" style="background: var(--primary); color: #1c1500; border: none; border-radius: 8px; padding: 0.55rem 1rem; font-size: 0.8rem; font-weight: 800; cursor: pointer; white-space: nowrap;">
+                기본 정보 입력하기 →
+              </button>
+            ` : ''}
+          </div>
+        ` : ''}
         ${renderMemberTabContent(currentTab, state, summary, user, myInquiries)}
       </main>
 
@@ -516,7 +539,7 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
                   <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">home_pin</span>
                   회원 등록 배송지 주소록
                 </h3>
-                <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0;">실물 굿즈 및 도서 상품 주문 시 기본 배송지로 자동 입력되는 주소 목록입니다.</p>
+                <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0;">주문·배송 및 본인 확인 등 정확한 서비스 제공을 위해 기본으로 사용되는 주소 정보입니다.</p>
               </div>
               <button type="button" id="btn-add-member-address" style="background: var(--primary); color: #1c1500; font-weight: 800; font-size: 0.78rem; border: none; padding: 0.45rem 0.85rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; box-shadow: 0 2px 8px rgba(242,202,80,0.25);">
                 <span class="material-symbols-outlined" style="font-size: 16px;">add_location_alt</span>

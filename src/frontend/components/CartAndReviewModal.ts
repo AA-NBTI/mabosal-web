@@ -189,7 +189,7 @@ export function renderOrderReviewModal(options: ReviewModalOptions): string {
               3. 실물 상품 수령 배송지
             </div>
             <div style="font-size: 0.88rem; color: #fff; font-weight: 600;">
-              ${options.shippingAddress || '서울시 강남구 테헤란로 (기본 등록 배송지)'}
+              ${options.shippingAddress || '미등록 (배송지 입력 필요)'}
             </div>
             <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 0.2rem;">
               수령인: ${options.buyerName} (${options.buyerPhone})
