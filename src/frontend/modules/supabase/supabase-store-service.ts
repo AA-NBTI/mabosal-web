@@ -56,12 +56,16 @@ export class SupabaseStoreService {
     orderId?: string;
   }): Promise<{ success: boolean; order?: any; error?: string }> {
     try {
+      const dbMethod = ['card', 'toss_card', 'portone_card', 'kakaopay', 'tosspay'].includes(orderInput.paymentMethod)
+        ? 'toss_card'
+        : 'bank_transfer';
+
       const { data, error } = await supabase.rpc('create_order', {
         p_product_id: orderInput.productId,
         p_buyer_name: orderInput.buyerName,
         p_buyer_phone: orderInput.buyerPhone,
         p_buyer_email: orderInput.buyerEmail,
-        p_method: orderInput.paymentMethod === 'card' || orderInput.paymentMethod === 'toss_card' ? 'toss_card' : 'bank_transfer',
+        p_method: dbMethod,
         p_order_id: orderInput.orderId || null,
       });
 
@@ -80,7 +84,7 @@ export class SupabaseStoreService {
             buyer_name: orderInput.buyerName,
             buyer_email: orderInput.buyerEmail,
             buyer_phone: orderInput.buyerPhone,
-            payment_method: orderInput.paymentMethod === 'card' || orderInput.paymentMethod === 'toss_card' ? 'toss_card' : 'bank_transfer',
+            payment_method: dbMethod,
             status: 'pending',
             delivery_type: 'saju_report',
           })

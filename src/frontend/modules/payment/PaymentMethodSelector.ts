@@ -49,7 +49,7 @@ export function renderPaymentMethodSelector(amount: number): string {
 
     ${cardOn ? `
     <div style="font-size:0.72rem;color:#94a3b8;line-height:1.4;margin-top:0.2rem;">
-      신용·체크카드, 토스페이·카카오페이·네이버페이 등은 토스페이먼츠 결제창에서 선택합니다.
+      신용·체크카드, 간편결제 등은 KG이니시스 결제창에서 선택합니다.
     </div>` : ''}
   </div>`;
 }
