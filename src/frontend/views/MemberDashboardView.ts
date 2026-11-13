@@ -229,9 +229,9 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
     // 1. 행운처방 (기본 홈화면)
     case 'tab-daily': {
       // 현재 로그인한 회원의 최신 등록 사주 기반 1순위 실시간 세션 산출
-      const userSession = UserSajuStore.calculateSessionForUser(user.id);
-      const sessionData = userSession || (state?.sessionState as any) || state?.calcResult;
       const hasSaju = UserSajuStore.hasSajuProfile(user.id);
+      const userSession = hasSaju ? UserSajuStore.calculateSessionForUser(user.id) : null;
+      const sessionData = hasSaju ? (userSession || (state?.sessionState as any) || state?.calcResult) : null;
 
       // fortune-adapter: 세션(fact, signalSet) -> 정밀 지수 엔진 계약 변환 (개인화 보장)
       const fortuneOpts = toDashboardOptions(sessionData, {

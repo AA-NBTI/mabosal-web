@@ -13,6 +13,10 @@ import { renderCartModal } from '../src/frontend/components/CartAndReviewModal.j
 import { renderCartBoardView } from '../src/frontend/modules/cart/CartBoardView.js';
 import { renderCheckoutBoardView } from '../src/frontend/modules/checkout/CheckoutBoardView.js';
 import { FunnelCheckoutHelper } from '../src/frontend/views/pages/FunnelCheckoutHelper.js';
+import {
+  renderMemberLuckyCalendarWidget,
+  renderMemberMagiCalendarWidget,
+} from '../src/frontend/views/MemberCalendarWidgets.js';
 import { setStorageBackend, createMemoryStorage } from '../src/frontend/modules/persistence/index.js';
 
 class MemoryMockStorage {
@@ -160,5 +164,53 @@ describe('UI Consistency & Negative Gate Audit', () => {
     });
     expect(suspendedRes.success).toBe(false);
     expect(suspendedRes.message).toContain('정지');
+  });
+
+  it('이용자 대시보드 행운달력·마기달력이 서로 다른 사주 원국에 따라 개인화된 결과를 산출한다', async () => {
+    await AuthService.register({
+      username: 'cal_user_a',
+      password: 'password123',
+      passwordConfirm: 'password123',
+      name: '김갑자',
+      role: 'user',
+    });
+    await AuthService.login('cal_user_a', 'password123');
+
+    // 사주 미등록 시 기본 안내 노출 확인
+    const unregisteredLucky = renderMemberLuckyCalendarWidget(appState.getState());
+    expect(unregisteredLucky).toContain('1:1 맞춤 달력');
+
+    UserSajuStore.syncUserSajuProfile({
+      userName: '김갑자',
+      birthDate: '1988-02-14',
+      birthTime: '06:00',
+      gender: 'male',
+      calendarType: 'solar',
+    });
+    const luckyA = renderMemberLuckyCalendarWidget(appState.getState());
+    const magiA = renderMemberMagiCalendarWidget(appState.getState());
+    expect(luckyA).not.toContain('1:1 맞춤 달력');
+
+    AuthService.logout();
+    await AuthService.register({
+      username: 'cal_user_b',
+      password: 'password123',
+      passwordConfirm: 'password123',
+      name: '이병오',
+      role: 'user',
+    });
+    await AuthService.login('cal_user_b', 'password123');
+    UserSajuStore.syncUserSajuProfile({
+      userName: '이병오',
+      birthDate: '1995-09-23',
+      birthTime: '19:30',
+      gender: 'female',
+      calendarType: 'solar',
+    });
+    const luckyB = renderMemberLuckyCalendarWidget(appState.getState());
+    const magiB = renderMemberMagiCalendarWidget(appState.getState());
+
+    expect(luckyA.replace(/김갑자/g, 'USER')).not.toBe(luckyB.replace(/이병오/g, 'USER'));
+    expect(magiA.replace(/김갑자/g, 'USER')).not.toBe(magiB.replace(/이병오/g, 'USER'));
   });
 });

@@ -1,6 +1,46 @@
 import { dailyZodiacMagiEngine } from '../services/DailyZodiacMagiEngine.js';
 import { AuthService } from '../state/auth-service.js';
 import { AppStateData } from '../state/app-state.js';
+import { UserSajuStore } from '../state/user-saju-store.js';
+import { toDashboardOptions } from '../modules/fortune-adapter/index.js';
+
+function resolveMemberCalendarContext(state: AppStateData) {
+  const currentUser = AuthService.getCurrentUser();
+  const userId = currentUser && currentUser.role !== 'guest' ? currentUser.id : undefined;
+  const hasSaju = UserSajuStore.hasSajuProfile(userId);
+  const userSession = hasSaju ? UserSajuStore.calculateSessionForUser(userId) : null;
+  const userName = (currentUser && currentUser.role !== 'guest' ? currentUser.name : '') || state?.userName || '회원';
+  const gender: 'male' | 'female' = (currentUser?.gender === 'female' || currentUser?.gender === 'male')
+    ? currentUser.gender
+    : (state?.gender === 'female' ? 'female' : 'male');
+
+  const adapted = userSession ? toDashboardOptions(userSession, { userName, gender }) : null;
+  const sajuCore = adapted?.sajuCore || (hasSaju ? (state?.calcResult?.saju_core || (state?.sessionState as any)?.fact) : null) || {
+    four_pillars: {
+      day: { stem: { char: '갑', element: '목' }, branch: { char: '자', element: '수' } }
+    },
+    day_master_strength: { yongshin: '화', heeshin: '토' }
+  };
+
+  return {
+    hasSaju,
+    sajuCore,
+    signal: adapted?.signal,
+    relationship: adapted?.relationship,
+    userName,
+    gender,
+  };
+}
+
+function renderCalendarUnregisteredNotice(hasSaju: boolean): string {
+  if (hasSaju) return '';
+  return `
+    <div style="background: rgba(242, 202, 80, 0.08); border: 1px solid rgba(242, 202, 80, 0.3); border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; font-size: 0.8rem; color: #cbd5e1;">
+      <span>현재 기본 천기 기준으로 표시 중입니다. 생년월일시를 등록하면 <strong>1:1 맞춤 달력</strong>으로 전환됩니다.</span>
+      <button type="button" class="btn-open-saju-onboarding" style="background: var(--primary); color: #1a1400; border: none; border-radius: 6px; padding: 0.35rem 0.75rem; font-size: 0.76rem; font-weight: 800; cursor: pointer;">사주 입력하기 →</button>
+    </div>
+  `;
+}
 
 /**
  * [이용자 대시보드 전용] 1:1 개인화 행운 달력 위젯
@@ -12,18 +52,7 @@ export function renderMemberLuckyCalendarWidget(state: AppStateData): string {
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
 
-  // 개인 사주 원국 정보 확인 및 fallback
-  const sajuCore = state?.calcResult?.saju_core || (state?.sessionState as any)?.sajuCore || (state?.calcResult as any)?.sajuCore || {
-    four_pillars: {
-      day: { stem: { char: '갑', element: '목' }, branch: { char: '자', element: '수' } }
-    },
-    day_master_strength: { yongshin: '화', heeshin: '토' }
-  };
-  const signal = state?.calcResult?.signal;
-  const relationship = state?.calcResult?.relationships;
-  const currentUser = AuthService.getCurrentUser();
-  const userName = state?.userName || (currentUser && currentUser.role !== 'guest' ? currentUser.name : '회원');
-  const gender = state?.gender || (currentUser?.gender === 'female' ? 'female' : 'male');
+  const { hasSaju, sajuCore, signal, relationship, userName, gender } = resolveMemberCalendarContext(state);
 
   const calData = (dailyZodiacMagiEngine as any).getPersonalizedMonthlyLuckyCalendarData(year, month, {
     sajuCore,
@@ -35,6 +64,7 @@ export function renderMemberLuckyCalendarWidget(state: AppStateData): string {
 
   return `
   <div class="member-calendar-container member-lucky-calendar" style="width: 100%; box-sizing: border-box;">
+    ${renderCalendarUnregisteredNotice(hasSaju)}
     
     <!-- [1. 최상단 배치] 7열 월간 캘린더 그리드 -->
     <div style="background: rgba(15, 19, 28, 0.95); border: 1.5px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 24px rgba(0,0,0,0.4); margin-bottom: 1.25rem;">
@@ -110,18 +140,7 @@ export function renderMemberMagiCalendarWidget(state: AppStateData): string {
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
 
-  // 개인 사주 원국 정보 확인 및 fallback
-  const sajuCore = state?.calcResult?.saju_core || (state?.sessionState as any)?.sajuCore || (state?.calcResult as any)?.sajuCore || {
-    four_pillars: {
-      day: { stem: { char: '갑', element: '목' }, branch: { char: '자', element: '수' } }
-    },
-    day_master_strength: { yongshin: '화', heeshin: '토' }
-  };
-  const signal = state?.calcResult?.signal;
-  const relationship = state?.calcResult?.relationships;
-  const currentUser = AuthService.getCurrentUser();
-  const userName = state?.userName || (currentUser && currentUser.role !== 'guest' ? currentUser.name : '회원');
-  const gender = state?.gender || (currentUser?.gender === 'female' ? 'female' : 'male');
+  const { hasSaju, sajuCore, signal, relationship, userName, gender } = resolveMemberCalendarContext(state);
 
   const calData = (dailyZodiacMagiEngine as any).getPersonalizedMonthlyMagiCalendarData(year, month, {
     sajuCore,
@@ -133,6 +152,7 @@ export function renderMemberMagiCalendarWidget(state: AppStateData): string {
 
   return `
   <div class="member-calendar-container member-magi-calendar" style="width: 100%; box-sizing: border-box;">
+    ${renderCalendarUnregisteredNotice(hasSaju)}
     
     <!-- [1. 최상단 배치] 7열 월간 캘린더 그리드 (기본 컬러 + 가장 심각한 날에만 적색 '주의' 스티커 부착) -->
     <div style="background: rgba(15, 19, 28, 0.95); border: 1.5px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 24px rgba(0,0,0,0.4); margin-bottom: 1.25rem;">
