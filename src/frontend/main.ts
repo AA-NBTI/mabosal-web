@@ -129,8 +129,11 @@ import {
   createStoreOrder,
   redeemStoreVoucher,
   saveStoreProduct,
+  saveStoreProductDb,
   updateStoreProduct,
+  updateStoreProductDb,
   deleteStoreProduct,
+  deleteStoreProductDb,
   syncStoreProductsFromSupabase,
   setAdminStoreFilter,
   setAdminStoreStatusFilter,
@@ -518,6 +521,13 @@ class MabosalApp {
     void syncStoreProductsFromSupabase();
 
  if (typeof window !== 'undefined') {
+      const safeAsyncRerender = () => {
+        const tag = (document.activeElement as HTMLElement | null)?.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+        this.render(appState.getState());
+      };
+      window.addEventListener('mabosal:products-updated', safeAsyncRerender);
+      window.addEventListener('mabosal:addresses-updated', safeAsyncRerender);
       const urlParams = new URLSearchParams(window.location.search);
       const parsed = parseRouteFromLocation();
       let initialView = parsed.view;
@@ -934,18 +944,26 @@ class MabosalApp {
           detailImages,
         };
 
-        if (editId) {
-          updateStoreProduct(editId, productPayload);
-          alert(`[상품 수정 완료]\n\n'${title}' 상품 정보 및 사진이 성공적으로 수정되었습니다.`);
-        } else {
-          saveStoreProduct(productPayload);
-          alert(`[신규 상품 등록 완료]\n\n'${title}' 상품과 사진이 스토어에 등록되어 판매가 시작되었습니다!`);
-        }
+        void (async () => {
+          const res = editId
+            ? await updateStoreProductDb(editId, productPayload)
+            : await saveStoreProductDb(productPayload);
 
-        setEditingStoreProductId(null);
-        setAdminStoreSubTab('products');
-        setAdminActiveTab('tab-store');
-        this.render(appState.getState());
+          if (!res.success) {
+            alert(`[DB 저장 실패]\n${res.error || '알 수 없는 오류'}\n\n정식 Supabase 관리자 계정으로 로그인되어 있는지 확인해 주세요.`);
+            return;
+          }
+
+          alert(
+            editId
+              ? `[상품 수정 완료]\n\n'${title}' 상품 정보 및 사진이 DB에 정상 저장되었습니다.`
+              : `[신규 상품 등록 완료]\n\n'${title}' 상품과 사진이 스토어 DB에 등록되어 판매가 시작되었습니다!`
+          );
+          setEditingStoreProductId(null);
+          setAdminStoreSubTab('products');
+          setAdminActiveTab('tab-store');
+          this.render(appState.getState());
+        })();
         return;
       }
 
@@ -1230,14 +1248,21 @@ ${content}
       const title = selectEl.dataset.productTitle || '상품';
       const newStatus = selectEl.value as 'active' | 'hidden' | 'soldout';
       if (prodId && newStatus) {
-        updateStoreProduct(prodId, { status: newStatus });
-        const statusMap: Record<string, string> = {
-          active: '판매중 (스토어 노출)',
-          hidden: '숨김 (스토어 미노출)',
-          soldout: '품절',
-        };
-        alert(`[상품 판매 상태 저장]\n\n'${title}' 상품이 '${statusMap[newStatus] || newStatus}' 상태로 즉시 변경되어 저장되었습니다.`);
-        this.render(appState.getState());
+        void (async () => {
+          const res = await updateStoreProductDb(prodId, { status: newStatus });
+          if (!res.success) {
+            alert(`[상품 상태 DB 저장 실패]\n${res.error || '알 수 없는 오류'}\n\n정식 Supabase 관리자 계정으로 로그인되어 있는지 확인해 주세요.`);
+            this.render(appState.getState());
+            return;
+          }
+          const statusMap: Record<string, string> = {
+            active: '판매중 (스토어 노출)',
+            hidden: '숨김 (스토어 미노출)',
+            soldout: '품절',
+          };
+          alert(`[상품 판매 상태 저장]\n\n'${title}' 상품이 '${statusMap[newStatus] || newStatus}' 상태로 DB에 즉시 저장되었습니다.`);
+          this.render(appState.getState());
+        })();
       }
       return;
     }
@@ -2338,8 +2363,12 @@ ${content}
     if (delProdBtn) {
       const prodId = delProdBtn.dataset.productId;
       if (prodId && confirm('정말로 이 상품을 삭제하시겠습니까?')) {
-        deleteStoreProduct(prodId);
-        alert('상품이 성공적으로 삭제되었습니다.');
+        const res = await deleteStoreProductDb(prodId);
+        if (!res.success) {
+          alert(`[상품 DB 삭제 실패]\n${res.error || '알 수 없는 오류'}\n\n정식 Supabase 관리자 계정으로 로그인되어 있는지 확인해 주세요.`);
+          return;
+        }
+        alert('상품이 DB에서 성공적으로 삭제되었습니다.');
         setAdminActiveTab('tab-store');
         setAdminStoreSubTab('products');
         this.render(appState.getState());
@@ -3835,7 +3864,7 @@ ${content}
       });
 
       const form = modal.querySelector('#form-save-member-address') as HTMLFormElement;
-      form?.addEventListener('submit', (ev) => {
+      form?.addEventListener('submit', async (ev) => {
         ev.preventDefault();
         const id = (modal?.querySelector('#addr-input-id') as HTMLInputElement)?.value.trim() || undefined;
         const name = (modal?.querySelector('#addr-input-name') as HTMLInputElement)?.value.trim();
@@ -3851,7 +3880,7 @@ ${content}
           return;
         }
 
-        UserAddressStore.saveAddress({
+        const res = await UserAddressStore.saveAddressDb({
           id,
           recipientName: name,
           recipientPhone: phone,
@@ -3862,8 +3891,13 @@ ${content}
           isDefault,
         });
 
+        if (!res.success) {
+          alert(`[배송지 DB 저장 실패]\n${res.error || '알 수 없는 오류'}`);
+          return;
+        }
+
         closeModal();
-        alert(id ? '배송지 정보가 수정되었습니다.' : '새 배송지가 등록되었습니다.');
+        alert(id ? '배송지 정보가 DB에 수정되었습니다.' : '새 배송지가 DB에 등록되었습니다.');
         this.render(appState.getState());
       });
     };
@@ -3904,7 +3938,11 @@ ${content}
       e.preventDefault();
       const addrId = deleteAddressBtn.dataset.addressId;
       if (addrId && confirm('해당 배송지를 주소록에서 삭제하시겠습니까?')) {
-        UserAddressStore.deleteAddress(addrId);
+        const res = await UserAddressStore.deleteAddressDb(addrId);
+        if (!res.success) {
+          alert(`[배송지 DB 삭제 실패]\n${res.error || '알 수 없는 오류'}`);
+          return;
+        }
         this.render(appState.getState());
       }
       return;
@@ -5943,7 +5981,7 @@ ${content}
       const sAddr = shippingInput?.value?.trim();
       const sMemo = memoInput?.value?.trim();
       if (rName && sAddr) {
-        UserAddressStore.saveAddress({
+        void UserAddressStore.saveAddressDb({
           recipientName: rName,
           recipientPhone: rPhone || phoneInput?.value || '',
           address: sAddr,

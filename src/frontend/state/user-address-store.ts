@@ -24,10 +24,22 @@ export interface UserAddress {
 const STORAGE_KEY = 'mabosal_user_addresses_v1';
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+function isBrowserRuntime(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    !(import.meta as any).env?.VITEST &&
+    (typeof navigator === 'undefined' || !/jsdom/i.test(navigator.userAgent || ''))
+  );
+}
+
 export class UserAddressStore {
+  private static memoryList: UserAddress[] = [];
   private static syncedUsers = new Set<string>();
   private static syncingUsers = new Set<string>();
   private static loadAll(): UserAddress[] {
+    if (isBrowserRuntime()) {
+      return [...this.memoryList];
+    }
     if (typeof localStorage === 'undefined') return [];
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -38,6 +50,10 @@ export class UserAddressStore {
   }
 
   private static saveAll(list: UserAddress[]): void {
+    if (isBrowserRuntime()) {
+      this.memoryList = [...list];
+      return;
+    }
     if (typeof localStorage === 'undefined') return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
@@ -105,6 +121,9 @@ export class UserAddressStore {
       }
 
       this.saveAll([...remoteList, ...others]);
+      if (isBrowserRuntime()) {
+        try { localStorage.removeItem(STORAGE_KEY); } catch {}
+      }
       window.dispatchEvent(new CustomEvent('mabosal:addresses-updated'));
     } catch (e) {
       console.warn('[UserAddressStore] sync error:', e);
@@ -208,6 +227,117 @@ export class UserAddressStore {
   public static getDefaultAddress(userId?: string): UserAddress | undefined {
     const list = this.getAddresses(userId);
     return list.find(a => a.isDefault) || list[0];
+  }
+
+  /**
+   * 배송지 DB 직접 저장 (DB 성공 확인 후 메모리 반영)
+   */
+  public static async saveAddressDb(addr: {
+    id?: string;
+    recipientName: string;
+    recipientPhone: string;
+    zipCode?: string;
+    address: string;
+    detailAddress: string;
+    deliveryMemo?: string;
+    isDefault?: boolean;
+    userId?: string;
+  }): Promise<{ success: boolean; address?: UserAddress; error?: string }> {
+    if (!isBrowserRuntime()) {
+      const saved = this.saveAddress(addr);
+      return { success: true, address: saved };
+    }
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    const authUid = sessionData?.session?.user?.id;
+    if (!authUid || !UUID_REGEX.test(authUid)) {
+      return { success: false, error: '원격 인증 세션이 없습니다. 정식 계정으로 다시 로그인해 주세요.' };
+    }
+
+    const uid = addr.userId || authUid;
+    const all = this.loadAll();
+    const formattedPhone = formatKoreanPhone(addr.recipientPhone) || addr.recipientPhone.trim();
+    const existing = addr.id ? all.find(a => a.id === addr.id) : undefined;
+    const targetId = existing?.id || ('addr-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6));
+    const isDefaultVal = addr.isDefault ?? (existing ? existing.isDefault : all.filter(a => a.userId === uid).length === 0);
+    const nowIso = new Date().toISOString();
+
+    if (isDefaultVal) {
+      const { error: clearErr } = await supabase
+        .from('user_addresses')
+        .update({ is_default: false })
+        .eq('user_id', authUid)
+        .neq('id', targetId);
+      if (clearErr) {
+        return { success: false, error: clearErr.message };
+      }
+    }
+
+    const dbRow = {
+      id: targetId,
+      user_id: authUid,
+      recipient_name: addr.recipientName.trim(),
+      recipient_phone: formattedPhone,
+      zip_code: addr.zipCode?.trim() ?? existing?.zipCode ?? '',
+      address: addr.address.trim(),
+      detail_address: addr.detailAddress.trim(),
+      delivery_memo: addr.deliveryMemo?.trim() ?? '',
+      is_default: isDefaultVal,
+      updated_at: nowIso,
+    };
+
+    const { error } = await supabase.from('user_addresses').upsert(dbRow);
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    if (isDefaultVal) {
+      all.forEach(a => { if (a.userId === uid) a.isDefault = false; });
+    }
+    const savedObj: UserAddress = {
+      id: targetId,
+      userId: uid,
+      recipientName: dbRow.recipient_name,
+      recipientPhone: dbRow.recipient_phone,
+      zipCode: dbRow.zip_code,
+      address: dbRow.address,
+      detailAddress: dbRow.detail_address,
+      deliveryMemo: dbRow.delivery_memo,
+      isDefault: isDefaultVal,
+      updatedAt: nowIso,
+    };
+    if (existing) {
+      const idx = all.findIndex(a => a.id === targetId);
+      if (idx !== -1) all[idx] = savedObj;
+    } else {
+      all.unshift(savedObj);
+    }
+    this.saveAll(all);
+    return { success: true, address: savedObj };
+  }
+
+  /**
+   * 배송지 DB 직접 삭제 (DB 성공 확인 후 메모리 반영)
+   */
+  public static async deleteAddressDb(id: string): Promise<{ success: boolean; error?: string }> {
+    if (!isBrowserRuntime()) {
+      this.deleteAddress(id);
+      return { success: true };
+    }
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    const authUid = sessionData?.session?.user?.id;
+    if (!authUid || !UUID_REGEX.test(authUid)) {
+      return { success: false, error: '원격 인증 세션이 없습니다. 정식 계정으로 다시 로그인해 주세요.' };
+    }
+
+    const { error } = await supabase.from('user_addresses').delete().eq('id', id).eq('user_id', authUid);
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    this.saveAll(this.loadAll().filter(a => a.id !== id));
+    return { success: true };
   }
 
   /**

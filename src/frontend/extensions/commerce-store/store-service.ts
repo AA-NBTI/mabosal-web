@@ -547,9 +547,19 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
 ];
 
 
-/** 삭제된 상품 ID 세트 조회 (관리자가 삭제한 상품의 부활 방지) */
+let memoryProducts: StoreProduct[] | null = null;
+
+function isBrowserRuntime(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    !(import.meta as any).env?.VITEST &&
+    (typeof navigator === 'undefined' || !/jsdom/i.test(navigator.userAgent || ''))
+  );
+}
+
+/** 삭제된 상품 ID 세트 조회 (테스트/오프라인 전용) */
 export function getDeletedStoreProductIds(): Set<string> {
-  if (typeof localStorage === 'undefined') return new Set();
+  if (isBrowserRuntime() || typeof localStorage === 'undefined') return new Set();
   try {
     const raw = localStorage.getItem(STORAGE_DELETED_PRODUCTS_KEY);
     return new Set(raw ? JSON.parse(raw) : []);
@@ -558,9 +568,9 @@ export function getDeletedStoreProductIds(): Set<string> {
   }
 }
 
-/** 삭제된 상품 ID 영구 기록 */
+/** 삭제된 상품 ID 영구 기록 (테스트/오프라인 전용) */
 export function addDeletedStoreProductId(id: string): void {
-  if (typeof localStorage === 'undefined') return;
+  if (isBrowserRuntime() || typeof localStorage === 'undefined') return;
   try {
     const set = getDeletedStoreProductIds();
     set.add(id);
@@ -568,8 +578,11 @@ export function addDeletedStoreProductId(id: string): void {
   } catch {}
 }
 
-/** 등록된 모든 상품 조회 (로컬 캐시 + 최초 1회 시드. 원격 DB 동기화는 syncStoreProductsFromSupabase가 SSOT로 덮어씀) */
+/** 등록된 모든 상품 조회 (운영 브라우저는 메모리 캐시 + Supabase SSOT, 테스트 환경은 localStorage) */
 export function getAllStoreProducts(): StoreProduct[] {
+  if (isBrowserRuntime()) {
+    return memoryProducts ? [...memoryProducts] : [...INITIAL_STORE_PRODUCTS];
+  }
   const deletedIds = getDeletedStoreProductIds();
   if (typeof localStorage === 'undefined') return INITIAL_STORE_PRODUCTS.filter(p => !deletedIds.has(p.id));
   try {
@@ -676,7 +689,16 @@ export async function syncStoreProductsFromSupabase(): Promise<StoreProduct[]> {
       } as StoreProduct;
     });
 
-    if (typeof localStorage !== 'undefined' && remoteProducts.length > 0) {
+    if (isBrowserRuntime()) {
+      memoryProducts = remoteProducts;
+      try {
+        localStorage.removeItem(STORAGE_PRODUCTS_KEY);
+        localStorage.removeItem(STORAGE_DELETED_PRODUCTS_KEY);
+        localStorage.removeItem('mabosal_store_ssot_sync_v207');
+        localStorage.removeItem('mabosal_store_sync_v206');
+      } catch {}
+      window.dispatchEvent(new CustomEvent('mabosal:products-updated'));
+    } else if (typeof localStorage !== 'undefined' && remoteProducts.length > 0) {
       localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(remoteProducts));
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('mabosal:products-updated'));
@@ -730,6 +752,117 @@ function handleProductDbResult(action: string, error: any): void {
   console.error(`[store-service] Supabase product ${action} failed:`, error.message || error);
 }
 
+function toProductDbPatch(updates: Partial<StoreProduct>): Record<string, any> {
+  const dbPayload: Record<string, any> = {};
+  if (updates.title !== undefined) dbPayload.title = updates.title;
+  if (updates.category !== undefined) dbPayload.category = updates.category;
+  if (updates.price !== undefined) dbPayload.price = updates.price;
+  if (updates.originalPrice !== undefined) dbPayload.original_price = updates.originalPrice;
+  if (updates.tagLine !== undefined) dbPayload.tag_line = updates.tagLine;
+  if (updates.description !== undefined) dbPayload.description = updates.description;
+  if (updates.detailsHtml !== undefined) dbPayload.details_html = updates.detailsHtml;
+  if (updates.thumbnailUrl !== undefined) dbPayload.thumbnail_url = updates.thumbnailUrl;
+  if (updates.thumbnailIcon !== undefined) dbPayload.thumbnail_icon = updates.thumbnailIcon;
+  if (updates.deliveryType !== undefined) dbPayload.delivery_type = updates.deliveryType;
+  if (updates.targetSignals !== undefined) dbPayload.target_signals = updates.targetSignals;
+  if (updates.status !== undefined) dbPayload.status = updates.status;
+  if (updates.badge !== undefined) dbPayload.badge = updates.badge;
+  if (updates.reportTier !== undefined) dbPayload.report_tier = updates.reportTier;
+  if (updates.salesCount !== undefined) dbPayload.sales_count = updates.salesCount;
+  return dbPayload;
+}
+
+/** 상품 DB 직접 등록 (DB 성공 확인 후 메모리 반영) */
+export async function saveStoreProductDb(
+  productInput: Omit<StoreProduct, 'id' | 'createdAt' | 'salesCount'>
+): Promise<{ success: boolean; product?: StoreProduct; error?: string }> {
+  const newProduct: StoreProduct = {
+    ...productInput,
+    id: 'prod-' + Date.now().toString(36),
+    createdAt: new Date().toISOString(),
+    salesCount: 0,
+  };
+
+  if (!isBrowserRuntime()) {
+    const saved = saveStoreProduct(productInput);
+    return { success: true, product: saved };
+  }
+
+  const { error } = await supabase.from('products').insert({
+    id: newProduct.id,
+    title: newProduct.title,
+    category: newProduct.category,
+    price: newProduct.price,
+    original_price: newProduct.originalPrice || null,
+    tag_line: newProduct.tagLine || '',
+    description: newProduct.description || '',
+    details_html: newProduct.detailsHtml || null,
+    thumbnail_url: newProduct.thumbnailUrl || '',
+    thumbnail_icon: newProduct.thumbnailIcon || null,
+    delivery_type: newProduct.deliveryType,
+    target_signals: newProduct.targetSignals || [],
+    status: newProduct.status,
+    badge: newProduct.badge || null,
+    report_tier: newProduct.reportTier || null,
+    sales_count: newProduct.salesCount,
+    created_at: newProduct.createdAt,
+  });
+
+  if (error) {
+    handleProductDbResult('insert', error);
+    return { success: false, error: error.message };
+  }
+
+  const current = getAllStoreProducts();
+  memoryProducts = [newProduct, ...current];
+  return { success: true, product: newProduct };
+}
+
+/** 상품 DB 직접 수정 (DB 성공 확인 후 메모리 반영) */
+export async function updateStoreProductDb(
+  id: string,
+  updates: Partial<StoreProduct>
+): Promise<{ success: boolean; error?: string }> {
+  if (!isBrowserRuntime()) {
+    const ok = updateStoreProduct(id, updates);
+    return ok ? { success: true } : { success: false, error: '상품을 찾을 수 없습니다.' };
+  }
+
+  const dbPayload = toProductDbPatch(updates);
+  if (Object.keys(dbPayload).length > 0) {
+    const { error } = await supabase.from('products').update(dbPayload).eq('id', id);
+    if (error) {
+      handleProductDbResult('update', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  const list = getAllStoreProducts();
+  const idx = list.findIndex(p => p.id === id);
+  if (idx !== -1) {
+    list[idx] = { ...list[idx], ...updates };
+    memoryProducts = list;
+  }
+  return { success: true };
+}
+
+/** 상품 DB 직접 삭제 (DB 성공 확인 후 메모리 반영) */
+export async function deleteStoreProductDb(id: string): Promise<{ success: boolean; error?: string }> {
+  if (!isBrowserRuntime()) {
+    deleteStoreProduct(id);
+    return { success: true };
+  }
+
+  const { error } = await supabase.from('products').delete().eq('id', id);
+  if (error) {
+    handleProductDbResult('delete', error);
+    return { success: false, error: error.message };
+  }
+
+  memoryProducts = getAllStoreProducts().filter(p => p.id !== id);
+  return { success: true };
+}
+
 /** 상품 저장 (신규 등록) */
 export function saveStoreProduct(productInput: Omit<StoreProduct, 'id' | 'createdAt' | 'salesCount'>): StoreProduct {
   const list = getAllStoreProducts();
@@ -740,7 +873,9 @@ export function saveStoreProduct(productInput: Omit<StoreProduct, 'id' | 'create
     salesCount: 0,
   };
   list.unshift(newProduct);
-  if (typeof localStorage !== 'undefined') {
+  if (isBrowserRuntime()) {
+    memoryProducts = list;
+  } else if (typeof localStorage !== 'undefined') {
     localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(list));
   }
 
@@ -781,29 +916,15 @@ export function updateStoreProduct(id: string, updates: Partial<StoreProduct>): 
   const index = list.findIndex(p => p.id === id);
   if (index === -1) return false;
   list[index] = { ...list[index], ...updates };
-  if (typeof localStorage !== 'undefined') {
+  if (isBrowserRuntime()) {
+    memoryProducts = list;
+  } else if (typeof localStorage !== 'undefined') {
     localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(list));
   }
 
   // [Supabase DB 실시간 동기화]
   try {
-    const dbPayload: Record<string, any> = {};
-    if (updates.title !== undefined) dbPayload.title = updates.title;
-    if (updates.category !== undefined) dbPayload.category = updates.category;
-    if (updates.price !== undefined) dbPayload.price = updates.price;
-    if (updates.originalPrice !== undefined) dbPayload.original_price = updates.originalPrice;
-    if (updates.tagLine !== undefined) dbPayload.tag_line = updates.tagLine;
-    if (updates.description !== undefined) dbPayload.description = updates.description;
-    if (updates.detailsHtml !== undefined) dbPayload.details_html = updates.detailsHtml;
-    if (updates.thumbnailUrl !== undefined) dbPayload.thumbnail_url = updates.thumbnailUrl;
-    if (updates.thumbnailIcon !== undefined) dbPayload.thumbnail_icon = updates.thumbnailIcon;
-    if (updates.deliveryType !== undefined) dbPayload.delivery_type = updates.deliveryType;
-    if (updates.targetSignals !== undefined) dbPayload.target_signals = updates.targetSignals;
-    if (updates.status !== undefined) dbPayload.status = updates.status;
-    if (updates.badge !== undefined) dbPayload.badge = updates.badge;
-    if (updates.reportTier !== undefined) dbPayload.report_tier = updates.reportTier;
-    if (updates.salesCount !== undefined) dbPayload.sales_count = updates.salesCount;
-
+    const dbPayload = toProductDbPatch(updates);
     if (Object.keys(dbPayload).length > 0) {
       supabase.from('products').update(dbPayload).eq('id', id).then(
         ({ error }: any) => handleProductDbResult('update', error),
@@ -822,7 +943,9 @@ export function deleteStoreProduct(id: string): boolean {
   addDeletedStoreProductId(id);
   const list = getAllStoreProducts();
   const filtered = list.filter(p => p.id !== id);
-  if (typeof localStorage !== 'undefined') {
+  if (isBrowserRuntime()) {
+    memoryProducts = filtered;
+  } else if (typeof localStorage !== 'undefined') {
     localStorage.setItem(STORAGE_PRODUCTS_KEY, JSON.stringify(filtered));
   }
 
