@@ -2,6 +2,7 @@
  * [Payment Module] 독립 결제 확인 · 환불 관리 패널 (스토어 상품관리와 분리된 결제 전용 장부)
  */
 import { getAllStoreOrders, syncOrdersFromSupabase, syncPortOnePaymentsIntoOrders } from '../../extensions/commerce-store/store-service.js';
+import { VoucherStore } from '../voucher/voucher-store.js';
 
 export type PaymentLedgerFilter = 'all' | 'completed' | 'pending' | 'refunded';
 
@@ -20,7 +21,11 @@ export function ensurePaymentLedgerSynced(onUpdated: () => void): void {
   if (Date.now() - lastLedgerSyncAt < AUTO_SYNC_COOLDOWN_MS) return;
 
   ledgerSyncInFlight = true;
-  Promise.all([syncOrdersFromSupabase(), syncPortOnePaymentsIntoOrders()])
+  Promise.all([
+    syncOrdersFromSupabase(),
+    syncPortOnePaymentsIntoOrders(),
+    VoucherStore.syncBankTransfersFromSupabase(),
+  ])
     .then(([dbChanged, portoneRes]) => {
       lastLedgerSyncAt = Date.now();
       if (dbChanged || portoneRes.changed) {

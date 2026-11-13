@@ -152,6 +152,12 @@ export class VoucherStore {
     return isBrowserRuntime();
   }
 
+  static resetTransfersSync(): void {
+    this.memoryTransfers = null;
+    this.transfersSynced = false;
+    void this.syncBankTransfersFromSupabase();
+  }
+
   static async syncBankTransfersFromSupabase(): Promise<void> {
     if (this.transfersSyncing) return;
     this.transfersSyncing = true;
@@ -417,9 +423,15 @@ export class VoucherStore {
       target.memo = '입금 내역 불일치 또는 미입금으로 반려 처리';
       this.saveBankTransfers(transfers);
       if (target.orderId) {
-        void supabase.from('bank_transfers').update({ status: 'rejected', memo: target.memo }).eq('order_id', target.orderId);
+        supabase.from('bank_transfers').update({ status: 'rejected', memo: target.memo }).eq('order_id', target.orderId)
+          .then(({ error }) => {
+            if (error) console.warn('[VoucherStore] Supabase reject sync deferred:', error.message);
+          });
       } else {
-        void supabase.from('bank_transfers').update({ status: 'rejected', memo: target.memo }).eq('id', target.id);
+        supabase.from('bank_transfers').update({ status: 'rejected', memo: target.memo }).eq('id', target.id)
+          .then(({ error }) => {
+            if (error) console.warn('[VoucherStore] Supabase reject sync deferred:', error.message);
+          });
       }
       this.rejectHooks.forEach(h => h(target));
     }
@@ -554,4 +566,10 @@ export class VoucherStore {
     getStorage().setItem(key, (current - amount).toString());
     return true;
   }
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('mm-auth-changed', () => {
+    VoucherStore.resetTransfersSync();
+  });
 }

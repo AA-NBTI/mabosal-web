@@ -493,6 +493,15 @@ export class AuthService {
       getStorage().removeItem(STORAGE_KEY_CURRENT_SESSION);
     }
     this.notifyAuthChange();
+    try {
+      void supabase.auth.signOut()
+        .catch(() => {})
+        .finally(() => {
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('mm-auth-changed'));
+          }
+        });
+    } catch {}
   }
 
   /**

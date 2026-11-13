@@ -1045,6 +1045,7 @@ function mapRemoteOrderRow(ro: any): StoreOrder {
     amount: Number(ro.amount || 0),
     deliveryType: (ro.delivery_type || prod?.deliveryType || 'saju_report') as any,
     accessUrl: ro.access_url || '/?view=result',
+    contentPayload: ro.content_payload || prod?.contentPayload || undefined,
     buyerName: ro.buyer_name || '구매자',
     buyerPhone: ro.buyer_phone || '',
     buyerEmail: ro.buyer_email || '',
@@ -1053,10 +1054,19 @@ function mapRemoteOrderRow(ro: any): StoreOrder {
     userId: ro.user_id || undefined,
     paidAt: ro.paid_at || ro.created_at || new Date().toISOString(),
     status: ro.status || 'completed',
+    sajuInput: ro.saju_input || undefined,
+    reportTier: ro.report_tier || prod?.reportTier || undefined,
+    items: Array.isArray(ro.items) ? ro.items : undefined,
+    selectedOptionName: ro.selected_option_name || undefined,
     shippingAddress: ro.shipping_address || undefined,
     shippingMemo: ro.shipping_memo || undefined,
+    shippingFee: ro.shipping_fee != null ? Number(ro.shipping_fee) : undefined,
+    appliedCouponCode: ro.applied_coupon_code || undefined,
+    discountAmount: ro.discount_amount != null ? Number(ro.discount_amount) : undefined,
+    usedYeop: ro.used_yeop != null ? Number(ro.used_yeop) : undefined,
     refundRequested: Boolean(ro.refund_requested),
     refundReason: ro.refund_reason || undefined,
+    refundedAt: ro.refunded_at || undefined,
     viewedAt: ro.viewed_at || undefined,
   };
 }
@@ -1084,8 +1094,21 @@ async function insertOrderToSupabase(order: StoreOrder): Promise<void> {
       buyer_email: order.buyerEmail,
       delivery_type: order.deliveryType,
       access_url: order.accessUrl || '',
+      content_payload: order.contentPayload || null,
+      saju_input: order.sajuInput || null,
+      report_tier: order.reportTier || null,
+      items: order.items || null,
+      selected_option_name: order.selectedOptionName || null,
       shipping_address: order.shippingAddress || null,
       shipping_memo: order.shippingMemo || null,
+      shipping_fee: order.shippingFee ?? null,
+      applied_coupon_code: order.appliedCouponCode || null,
+      discount_amount: order.discountAmount ?? null,
+      used_yeop: order.usedYeop ?? null,
+      refund_requested: Boolean(order.refundRequested),
+      refund_reason: order.refundReason || null,
+      refunded_at: order.refundedAt || null,
+      viewed_at: order.viewedAt || null,
       paid_at: order.paidAt,
       created_at: order.paidAt,
     }, { onConflict: 'id' });
@@ -1104,6 +1127,7 @@ async function updateOrderInSupabase(orderId: string, patch: Partial<StoreOrder>
     if (patch.paymentKey !== undefined) dbPatch.payment_key = patch.paymentKey;
     if (patch.refundRequested !== undefined) dbPatch.refund_requested = patch.refundRequested;
     if (patch.refundReason !== undefined) dbPatch.refund_reason = patch.refundReason;
+    if (patch.refundedAt !== undefined) dbPatch.refunded_at = patch.refundedAt;
     if (patch.viewedAt !== undefined) dbPatch.viewed_at = patch.viewedAt;
     if (patch.paidAt !== undefined) dbPatch.paid_at = patch.paidAt;
     if (Object.keys(dbPatch).length === 0) return;

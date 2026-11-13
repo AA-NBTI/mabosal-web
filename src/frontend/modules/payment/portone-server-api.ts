@@ -78,6 +78,7 @@ export async function verifyPortOnePayment(
       buyerEmail?: string;
       buyerPhone?: string;
       deliveryType?: string;
+      paymentMethod?: string;
     };
   }
 ): Promise<PortOneVerifyResult> {

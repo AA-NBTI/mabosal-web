@@ -276,6 +276,7 @@ export class PaymentService {
         buyerEmail: draft.buyerEmail,
         buyerPhone: draft.buyerPhone,
         deliveryType: order.deliveryType,
+        paymentMethod: order.paymentMethod || 'portone_card',
       },
     }).catch(err => console.warn('[PaymentService] PortOne server verify deferred:', err));
   }

@@ -22,7 +22,37 @@ interface PortOneActionPayload {
     buyerEmail?: string;
     buyerPhone?: string;
     deliveryType?: string;
+    paymentMethod?: string;
   };
+}
+
+const ALLOWED_PAYMENT_METHODS = new Set([
+  'bank_transfer',
+  'toss_card',
+  'card',
+  'portone_card',
+  'kakaopay',
+  'tosspay',
+  'transfer',
+  'voucher',
+  'free',
+]);
+
+function resolvePortOnePaymentMethod(
+  existingMethod: string | null | undefined,
+  snapshotMethod: string | undefined,
+  portoneData: any
+): string {
+  if (existingMethod && ALLOWED_PAYMENT_METHODS.has(existingMethod)) {
+    return existingMethod;
+  }
+  if (snapshotMethod && ALLOWED_PAYMENT_METHODS.has(snapshotMethod)) {
+    return snapshotMethod;
+  }
+  const provider = String(portoneData?.method?.provider || '').toUpperCase();
+  if (provider.includes('KAKAO')) return 'kakaopay';
+  if (provider.includes('TOSS')) return 'tosspay';
+  return 'card';
 }
 
 function jsonResponse(body: Record<string, unknown>, status = 200): Response {
@@ -120,6 +150,17 @@ Deno.serve(async (req: Request) => {
       if (data.status === 'PAID' && body.orderSnapshot?.productId) {
         const snap = body.orderSnapshot;
         const orderId = (body.orderId || paymentId).trim();
+        const { data: existingOrder } = await adminClient
+          .from('orders')
+          .select('payment_method')
+          .eq('id', orderId)
+          .maybeSingle();
+        const resolvedPaymentMethod = resolvePortOnePaymentMethod(
+          existingOrder?.payment_method,
+          snap.paymentMethod,
+          data
+        );
+
         await adminClient
           .from('products')
           .upsert(
@@ -148,7 +189,7 @@ Deno.serve(async (req: Request) => {
               buyer_name: snap.buyerName || data.customer?.name || '구매자',
               buyer_email: snap.buyerEmail || data.customer?.email || '',
               buyer_phone: snap.buyerPhone || data.customer?.phoneNumber || '',
-              payment_method: 'toss_card',
+              payment_method: resolvedPaymentMethod,
               payment_key: paymentId,
               status: 'completed',
               delivery_type: snap.deliveryType || 'digital_url',

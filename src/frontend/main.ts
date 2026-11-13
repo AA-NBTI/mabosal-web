@@ -1,6 +1,6 @@
 import { OrderAuthGuard } from './modules/order/order-auth-guard.js';
 import { PaymentService, PortOneGateway } from './modules/payment/payment-service.js';
-import { updateStoreOrder } from './extensions/commerce-store/store-service.js';
+import { markOrderAsViewed, updateStoreOrder } from './extensions/commerce-store/store-service.js';
 import { savePaymentConfigFromDom } from './modules/payment/AdminPaymentPanel.js';
 import { setPaymentLedgerFilter, setPaymentLedgerSearch, type PaymentLedgerFilter } from './modules/payment/AdminPaymentLedgerPanel.js';
 import { verifyPortOnePayment } from './modules/payment/portone-server-api.js';
@@ -4072,6 +4072,7 @@ ${content}
       // 소유자 + 결제 완료 검증은 entitlement 모듈이 단독 수행 (타인 주문 열람 불가)
       const targetOrder = resolveMyOrderForView(orderId || null);
       if (targetOrder) {
+        markOrderAsViewed(targetOrder.orderId);
         UserSajuStore.ensureAnalysisReadyFromOrder(targetOrder);
         appState.setView('result');
         this.render(appState.getState());
@@ -4094,6 +4095,9 @@ ${content}
       e.preventDefault();
       const orderId = ebookDownloadBtn.dataset.orderId || '';
       const prodId = ebookDownloadBtn.dataset.productId || 'book-saju-principles-vol1';
+      if (orderId) {
+        markOrderAsViewed(orderId);
+      }
       
       const prod = getStoreProductById(prodId);
       const downloadFileName = `[마보살_전자책]_${(prod?.title || '정통사주명리학원론_제1권').replace(/[\\/:*?"<>|]/g, '_')}_${orderId || 'DOWN'}.pdf`;
@@ -5950,6 +5954,7 @@ ${content}
             buyerEmail: emailInput?.value?.trim() || 'customer@mabosal.com',
             buyerPhone: phoneInput?.value?.trim() || '01000000000',
             deliveryType: primaryItem.deliveryType,
+            paymentMethod: selectedPayMethod,
           },
         });
       } catch (err: any) {
