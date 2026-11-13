@@ -238,5 +238,44 @@ describe('E2E 결함 수정 회귀 테스트', () => {
       { onConflict: 'id' }
     );
   });
+
+  it('9. 관리자 대시보드에 환불 신청 실시간 알림 구조(배지·KPI·환불요청 필터·Realtime 구독)가 연결되어 있다', async () => {
+    const { requestStoreOrderRefund } = await import('../src/frontend/extensions/commerce-store/store-service');
+    recordStoreOrder({
+      orderId: 'ORD-ADMIN-ALERT-01',
+      productId: 'book-saju-principles-vol1',
+      productTitle: '정통 사주명리학 원론 제1권',
+      category: 'ebook',
+      amount: 29000,
+      buyerName: '송회원',
+      buyerEmail: 'song1205@mabosal.com',
+      buyerPhone: '010-1234-5678',
+      paymentMethod: 'portone_card',
+      status: 'completed',
+      paidAt: '2026-11-14T00:00:00.000Z',
+      deliveryType: 'digital_download',
+    });
+    requestStoreOrderRefund('ORD-ADMIN-ALERT-01', '알림 테스트 환불 요청');
+
+    const { renderAdminPaymentLedgerPanel, setPaymentLedgerFilter } = await import(
+      '../src/frontend/modules/payment/AdminPaymentLedgerPanel'
+    );
+    setPaymentLedgerFilter('refund_requested');
+    const ledgerHtml = renderAdminPaymentLedgerPanel();
+    expect(ledgerHtml).toContain('환불 심사 대기');
+    expect(ledgerHtml).toContain('data-filter="refund_requested"');
+    expect(ledgerHtml).toContain('ORD-ADMIN-ALERT-01');
+    setPaymentLedgerFilter('all');
+
+    const adminPageTs = readFileSync(resolve(process.cwd(), 'src/frontend/pages/AdminPage.ts'), 'utf8');
+    expect(adminPageTs).toContain("table: 'orders'");
+    expect(adminPageTs).toContain('mabosal:orders-updated');
+    expect(adminPageTs).toContain('showAdminRefundToast');
+
+    const adminViewTs = readFileSync(resolve(process.cwd(), 'src/frontend/views/AdminDashboardView.ts'), 'utf8');
+    expect(adminViewTs).toContain('pendingRefundRequestsCount');
+    expect(adminViewTs).toContain('결제 환불 심사 대기');
+    expect(adminViewTs).toContain('data-ledger-filter="refund_requested"');
+  });
 });
 

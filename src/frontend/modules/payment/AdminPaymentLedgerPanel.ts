@@ -4,7 +4,7 @@
 import { getAllStoreOrders, syncOrdersFromSupabase, syncPortOnePaymentsIntoOrders } from '../../extensions/commerce-store/store-service.js';
 import { VoucherStore } from '../voucher/voucher-store.js';
 
-export type PaymentLedgerFilter = 'all' | 'completed' | 'pending' | 'refunded';
+export type PaymentLedgerFilter = 'all' | 'refund_requested' | 'completed' | 'pending' | 'refunded';
 
 let ledgerFilter: PaymentLedgerFilter = 'all';
 let ledgerSearch = '';
@@ -15,10 +15,11 @@ const AUTO_SYNC_COOLDOWN_MS = 15_000;
 /**
  * 결제내역 탭 진입 시 Supabase DB + 포트원 V2 서버 내역을 자동으로 동기화한다.
  * - 과도한 API 호출을 막기 위해 15초 쿨다운 적용, 변경이 있을 때만 화면을 재렌더링한다.
+ * - force=true 전달 시 쿨다운을 무시하고 즉시 재조회한다.
  */
-export function ensurePaymentLedgerSynced(onUpdated: () => void): void {
+export function ensurePaymentLedgerSynced(onUpdated: () => void, force = false): void {
   if (ledgerSyncInFlight) return;
-  if (Date.now() - lastLedgerSyncAt < AUTO_SYNC_COOLDOWN_MS) return;
+  if (!force && Date.now() - lastLedgerSyncAt < AUTO_SYNC_COOLDOWN_MS) return;
 
   ledgerSyncInFlight = true;
   Promise.all([
@@ -82,13 +83,18 @@ export function renderAdminPaymentLedgerPanel(): string {
   const allOrders = getAllStoreOrders();
 
   const completedOrders = allOrders.filter(o => o.status === 'completed');
+  const refundRequestedOrders = allOrders.filter(o => o.status !== 'refunded' && Boolean(o.refundRequested));
   const pendingOrders = allOrders.filter(o => o.status === 'pending');
   const refundedOrders = allOrders.filter(o => o.status === 'refunded');
   const completedAmount = completedOrders.reduce((sum, o) => sum + (o.amount || 0), 0);
 
   const q = ledgerSearch.trim().toLowerCase();
   const filtered = allOrders.filter(o => {
-    if (ledgerFilter !== 'all' && o.status !== ledgerFilter) return false;
+    if (ledgerFilter === 'refund_requested') {
+      if (o.status === 'refunded' || !o.refundRequested) return false;
+    } else if (ledgerFilter !== 'all' && o.status !== ledgerFilter) {
+      return false;
+    }
     if (q) {
       const hay = [
         o.orderId,
@@ -108,6 +114,7 @@ export function renderAdminPaymentLedgerPanel(): string {
 
   const filterButtons: { id: PaymentLedgerFilter; label: string; count: number }[] = [
     { id: 'all', label: '전체', count: allOrders.length },
+    { id: 'refund_requested', label: '환불요청', count: refundRequestedOrders.length },
     { id: 'completed', label: '결제완료', count: completedOrders.length },
     { id: 'pending', label: '입금대기', count: pendingOrders.length },
     { id: 'refunded', label: '환불완료', count: refundedOrders.length },
@@ -116,13 +123,17 @@ export function renderAdminPaymentLedgerPanel(): string {
   return `
   <div style="display: flex; flex-direction: column; gap: 1.25rem;">
     <!-- 상단 요약 KPI -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.9rem;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.9rem;">
       <div style="background: rgba(20,24,35,0.75); border: 1px solid rgba(242,202,80,0.25); border-radius: 12px; padding: 1rem;">
         <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">결제완료 누적</div>
         <div style="font-size: 1.35rem; font-weight: 900; color: #4ade80; margin-top: 0.25rem;">
           ₩ ${completedAmount.toLocaleString()}
           <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">(${completedOrders.length}건)</span>
         </div>
+      </div>
+      <div style="background: ${refundRequestedOrders.length > 0 ? 'rgba(239,68,68,0.12)' : 'rgba(20,24,35,0.75)'}; border: 1px solid ${refundRequestedOrders.length > 0 ? 'rgba(239,68,68,0.65)' : 'rgba(255,255,255,0.1)'}; border-radius: 12px; padding: 1rem;">
+        <div style="font-size: 0.76rem; color: ${refundRequestedOrders.length > 0 ? '#fca5a5' : 'var(--text-muted)'}; font-weight: 700;">환불 심사 대기</div>
+        <div style="font-size: 1.35rem; font-weight: 900; color: ${refundRequestedOrders.length > 0 ? '#ef4444' : '#cbd5e1'}; margin-top: 0.25rem;">${refundRequestedOrders.length}<span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 0.2rem;">건</span></div>
       </div>
       <div style="background: rgba(20,24,35,0.75); border: 1px solid rgba(242,202,80,0.25); border-radius: 12px; padding: 1rem;">
         <div style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">입금 확인 대기</div>

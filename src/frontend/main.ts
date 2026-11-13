@@ -2142,6 +2142,10 @@ ${content}
     if (kpiCard) {
       e.preventDefault();
       const gotoTab = kpiCard.dataset.gotoTab;
+      const ledgerFilter = kpiCard.dataset.ledgerFilter as PaymentLedgerFilter | undefined;
+      if (ledgerFilter) {
+        setPaymentLedgerFilter(ledgerFilter);
+      }
       if (gotoTab) {
         setAdminActiveTab(gotoTab);
         appState.setView('admin');

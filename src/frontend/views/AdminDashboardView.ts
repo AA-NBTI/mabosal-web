@@ -71,6 +71,9 @@ export function renderAdminDashboardView(): string {
 
   const currentTab = getActiveAdminTabIdSync();
   const pendingInquiriesCount = CustomerInquiryStore.getPendingCount();
+  const pendingRefundRequestsCount = allOrders.filter(o => o.status !== 'refunded' && Boolean(o.refundRequested)).length;
+  const pendingTransfersCount = VoucherStore.getBankTransfers().filter(t => t.status === 'pending').length;
+  const paymentAlertCount = pendingRefundRequestsCount + pendingTransfersCount;
 
   // [상위 대주제 카테고리 및 서브 카테고리 정의 - 요구사항 1번 고객센터/고객문의 반영]
   const adminGroups = [
@@ -264,6 +267,11 @@ export function renderAdminDashboardView(): string {
                   ${pendingInquiriesCount}
                 </span>
               ` : ''}
+              ${group.id === 'group-payment' && paymentAlertCount > 0 ? `
+                <span style="background: #ef4444; color: #fff; font-size: 0.65rem; font-weight: 800; padding: 0.1rem 0.4rem; border-radius: 9999px;">
+                  ${paymentAlertCount}
+                </span>
+              ` : ''}
             </div>
             ${group.subTabs.length > 0 ? `
               <span style="font-size: 0.72rem; color: ${isExpanded ? '#ffffff' : 'rgba(255,255,255,0.35)'}; font-family: monospace;">
@@ -314,10 +322,17 @@ export function renderAdminDashboardView(): string {
                 }
 
                 const isSubActive = currentTab === st.id;
+                const subBadgeCount =
+                  st.id === 'tab-store-orders'
+                    ? pendingRefundRequestsCount
+                    : st.id === 'tab-transfers'
+                      ? pendingTransfersCount
+                      : 0;
                 return `
                 <li>
-                  <button type="button" class="admin-tab-btn sub-nav-btn ${isSubActive ? 'active' : ''}" data-tab="${st.id}" style="width: 100%; text-align: left; display: block; padding: 0.42rem 0.75rem; border-radius: 6px; font-size: 0.84rem; font-weight: ${isSubActive ? '800' : '500'}; border: 1px solid ${isSubActive ? 'rgba(255, 255, 255, 0.2)' : 'transparent'}; background: ${isSubActive ? 'rgba(255, 255, 255, 0.1)' : 'transparent'}; color: ${isSubActive ? '#ffffff' : '#94a3b8'}; cursor: pointer; transition: all 0.15s ease;">
-                    ${st.label}
+                  <button type="button" class="admin-tab-btn sub-nav-btn ${isSubActive ? 'active' : ''}" data-tab="${st.id}" style="width: 100%; text-align: left; display: flex; align-items: center; justify-content: space-between; padding: 0.42rem 0.75rem; border-radius: 6px; font-size: 0.84rem; font-weight: ${isSubActive ? '800' : '500'}; border: 1px solid ${isSubActive ? 'rgba(255, 255, 255, 0.2)' : 'transparent'}; background: ${isSubActive ? 'rgba(255, 255, 255, 0.1)' : 'transparent'}; color: ${isSubActive ? '#ffffff' : '#94a3b8'}; cursor: pointer; transition: all 0.15s ease;">
+                    <span>${st.label}</span>
+                    ${subBadgeCount > 0 ? `<span style="background: #ef4444; color: #fff; font-size: 0.62rem; font-weight: 800; padding: 0.08rem 0.36rem; border-radius: 9999px;">${subBadgeCount}</span>` : ''}
                   </button>
                 </li>
                 `;
@@ -1438,6 +1453,7 @@ function renderAdminOverviewPanel(): string {
   const allInquiries = CustomerInquiryStore.getInquiries();
   const pendingInquiries = allInquiries.filter(i => i.status === 'pending');
   const allOrders = getAllStoreOrders();
+  const pendingOrderRefunds = allOrders.filter(o => o.status !== 'refunded' && Boolean(o.refundRequested));
   const pendingTransfers = VoucherStore.getBankTransfers().filter(t => t.status === 'pending');
   const reviews = ProductReviewStore.getReviews();
   const allSubs = getAllSubscriptions();
@@ -1445,9 +1461,34 @@ function renderAdminOverviewPanel(): string {
 
   return `
     <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+      ${pendingOrderRefunds.length > 0 ? `
+        <div class="btn-admin-kpi-card" data-goto-tab="tab-store-orders" data-ledger-filter="refund_requested" style="background: rgba(239, 68, 68, 0.14); border: 1px solid rgba(239, 68, 68, 0.65); border-radius: 10px; padding: 0.9rem 1.15rem; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <span style="font-size: 1.1rem;">🔔</span>
+            <div>
+              <div style="font-size: 0.88rem; font-weight: 800; color: #fecaca;">결제 환불 신청 ${pendingOrderRefunds.length}건이 심사 대기 중입니다.</div>
+              <div style="font-size: 0.74rem; color: #fca5a5;">클릭하시면 [결제내역 / 환불]의 환불요청 목록으로 바로 이동합니다.</div>
+            </div>
+          </div>
+          <span style="background: #ef4444; color: #fff; font-size: 0.75rem; font-weight: 800; padding: 0.35rem 0.75rem; border-radius: 6px;">지금 확인하기 →</span>
+        </div>
+      ` : ''}
       
       <!-- 핵심 KPI 요약 카드 (클릭 시 해당 화면 연결) -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem;">
+        
+        <!-- 0. 결제 환불 심사 대기 (클릭 시 결제내역/환불 탭 환불요청 필터 이동) -->
+        <div class="btn-admin-kpi-card" data-goto-tab="tab-store-orders" data-ledger-filter="refund_requested" style="background: ${pendingOrderRefunds.length > 0 ? 'rgba(239, 68, 68, 0.12)' : 'var(--surface-container)'}; border: 1px solid ${pendingOrderRefunds.length > 0 ? 'rgba(239, 68, 68, 0.65)' : 'rgba(255,255,255,0.08)'}; border-radius: 10px; padding: 1.15rem; cursor: pointer; transition: all 0.15s ease;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+            <span style="font-size: 0.74rem; color: ${pendingOrderRefunds.length > 0 ? '#fca5a5' : 'var(--text-muted)'}; font-weight: 700;">결제 환불 심사 대기</span>
+          </div>
+          <div style="font-size: 1.5rem; font-weight: 900; color: ${pendingOrderRefunds.length > 0 ? '#ef4444' : '#fff'};">
+            ${pendingOrderRefunds.length}건
+          </div>
+          <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">
+            카드·간편결제 취소 요청 (클릭 시 이동)
+          </div>
+        </div>
         
         <!-- 1. 미답변 문의 (클릭 시 고객문의 탭 이동) -->
         <div class="btn-admin-kpi-card" data-goto-tab="tab-inquiries" style="background: var(--surface-container); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1.15rem; cursor: pointer; transition: all 0.15s ease;">
