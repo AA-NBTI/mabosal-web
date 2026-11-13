@@ -2,6 +2,13 @@ import { OrderAuthGuard } from './modules/order/order-auth-guard.js';
 import { PaymentService, PortOneGateway } from './modules/payment/payment-service.js';
 import { updateStoreOrder } from './extensions/commerce-store/store-service.js';
 import { savePaymentConfigFromDom } from './modules/payment/AdminPaymentPanel.js';
+import {
+  ensureAdminMembersLoaded,
+  syncAdminMembersFromCloud,
+  setAdminMemberSearch,
+  setAdminMemberStatusFilter,
+  setAdminMemberRoleFilter,
+} from './views/AdminMembersPanel.js';
 import { VoucherStore } from './modules/voucher/voucher-store.js';
 import { renderMagiCalendarView } from './views/MagiCalendarView.js';
 import { renderLuckyCalendarView } from './views/LuckyCalendarView.js';
@@ -1122,6 +1129,24 @@ ${content}
  // 관리자 모듈 활성화/비활성화 토글 스위치 리스너
  this.rootEl.addEventListener('change', (e) => {
     const target = e.target as HTMLInputElement;
+
+    if (target && target.id === 'select-admin-member-status') {
+      setAdminMemberStatusFilter(target.value as 'all' | 'active' | 'suspended');
+      this.render(appState.getState());
+      return;
+    }
+
+    if (target && target.id === 'select-admin-member-role') {
+      setAdminMemberRoleFilter(target.value as 'all' | 'user' | 'partner' | 'admin');
+      this.render(appState.getState());
+      return;
+    }
+
+    if (target && target.id === 'input-admin-member-search') {
+      setAdminMemberSearch(target.value || '');
+      this.render(appState.getState());
+      return;
+    }
 
     // [체크아웃 보드: 관리자 활성화 쿠폰 라디오 선택 시 자동 적용]
     if (target && target.classList?.contains('radio-auto-coupon')) {
@@ -2332,7 +2357,8 @@ ${content}
     if (toggleGroupBtn) {
       const grpId = toggleGroupBtn.dataset.groupId;
       if (grpId) {
-        toggleAdminGroup(grpId);
+        const wasExpanded = toggleGroupBtn.dataset.expanded === 'true';
+        toggleAdminGroup(grpId, wasExpanded);
         this.render(appState.getState());
       }
       return;
@@ -2343,13 +2369,17 @@ ${content}
     if (toggleSubGroupBtn) {
       const subId = toggleSubGroupBtn.dataset.subgroupId;
       if (subId) {
-        toggleAdminSubGroup(subId);
+        const isActive = toggleSubGroupBtn.dataset.active === 'true';
         const defTab = toggleSubGroupBtn.dataset.defaultTab;
-        if (defTab && !['tab-store', 'tab-store-register', 'tab-store-orders'].includes(getAdminActiveTab())) {
+        if (!isActive && defTab) {
+          // 다른 메뉴에서 진입할 때는 닫히지 않고 펼치면서 기본 탭으로 이동
+          toggleAdminSubGroup(subId, true);
           setAdminActiveTab(defTab);
           if (defTab === 'tab-store') setAdminStoreSubTab('products');
           else if (defTab === 'tab-store-register') setAdminStoreSubTab('register');
           else if (defTab === 'tab-store-orders') setAdminStoreSubTab('orders');
+        } else {
+          toggleAdminSubGroup(subId);
         }
         this.render(appState.getState());
       }
@@ -2549,9 +2579,60 @@ ${content}
           setAdminStoreSubTab('categories');
         } else {
           setAdminActiveTab(targetTab);
+          if (targetTab === 'tab-members') {
+            ensureAdminMembersLoaded(() => this.render(appState.getState()));
+          }
         }
         this.render(appState.getState());
       }
+      return;
+    }
+
+    // [관리자 회원관리: 새로고침 / 이용 정지·해제 / 삭제]
+    if (target.closest('#btn-admin-members-refresh')) {
+      void syncAdminMembersFromCloud(() => this.render(appState.getState()));
+      return;
+    }
+
+    const memberToggleBtn = target.closest('.btn-admin-member-toggle-suspend') as HTMLElement | null;
+    if (memberToggleBtn) {
+      const uid = memberToggleBtn.dataset.userId || '';
+      const uname = memberToggleBtn.dataset.username || '';
+      const action = memberToggleBtn.dataset.action as 'suspend' | 'unsuspend';
+      if (!uid || !action) return;
+
+      let reason: string | undefined;
+      if (action === 'suspend') {
+        const inputReason = prompt(`[${uname}] 회원의 이용을 정지합니다.\n정지 사유를 입력해 주세요:`, '운영 정책 위반');
+        if (inputReason === null) return;
+        reason = inputReason.trim() || '관리자 직권 이용 정지';
+      } else {
+        if (!confirm(`[${uname}] 회원의 이용 정지를 해제하시겠습니까?`)) return;
+      }
+
+      void AuthService.setMemberStatusByAdmin(uid, action, reason).then(res => {
+        alert(res.message);
+        if (res.success) {
+          void syncAdminMembersFromCloud(() => this.render(appState.getState()));
+        }
+      });
+      return;
+    }
+
+    const memberDeleteBtn = target.closest('.btn-admin-member-delete') as HTMLElement | null;
+    if (memberDeleteBtn) {
+      const uid = memberDeleteBtn.dataset.userId || '';
+      const uname = memberDeleteBtn.dataset.username || '';
+      if (!uid) return;
+
+      if (!confirm(`[${uname}] 회원을 정말 삭제하시겠습니까?\n삭제된 계정은 복구할 수 없습니다.`)) return;
+
+      void AuthService.deleteMemberByAdmin(uid).then(res => {
+        alert(res.message);
+        if (res.success) {
+          void syncAdminMembersFromCloud(() => this.render(appState.getState()));
+        }
+      });
       return;
     }
 

@@ -23,6 +23,7 @@ import { renderAdminLifeAnalysisPanel } from './AdminLifeAnalysisPanel.js';
 import { renderAdminSeoWikiHubPanel } from './AdminSeoWikiHubPanel.js';
 import { renderAdminEbookLibraryPanel } from './AdminEbookLibraryPanel.js';
 import { renderAdminSubscriptionsPanel, getAllSubscriptions } from './SubscriptionView.js';
+import { renderAdminMembersPanel } from './AdminMembersPanel.js';
 
 
 let activeEditingStudyArticleId: string | null = null;
@@ -76,27 +77,32 @@ export function getAdminActiveTab(): string {
   return activeAdminTabId;
 }
 
-// 상위 카테고리 아코디언(펼침/닫힘) 상태 관리: 기본 모두 닫힘 세팅
-const expandedAdminGroupIds = new Set<string>();
+// 상위 카테고리 아코디언(펼침/닫힘) 상태 관리
+const groupToggleState = new Map<string, boolean>();
 
-// 2차 서브 카테고리(3단 아코디언) 상태 관리: 상품관리는 기본 펼침
+// 2차 서브 카테고리(3단 아코디언) 상태 관리: 상품관리/스터디는 기본 펼침
 const subGroupToggleState = new Map<string, boolean>();
 
-export function toggleAdminGroup(groupId: string): void {
-  if (expandedAdminGroupIds.has(groupId)) {
-    expandedAdminGroupIds.delete(groupId);
-  } else {
-    expandedAdminGroupIds.add(groupId);
-  }
+export function toggleAdminGroup(groupId: string, fallbackExpanded: boolean = false): void {
+  const current = groupToggleState.has(groupId) ? groupToggleState.get(groupId)! : fallbackExpanded;
+  groupToggleState.set(groupId, !current);
 }
 
-export function toggleAdminSubGroup(subGroupId: string): void {
+export function setAdminGroupExpanded(groupId: string, expanded: boolean): void {
+  groupToggleState.set(groupId, expanded);
+}
+
+export function toggleAdminSubGroup(subGroupId: string, forceExpanded?: boolean): void {
+  if (typeof forceExpanded === 'boolean') {
+    subGroupToggleState.set(subGroupId, forceExpanded);
+    return;
+  }
   const current = subGroupToggleState.has(subGroupId) ? subGroupToggleState.get(subGroupId)! : true;
   subGroupToggleState.set(subGroupId, !current);
 }
 
 export function isGroupExpanded(groupId: string): boolean {
-  return expandedAdminGroupIds.has(groupId);
+  return groupToggleState.get(groupId) === true;
 }
 
 export function renderAdminDashboardView(): string {
@@ -195,6 +201,14 @@ export function renderAdminDashboardView(): string {
       ]
     },
     {
+      id: 'group-members',
+      label: '회원관리',
+      defaultTab: 'tab-members',
+      subTabs: [
+        { id: 'tab-members', label: '회원 현황/제재' },
+      ]
+    },
+    {
       id: 'group-system',
       label: '시스템',
       defaultTab: 'tab-solutions',
@@ -261,7 +275,7 @@ export function renderAdminDashboardView(): string {
         <div>
           <div style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 800; color: #dfe2f1; line-height: 1.15; display: flex; align-items: center; gap: 0.45rem;">
             마보살 관리자
-            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v2.2.0</span>
+            <span style="font-size: 0.65rem; font-family: var(--font-mono, monospace); font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.15); padding: 0.08rem 0.38rem; border-radius: 4px; letter-spacing: 0.02em;">v2.2.1</span>
           </div>
           <div style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.05em;">ADMIN CONTROL TOWER</div>
         </div>
@@ -276,12 +290,12 @@ export function renderAdminDashboardView(): string {
     <ul class="wp-admin-menu-list" style="margin: 0; padding: 0.5rem; list-style: none; display: flex; flex-direction: column; gap: 0.4rem;">
       ${adminGroups.map(group => {
         const isGroupActive = activeGroup.id === group.id;
-        const isExpanded = expandedAdminGroupIds.has(group.id) || isGroupActive;
+        const isExpanded = groupToggleState.has(group.id) ? groupToggleState.get(group.id)! : isGroupActive;
 
         return `
         <li class="admin-menu-group" style="display: flex; flex-direction: column; gap: 0.15rem;">
           <!-- 1차 대주제 버튼 (서브메뉴 없으면 즉시 이동, 있으면 아코디언 토글) -->
-          <div class="wp-admin-menu-btn ${group.subTabs.length === 0 ? 'admin-tab-btn' : 'btn-toggle-admin-group'} ${isGroupActive ? 'active' : ''}" ${group.subTabs.length === 0 ? `data-tab="${group.defaultTab}"` : `data-group-id="${group.id}" data-default-tab="${group.defaultTab}"`} style="border-left: 3px solid ${isGroupActive ? '#ffffff' : 'transparent'}; background: ${isGroupActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent'}; display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0.85rem; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; user-select: none;">
+          <div class="wp-admin-menu-btn ${group.subTabs.length === 0 ? 'admin-tab-btn' : 'btn-toggle-admin-group'} ${isGroupActive ? 'active' : ''}" ${group.subTabs.length === 0 ? `data-tab="${group.defaultTab}"` : `data-group-id="${group.id}" data-default-tab="${group.defaultTab}" data-expanded="${isExpanded ? 'true' : 'false'}"`} style="border-left: 3px solid ${isGroupActive ? '#ffffff' : 'transparent'}; background: ${isGroupActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent'}; display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0.85rem; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; user-select: none;">
             <div style="display: flex; align-items: center; gap: 0.45rem;">
               <span style="font-weight: ${isGroupActive ? '800' : '700'}; font-size: 0.95rem; color: ${isGroupActive ? '#fff' : '#cbd5e1'}; letter-spacing: -0.01em;">${group.label}</span>
               ${group.id === 'group-support' && pendingInquiriesCount > 0 ? `
@@ -309,7 +323,7 @@ export function renderAdminDashboardView(): string {
                   return `
                   <li style="display: flex; flex-direction: column; gap: 0.15rem;">
                     <!-- 2단: 상품관리 아코디언 토글 버튼 -->
-                    <div class="btn-toggle-admin-subgroup ${isSubGroupActive ? 'active' : ''}" data-subgroup-id="${st.id}" data-default-tab="${st.defaultTab || st.children[0].id}" style="display: flex; align-items: center; justify-content: space-between; padding: 0.42rem 0.65rem; border-radius: 6px; font-size: 0.84rem; font-weight: ${isSubGroupActive ? '800' : '600'}; color: ${isSubGroupActive ? '#ffffff' : '#cbd5e1'}; background: ${isSubGroupActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent'}; border: 1px solid ${isSubGroupActive ? 'rgba(255,255,255,0.18)' : 'transparent'}; cursor: pointer; transition: all 0.15s ease; user-select: none;">
+                    <div class="btn-toggle-admin-subgroup ${isSubGroupActive ? 'active' : ''}" data-subgroup-id="${st.id}" data-default-tab="${st.defaultTab || st.children[0].id}" data-active="${isSubGroupActive ? 'true' : 'false'}" data-expanded="${isSubGroupExpanded ? 'true' : 'false'}" style="display: flex; align-items: center; justify-content: space-between; padding: 0.42rem 0.65rem; border-radius: 6px; font-size: 0.84rem; font-weight: ${isSubGroupActive ? '800' : '600'}; color: ${isSubGroupActive ? '#ffffff' : '#cbd5e1'}; background: ${isSubGroupActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent'}; border: 1px solid ${isSubGroupActive ? 'rgba(255,255,255,0.18)' : 'transparent'}; cursor: pointer; transition: all 0.15s ease; user-select: none;">
                       <div style="display: flex; align-items: center; gap: 0.4rem;">
                         <span class="material-symbols-outlined" style="font-size: 16px; color: ${isSubGroupActive ? 'var(--primary)' : 'var(--text-muted)'};">${st.id === 'subgroup-study' ? 'menu_book' : 'inventory_2'}</span>
                         <span>${st.label}</span>
@@ -1435,6 +1449,11 @@ export function renderAdminDashboardView(): string {
         <!-- [신규 패널] 정기 구독 및 환불 심사 관리 센터 -->
         <div id="tab-subscriptions" class="admin-tab-panel" style="display: ${currentTab === 'tab-subscriptions' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
           ${renderAdminSubscriptionsPanel()}
+        </div>
+
+        <!-- [신규 패널] 전체 회원 현황 및 이용 정지/삭제 관리 -->
+        <div id="tab-members" class="admin-tab-panel" style="display: ${currentTab === 'tab-members' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+          ${renderAdminMembersPanel()}
         </div>
 
       </div>

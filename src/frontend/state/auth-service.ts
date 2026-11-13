@@ -7,6 +7,7 @@ import { supabase, SUPABASE_CONFIG } from '../modules/supabase/supabase-client.j
 
 export type UserRole = 'guest' | 'user' | 'partner' | 'admin';
 export type PartnerType = 'AFFILIATE' | 'EXPERT' | 'HYBRID';
+export type MemberStatus = 'active' | 'suspended' | 'deleted';
 
 export interface UserAccount {
   id: string;          // 고유 ID
@@ -25,6 +26,10 @@ export interface UserAccount {
   partnerCode?: string;
   yeopBalance: number;
   joinedAt: string;
+  status?: MemberStatus;
+  suspendedReason?: string;
+  suspendedAt?: string;
+  lastSignInAt?: string;
 }
 
 const STORAGE_KEY_ACCOUNTS = 'mabosal_registered_accounts';
@@ -229,6 +234,13 @@ export class AuthService {
         };
       }
 
+      if (authError && authError.message.toLowerCase().includes('banned')) {
+        return {
+          success: false,
+          message: '관리자에 의해 이용이 정지된 계정입니다.',
+        };
+      }
+
       if (!authError && authData.user) {
         // 프로필 정보 조회
         const { data: prof } = await supabase
@@ -236,6 +248,23 @@ export class AuthService {
           .select('*')
           .eq('id', authData.user.id)
           .maybeSingle();
+
+        if (prof?.status === 'suspended') {
+          await supabase.auth.signOut();
+          const reasonMsg = prof.suspended_reason ? ` (사유: ${prof.suspended_reason})` : '';
+          return {
+            success: false,
+            message: `이용이 정지된 계정입니다.${reasonMsg}`,
+          };
+        }
+
+        if (prof?.status === 'deleted') {
+          await supabase.auth.signOut();
+          return {
+            success: false,
+            message: '탈퇴 또는 삭제된 계정입니다.',
+          };
+        }
 
         const role: UserRole = (prof?.role as UserRole) || (cleanUsername === 'admin' ? 'admin' : 'user');
         const userAcc: UserAccount = {
@@ -248,6 +277,7 @@ export class AuthService {
           role,
           yeopBalance: 3000,
           joinedAt: authData.user.created_at?.slice(0, 10) || new Date().toISOString().slice(0, 10),
+          status: (prof?.status as MemberStatus) || 'active',
         };
 
         this.currentSession = userAcc;
@@ -265,6 +295,15 @@ export class AuthService {
 
     if (!found) {
       return { success: false, message: '존재하지 않는 아이디입니다. 회원가입을 먼저 진행해주세요.' };
+    }
+
+    if (found.status === 'suspended') {
+      const reasonMsg = found.suspendedReason ? ` (사유: ${found.suspendedReason})` : '';
+      return { success: false, message: `이용이 정지된 계정입니다.${reasonMsg}` };
+    }
+
+    if (found.status === 'deleted') {
+      return { success: false, message: '탈퇴 또는 삭제된 계정입니다.' };
     }
 
     // 클라우드 환경에서는 비밀번호가 비어있는 로컬 캐시 계정의 무조건 통과를 차단
@@ -536,6 +575,181 @@ export class AuthService {
     this.currentSession = { ...acc };
     getStorage().setItem(STORAGE_KEY_CURRENT_SESSION, JSON.stringify(this.currentSession));
     return { success: true, message: '프로필이 갱신되었습니다.' };
+  }
+
+  /**
+   * 8. 관리자용: 전체 회원 목록 조회 (Edge Function -> profiles RLS -> 로컬 폴백 순)
+   */
+  public static async fetchMembersForAdmin(): Promise<{ members: UserAccount[]; source: 'cloud' | 'local'; error?: string }> {
+    this.init();
+    const isCloudBrowser = typeof window !== 'undefined' && !SUPABASE_CONFIG.isLocal;
+
+    if (isCloudBrowser) {
+      // 1차: Edge Function (auth.users + profiles 통합 조회)
+      try {
+        const { data: fnData, error: fnErr } = await supabase.functions.invoke('admin-members', {
+          body: { action: 'list' },
+        });
+        if (!fnErr && Array.isArray(fnData?.members)) {
+          const mapped: UserAccount[] = fnData.members.map((m: any) => ({
+            id: m.id,
+            username: m.username || (m.email ? m.email.split('@')[0] : m.id.slice(0, 8)),
+            password: '',
+            name: m.name || m.username || '회원',
+            email: m.email || '',
+            phone: m.phone || '',
+            role: (m.role as UserRole) || 'user',
+            yeopBalance: Number(m.yeop_balance ?? 3000),
+            joinedAt: (m.created_at || new Date().toISOString()).slice(0, 10),
+            status: (m.status as MemberStatus) || (m.banned_until ? 'suspended' : 'active'),
+            suspendedReason: m.suspended_reason || undefined,
+            suspendedAt: m.suspended_at ? String(m.suspended_at).slice(0, 10) : undefined,
+            lastSignInAt: m.last_sign_in_at ? String(m.last_sign_in_at).slice(0, 10) : undefined,
+          }));
+          return { members: mapped, source: 'cloud' };
+        }
+      } catch (e) {
+        console.warn('[AuthService] admin-members Edge Function unavailable, trying profiles table:', e);
+      }
+
+      // 2차: profiles 테이블 직접 조회 (관리자 RLS 정책 필요)
+      try {
+        const { data: profs, error: profErr } = await supabase
+          .from('profiles')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!profErr && Array.isArray(profs)) {
+          const mapped: UserAccount[] = profs.map((m: any) => ({
+            id: m.id,
+            username: m.username || (m.email ? m.email.split('@')[0] : m.id.slice(0, 8)),
+            password: '',
+            name: m.name || m.username || '회원',
+            email: m.email || '',
+            phone: m.phone || '',
+            role: (m.role as UserRole) || 'user',
+            yeopBalance: Number(m.yeop_balance ?? 3000),
+            joinedAt: (m.created_at || new Date().toISOString()).slice(0, 10),
+            status: (m.status as MemberStatus) || 'active',
+            suspendedReason: m.suspended_reason || undefined,
+            suspendedAt: m.suspended_at ? String(m.suspended_at).slice(0, 10) : undefined,
+          }));
+          return { members: mapped, source: 'cloud' };
+        }
+        return {
+          members: this.getAllAccounts(),
+          source: 'local',
+          error: profErr?.message || 'Supabase profiles 조회 권한이 없습니다.',
+        };
+      } catch (e: any) {
+        return {
+          members: this.getAllAccounts(),
+          source: 'local',
+          error: e?.message || '원격 회원 조회에 실패했습니다.',
+        };
+      }
+    }
+
+    return { members: this.getAllAccounts(), source: 'local' };
+  }
+
+  /**
+   * 9. 관리자용: 회원 이용 정지 / 정지 해제
+   */
+  public static async setMemberStatusByAdmin(
+    targetUserId: string,
+    action: 'suspend' | 'unsuspend',
+    reason?: string
+  ): Promise<{ success: boolean; message: string }> {
+    this.init();
+    const isCloudBrowser = typeof window !== 'undefined' && !SUPABASE_CONFIG.isLocal;
+    const nextStatus: MemberStatus = action === 'suspend' ? 'suspended' : 'active';
+
+    if (isCloudBrowser) {
+      let edgeHandled = false;
+      try {
+        const { data: fnData, error: fnErr } = await supabase.functions.invoke('admin-members', {
+          body: { action, userId: targetUserId, reason },
+        });
+        if (!fnErr && fnData?.success) {
+          edgeHandled = true;
+        } else if (fnData?.error) {
+          return { success: false, message: fnData.error };
+        }
+      } catch {
+        // Edge Function 미배포 시 profiles 직접 업데이트로 폴백
+      }
+
+      if (!edgeHandled) {
+        const { error: updErr } = await supabase
+          .from('profiles')
+          .update({
+            status: nextStatus,
+            suspended_reason: action === 'suspend' ? (reason || '관리자 직권 이용 정지') : null,
+            suspended_at: action === 'suspend' ? new Date().toISOString() : null,
+          })
+          .eq('id', targetUserId);
+
+        if (updErr) {
+          return { success: false, message: `상태 변경 실패: ${updErr.message}` };
+        }
+      }
+    }
+
+    // 로컬 캐시 동기화
+    const accounts = this.getAllAccounts();
+    const target = accounts.find(a => a.id === targetUserId);
+    if (target) {
+      target.status = nextStatus;
+      target.suspendedReason = action === 'suspend' ? (reason || '관리자 직권 이용 정지') : undefined;
+      target.suspendedAt = action === 'suspend' ? new Date().toISOString().slice(0, 10) : undefined;
+      getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
+    }
+
+    return {
+      success: true,
+      message: action === 'suspend' ? '해당 회원의 이용을 정지했습니다.' : '이용 정지를 해제했습니다.',
+    };
+  }
+
+  /**
+   * 10. 관리자용: 회원 삭제
+   */
+  public static async deleteMemberByAdmin(targetUserId: string): Promise<{ success: boolean; message: string }> {
+    this.init();
+    const isCloudBrowser = typeof window !== 'undefined' && !SUPABASE_CONFIG.isLocal;
+
+    if (isCloudBrowser) {
+      let edgeHandled = false;
+      try {
+        const { data: fnData, error: fnErr } = await supabase.functions.invoke('admin-members', {
+          body: { action: 'delete', userId: targetUserId },
+        });
+        if (!fnErr && fnData?.success) {
+          edgeHandled = true;
+        } else if (fnData?.error) {
+          return { success: false, message: fnData.error };
+        }
+      } catch {
+        // Edge Function 미배포 시 profiles 삭제/soft-delete 폴백
+      }
+
+      if (!edgeHandled) {
+        const { error: delErr } = await supabase
+          .from('profiles')
+          .delete()
+          .eq('id', targetUserId);
+
+        if (delErr) {
+          return { success: false, message: `회원 삭제 실패: ${delErr.message}` };
+        }
+      }
+    }
+
+    const accounts = this.getAllAccounts().filter(a => a.id !== targetUserId);
+    getStorage().setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
+
+    return { success: true, message: '회원이 삭제되었습니다.' };
   }
 
   /** 테스트/로그아웃 시 메모리 캐시 초기화 */
