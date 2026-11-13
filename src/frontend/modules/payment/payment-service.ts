@@ -7,6 +7,7 @@ import { SupabaseStoreService } from '../supabase/supabase-store-service.js';
  *  - portone_card  : 주문 초안 저장 → 포트원 V2 모달/팝업 결제창 호출 → 성공 콜백/사후검증 → 주문 completed
  */
 import { PaymentConfigStore } from './payment-config.js';
+import { verifyPortOnePayment } from './portone-server-api.js';
 import { VoucherStore } from '../voucher/voucher-store.js';
 import {
   createStoreOrder,
@@ -186,6 +187,7 @@ export class PaymentService {
           return { kind: 'error', message: response.message || `결제 실패 (${response.code})` };
         }
 
+        const paymentKey = response?.paymentId || orderId;
         // 결제 성공 처리
         const order = createStoreOrder({
           productId: draft.productId,
@@ -195,18 +197,10 @@ export class PaymentService {
           paymentMethod: 'portone_card',
           orderId,
           status: 'completed',
-          paymentKey: response?.paymentId || orderId,
+          paymentKey,
         });
 
-        // Supabase 주문 동기화
-        SupabaseStoreService.createOrder({
-          productId: draft.productId,
-          buyerName: draft.buyerName,
-          buyerPhone: draft.buyerPhone,
-          buyerEmail: draft.buyerEmail,
-          paymentMethod: 'portone_card',
-          orderId,
-        }).catch(err => console.warn('[PaymentService] Supabase card sync deferred:', err));
+        PaymentService.syncVerifiedPortOneOrder(paymentKey, orderId, draft, order);
 
         removeDraft(orderId);
         return { kind: 'order', order };
@@ -249,6 +243,19 @@ export class PaymentService {
       paymentKey: orderId,
     });
 
+    PaymentService.syncVerifiedPortOneOrder(orderId, orderId, draft, order);
+
+    removeDraft(orderId);
+    return { kind: 'order', order };
+  }
+
+  /** 포트원 서버 사후 검증 Edge Function 및 Supabase 주문 동기화 */
+  private static syncVerifiedPortOneOrder(
+    paymentKey: string,
+    orderId: string,
+    draft: PaymentDraft,
+    order: StoreOrder
+  ): void {
     SupabaseStoreService.createOrder({
       productId: draft.productId,
       buyerName: draft.buyerName,
@@ -258,8 +265,19 @@ export class PaymentService {
       orderId,
     }).catch(err => console.warn('[PaymentService] Supabase card sync deferred:', err));
 
-    removeDraft(orderId);
-    return { kind: 'order', order };
+    void verifyPortOnePayment(paymentKey, {
+      orderId,
+      orderSnapshot: {
+        productId: draft.productId,
+        productTitle: draft.orderName,
+        category: order.category,
+        amount: draft.amount,
+        buyerName: draft.buyerName,
+        buyerEmail: draft.buyerEmail,
+        buyerPhone: draft.buyerPhone,
+        deliveryType: order.deliveryType,
+      },
+    }).catch(err => console.warn('[PaymentService] PortOne server verify deferred:', err));
   }
 }
 

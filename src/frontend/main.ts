@@ -147,6 +147,7 @@ import {
   cancelPendingStoreOrder,
   approveStoreOrderRefund,
   approveStoreOrderRefundWithPgCancel,
+  rejectStoreOrderRefund,
   approveStoreBankDeposit,
   syncOrdersFromSupabase,
   syncPortOnePaymentsIntoOrders,
@@ -4303,6 +4304,21 @@ ${content}
         const res = await approveStoreOrderRefundWithPgCancel(orderId);
         alert(res.message);
         this.render(appState.getState());
+      }
+      return;
+    }
+
+    // [최고 관리자 환불 요청 반려 처리 클릭]
+    const rejectRefundBtn = target.closest('.btn-admin-reject-refund') as HTMLElement;
+    if (rejectRefundBtn) {
+      const orderId = rejectRefundBtn.dataset.orderId;
+      if (orderId) {
+        const reason = prompt(`[주문번호: ${orderId}] 환불 반려 사유를 입력하세요 (선택 사항):`, '상품 열람 이력 확인 또는 환불 규정 미충족');
+        if (reason !== null) {
+          const res = rejectStoreOrderRefund(orderId, reason);
+          alert(res.message);
+          this.render(appState.getState());
+        }
       }
       return;
     }

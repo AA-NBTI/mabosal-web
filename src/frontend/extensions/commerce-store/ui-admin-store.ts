@@ -545,9 +545,14 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                         ${o.status === 'refunded' ? `
                           <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700;">환불완료</span>
                         ` : (o.refundRequested ? `
-                          <button type="button" class="btn-admin-approve-refund" data-order-id="${o.orderId}" style="background: #ef4444; color: #fff; font-size: 0.74rem; font-weight: 800; border: none; border-radius: 6px; padding: 0.35rem 0.65rem; cursor: pointer;" title="사유: ${esc(o.refundReason || '')}">
-                            환불 승인 (${esc(o.refundReason || '요청')})
-                          </button>
+                          <div style="display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
+                            <button type="button" class="btn-admin-approve-refund" data-order-id="${o.orderId}" style="background: #ef4444; color: #fff; font-size: 0.74rem; font-weight: 800; border: none; border-radius: 6px; padding: 0.35rem 0.65rem; cursor: pointer;" title="사유: ${esc(o.refundReason || '')}">
+                              환불 승인 (${esc(o.refundReason || '요청')})
+                            </button>
+                            <button type="button" class="btn-admin-reject-refund" data-order-id="${o.orderId}" style="background: rgba(148, 163, 184, 0.2); color: #e2e8f0; font-size: 0.72rem; font-weight: 700; border: 1px solid rgba(148, 163, 184, 0.4); border-radius: 6px; padding: 0.32rem 0.55rem; cursor: pointer;" title="환불 요청을 반려하고 정상 주문으로 복구">
+                              환불 반려
+                            </button>
+                          </div>
                         ` : (o.status === 'pending' ? `
                           <div style="display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
                             <span style="background: rgba(242, 202, 80, 0.18); color: #f2ca50; font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700; border: 1px solid rgba(242, 202, 80, 0.35);">입금대기</span>

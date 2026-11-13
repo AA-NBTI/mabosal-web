@@ -1616,6 +1616,36 @@ export async function approveStoreOrderRefundWithPgCancel(
 }
 
 /**
+ * 최고 관리자의 환불 요청 반려 처리 (정상 결제완료 상태로 복구)
+ */
+export function rejectStoreOrderRefund(
+  orderId: string,
+  rejectReason?: string
+): { success: boolean; message: string } {
+  const existing = getAllStoreOrders().find(o => o.orderId === orderId);
+  if (!existing) {
+    return { success: false, message: '주문 정보를 찾을 수 없습니다.' };
+  }
+  if (existing.status === 'refunded') {
+    return { success: false, message: '이미 환불 완료된 주문은 반려할 수 없습니다.' };
+  }
+
+  const target = updateStoreOrder(orderId, {
+    refundRequested: false,
+    refundReason: rejectReason?.trim() ? `[환불반려] ${rejectReason.trim()}` : '',
+  });
+
+  if (!target) {
+    return { success: false, message: '주문 정보를 업데이트하지 못했습니다.' };
+  }
+
+  return {
+    success: true,
+    message: `[주문번호: ${orderId}] 환불 요청이 반려되어 정상 이용(결제완료) 상태로 복구되었습니다.`,
+  };
+}
+
+/**
  * 최고 관리자의 무통장 입금 확인 및 주문 승인 처리
  */
 export function approveStoreBankDeposit(orderId: string): { success: boolean; message: string } {

@@ -39,7 +39,8 @@ export function renderUserOrderHistoryWidget(): string {
   }
 
   const pendingTransfers = userTransfers.filter(t => t.status === 'pending');
-  const completedOrders = userOrders.filter(o => o.status === 'completed');
+  const refundPendingOrders = userOrders.filter(o => o.status === 'completed' && Boolean(o.refundRequested));
+  const completedOrders = userOrders.filter(o => o.status === 'completed' && !o.refundRequested);
 
   // 구매한 전자책 및 디지털 다운로드 보관함
   const myDigitalBooks = userOrders.filter(o =>
@@ -84,7 +85,7 @@ export function renderUserOrderHistoryWidget(): string {
           <h2 style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0;">나의 주문 내역</h2>
         </div>
         <span style="font-size: 0.8rem; color: var(--text-muted);">
-          총 주문 <strong style="color: var(--primary);">${userOrders.length}건</strong> (입금 대기 ${pendingTransfers.length}건 / 완료 ${completedOrders.length}건)
+          총 주문 <strong style="color: var(--primary);">${userOrders.length}건</strong> (입금 대기 ${pendingTransfers.length}건 / 완료 ${completedOrders.length}건${refundPendingOrders.length > 0 ? ` / <span style="color: #fca5a5;">환불 심사 ${refundPendingOrders.length}건</span>` : ''})
         </span>
       </div>
 
@@ -116,6 +117,37 @@ export function renderUserOrderHistoryWidget(): string {
                 <div style="text-align: right;">
                   <div style="font-size: 1.05rem; font-weight: 800; color: var(--primary);">₩ ${t.requestedAmount.toLocaleString()}</div>
                   <span style="font-size: 0.7rem; color: #cbd5e1;">입금 완료 시 자동 승인됩니다</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- 2. 환불 심사 대기 중인 주문 (승인 전까지 목록 유지 및 상태 안내) -->
+      ${refundPendingOrders.length > 0 ? `
+        <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 12px; padding: 1.15rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.65rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.4rem; color: #fca5a5; font-weight: 800; font-size: 0.88rem;">
+              <span class="material-symbols-outlined" style="font-size: 18px;">pending_actions</span>
+              <span>환불 신청 · 관리자 승인 대기 (${refundPendingOrders.length}건)</span>
+            </div>
+            <span style="font-size: 0.75rem; background: rgba(239, 68, 68, 0.2); color: #fca5a5; padding: 0.15rem 0.5rem; border-radius: 9999px; font-weight: 700;">
+              환불 심사 중 · 열람 일시 정지
+            </span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+            ${refundPendingOrders.map(o => `
+              <div style="background: rgba(0, 0, 0, 0.4); border-radius: 8px; padding: 0.85rem; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                  <div style="font-weight: 700; color: #fff; margin-bottom: 0.2rem;">${o.productTitle}</div>
+                  <div style="font-size: 0.76rem; color: #cbd5e1;">
+                    신청 사유: <strong style="color: #fca5a5;">${o.refundReason || '단순 변심'}</strong> | 주문번호: ${o.orderId}
+                  </div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 1.02rem; font-weight: 800; color: #fca5a5;">₩ ${(o.amount || 0).toLocaleString()}</div>
+                  <span style="font-size: 0.72rem; color: #cbd5e1;">관리자 승인 후 환불 완료됩니다</span>
                 </div>
               </div>
             `).join('')}
@@ -231,7 +263,7 @@ export function renderUserOrderHistoryWidget(): string {
 
                   <!-- 액션 버튼들 -->
                   <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                    ${o.status === 'completed' && !ProductReviewStore.hasUserReviewed(o.orderId) ? `
+                    ${o.status === 'completed' && !o.refundRequested && !ProductReviewStore.hasUserReviewed(o.orderId) ? `
                       <button type="button" class="btn-open-write-review" data-order-id="${o.orderId}" data-product-id="${o.productId}" data-product-title="${o.productTitle}" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; font-size: 0.78rem; font-weight: 700; padding: 0.45rem 0.8rem; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem;">
                         <span class="material-symbols-outlined" style="font-size: 15px;">rate_review</span>
                         <span>후기 작성</span>
@@ -239,7 +271,7 @@ export function renderUserOrderHistoryWidget(): string {
 
                     ` : ''}
 
-                    ${o.status === 'completed' && (o.category === 'ebook' || o.productId.includes('book')) ? `
+                    ${o.status === 'completed' && !o.refundRequested && (o.category === 'ebook' || o.productId.includes('book')) ? `
                       <a href="/reader?bookId=${o.productId}&from=dashboard" data-nav="/reader?bookId=${o.productId}&from=dashboard" style="background: var(--primary); color: #1e1e1e; font-weight: 800; font-size: 0.82rem; padding: 0.45rem 0.85rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
                         <span class="material-symbols-outlined" style="font-size: 16px;">auto_stories</span>
                         <span>웹 뷰어로 읽기</span>
@@ -254,7 +286,7 @@ export function renderUserOrderHistoryWidget(): string {
 
                     ` : ''}
 
-                    ${o.status === 'completed' && o.deliveryType === 'saju_report' ? `
+                    ${o.status === 'completed' && !o.refundRequested && o.deliveryType === 'saju_report' ? `
                       <button type="button" class="btn-open-user-report" data-order-id="${o.orderId}" data-product-id="${o.productId}" style="background: var(--primary); color: #241a00; font-weight: 800; font-size: 0.82rem; padding: 0.45rem 1rem; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.3rem; box-shadow: 0 2px 8px rgba(242, 202, 80, 0.3);">
                         <span>리포트 열람</span>
                         <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
@@ -262,6 +294,7 @@ export function renderUserOrderHistoryWidget(): string {
 
                     ` : ''}
 
+                    ${o.status === 'completed' && o.refundRequested ? `<span style="background: rgba(239, 68, 68, 0.16); border: 1px solid rgba(239, 68, 68, 0.35); color: #fca5a5; font-size: 0.78rem; font-weight: 700; padding: 0.4rem 0.75rem; border-radius: 6px;">환불 심사 중 (열람 일시 정지)</span>` : ''}
                     <!-- 상품 상세 및 재구매 바로가기 -->
                     <button type="button" class="btn-goto-store-product-detail" data-product-id="${o.productId}" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 700; font-size: 0.82rem; padding: 0.45rem 0.8rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
                       <span class="material-symbols-outlined" style="font-size: 16px;">storefront</span>
@@ -433,9 +466,7 @@ startxref
 
       const res = requestStoreOrderRefund(orderId, reason.trim());
       alert(res.message);
-      if (res.success) {
-        window.location.reload();
-      }
+      // 리로드는 호출부(main.ts render)에 위임하여 비동기 DB 업데이트 중단 방지
     });
   });
 
