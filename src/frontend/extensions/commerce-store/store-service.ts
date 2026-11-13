@@ -1304,6 +1304,33 @@ export function requestStoreOrderRefund(orderId: string, reason: string): { succ
 }
 
 /**
+ * 고객의 입금대기(pending) 주문 직접 취소 처리 (무통장 입금 신청 철회)
+ */
+export function cancelPendingStoreOrder(orderId: string): { success: boolean; message: string } {
+  const order = getAllStoreOrders().find(o => o.orderId === orderId);
+  if (!order) {
+    return { success: false, message: '주문 정보를 찾을 수 없습니다.' };
+  }
+  if (order.status !== 'pending') {
+    return { success: false, message: '입금 대기 상태의 주문만 취소할 수 있습니다.' };
+  }
+
+  updateStoreOrder(orderId, { status: 'cancelled' });
+
+  try {
+    const matched = VoucherStore.getBankTransfers().find(t => t.orderId === orderId);
+    if (matched) {
+      VoucherStore.rejectBankTransfer(matched.id);
+    }
+  } catch {}
+
+  return {
+    success: true,
+    message: `[주문번호: ${orderId}] 무통장 입금 신청이 취소되었습니다. 원하시는 결제수단으로 다시 주문하실 수 있습니다.`,
+  };
+}
+
+/**
  * 최고 관리자의 환불 승인 처리
  */
 export function approveStoreOrderRefund(orderId: string): { success: boolean; message: string } {

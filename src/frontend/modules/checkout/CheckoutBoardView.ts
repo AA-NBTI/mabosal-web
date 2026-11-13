@@ -363,10 +363,9 @@ export function renderCheckoutBoardView(): string {
                       ${!cardEnabled ? '<span style="font-size: 0.68rem; color: #f87171; background: rgba(239, 68, 68, 0.15); padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 800;">심사 준비중</span>' : ''}
                     </label>
 
-                    <label style="border: 1px solid rgba(242, 202, 80, 0.55); border-radius: 10px; padding: 0.85rem; cursor: pointer; text-align: center; background: rgba(242, 202, 80, 0.08); display: flex; flex-direction: column; align-items: center; gap: 0.35rem;">
-                      <input type="radio" name="checkout-pay-method" value="bank_transfer" checked style="accent-color: var(--primary);" />
+                    <label style="border: 1px solid ${cardEnabled ? 'rgba(255,255,255,0.16)' : 'rgba(242, 202, 80, 0.55)'}; border-radius: 10px; padding: 0.85rem; cursor: pointer; text-align: center; background: ${cardEnabled ? 'rgba(255,255,255,0.03)' : 'rgba(242, 202, 80, 0.08)'}; display: flex; flex-direction: column; align-items: center; gap: 0.35rem;">
+                      <input type="radio" name="checkout-pay-method" value="bank_transfer" ${cardEnabled ? '' : 'checked'} style="accent-color: var(--primary);" />
                       <span style="font-size: 0.85rem; font-weight: 700; color: #fff;">무통장 입금</span>
-                      <span style="font-size: 0.68rem; color: #4ade80; background: rgba(74, 222, 128, 0.15); padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 800;">추천 · 즉시승인</span>
                     </label>
                   `;
                 })()}

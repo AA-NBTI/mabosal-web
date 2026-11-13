@@ -4,7 +4,7 @@
  */
 import { AuthService } from '../../state/auth-service.js';
 import { UserOrderService } from './user-order-service.js';
-import { OFFICIAL_BANK_ACCOUNT, getMyStoreOrders, requestStoreOrderRefund, markOrderAsViewed, getStoreProductById } from '../../extensions/commerce-store/store-service.js';
+import { OFFICIAL_BANK_ACCOUNT, getMyStoreOrders, requestStoreOrderRefund, cancelPendingStoreOrder, markOrderAsViewed, getStoreProductById } from '../../extensions/commerce-store/store-service.js';
 import { SAJU_BOOK_VOL1_PRODUCT } from '../../extensions/commerce-store/saju-book-data.js';
 import { UserSajuStore } from '../../state/user-saju-store.js';
 import { ProductReviewStore } from '../../state/product-review-store.js';
@@ -271,11 +271,15 @@ export function renderUserOrderHistoryWidget(): string {
                 <!-- [고객 사후지원] 주문 취소 / 반품 신청 영역 -->
                 <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.6rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.74rem; color: #94a3b8; flex-wrap: wrap; gap: 0.5rem;">
                   <span>취소/환불 규정에 따라 신청 시 관리자가 검토 후 처리합니다.</span>
-                  ${o.status === 'completed' && !o.refundRequested ? `
+                  ${o.status === 'pending' ? `
+                    <button type="button" class="btn-cancel-pending-order" data-order-id="${o.orderId}" data-title="${o.productTitle}" style="background: rgba(239,68,68,0.14); border: 1px solid rgba(239,68,68,0.35); color: #fca5a5; font-size: 0.72rem; font-weight: 700; padding: 0.3rem 0.65rem; border-radius: 4px; cursor: pointer;">
+                      입금신청 취소
+                    </button>
+                  ` : (o.status === 'completed' && !o.refundRequested ? `
                     <button type="button" class="btn-request-order-refund" data-order-id="${o.orderId}" data-product-id="${o.productId}" data-title="${o.productTitle}" style="background: none; border: 1px solid rgba(255,255,255,0.25); color: #cbd5e1; font-size: 0.72rem; padding: 0.3rem 0.65rem; border-radius: 4px; cursor: pointer; transition: all 0.15s ease;">
                       ${o.deliveryType === 'shipping' ? '반품/교환 접수' : '주문 취소/환불 접수'}
                     </button>
-                  ` : (o.refundRequested ? '<span style="color: #f87171; font-weight: 800; background: rgba(239,68,68,0.15); padding: 0.2rem 0.5rem; border-radius: 4px;">환불 심사 진행중</span>' : '')}
+                  ` : (o.refundRequested ? '<span style="color: #f87171; font-weight: 800; background: rgba(239,68,68,0.15); padding: 0.2rem 0.5rem; border-radius: 4px;">환불 심사 진행중</span>' : ''))}
                 </div>
               </div>
 
@@ -395,7 +399,23 @@ startxref
     });
   });
 
-  // 3. 고객 사후지원 (주문 취소 / 반품 신청)
+  // 3. 고객 사후지원 (입금대기 주문 직접 취소)
+  container.querySelectorAll('.btn-cancel-pending-order').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const orderId = (e.currentTarget as HTMLElement).dataset.orderId;
+      const title = (e.currentTarget as HTMLElement).dataset.title || '주문 상품';
+      if (!orderId) return;
+      if (!confirm(`[${title}]\n무통장 입금 신청을 취소하시겠습니까?\n취소 후 카드/간편결제 등으로 다시 주문하실 수 있습니다.`)) return;
+
+      const res = cancelPendingStoreOrder(orderId);
+      alert(res.message);
+      if (res.success) {
+        window.location.reload();
+      }
+    });
+  });
+
+  // 4. 고객 사후지원 (주문 취소 / 반품 신청)
   container.querySelectorAll('.btn-request-order-refund').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const orderId = (e.currentTarget as HTMLElement).dataset.orderId;

@@ -24,11 +24,11 @@ export function renderPaymentMethodSelector(amount: number): string {
     <label style="font-size:0.76rem;color:var(--text-muted);display:block;margin-bottom:0.35rem;">결제 수단 · 결제 금액 ₩ ${amount.toLocaleString()}</label>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.65rem;">
       <label class="pay-opt">
-        <input type="radio" name="order-pay-method" value="bank_transfer" checked />
+        <input type="radio" name="order-pay-method" value="bank_transfer" ${cardOn ? '' : 'checked'} />
         무통장 입금
       </label>
       <label class="pay-opt ${cardOn ? '' : 'disabled'}">
-        <input type="radio" name="order-pay-method" value="portone_card" ${cardOn ? '' : 'disabled'} />
+        <input type="radio" name="order-pay-method" value="portone_card" ${cardOn ? 'checked' : 'disabled'} />
         포트원 카드 · 간편결제${cardOn ? testBadge : ' (준비중)'}
       </label>
     </div>
