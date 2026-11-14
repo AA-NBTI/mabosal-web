@@ -3,6 +3,7 @@ import { renderMemberVoucherWidget } from '../modules/voucher/MemberVoucherWidge
 import { SiteContentStore } from '../state/site-content-store.js';
 import { CartStore } from '../state/cart-store.js';
 import { getStoreProductById } from '../extensions/commerce-store/store-service.js';
+import { renderUnifiedSajuGrid } from './UnifiedSajuForm.js';
 /**
  * Phase 29~37: Frontend View Components (프로덕션 프리미엄 명리 상담 서비스 UI)
  * 
@@ -590,139 +591,68 @@ export function renderBirthInputView(state: AppStateData): string {
   const defaultName = isMember ? (state.userName || savedProfile?.userName || currentUser.name || '') : '';
   const rawBirth = isMember ? (savedProfile?.solarBirthDate || currentUser.birthDate || '') : '';
   const defaultBirth = rawBirth ? rawBirth.replace(/[^0-9]/g, '') : '';
+  const defaultBirthYear = defaultBirth.length === 8 ? defaultBirth.slice(0, 4) : '';
+  const defaultBirthMonth = defaultBirth.length === 8 ? String(parseInt(defaultBirth.slice(4, 6), 10) || '') : '';
+  const defaultBirthDay = defaultBirth.length === 8 ? String(parseInt(defaultBirth.slice(6, 8), 10) || '') : '';
   const defaultTime = isMember ? (savedProfile?.birthTime || currentUser.birthTime || '') : '';
   const effectiveCal = (isMember && (savedProfile?.calendarType || currentUser.calendarType)) || state.calendarType || 'solar';
   const effectiveLeap = isMember && savedProfile?.isLeapMonth !== undefined ? savedProfile.isLeapMonth : (state.isLeapMonth || false);
+  const effectiveUnknownTime = Boolean(isMember && savedProfile?.isUnknownTime);
+  const effectiveRegion = (isMember && savedProfile?.birthRegion) || 'Seoul';
  return `
- <div class="input-view-container">
-  ${isOnboarding ? `
-  <div class="form-header" style="text-align: center; margin-bottom: 2rem;">
-    <div style="display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: rgba(242, 202, 80, 0.12); border: 1.5px solid rgba(242, 202, 80, 0.4); margin-bottom: 0.85rem; color: var(--primary);">
-      <span class="material-symbols-outlined" style="font-size: 28px;">badge</span>
+ <div class="input-view-container" style="max-width: 540px; margin: 1.5rem auto 2rem auto; background: #0f131d; border: 1px solid rgba(242, 202, 80, 0.4); border-radius: 18px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.65); padding: 0;">
+  <div style="padding: 1.15rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; background: rgba(242, 202, 80, 0.05);">
+    <div style="display: flex; align-items: center; gap: 0.55rem;">
+      <div>
+        <span style="font-size: 0.65rem; color: var(--primary); font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;">UNIFIED SAJU PROFILE</span>
+        <h2 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin: 0.1rem 0 0 0;">${isOnboarding ? '사주 원국 등록' : (state.activeTierTab === 'CHEMISTRY' ? '천명원 정밀 궁합 & 사주 정보 입력' : '사주 정보 입력')}</h2>
+      </div>
     </div>
-    <h2 style="font-size: 1.55rem; font-weight: 800; color: #fff; margin: 0 0 0.5rem 0;">사주 원국 등록</h2>
-    <div style="margin-top: 0.75rem;">
-      <a href="/" data-nav="/" style="display: inline-flex; align-items: center; gap: 0.35rem; color: #cbd5e1; font-size: 0.82rem; text-decoration: none; padding: 0.35rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);">
-        <span class="material-symbols-outlined" style="font-size: 16px;">explore</span>
-        <span>사이트 둘러보기</span>
+    ${isOnboarding ? `
+      <a href="/" data-nav="/" style="display: inline-flex; align-items: center; gap: 0.3rem; color: #cbd5e1; font-size: 0.78rem; text-decoration: none; padding: 0.35rem 0.7rem; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);">
+        <span class="material-symbols-outlined" style="font-size: 15px;">explore</span>
+        <span>둘러보기</span>
       </a>
-    </div>
+    ` : ''}
   </div>
-  ` : (state.activeTierTab === 'CHEMISTRY' ? `
-  <div class="form-header">
-  <h2>천명원 정밀 궁합 & 사주 정보 입력</h2>
-  </div>
-  ` : '')}
 
+  <div style="padding: 1.35rem 1.5rem 1.5rem 1.5rem;">
  ${state.errorMessage ? `
- <div class="form-error-alert">
+ <div class="form-error-alert" style="margin-bottom: 1rem;">
  ️ ${state.errorMessage}
  </div>
  ` : ''}
 
  ${hasExistingSaju && !isOnboarding ? `
-  <div class="saju-autofill-banner" style="background: rgba(74, 222, 128, 0.1); border: 1px solid rgba(74, 222, 128, 0.35); border-radius: 12px; padding: 0.85rem 1.15rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
-    <div style="display: flex; align-items: center; gap: 0.6rem;">
-      <span class="material-symbols-outlined" style="color: #4ade80; font-size: 20px;">account_circle</span>
-      <div style="font-size: 0.85rem; color: #fff;">
-        <strong style="color: #4ade80;">${defaultName || '회원'}</strong> 님의 등록된 사주 정보가 자동으로 적용되었습니다.
-        <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.15rem;">다른 분의 사주를 보시려면 내용을 수정하신 후 진행하세요.</div>
+  <div class="saju-autofill-banner" style="background: rgba(74, 222, 128, 0.08); border: 1px solid rgba(74, 222, 128, 0.3); border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
+    <div style="display: flex; align-items: center; gap: 0.55rem;">
+      <span class="material-symbols-outlined" style="color: #4ade80; font-size: 18px;">account_circle</span>
+      <div style="font-size: 0.8rem; color: #fff;">
+        <strong style="color: #4ade80;">${defaultName || '회원'}</strong> 님의 등록된 사주 정보가 적용되었습니다.
+        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 0.1rem;">다른 분의 사주를 보시려면 내용을 수정 후 분석하세요.</div>
       </div>
     </div>
-    <span style="font-size: 0.72rem; background: rgba(74, 222, 128, 0.2); color: #4ade80; padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 700; white-space: nowrap;">자동 완성됨</span>
+    <span style="font-size: 0.7rem; background: rgba(74, 222, 128, 0.18); color: #4ade80; padding: 0.2rem 0.45rem; border-radius: 6px; font-weight: 700; white-space: nowrap;">자동 완성</span>
   </div>
   ` : ''}
 
-  <form id="form-birth-input" novalidate>
- <!-- 0. 이름 -->
- <div class="form-group" style="margin-bottom: 1.25rem;">
- <label class="form-label" for="input-user-name" style="display: flex; align-items: center; justify-content: space-between;">
- <span>이름</span>
- <span style="font-size: 0.72rem; color: var(--primary); font-weight: 600;">사주원국표 명기</span>
- </label>
- <input 
- type="text" 
- id="input-user-name" 
- class="form-input" 
- placeholder="예: 홍길동 (이름을 입력해 주세요)" 
- value="${defaultName}" 
- autocomplete="name"
- />
- </div>
-
- <!-- 1. 역법 선택 (양력 / 음력) -->
- <div class="form-group">
- <label class="form-label">1. 역법 선택 (양력 / 음력)</label>
- <div class="calendar-toggle-group">
- <button type="button" class="calendar-btn ${effectiveCal === 'solar' ? 'active' : ''}" id="btn-calendar-solar" data-cal="solar">양력 (Solar)</button>
- <button type="button" class="calendar-btn ${effectiveCal === 'lunar' ? 'active' : ''}" id="btn-calendar-lunar" data-cal="lunar">음력 (Lunar)</button>
- </div>
- </div>
-
- <div class="form-group" id="group-leap-month" style="${effectiveCal === 'lunar' ? 'display:block;' : 'display:none;'}">
- <label class="form-checkbox-row">
- <input type="checkbox" id="check-leap-month" ${effectiveLeap ? 'checked' : ''} />
- <span>윤달(Leap Month)에 태어났습니다</span>
- </label>
- </div>
-
- <!-- 2. 생년월일 -->
- <div class="form-group">
- <label class="form-label" for="input-birth-date">2. 생년월일 (8자리 또는 YYYY-MM-DD)</label>
- <input 
- type="text" 
- id="input-birth-date" 
- class="form-input" 
- maxlength="10" 
- inputmode="numeric" 
- placeholder="예: 19751102 또는 1975-11-02" 
- value="${defaultBirth}" 
- autocomplete="off"
- />
- <span style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem; display: block;">
- ※ 8자리 숫자(예: 19751102) 또는 구분자 포함(예: 1975-11-02, 751102) 모두 지원합니다.
- </span>
- </div>
-
- <!-- 3. 출생시간 -->
- <div class="form-group">
- <label class="form-label" for="input-birth-time">3. 출생시간 (24시간 기준)</label>
- <input 
- type="text" 
- id="input-birth-time" 
- class="form-input" 
- maxlength="5" 
- placeholder="예: 13:30 또는 1330 (24시간 기준)" 
- value="${defaultTime}" 
- autocomplete="off"
- />
- <span style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem; display: block;">
- ※ 오전/오후 구분 없이 24시간 기준(00:00~23:59 또는 4자리 숫자 예: 1330)으로 입력해 주세요.
- </span>
- <label class="form-checkbox-row" style="margin-top: 0.5rem;">
- <input type="checkbox" id="check-missing-hour" />
- <span>출생시간을 정확히 모릅니다 (시간 미상 3주 안전 분석)</span>
- </label>
- </div>
-
- <!-- 4. 출생지 (대한민국 주요 지역 및 검색형) -->
- <div class="form-group">
- <label class="form-label" for="select-region">4. 출생 지역 (대한민국 주요 지역)</label>
- <select id="select-region" class="form-select">
- ${KOREA_REGIONS.map(r => `
- <option value="${r.code}" ${r.code === 'Seoul' ? 'selected' : ''}>${r.name}</option>
- `).join('')}
- </select>
- </div>
-
- <!-- 5. 성별 (내부 명리 계산을 변경하지 않으나 원천 데이터로 보존) -->
- <div class="form-group">
- <label class="form-label">5. 성별</label>
- <div class="gender-toggle-group">
- <button type="button" class="gender-btn ${state.gender === 'male' ? 'active' : ''}" id="btn-gender-male" data-gender="male">남성</button>
- <button type="button" class="gender-btn ${state.gender === 'female' ? 'active' : ''}" id="btn-gender-female" data-gender="female">여성</button>
- </div>
- </div>
+  <form id="form-birth-input" novalidate style="display: flex; flex-direction: column; gap: 0.85rem;">
+ ${renderUnifiedSajuGrid({
+   prefix: 'analyze',
+   nameField: {
+     id: 'input-user-name',
+     label: '이름 <span style="color: #f87171;">*</span>',
+     value: defaultName,
+     placeholder: '예: 홍길동',
+   },
+   gender: state.gender === 'male' ? 'male' : 'female',
+   birthDate: defaultBirth,
+   birthTime: defaultTime,
+   calendarType: effectiveCal,
+   birthRegion: effectiveRegion,
+   isUnknownTime: effectiveUnknownTime,
+   isLeapMonth: effectiveLeap,
+ })}
 
  <!-- ======================================================== -->
  <!-- [5번 요구사항] 2인 정밀 궁합 전용: 상대방(인연) 사주 정보 입력 카드 (CHEMISTRY만 노출) -->
@@ -823,7 +753,7 @@ export function renderBirthInputView(state: AppStateData): string {
  </div>
  ` : ''}
 
- <div style="margin-top: 2rem; margin-bottom: 4.5rem; width: 100%;">
+ <div style="margin-top: 1rem; margin-bottom: 0.25rem; width: 100%;">
         ${isOnboarding ? `
         <div style="display: flex; gap: 0.75rem;">
           <a href="/" data-nav="/" style="flex: 1; padding: 0.95rem 1rem; font-size: 0.95rem; font-weight: 700; border-radius: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
@@ -835,13 +765,15 @@ export function renderBirthInputView(state: AppStateData): string {
           </button>
         </div>
         ` : `
-        <button type="submit" class="btn-cta-primary submit-btn-full" id="btn-submit-analyze" style="width: 100%; padding: 0.95rem 1.5rem; font-size: 1.05rem; font-weight: 800; border-radius: 12px; background: var(--primary); color: #241a00; border: none; cursor: pointer; box-shadow: 0 4px 18px rgba(242, 202, 80, 0.35); display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s;">
-          <span class="material-symbols-outlined" style="font-size: 22px;">${state.activeTierTab === 'CHEMISTRY' ? 'favorite' : 'auto_awesome'}</span>
-          <span>${state.activeTierTab === 'CHEMISTRY' ? '궁합 심층 분석' : '사주 분석'}</span>
-        </button>
+        <div style="display: flex; justify-content: center;">
+          <button type="submit" class="btn-cta-primary submit-btn-full" id="btn-submit-analyze" style="width: auto; min-width: 190px; max-width: 240px; padding: 0.68rem 1.85rem; font-size: 0.94rem; font-weight: 800; letter-spacing: 0.04em; border-radius: 999px; background: linear-gradient(135deg, #f6d365 0%, #e4b537 100%); color: #1c1500; border: 1px solid rgba(255, 232, 160, 0.55); cursor: pointer; box-shadow: 0 6px 20px rgba(242, 202, 80, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.45); display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; transition: transform 0.2s, box-shadow 0.2s;">
+            <span>${state.activeTierTab === 'CHEMISTRY' ? '궁합 심층 분석' : '사주 분석'}</span>
+          </button>
+        </div>
         `}
       </div>
  </form>
+  </div>
  </div>
  `;
 }

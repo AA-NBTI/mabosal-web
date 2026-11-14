@@ -5,12 +5,14 @@
  */
 
 import { CustomerInquiryStore, CustomerInquiry } from '../state/customer-inquiry-store.js';
+import { paginateAdminList, renderAdminPagination, setAdminListPage } from '../utils/admin-pagination.js';
 
 let activeInquiryFilter: 'all' | 'pending' | 'answered' = 'all';
 const expandedInquiryIds = new Set<string>();
 
 export function setInquiryFilter(filter: 'all' | 'pending' | 'answered'): void {
   activeInquiryFilter = filter;
+  setAdminListPage('admin-inquiries', 1);
 }
 
 export function toggleInquiryExpanded(inquiryId: string): void {
@@ -40,6 +42,14 @@ export function renderAdminInquiriesPanel(): string {
     if (activeInquiryFilter === 'answered') return i.status === 'answered';
     return true;
   });
+
+  const {
+    pagedItems: pagedInquiries,
+    currentPage,
+    totalPages,
+    totalItems,
+    pageSize,
+  } = paginateAdminList('admin-inquiries', filtered);
 
   return `
   <div style="display: flex; flex-direction: column; gap: 1.25rem;">
@@ -122,7 +132,7 @@ export function renderAdminInquiriesPanel(): string {
 
           <!-- 테이블 바디 (기본 닫힘형 아코디언 행) -->
           <div style="display: flex; flex-direction: column;">
-            ${filtered.map((inq, idx) => {
+            ${pagedInquiries.map((inq, idx) => {
               const isExpanded = expandedInquiryIds.has(inq.id);
               const isPending = inq.status === 'pending';
 
@@ -240,7 +250,7 @@ export function renderAdminInquiriesPanel(): string {
               `;
             }).join('')}
           </div>
-
+          ${renderAdminPagination('admin-inquiries', currentPage, totalPages, totalItems, pageSize)}
         </div>
       `}
     </div>

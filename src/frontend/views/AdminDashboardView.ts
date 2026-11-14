@@ -25,6 +25,7 @@ import { renderAdminSeoWikiHubPanel } from './AdminSeoWikiHubPanel.js';
 import { renderAdminEbookLibraryPanel } from './AdminEbookLibraryPanel.js';
 import { renderAdminSubscriptionsPanel, getAllSubscriptions } from './SubscriptionView.js';
 import { renderAdminMembersPanel } from './AdminMembersPanel.js';
+import { paginateAdminList, renderAdminPagination } from '../utils/admin-pagination.js';
 import {
   setEditingStudyArticleId,
   getEditingStudyArticleId,
@@ -84,6 +85,24 @@ export function renderAdminDashboardView(): string {
       subTabs: []
     },
     {
+      id: 'group-members',
+      label: '회원관리',
+      defaultTab: 'tab-members',
+      subTabs: [
+        { id: 'tab-members', label: '회원 현황/제재' },
+      ]
+    },
+    {
+      id: 'group-payment',
+      label: '결제관리',
+      defaultTab: 'tab-store-orders',
+      subTabs: [
+        { id: 'tab-store-orders', label: '결제내역 / 환불' },
+        { id: 'tab-transfers', label: '무통장 승인' },
+        { id: 'tab-payments', label: 'PG 결제 설정' },
+      ]
+    },
+    {
       id: 'group-commerce',
       label: '커머스',
       defaultTab: 'tab-store',
@@ -100,16 +119,6 @@ export function renderAdminDashboardView(): string {
         },
         { id: 'tab-reviews', label: '리뷰 관리' },
         { id: 'tab-coupons', label: '쿠폰' },
-      ]
-    },
-    {
-      id: 'group-payment',
-      label: '결제 · 환불',
-      defaultTab: 'tab-store-orders',
-      subTabs: [
-        { id: 'tab-store-orders', label: '결제내역 / 환불' },
-        { id: 'tab-transfers', label: '무통장 승인' },
-        { id: 'tab-payments', label: 'PG 결제 설정' },
       ]
     },
     {
@@ -160,14 +169,6 @@ export function renderAdminDashboardView(): string {
       defaultTab: 'tab-inquiries',
       subTabs: [
         { id: 'tab-inquiries', label: pendingInquiriesCount > 0 ? `고객문의 (${pendingInquiriesCount})` : '고객문의' },
-      ]
-    },
-    {
-      id: 'group-members',
-      label: '회원관리',
-      defaultTab: 'tab-members',
-      subTabs: [
-        { id: 'tab-members', label: '회원 현황/제재' },
       ]
     },
     {
@@ -238,8 +239,8 @@ export function renderAdminDashboardView(): string {
         </div>
         <div>
           <div style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 800; color: #dfe2f1; line-height: 1.15; display: flex; align-items: center; gap: 0.45rem;">
-            마보살 관리자
-            <span style="font-size: 0.78rem; font-family: 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, sans-serif; font-variant-numeric: tabular-nums; font-weight: 800; background: rgba(242, 202, 80, 0.22); color: #fde68a; border: 1px solid rgba(242, 202, 80, 0.55); padding: 0.14rem 0.48rem; border-radius: 6px; letter-spacing: 0.03em; line-height: 1.2;">v3.0.7</span>
+            관리자
+            <span style="font-size: 0.78rem; font-family: 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, sans-serif; font-variant-numeric: tabular-nums; font-weight: 800; background: rgba(242, 202, 80, 0.22); color: #fde68a; border: 1px solid rgba(242, 202, 80, 0.55); padding: 0.14rem 0.48rem; border-radius: 6px; letter-spacing: 0.03em; line-height: 1.2;">v3.1.0</span>
           </div>
           <div style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.05em;">ADMIN CONTROL TOWER</div>
         </div>
@@ -259,7 +260,7 @@ export function renderAdminDashboardView(): string {
         return `
         <li class="admin-menu-group" style="display: flex; flex-direction: column; gap: 0.15rem;">
           <!-- 1차 대주제 버튼 (서브메뉴 없으면 즉시 이동, 있으면 아코디언 토글) -->
-          <div class="wp-admin-menu-btn ${group.subTabs.length === 0 ? 'admin-tab-btn' : 'btn-toggle-admin-group'} ${isGroupActive ? 'active' : ''}" ${group.subTabs.length === 0 ? `data-tab="${group.defaultTab}"` : `data-group-id="${group.id}" data-default-tab="${group.defaultTab}" data-expanded="${isExpanded ? 'true' : 'false'}"`} style="border-left: 3px solid ${isGroupActive ? '#ffffff' : 'transparent'}; background: ${isGroupActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent'}; display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0.85rem; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; user-select: none;">
+          <div class="wp-admin-menu-btn ${group.subTabs.length === 0 ? 'admin-tab-btn' : 'btn-toggle-admin-group'} ${isGroupActive ? 'active' : ''}" ${group.subTabs.length === 0 ? `data-tab="${group.defaultTab}"` : `data-group-id="${group.id}" data-default-tab="${group.defaultTab}" data-expanded="${isExpanded ? 'true' : 'false'}"`} style="background: ${isGroupActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent'}; display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0.85rem; border-radius: 8px; cursor: pointer; transition: all 0.15s ease; user-select: none;">
             <div style="display: flex; align-items: center; gap: 0.45rem;">
               <span style="font-weight: ${isGroupActive ? '800' : '700'}; font-size: 0.95rem; color: ${isGroupActive ? '#fff' : '#cbd5e1'}; letter-spacing: -0.01em;">${group.label}</span>
               ${group.id === 'group-support' && pendingInquiriesCount > 0 ? `
@@ -282,7 +283,7 @@ export function renderAdminDashboardView(): string {
 
           <!-- 2차 서브 카테고리 목록 (아코디언 펼쳐졌을 때만 노출) -->
           ${isExpanded ? `
-            <ul class="admin-sub-menu-list" style="margin: 0.15rem 0 0.35rem 0; padding: 0 0 0 0.85rem; list-style: none; display: flex; flex-direction: column; gap: 0.2rem; border-left: 1px dashed rgba(255, 255, 255, 0.15); margin-left: 1rem;">
+            <ul class="admin-sub-menu-list" style="margin: 0.15rem 0 0.35rem 0.65rem; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.2rem;">
               ${group.subTabs.map((st: any) => {
                 // [3단 계층: 상품관리 -> 상품목록, 상품등록, 결제장부]
                 if (st.children && st.children.length > 0) {
@@ -293,10 +294,7 @@ export function renderAdminDashboardView(): string {
                   <li style="display: flex; flex-direction: column; gap: 0.15rem;">
                     <!-- 2단: 상품관리 아코디언 토글 버튼 -->
                     <div class="btn-toggle-admin-subgroup ${isSubGroupActive ? 'active' : ''}" data-subgroup-id="${st.id}" data-default-tab="${st.defaultTab || st.children[0].id}" data-active="${isSubGroupActive ? 'true' : 'false'}" data-expanded="${isSubGroupExpanded ? 'true' : 'false'}" style="display: flex; align-items: center; justify-content: space-between; padding: 0.42rem 0.65rem; border-radius: 6px; font-size: 0.84rem; font-weight: ${isSubGroupActive ? '800' : '600'}; color: ${isSubGroupActive ? '#ffffff' : '#cbd5e1'}; background: ${isSubGroupActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent'}; border: 1px solid ${isSubGroupActive ? 'rgba(255,255,255,0.18)' : 'transparent'}; cursor: pointer; transition: all 0.15s ease; user-select: none;">
-                      <div style="display: flex; align-items: center; gap: 0.4rem;">
-                        <span class="material-symbols-outlined" style="font-size: 16px; color: ${isSubGroupActive ? 'var(--primary)' : 'var(--text-muted)'};">${st.id === 'subgroup-study' ? 'menu_book' : 'inventory_2'}</span>
-                        <span>${st.label}</span>
-                      </div>
+                      <span>${st.label}</span>
                       <span style="font-size: 0.65rem; color: ${isSubGroupExpanded ? '#ffffff' : 'rgba(255,255,255,0.35)'}; font-family: monospace;">
                         ${isSubGroupExpanded ? '▼' : '▶'}
                       </span>
@@ -304,13 +302,13 @@ export function renderAdminDashboardView(): string {
 
                     <!-- 3단: 상품목록, 상품등록, 결제장부 목록 -->
                     ${isSubGroupExpanded ? `
-                      <ul class="admin-third-menu-list" style="margin: 0.15rem 0 0.25rem 0; padding: 0 0 0 0.75rem; list-style: none; display: flex; flex-direction: column; gap: 0.15rem; border-left: 1px dotted rgba(255, 255, 255, 0.2); margin-left: 0.65rem;">
+                      <ul class="admin-third-menu-list" style="margin: 0.15rem 0 0.25rem 0.65rem; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.15rem;">
                         ${st.children.map((child: any) => {
                           const isChildActive = currentTab === child.id || (child.id === 'tab-store-orders' && currentTab === 'tab-orders');
                           return `
                             <li>
                               <button type="button" class="admin-tab-btn third-nav-btn ${isChildActive ? 'active' : ''}" data-tab="${child.id}" style="width: 100%; text-align: left; display: block; padding: 0.35rem 0.65rem; border-radius: 5px; font-size: 0.8rem; font-weight: ${isChildActive ? '800' : '500'}; border: 1px solid ${isChildActive ? 'rgba(242, 202, 80, 0.35)' : 'transparent'}; background: ${isChildActive ? 'rgba(242, 202, 80, 0.12)' : 'transparent'}; color: ${isChildActive ? 'var(--primary)' : '#94a3b8'}; cursor: pointer; transition: all 0.15s ease;">
-                                • ${child.label}
+                                ${child.label}
                               </button>
                             </li>
                           `;
@@ -346,16 +344,10 @@ export function renderAdminDashboardView(): string {
 
     <!-- 사이드바 하단 바로가기 및 유틸리티 버튼 -->
     <div style="padding: 0.85rem 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(0, 0, 0, 0.25); margin-top: auto; display: flex; flex-direction: column; gap: 0.45rem;">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem;">
-        <a href="/?view=store" target="_blank" style="background: rgba(242,202,80,0.1); border: 1px solid rgba(242,202,80,0.25); color: var(--primary); padding: 0.4rem 0.5rem; border-radius: 6px; font-size: 0.72rem; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.25rem;">
-          <span class="material-symbols-outlined" style="font-size: 14px;">storefront</span>
-          스토어
-        </a>
-        <button type="button" id="btn-admin-reset-defaults" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; border-radius: 6px; padding: 0.4rem 0.5rem; font-size: 0.72rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.25rem;">
-          <span class="material-symbols-outlined" style="font-size: 14px;">refresh</span>
-          초기화
-        </button>
-      </div>
+      <button type="button" id="btn-admin-reset-defaults" style="width: 100%; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); color: #cbd5e1; border-radius: 6px; padding: 0.45rem 0.5rem; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.25rem;">
+        <span class="material-symbols-outlined" style="font-size: 14px;">refresh</span>
+        초기화
+      </button>
 
       <button type="button" id="btn-admin-to-service" class="btn-cta-primary" style="width: 100%; padding: 0.55rem 0.8rem; font-size: 0.8rem; font-weight: 700; border-radius: 6px; justify-content: center; gap: 0.35rem;">
         <span class="material-symbols-outlined" style="font-size: 15px;">visibility</span>
@@ -1242,10 +1234,11 @@ export function renderAdminDashboardView(): string {
                         const allSols = getAllSolutions();
                         const allParts = getAllPartners();
                         const stats = getSolutionStats(allSols, allParts);
-                        if (stats.length === 0) {
+                        const statsPage = paginateAdminList('admin-solution-stats', stats);
+                        if (statsPage.pagedItems.length === 0) {
                           return '<tr><td colspan="7" style="padding: 1.5rem; text-align: center; color: var(--text-muted);">등록된 솔루션이 없습니다.</td></tr>';
                         }
-                        return stats.map(s => {
+                        return statsPage.pagedItems.map(s => {
                           const sol = allSols.find(x => x.id === s.solutionId);
                           const isSample = sol?.isSample;
                           return `
@@ -1267,6 +1260,11 @@ export function renderAdminDashboardView(): string {
                       })()}
                     </tbody>
                   </table>
+                  ${(() => {
+                    const stats = getSolutionStats(getAllSolutions(), getAllPartners());
+                    const statsPage = paginateAdminList('admin-solution-stats', stats);
+                    return renderAdminPagination('admin-solution-stats', statsPage.currentPage, statsPage.totalPages, statsPage.totalItems, statsPage.pageSize);
+                  })()}
                 </div>
               </div>
 
@@ -1345,10 +1343,11 @@ export function renderAdminDashboardView(): string {
                     <tbody>
                       ${(() => {
                         const appList = getPartnerApplications();
-                        if (appList.length === 0) {
+                        const appPage = paginateAdminList('admin-partner-apps', appList);
+                        if (appPage.pagedItems.length === 0) {
                           return '<tr><td colspan="7" style="padding: 1.5rem; text-align: center; color: var(--text-muted);">접수된 입점 신청 내역이 없습니다.</td></tr>';
                         }
-                        return appList.map(a => {
+                        return appPage.pagedItems.map(a => {
                           return `
                             <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
                               <td style="padding: 0.6rem; font-family: monospace;">${a.id}</td>
@@ -1371,6 +1370,10 @@ export function renderAdminDashboardView(): string {
                       })()}
                     </tbody>
                   </table>
+                  ${(() => {
+                    const appPage = paginateAdminList('admin-partner-apps', getPartnerApplications());
+                    return renderAdminPagination('admin-partner-apps', appPage.currentPage, appPage.totalPages, appPage.totalItems, appPage.pageSize);
+                  })()}
                 </div>
               </div>
 
@@ -1636,7 +1639,9 @@ function renderAdminStudyWorkspace(currentTab: string): string {
               </tr>
             </thead>
             <tbody>
-              ${articles.map(art => {
+              ${(() => {
+                const studyPage = paginateAdminList('admin-study-articles', articles);
+                return studyPage.pagedItems.map(art => {
                 const catObj = categories.find(c => c.id === art.category);
                 const catName = catObj ? catObj.name : (art.categoryName || art.category);
                 return `
@@ -1668,9 +1673,14 @@ function renderAdminStudyWorkspace(currentTab: string): string {
                     </td>
                   </tr>
                 `;
-              }).join('')}
+              }).join('');
+              })()}
             </tbody>
           </table>
+          ${(() => {
+            const studyPage = paginateAdminList('admin-study-articles', articles);
+            return renderAdminPagination('admin-study-articles', studyPage.currentPage, studyPage.totalPages, studyPage.totalItems, studyPage.pageSize);
+          })()}
         </div>
       </div>
     </div>

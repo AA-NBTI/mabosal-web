@@ -1,4 +1,5 @@
 import { AuthService, UserAccount } from '../state/auth-service.js';
+import { paginateAdminList, renderAdminPagination, setAdminListPage } from '../utils/admin-pagination.js';
 
 let cachedMembers: UserAccount[] = [];
 let membersSource: 'cloud' | 'local' = 'local';
@@ -9,6 +10,16 @@ let hasLoadedOnce = false;
 let memberSearchQuery = '';
 let memberStatusFilter: 'all' | 'active' | 'suspended' = 'all';
 let memberRoleFilter: 'all' | 'user' | 'partner' | 'admin' = 'all';
+let memberDatePreset: 'all' | 'today' | '7d' | '30d' | 'custom' = 'all';
+let memberDateFrom = '';
+let memberDateTo = '';
+
+function formatLocalDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
 
 function esc(str: string): string {
   return String(str || '')
@@ -21,14 +32,62 @@ function esc(str: string): string {
 
 export function setAdminMemberSearch(q: string): void {
   memberSearchQuery = q;
+  setAdminListPage('admin-members', 1);
 }
 
 export function setAdminMemberStatusFilter(status: 'all' | 'active' | 'suspended'): void {
   memberStatusFilter = status;
+  setAdminListPage('admin-members', 1);
 }
 
 export function setAdminMemberRoleFilter(role: 'all' | 'user' | 'partner' | 'admin'): void {
   memberRoleFilter = role;
+  setAdminListPage('admin-members', 1);
+}
+
+export function setAdminMemberDatePreset(preset: 'all' | 'today' | '7d' | '30d' | 'custom'): void {
+  memberDatePreset = preset;
+  const now = new Date();
+  const today = formatLocalDate(now);
+  if (preset === 'all') {
+    memberDateFrom = '';
+    memberDateTo = '';
+  } else if (preset === 'today') {
+    memberDateFrom = today;
+    memberDateTo = today;
+  } else if (preset === '7d') {
+    const from = new Date(now);
+    from.setDate(from.getDate() - 6);
+    memberDateFrom = formatLocalDate(from);
+    memberDateTo = today;
+  } else if (preset === '30d') {
+    const from = new Date(now);
+    from.setDate(from.getDate() - 29);
+    memberDateFrom = formatLocalDate(from);
+    memberDateTo = today;
+  }
+  setAdminListPage('admin-members', 1);
+}
+
+export function setAdminMemberDateRange(from: string, to: string): void {
+  memberDateFrom = from.trim();
+  memberDateTo = to.trim();
+  memberDatePreset = (memberDateFrom || memberDateTo) ? 'custom' : 'all';
+  setAdminListPage('admin-members', 1);
+}
+
+export function resetAdminMembersCache(): void {
+  cachedMembers = [];
+  membersSource = 'local';
+  membersLoadError = null;
+  isMembersLoading = false;
+  hasLoadedOnce = false;
+  memberSearchQuery = '';
+  memberStatusFilter = 'all';
+  memberRoleFilter = 'all';
+  memberDatePreset = 'all';
+  memberDateFrom = '';
+  memberDateTo = '';
 }
 
 export async function syncAdminMembersFromCloud(onDone?: () => void): Promise<void> {
@@ -68,12 +127,26 @@ export function renderAdminMembersPanel(): string {
     const status = m.status || 'active';
     if (memberStatusFilter !== 'all' && status !== memberStatusFilter) return false;
     if (memberRoleFilter !== 'all' && m.role !== memberRoleFilter) return false;
+    if (memberDateFrom || memberDateTo) {
+      const joinedDay = String(m.joinedAt || '').slice(0, 10);
+      if (!joinedDay) return false;
+      if (memberDateFrom && joinedDay < memberDateFrom) return false;
+      if (memberDateTo && joinedDay > memberDateTo) return false;
+    }
     if (q) {
       const hay = `${m.username} ${m.name} ${m.email} ${m.phone || ''}`.toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
   });
+
+  const {
+    pagedItems: pagedMembers,
+    currentPage,
+    totalPages,
+    totalItems,
+    pageSize,
+  } = paginateAdminList('admin-members', filtered);
 
   const roleBadge = (role: string) => {
     if (role === 'admin') {
@@ -160,6 +233,18 @@ export function renderAdminMembersPanel(): string {
             <option value="partner" ${memberRoleFilter === 'partner' ? 'selected' : ''}>파트너</option>
             <option value="admin" ${memberRoleFilter === 'admin' ? 'selected' : ''}>관리자</option>
           </select>
+          <select id="select-admin-member-date-preset" style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.14); color: #e2e8f0; border-radius: 7px; padding: 0.45rem 0.7rem; font-size: 0.82rem;">
+            <option value="all" ${memberDatePreset === 'all' ? 'selected' : ''}>전체 가입일</option>
+            <option value="today" ${memberDatePreset === 'today' ? 'selected' : ''}>오늘 가입</option>
+            <option value="7d" ${memberDatePreset === '7d' ? 'selected' : ''}>최근 7일</option>
+            <option value="30d" ${memberDatePreset === '30d' ? 'selected' : ''}>최근 30일</option>
+            <option value="custom" ${memberDatePreset === 'custom' ? 'selected' : ''}>기간 직접 선택</option>
+          </select>
+          <div style="display: flex; align-items: center; gap: 0.3rem;">
+            <input type="date" id="input-admin-member-date-from" value="${esc(memberDateFrom)}" title="가입 시작일" style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.14); color: #e2e8f0; border-radius: 7px; padding: 0.4rem 0.55rem; font-size: 0.8rem;" />
+            <span style="color: #64748b; font-size: 0.8rem;">~</span>
+            <input type="date" id="input-admin-member-date-to" value="${esc(memberDateTo)}" title="가입 종료일" style="background: var(--surface-container-low); border: 1px solid rgba(255,255,255,0.14); color: #e2e8f0; border-radius: 7px; padding: 0.4rem 0.55rem; font-size: 0.8rem;" />
+          </div>
         </div>
       </div>
 
@@ -177,13 +262,13 @@ export function renderAdminMembersPanel(): string {
             </tr>
           </thead>
           <tbody>
-            ${filtered.length === 0 ? `
+            ${pagedMembers.length === 0 ? `
               <tr>
                 <td colspan="6" style="padding: 2.5rem 1rem; text-align: center; color: #94a3b8;">
                   조건에 일치하는 회원이 없습니다.
                 </td>
               </tr>
-            ` : filtered.map(m => {
+            ` : pagedMembers.map(m => {
               const isAdminAccount = m.role === 'admin' || m.username === 'admin';
               const isSuspended = m.status === 'suspended';
               return `
@@ -236,6 +321,7 @@ export function renderAdminMembersPanel(): string {
             }).join('')}
           </tbody>
         </table>
+        ${renderAdminPagination('admin-members', currentPage, totalPages, totalItems, pageSize)}
       </div>
     </div>
   `;

@@ -10,7 +10,13 @@ import {
   setAdminMemberSearch,
   setAdminMemberStatusFilter,
   setAdminMemberRoleFilter,
+  setAdminMemberDatePreset,
+  setAdminMemberDateRange,
+  resetAdminMembersCache,
 } from './views/AdminMembersPanel.js';
+import { cleanupAdminRealtime } from './pages/AdminPage.js';
+import { resetMemberDashboardState } from './views/MemberDashboardView.js';
+import { setAdminListPage, resetAdminListPages } from './utils/admin-pagination.js';
 import { VoucherStore } from './modules/voucher/voucher-store.js';
 import { renderMagiCalendarView } from './views/MagiCalendarView.js';
 import { renderLuckyCalendarView } from './views/LuckyCalendarView.js';
@@ -65,7 +71,7 @@ import {
 } from './components/views.js';
 import { renderLegalAndSupportModals } from './components/LegalAndSupportModals.js';
 import { renderFortuneDetailModals } from './components/FortuneDetailModals.js';
-import { appState, AppStateData } from './state/app-state.js';
+import { appState, AppStateData, AppViewType } from './state/app-state.js';
 import { ReportDepthMode } from '../modules/phase10/phase10-types.js';
 import { ProductTier } from '../modules/phase17_25/index.js';
 import { PartnerTracker } from './modules/partner-tracker.js';
@@ -178,6 +184,7 @@ import { renderCheckoutBoardView, CheckoutService, ReportRouterMapper } from './
 import { renderCartModal, renderOrderReviewModal } from './components/CartAndReviewModal.js';
 import { renderReviewWriteModal } from './components/ReviewWriteModal.js';
 import { renderAuthModal } from './components/AuthModal.js';
+import { parseUnifiedSajuForm, getUnifiedFieldIds, UnifiedSajuPrefix } from './components/UnifiedSajuForm.js';
 import { generateDownloadableReportText } from './components/tier-templates.js';
 import { renderCheonmyeongwonShareModal } from './components/VisualCharts.js';
 import { FunnelCheckoutHelper } from './views/pages/FunnelCheckoutHelper.js';
@@ -429,42 +436,89 @@ class MabosalApp {
     const existing = UserSajuStore.getProfile(currentUser.id);
     const titleEl = document.getElementById('onboarding-modal-title');
     const descEl = document.getElementById('onboarding-modal-desc');
-    if (titleEl) titleEl.textContent = options?.title || '사주 정보 등록 · 변경';
+    if (titleEl) titleEl.textContent = options?.title || '사주 정보 등록';
     if (descEl) {
-      descEl.innerHTML = options?.desc || '💡 <strong>생년월일시</strong>를 한 번 등록하면 <strong>1:1 맞춤 일진·행운처방</strong>과 <strong>스토어 사주 리포트 결제</strong>에 모두 자동으로 연동됩니다.';
+      if (options?.desc) {
+        descEl.innerHTML = options.desc;
+        descEl.style.display = 'block';
+      } else {
+        descEl.innerHTML = '';
+        descEl.style.display = 'none';
+      }
     }
 
     const nameInput = document.getElementById('onboarding-name') as HTMLInputElement | null;
     const birthDateInput = document.getElementById('onboarding-birthdate') as HTMLInputElement | null;
+    const timePresetSelect = document.getElementById('onboarding-time-preset') as HTMLSelectElement | null;
+    const timeInput = document.getElementById('onboarding-time-input') as HTMLInputElement | null;
+    const missingHourCheck = document.getElementById('onboarding-missing-hour') as HTMLInputElement | null;
     const calendarSelect = document.getElementById('onboarding-calendar') as HTMLSelectElement | null;
     const leapWrap = document.getElementById('onboarding-leap-month-wrap');
     const leapCheck = document.getElementById('onboarding-leap-month') as HTMLInputElement | null;
     const genderSelect = document.getElementById('onboarding-gender') as HTMLSelectElement | null;
-    const birthTimeSelect = document.getElementById('onboarding-birthtime') as HTMLSelectElement | null;
-    const regionSelect = document.getElementById('onboarding-region') as HTMLSelectElement | null;
 
     if (nameInput) nameInput.value = existing?.userName || (currentUser.role !== 'guest' ? currentUser.name : '') || '';
-    if (birthDateInput) birthDateInput.value = existing?.solarBirthDate || '';
+    if (birthDateInput) {
+      birthDateInput.value = existing?.solarBirthDate ? existing.solarBirthDate.replace(/[^0-9]/g, '').slice(0, 8) : '';
+    }
+
     const calVal = existing?.calendarType || 'solar';
     if (calendarSelect) calendarSelect.value = calVal;
-    if (leapWrap) leapWrap.style.display = calVal === 'lunar' ? 'block' : 'none';
+    if (leapWrap) leapWrap.style.display = 'inline-flex';
     if (leapCheck) leapCheck.checked = Boolean(existing?.isLeapMonth);
-    if (genderSelect) genderSelect.value = existing?.gender || 'male';
-    if (birthTimeSelect) {
-      if (!existing || existing.isUnknownTime || !existing.birthTime) {
-        birthTimeSelect.value = '';
-      } else {
-        const hourNum = parseInt(existing.birthTime.split(':')[0] || '', 10);
-        const slot = Number.isFinite(hourNum) ? String(Math.floor(hourNum / 2) * 2) : '';
-        birthTimeSelect.value = slot;
-      }
+    if (genderSelect) genderSelect.value = existing?.gender || 'female';
+
+    const isUnknown = Boolean(existing?.isUnknownTime || (existing && !existing.birthTime));
+    if (missingHourCheck) missingHourCheck.checked = isUnknown;
+    const resolvedTime = isUnknown ? '' : (existing?.birthTime || '');
+    if (timeInput) {
+      timeInput.disabled = isUnknown;
+      timeInput.value = resolvedTime;
     }
-    if (regionSelect) regionSelect.value = existing?.birthRegion || '서울';
+    if (timePresetSelect) {
+      timePresetSelect.disabled = isUnknown;
+      const hasMatch = Array.from(timePresetSelect.options).some(opt => opt.value === resolvedTime);
+      timePresetSelect.value = hasMatch ? resolvedTime : 'direct';
+    }
 
     if (calendarSelect && !(calendarSelect as any).__leapBound) {
       (calendarSelect as any).__leapBound = true;
       calendarSelect.addEventListener('change', () => {
-        if (leapWrap) leapWrap.style.display = calendarSelect.value === 'lunar' ? 'block' : 'none';
+        if (calendarSelect.value === 'solar' && leapCheck) leapCheck.checked = false;
+      });
+    }
+    if (leapCheck && !(leapCheck as any).__calBound) {
+      (leapCheck as any).__calBound = true;
+      leapCheck.addEventListener('change', () => {
+        if (leapCheck.checked && calendarSelect && calendarSelect.value !== 'lunar') {
+          calendarSelect.value = 'lunar';
+        }
+      });
+    }
+    if (timePresetSelect && !(timePresetSelect as any).__presetBound) {
+      (timePresetSelect as any).__presetBound = true;
+      timePresetSelect.addEventListener('change', () => {
+        const curTimeInput = document.getElementById('onboarding-time-input') as HTMLInputElement | null;
+        if (!curTimeInput) return;
+        if (timePresetSelect.value !== 'direct') {
+          curTimeInput.value = timePresetSelect.value;
+        } else {
+          curTimeInput.focus();
+        }
+      });
+    }
+    if (missingHourCheck && !(missingHourCheck as any).__timeBound) {
+      (missingHourCheck as any).__timeBound = true;
+      missingHourCheck.addEventListener('change', () => {
+        const curTimeInput = document.getElementById('onboarding-time-input') as HTMLInputElement | null;
+        const curPresetSelect = document.getElementById('onboarding-time-preset') as HTMLSelectElement | null;
+        if (curTimeInput) {
+          curTimeInput.disabled = missingHourCheck.checked;
+          if (missingHourCheck.checked) curTimeInput.value = '';
+        }
+        if (curPresetSelect) {
+          curPresetSelect.disabled = missingHourCheck.checked;
+        }
       });
     }
 
@@ -473,6 +527,7 @@ class MabosalApp {
   }
 
  private pendingCheckoutData: any = null;
+ private pendingPhoneOtp: { phone: string; code: string } | null = null;
 
  private updateCartBadges() {
    const count = CartStore.getCount();
@@ -480,6 +535,11 @@ class MabosalApp {
      (el as HTMLElement).textContent = String(count);
      (el as HTMLElement).style.display = count > 0 ? 'inline-block' : 'none';
    });
+ }
+
+ private getAnalyzeBirthDateRaw(): string {
+   const dateInput = document.getElementById('input-birth-date') as HTMLInputElement | null;
+   return dateInput?.value?.trim() || '';
  }
 
  private openCartModal() {
@@ -515,6 +575,32 @@ class MabosalApp {
    const container = document.getElementById('review-write-modal-container');
    if (container) container.innerHTML = '';
  }
+
+  private isViewRestrictedForCurrentUser(view: AppViewType): boolean {
+    if (view === 'admin') {
+      return !AuthService.isAdmin();
+    }
+    if (view === 'member-dashboard' || view === 'cart' || view === 'checkout' || view === 'partner') {
+      return AuthService.getCurrentUser().role === 'guest';
+    }
+    return false;
+  }
+
+  private performLogoutCleanup(): void {
+    this.closeCartModal();
+    this.closeReviewModal();
+    this.closeReviewWriteModal();
+    const onboardingModal = document.getElementById('modal-saju-onboarding');
+    if (onboardingModal) onboardingModal.style.display = 'none';
+    const drawer = document.getElementById('mobile-nav-drawer');
+    const backdrop = document.getElementById('mobile-nav-backdrop');
+    if (drawer) drawer.style.display = 'none';
+    if (backdrop) backdrop.style.display = 'none';
+    resetMemberDashboardState();
+    resetAdminMembersCache();
+    resetAdminListPages();
+    cleanupAdminRealtime();
+  }
 
   private init() {
     PartnerTracker.initFromUrl();
@@ -555,6 +641,7 @@ class MabosalApp {
         }
         if (!AuthService.isAdmin()) {
           appState.setView('landing');
+          window.history.replaceState({ view: 'landing' }, '', '/');
           setTimeout(() => {
             const authModal = document.getElementById('modal-auth-container');
             if (authModal) authModal.style.display = 'flex';
@@ -573,12 +660,23 @@ class MabosalApp {
         }
         appState.setView('study');
       } else if (initialView === 'member-dashboard') {
-        const memberTabParam = urlParams.get('tab');
-        if (memberTabParam) {
-          const fullTab = memberTabParam.startsWith('tab-') ? memberTabParam : `tab-${memberTabParam}`;
-          setMemberActiveTab(fullTab);
+        if (AuthService.getCurrentUser().role === 'guest') {
+          appState.setView('landing');
+          window.history.replaceState({ view: 'landing' }, '', '/');
+          setTimeout(() => {
+            this.openAuthModal('login');
+          }, 150);
+        } else {
+          const memberTabParam = urlParams.get('tab');
+          if (memberTabParam) {
+            const fullTab = memberTabParam.startsWith('tab-') ? memberTabParam : `tab-${memberTabParam}`;
+            setMemberActiveTab(fullTab);
+          }
+          appState.setView('member-dashboard');
         }
-        appState.setView('member-dashboard');
+      } else if (this.isViewRestrictedForCurrentUser(initialView)) {
+        appState.setView('landing');
+        window.history.replaceState({ view: 'landing' }, '', '/');
       } else {
         appState.setView(initialView);
       }
@@ -597,6 +695,16 @@ class MabosalApp {
       window.addEventListener('mm-auth-changed', () => {
         YeopjeonTrackerState.getInstance().reload();
         this.updateCartBadges();
+        const isGuest = AuthService.getCurrentUser().role === 'guest';
+        if (isGuest) {
+          this.performLogoutCleanup();
+        }
+        const curView = appState.getState().currentView;
+        if (this.isViewRestrictedForCurrentUser(curView)) {
+          appState.setView('landing');
+          window.history.replaceState({ view: 'landing' }, '', '/');
+          return;
+        }
         this.render(appState.getState());
       });
 
@@ -652,6 +760,14 @@ class MabosalApp {
 
       if (targetView === 'loading') {
         appState.setView('analyze');
+        return;
+      }
+
+      if (this.isViewRestrictedForCurrentUser(targetView)) {
+        prevNavView = 'landing';
+        updateSeoForView('landing');
+        window.history.replaceState({ view: 'landing' }, '', '/');
+        appState.setView('landing');
         return;
       }
 
@@ -1092,6 +1208,8 @@ ${content}
 
   private static readonly PRESERVED_FIELD_IDS = [
  'input-user-name',
+ 'analyze-gender',
+ 'analyze-calendar',
  'input-birth-date',
  'input-birth-time',
  'check-missing-hour',
@@ -1212,6 +1330,71 @@ ${content}
  this.rootEl.addEventListener('change', (e) => {
     const target = e.target as HTMLInputElement;
 
+    if (target?.classList?.contains('unified-saju-calendar')) {
+      const prefix = (target.dataset.prefix || 'onboarding') as UnifiedSajuPrefix;
+      const ids = getUnifiedFieldIds(prefix);
+      const leapCheck = document.getElementById(ids.leapMonth) as HTMLInputElement | null;
+      if (target.value === 'solar' && leapCheck) {
+        leapCheck.checked = false;
+      }
+      if (prefix === 'analyze') {
+        const cal = target.value === 'lunar' ? 'lunar' : 'solar';
+        appState.setCalendarType(cal);
+        if (cal === 'solar') appState.setLeapMonth(false);
+      }
+      return;
+    }
+
+    if (target?.classList?.contains('unified-saju-leap-month')) {
+      const prefix = (target.dataset.prefix || 'onboarding') as UnifiedSajuPrefix;
+      const ids = getUnifiedFieldIds(prefix);
+      const calEl = document.getElementById(ids.calendar) as HTMLSelectElement | null;
+      if (target.checked && calEl && calEl.value !== 'lunar') {
+        calEl.value = 'lunar';
+      }
+      if (prefix === 'analyze') {
+        if (target.checked) appState.setCalendarType('lunar');
+        appState.setLeapMonth(target.checked);
+      }
+      return;
+    }
+
+    if (target?.id === 'analyze-gender') {
+      const g = target.value === 'female' ? 'female' : 'male';
+      this.selectedGender = g;
+      appState.setGender(g);
+      return;
+    }
+
+    if (target?.classList?.contains('unified-saju-time-preset')) {
+      const prefix = (target.dataset.prefix || 'onboarding') as UnifiedSajuPrefix;
+      const ids = getUnifiedFieldIds(prefix);
+      const timeEl = document.getElementById(ids.time) as HTMLInputElement | null;
+      if (timeEl) {
+        if (target.value !== 'direct') {
+          timeEl.value = target.value;
+        } else {
+          timeEl.focus();
+        }
+      }
+      return;
+    }
+
+    if (target?.classList?.contains('unified-saju-missing-hour')) {
+      const prefix = (target.dataset.prefix || 'onboarding') as UnifiedSajuPrefix;
+      const ids = getUnifiedFieldIds(prefix);
+      const timeEl = document.getElementById(ids.time) as HTMLInputElement | null;
+      const presetEl = document.getElementById(ids.timePreset) as HTMLSelectElement | null;
+      if (timeEl) {
+        timeEl.disabled = target.checked;
+        if (target.checked) timeEl.value = '';
+      }
+      if (presetEl) {
+        presetEl.disabled = target.checked;
+      }
+      return;
+    }
+
     if (target && target.id === 'select-admin-member-status') {
       setAdminMemberStatusFilter(target.value as 'all' | 'active' | 'suspended');
       this.render(appState.getState());
@@ -1226,6 +1409,20 @@ ${content}
 
     if (target && target.id === 'input-admin-member-search') {
       setAdminMemberSearch(target.value || '');
+      this.render(appState.getState());
+      return;
+    }
+
+    if (target && target.id === 'select-admin-member-date-preset') {
+      setAdminMemberDatePreset(target.value as 'all' | 'today' | '7d' | '30d' | 'custom');
+      this.render(appState.getState());
+      return;
+    }
+
+    if (target && (target.id === 'input-admin-member-date-from' || target.id === 'input-admin-member-date-to')) {
+      const fromEl = document.getElementById('input-admin-member-date-from') as HTMLInputElement | null;
+      const toEl = document.getElementById('input-admin-member-date-to') as HTMLInputElement | null;
+      setAdminMemberDateRange(fromEl?.value || '', toEl?.value || '');
       this.render(appState.getState());
       return;
     }
@@ -1420,12 +1617,21 @@ ${content}
  // 생년월일/출생시간 입력 정제 (숫자·구분기호 입력/붙여넣기 모두 안전하게 허용)
  this.rootEl.addEventListener('input', (e) => {
  const target = e.target as HTMLInputElement;
- if (target?.id === 'input-birth-date') {
+ if (target?.id === 'input-birth-date' || target?.classList?.contains('unified-saju-birthdate-input')) {
  const cleaned = target.value.replace(/[^0-9\-./\s]/g, '').slice(0, 10);
  if (cleaned !== target.value) target.value = cleaned;
- } else if (target?.id === 'input-birth-time') {
+ } else if (target?.id === 'input-birth-time' || target?.id === 'onboarding-time-input' || target?.classList?.contains('unified-saju-time-input')) {
  const cleaned = target.value.replace(/[^0-9:]/g, '').slice(0, 5);
  if (cleaned !== target.value) target.value = cleaned;
+ const prefix = (target.dataset?.prefix || (target.id === 'input-birth-time' ? 'analyze' : target.id === 'onboarding-time-input' ? 'onboarding' : '')) as UnifiedSajuPrefix | '';
+ if (prefix) {
+   const ids = getUnifiedFieldIds(prefix);
+   const presetEl = document.getElementById(ids.timePreset) as HTMLSelectElement | null;
+   if (presetEl) {
+     const hasMatch = Array.from(presetEl.options).some(opt => opt.value === cleaned);
+     presetEl.value = hasMatch ? cleaned : 'direct';
+   }
+ }
  } else if (target?.id === 'input-payment-ledger-search') {
    const pos = target.selectionStart ?? target.value.length;
    setPaymentLedgerSearch(target.value);
@@ -2736,6 +2942,19 @@ ${content}
       return;
     }
 
+    // [관리자 공통 페이지네이션: 10개 초과 리스트 페이지 이동]
+    const adminPageBtn = target.closest('.btn-admin-page') as HTMLButtonElement | null;
+    if (adminPageBtn && !adminPageBtn.disabled) {
+      const pageKey = adminPageBtn.dataset.pageKey;
+      const pageNum = parseInt(adminPageBtn.dataset.page || '1', 10);
+      if (pageKey && Number.isFinite(pageNum)) {
+        setAdminListPage(pageKey, pageNum);
+        this.render(appState.getState());
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return;
+    }
+
     // [관리자 회원관리: 새로고침 / 이용 정지·해제 / 삭제]
     if (target.closest('#btn-admin-members-refresh')) {
       void syncAdminMembersFromCloud(() => this.render(appState.getState()));
@@ -2890,23 +3109,22 @@ ${content}
     }
 
     // [인생분석: 사주 엔진 객관화 중간 데이터 창고] 상호작용 이벤트 처리
-    // 1. 인생분석 계산 실행 버튼
+    // 1. 인생분석 계산 실행 버튼 (공통 사주 입력 파서 사용)
     const runLaBtn = target.closest('#btn-run-life-analysis');
     if (runLaBtn) {
-      const g = ((document.getElementById('la-gender') as HTMLSelectElement)?.value as 'male' | 'female') || 'female';
-      const y = parseInt((document.getElementById('la-year') as HTMLInputElement)?.value || '1998', 10);
-      const m = parseInt((document.getElementById('la-month') as HTMLInputElement)?.value || '4', 10);
-      const d = parseInt((document.getElementById('la-day') as HTMLInputElement)?.value || '12', 10);
-      const timeInputVal = (document.getElementById('la-time-input') as HTMLInputElement)?.value || '09:20';
-      const c = ((document.getElementById('la-calendar') as HTMLSelectElement)?.value as 'solar' | 'lunar') || 'solar';
+      const parsed = parseUnifiedSajuForm('la');
+      if (!parsed.ok) {
+        alert(parsed.message);
+        return;
+      }
 
       executeLifeAnalysis({
-        birthYear: y,
-        birthMonth: m,
-        birthDay: d,
-        birthTimeRaw: timeInputVal,
-        gender: g,
-        calendarType: c,
+        birthYear: parsed.year,
+        birthMonth: parsed.month,
+        birthDay: parsed.day,
+        birthTimeRaw: parsed.birthTime || '12:00',
+        gender: parsed.gender,
+        calendarType: parsed.calendarType,
       });
       this.render(appState.getState());
       return;
@@ -3691,8 +3909,7 @@ ${content}
  }
  if (target.closest('#btn-header-logout')) {
  AuthService.logout();
-    appState.setView('landing');
-    window.history.pushState(null, '', window.location.pathname);
+ window.history.replaceState({ view: 'landing' }, '', '/');
  this.render(appState.getState());
  alert('정상적으로 로그아웃되었습니다.');
  return;
@@ -3719,7 +3936,7 @@ ${content}
     }
 
     
-    // [이용자 대시보드: 회원 정보 수정 저장]
+    // [이용자 대시보드: 회원 정보 수정 저장 (공통 사주 입력 파서 사용)]
     if (target.closest('#btn-save-user-profile')) {
       e.preventDefault();
       const currentUser = AuthService.getCurrentUser();
@@ -3727,11 +3944,6 @@ ${content}
       const newPassword = (document.getElementById('input-profile-new-password') as HTMLInputElement)?.value;
       const confirmPassword = (document.getElementById('input-profile-confirm-password') as HTMLInputElement)?.value;
       const newName = (document.getElementById('input-profile-name') as HTMLInputElement)?.value.trim();
-      const newPhone = (document.getElementById('input-profile-phone') as HTMLInputElement)?.value.trim();
-      const birthDate = (document.getElementById('input-profile-birthdate') as HTMLInputElement)?.value;
-      const calendarType = (document.getElementById('input-profile-calendar') as HTMLSelectElement)?.value as 'solar' | 'lunar';
-      const birthTime = (document.getElementById('input-profile-birthtime') as HTMLSelectElement)?.value;
-      const gender = (document.getElementById('input-profile-gender') as HTMLSelectElement)?.value as 'male' | 'female';
 
       if (!newUsername || newUsername.length < 3) {
         alert('아이디는 최소 3자 이상 입력해 주세요.');
@@ -3750,15 +3962,21 @@ ${content}
         return;
       }
 
+      const parsedSaju = parseUnifiedSajuForm('profile');
+      if (!parsedSaju.ok) {
+        alert(parsedSaju.message);
+        return;
+      }
+
       const res = AuthService.updateAccount(currentUser.id, {
         username: newUsername,
         password: newPassword || undefined,
         name: newName,
-        phone: newPhone,
-        birthDate,
-        birthTime,
-        calendarType,
-        gender,
+        phone: currentUser.phone || '',
+        birthDate: parsedSaju.birthDate,
+        birthTime: parsedSaju.birthTime || '',
+        calendarType: parsedSaju.calendarType,
+        gender: parsedSaju.gender,
       });
 
       if (!res.success) {
@@ -3767,24 +3985,21 @@ ${content}
       }
 
       // 사주 프로필/세션은 가입·온보딩과 동일한 단일 입력점(syncUserSajuProfile)으로 갱신
-      if (birthDate) {
-        const prevProfile = UserSajuStore.getProfile(currentUser.id);
-        const synced = UserSajuStore.syncUserSajuProfile({
-          userId: currentUser.id,
-          userName: newName,
-          birthDate,
-          birthTime: birthTime || null,
-          calendarType: calendarType || 'solar',
-          gender: gender || 'male',
-          isLeapMonth: prevProfile?.isLeapMonth || false,
-          birthRegion: prevProfile?.birthRegion,
-        });
-        if (!synced) {
-          alert('생년월일 형식이 올바르지 않습니다. (예: 1990-03-21)');
-          return;
-        }
-        CartStore.syncSajuProfile(UserSajuStore.getProfile(currentUser.id), true);
+      const synced = UserSajuStore.syncUserSajuProfile({
+        userId: currentUser.id,
+        userName: newName,
+        birthDate: parsedSaju.birthDate,
+        birthTime: parsedSaju.birthTime,
+        calendarType: parsedSaju.calendarType,
+        gender: parsedSaju.gender,
+        isLeapMonth: parsedSaju.isLeapMonth,
+        birthRegion: parsedSaju.birthRegion,
+      });
+      if (!synced) {
+        alert('생년월일 형식이 올바르지 않습니다. (예: 1990-03-21)');
+        return;
       }
+      CartStore.syncSajuProfile(UserSajuStore.getProfile(currentUser.id), true);
 
       alert('회원 정보와 사주 프로필이 성공적으로 저장되었습니다.\n대시보드의 일진 처방이 갱신되었습니다.');
       this.render(appState.getState());
@@ -3983,8 +4198,7 @@ ${content}
       const userId = memberWithdrawBtn.dataset.userId || AuthService.getCurrentUser().id;
       const res = AuthService.deleteAccount(userId);
       if (res.success) {
-        appState.setView('landing');
-        window.history.pushState(null, '', window.location.pathname);
+        window.history.replaceState({ view: 'landing' }, '', '/');
         this.render(appState.getState());
         alert('회원 탈퇴가 정상적으로 처리되었습니다. 그동안 이용해 주셔서 감사합니다.');
       } else {
@@ -4054,7 +4268,7 @@ ${content}
 
     if (target.closest('#btn-dashboard-logout')) {
       AuthService.logout();
-      appState.setView('landing');
+      window.history.replaceState({ view: 'landing' }, '', '/');
       this.render(appState.getState());
       alert('정상적으로 로그아웃되었습니다.');
       return;
@@ -4973,22 +5187,32 @@ ${content}
     const nameInput = document.getElementById('input-user-name') as HTMLInputElement | null;
     const userName = nameInput?.value.trim() || currentUser.name || '의뢰인';
 
-    // 1. 역법 추출
+    // 1. 역법 추출 (공통 셀렉트 우선, 구 버튼 호환 유지)
     let calendarType: 'solar' | 'lunar' = 'solar';
-    const activeCalBtn = document.querySelector('.calendar-btn.active') as HTMLElement | null;
-    if (activeCalBtn?.dataset.cal === 'lunar') {
-      calendarType = 'lunar';
+    const analyzeCalSel = document.getElementById('analyze-calendar') as HTMLSelectElement | null;
+    if (analyzeCalSel) {
+      calendarType = analyzeCalSel.value === 'lunar' ? 'lunar' : 'solar';
+    } else {
+      const activeCalBtn = document.querySelector('.calendar-btn.active') as HTMLElement | null;
+      if (activeCalBtn?.dataset.cal === 'lunar') {
+        calendarType = 'lunar';
+      }
     }
 
     // 2. 윤달 여부
     const leapCheck = document.getElementById('check-leap-month') as HTMLInputElement | null;
     const isLeapMonth = Boolean(calendarType === 'lunar' && leapCheck?.checked);
 
-    // 3. 성별 추출
+    // 3. 성별 추출 (공통 셀렉트 우선, 구 버튼 호환 유지)
     let gender: 'male' | 'female' = 'male';
-    const activeGenderBtn = document.querySelector('.gender-btn.active') as HTMLElement | null;
-    if (activeGenderBtn?.dataset.gender === 'female') {
-      gender = 'female';
+    const analyzeGenderSel = document.getElementById('analyze-gender') as HTMLSelectElement | null;
+    if (analyzeGenderSel) {
+      gender = analyzeGenderSel.value === 'female' ? 'female' : 'male';
+    } else {
+      const activeGenderBtn = document.querySelector('.gender-btn.active') as HTMLElement | null;
+      if (activeGenderBtn?.dataset.gender === 'female') {
+        gender = 'female';
+      }
     }
 
     // 4. 출생 지역
@@ -4996,8 +5220,7 @@ ${content}
     const birthRegion = regionSelect?.value || 'Seoul';
 
     // 5. 생년월일 정규화
-    const dateInput = document.getElementById('input-birth-date') as HTMLInputElement | null;
-    let rawDate = dateInput?.value.trim() || '';
+    let rawDate = this.getAnalyzeBirthDateRaw();
     let cleanDate = rawDate.replace(/[^0-9]/g, '');
 
     if (cleanDate.length === 6) {
@@ -5083,19 +5306,13 @@ ${content}
    return;
  }
 
- // 2-2. 전역 공통 사주 정보 등록·변경 모달 제출 및 저장
+ // 2-2. 전역 공통 사주 정보 등록·변경 모달 제출 및 저장 (공통 사주 입력 파서 사용)
  if (target.closest('#btn-submit-onboarding-saju')) {
    const currentUser = AuthService.getCurrentUser();
    const targetName = (document.getElementById('onboarding-name') as HTMLInputElement)?.value?.trim();
-   const birthDate = (document.getElementById('onboarding-birthdate') as HTMLInputElement)?.value;
-   const calendarType = (document.getElementById('onboarding-calendar') as HTMLSelectElement)?.value as 'solar' | 'lunar';
-   const isLeapMonth = Boolean((document.getElementById('onboarding-leap-month') as HTMLInputElement)?.checked);
-   const gender = (document.getElementById('onboarding-gender') as HTMLSelectElement)?.value as 'male' | 'female';
-   const birthTime = (document.getElementById('onboarding-birthtime') as HTMLSelectElement)?.value;
-   const birthRegion = (document.getElementById('onboarding-region') as HTMLSelectElement)?.value;
-
-   if (!birthDate) {
-     alert('생년월일을 선택해 주세요.');
+   const parsed = parseUnifiedSajuForm('onboarding');
+   if (!parsed.ok) {
+     alert(parsed.message);
      return;
    }
 
@@ -5104,12 +5321,12 @@ ${content}
    const synced = UserSajuStore.syncUserSajuProfile({
      userId: currentUser.id,
      userName: targetName || currentUser.name || '의뢰인',
-     birthDate,
-     birthTime: birthTime || null,
-     calendarType: calendarType || 'solar',
-     gender: gender || 'male',
-     isLeapMonth: calendarType === 'lunar' ? isLeapMonth : false,
-     birthRegion: birthRegion || prevProfile?.birthRegion || '서울',
+     birthDate: parsed.birthDate,
+     birthTime: parsed.birthTime,
+     calendarType: parsed.calendarType,
+     gender: parsed.gender,
+     isLeapMonth: parsed.isLeapMonth,
+     birthRegion: parsed.birthRegion || prevProfile?.birthRegion || '서울',
    });
    if (!synced) {
      alert('생년월일 형식이 올바르지 않습니다. (예: 1990-03-21)');
@@ -6125,7 +6342,7 @@ ${content}
  appState.setError(null);
 
  // 생년월일 8자리 연속 입력 및 구분자 파싱 (예: 19751102, 1975-11-02, 751102)
- const rawDate = dateInput?.value?.trim() || '';
+ const rawDate = this.getAnalyzeBirthDateRaw();
  let cleanDate = rawDate.replace(/[^0-9]/g, '');
 
  // 6자리(주민번호 앞자리 예: 751102) 입력 시 19xx / 20xx 연도 자동 보완
@@ -6187,6 +6404,19 @@ ${content}
  const troubleText = troubleTextarea?.value?.trim() || '특별한 문제는 없고 올해 전체적인 운의 흐름과 기회를 알고 싶어요.';
 
  appState.setUserTroubleText(troubleText);
+
+ const analyzeGenderSel = document.getElementById('analyze-gender') as HTMLSelectElement | null;
+ if (analyzeGenderSel) {
+   this.selectedGender = analyzeGenderSel.value === 'female' ? 'female' : 'male';
+   appState.setGender(this.selectedGender);
+ }
+ const analyzeCalSel = document.getElementById('analyze-calendar') as HTMLSelectElement | null;
+ if (analyzeCalSel) {
+   const cal = analyzeCalSel.value === 'lunar' ? 'lunar' : 'solar';
+   appState.setCalendarType(cal);
+   const leapEl = document.getElementById('check-leap-month') as HTMLInputElement | null;
+   appState.setLeapMonth(cal === 'lunar' && Boolean(leapEl?.checked));
+ }
 
  // 사용자 사주 입력 정보 LocalStorage 영구 보존
  const solarDateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;

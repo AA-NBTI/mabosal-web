@@ -6,6 +6,8 @@
  * 1순위 계층형 클린 URL (mabosal.com/fortune/[slug]/) 구조로 구축·통제합니다.
  */
 
+import { paginateAdminList, renderAdminPagination } from '../utils/admin-pagination.js';
+
 export interface SeoKeywordPageItem {
   id: string;
   keyword: string;              // 대상 검색 키워드 (예: 오늘의운세)
@@ -217,6 +219,7 @@ export function deleteSeoKeywordPage(pageId: string): void {
  */
 export function renderAdminSeoWikiHubPanel(): string {
   const pages = getSeoKeywordPages();
+  const seoPage = paginateAdminList('admin-seo-pages', pages);
 
   // 총 검색량 합계
   const totalMonthlyTraffic = pages.reduce((acc, p) => acc + p.monthlySearchVolume.total, 0);
@@ -317,7 +320,7 @@ export function renderAdminSeoWikiHubPanel(): string {
             </tr>
           </thead>
           <tbody>
-            ${pages.map(p => {
+            ${seoPage.pagedItems.map(p => {
               const sajuTypeBadge = p.sajuFormType === 'no-time' 
                 ? '<span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 0.7rem;">백세인생(시간제외)</span>'
                 : p.sajuFormType === 'zodiac-only'
@@ -385,6 +388,7 @@ export function renderAdminSeoWikiHubPanel(): string {
             }).join('')}
           </tbody>
         </table>
+        ${renderAdminPagination('admin-seo-pages', seoPage.currentPage, seoPage.totalPages, seoPage.totalItems, seoPage.pageSize)}
       </div>
 
       <!-- [하단 영역]: 1순위 위키 메쉬 (Topic Cluster Link Matrix) 시각화 -->

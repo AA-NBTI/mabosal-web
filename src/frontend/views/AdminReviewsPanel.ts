@@ -4,9 +4,17 @@
  */
 
 import { ProductReviewStore, ProductReview } from '../state/product-review-store.js';
+import { paginateAdminList, renderAdminPagination } from '../utils/admin-pagination.js';
 
 export function renderAdminReviewsPanel(): string {
   const reviews = ProductReviewStore.getReviews();
+  const {
+    pagedItems: pagedReviews,
+    currentPage,
+    totalPages,
+    totalItems,
+    pageSize,
+  } = paginateAdminList('admin-reviews', reviews);
   const bestReviewsCount = reviews.filter(r => r.isBest).length;
   const avgRating = reviews.length > 0
     ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
@@ -66,7 +74,7 @@ export function renderAdminReviewsPanel(): string {
         </div>
       ` : `
         <div style="display: flex; flex-direction: column; gap: 0.85rem;">
-          ${reviews.map(r => `
+          ${pagedReviews.map(r => `
             <div class="review-admin-card" style="background: rgba(0,0,0,0.3); border: 1px solid ${r.isBest ? 'rgba(242, 202, 80, 0.4)' : 'rgba(255,255,255,0.08)'}; border-radius: 12px; padding: 1.15rem; display: flex; flex-direction: column; gap: 0.75rem;">
               
               <!-- 상단 메타 (상품명, 베스트 배지, 액션 버튼) -->
@@ -119,6 +127,7 @@ export function renderAdminReviewsPanel(): string {
             </div>
           `).join('')}
         </div>
+        ${renderAdminPagination('admin-reviews', currentPage, totalPages, totalItems, pageSize)}
       `}
     </div>
 

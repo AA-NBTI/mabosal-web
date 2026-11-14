@@ -73,17 +73,17 @@ describe('Phase 14: Complete Frontend Blueprint Audit Suite', () => {
   // 3. Birth Input View
   // ========================================================
   describe('3. Birth Input View', () => {
-    it('출생일자, 출생시간, 시간 미상 체크박스, 성별 토글, 지역 입력 요소를 완비한다', () => {
+    it('출생일자, 출생시간(시진/직접입력), 시간 미상 체크박스, 성별 토글 입력 요소를 완비한다', () => {
       const state = appState.getState();
       const html = renderBirthInputView(state);
 
       expect(html).toContain('input-birth-date');
+      expect(html).toContain('analyze-time-preset');
       expect(html).toContain('input-birth-time');
       expect(html).toContain('check-missing-hour');
-      expect(html).toContain('출생시간을 정확히 모릅니다');
-      expect(html).toContain('select-region');
-      expect(html).toContain('btn-gender-male');
-      expect(html).toContain('btn-gender-female');
+      expect(html).toContain('출생시간 모름');
+      expect(html).toContain('analyze-gender');
+      expect(html).toContain('analyze-calendar');
     });
 
     it('오류 메시지 존재 시 친절한 알림 박스를 표시한다', () => {

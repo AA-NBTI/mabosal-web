@@ -3,7 +3,7 @@
  * 이용자 대시보드 및 메인 화면의 행운처방, 행운지수, 황금 길시, 심층 타로 인터랙티브 상세 모달 모음
  * - 정통 오리엔탈 디자인 시스템 적용 (다크 네이비 + 앤티크 골드 글로우)
  */
-import { KOREA_REGIONS } from '../../modules/calendar/korea-timezone.js';
+import { renderUnifiedSajuGrid } from './UnifiedSajuForm.js';
 
 export function renderFortuneDetailModals(): string {
   return `
@@ -222,10 +222,9 @@ export function renderFortuneDetailModals(): string {
       <!-- 헤더 -->
       <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; background: rgba(242, 202, 80, 0.05);">
         <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">auto_awesome</span>
           <div>
             <span style="font-size: 0.68rem; color: var(--primary); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">UNIFIED SAJU PROFILE</span>
-            <h3 id="onboarding-modal-title" style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0.1rem 0 0 0;">사주 정보 등록 · 변경</h3>
+            <h3 id="onboarding-modal-title" style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0.1rem 0 0 0;">사주 정보 등록</h3>
           </div>
         </div>
         <button type="button" class="btn-close-fortune-modal" data-modal-id="modal-saju-onboarding" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 0.4rem; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
@@ -235,87 +234,17 @@ export function renderFortuneDetailModals(): string {
 
       <!-- 본문 -->
       <div style="padding: 1.5rem; overflow-y: auto; color: #cbd5e1; font-size: 0.85rem; line-height: 1.6; flex: 1;">
-        <div id="onboarding-modal-desc" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; font-size: 0.82rem; color: #dfe2f1;">
-          💡 <strong>생년월일시</strong>를 한 번 등록하면 <strong>1:1 맞춤 일진·행운처방</strong>과 <strong>스토어 사주 리포트 결제</strong>에 모두 자동으로 연동됩니다.
-        </div>
+        <div id="onboarding-modal-desc" style="display: none; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; font-size: 0.82rem; color: #dfe2f1;"></div>
 
-        <form id="form-onboarding-saju" onsubmit="return false;" style="display: flex; flex-direction: column; gap: 0.9rem;">
-          <div>
-            <label style="display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.35rem; font-weight: 700;">
-              분석 대상 이름
-            </label>
-            <input type="text" id="onboarding-name" placeholder="예: 홍길동 (미입력 시 회원명 사용)" style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; padding: 0.65rem 0.75rem; color: #fff; font-size: 0.88rem;" />
-          </div>
-
-          <div>
-            <label style="display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.35rem; font-weight: 700;">
-              생년월일 <span style="color: #f87171;">*</span>
-            </label>
-            <input type="date" id="onboarding-birthdate" required style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; padding: 0.65rem 0.75rem; color: #fff; font-size: 0.9rem;" />
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-            <div>
-              <label style="display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.35rem; font-weight: 700;">
-                양력 / 음력 <span style="color: #f87171;">*</span>
-              </label>
-              <select id="onboarding-calendar" style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; padding: 0.65rem 0.75rem; color: #fff; font-size: 0.85rem;">
-                <option value="solar">양력 (Solar)</option>
-                <option value="lunar">음력 (Lunar)</option>
-              </select>
-            </div>
-
-            <div>
-              <label style="display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.35rem; font-weight: 700;">
-                성별 <span style="color: #f87171;">*</span>
-              </label>
-              <select id="onboarding-gender" style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; padding: 0.65rem 0.75rem; color: #fff; font-size: 0.85rem;">
-                <option value="male">남성 (乾命)</option>
-                <option value="female">여성 (坤命)</option>
-              </select>
-            </div>
-          </div>
-
-          <div id="onboarding-leap-month-wrap" style="display: none;">
-            <label style="display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; color: #cbd5e1; cursor: pointer;">
-              <input type="checkbox" id="onboarding-leap-month" />
-              <span>윤달(Leap Month)에 태어났습니다</span>
-            </label>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 0.75rem;">
-            <div>
-              <label style="display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.35rem; font-weight: 700;">
-                태어난 시간
-              </label>
-              <select id="onboarding-birthtime" style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; padding: 0.65rem 0.75rem; color: #fff; font-size: 0.85rem;">
-                <option value="">시간 모름 (삼주 안전 분석)</option>
-                <option value="0">자시 (23:30 ~ 01:29)</option>
-                <option value="2">축시 (01:30 ~ 03:29)</option>
-                <option value="4">인시 (03:30 ~ 05:29)</option>
-                <option value="6">묘시 (05:30 ~ 07:29)</option>
-                <option value="8">진시 (07:30 ~ 09:29)</option>
-                <option value="10">사시 (09:30 ~ 11:29)</option>
-                <option value="12">오시 (11:30 ~ 13:29)</option>
-                <option value="14">미시 (13:30 ~ 15:29)</option>
-                <option value="16">신시 (15:30 ~ 17:29)</option>
-                <option value="18">유시 (17:30 ~ 19:29)</option>
-                <option value="20">술시 (19:30 ~ 21:29)</option>
-                <option value="22">해시 (21:30 ~ 23:29)</option>
-              </select>
-            </div>
-
-            <div>
-              <label style="display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.35rem; font-weight: 700;">
-                출생 지역
-              </label>
-              <select id="onboarding-region" style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; padding: 0.65rem 0.75rem; color: #fff; font-size: 0.85rem;">
-                ${Object.keys(KOREA_REGIONS).map(region => `
-                  <option value="${region}" ${region === '서울' ? 'selected' : ''}>${region}</option>
-                `).join('')}
-              </select>
-            </div>
-          </div>
+        <form id="form-onboarding-saju" onsubmit="return false;" style="display: flex; flex-direction: column; gap: 0.85rem;">
+          ${renderUnifiedSajuGrid({
+            prefix: 'onboarding',
+            nameField: {
+              id: 'onboarding-name',
+              label: '이름 <span style="color: #f87171;">*</span>',
+              placeholder: '예: 홍길동',
+            },
+          })}
         </form>
       </div>
 
@@ -324,9 +253,8 @@ export function renderFortuneDetailModals(): string {
         <button type="button" class="btn-close-fortune-modal" data-modal-id="modal-saju-onboarding" style="background: none; border: 1px solid rgba(255,255,255,0.2); color: #94a3b8; font-size: 0.82rem; font-weight: 700; padding: 0.55rem 1rem; border-radius: 8px; cursor: pointer;">
           닫기
         </button>
-        <button type="button" id="btn-submit-onboarding-saju" style="padding: 0.6rem 1.35rem; border-radius: 8px; background: var(--primary); border: none; color: #1a1400; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; box-shadow: 0 4px 14px rgba(242, 202, 80, 0.3);">
-          <span>저장 및 즉시 적용</span>
-          <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
+        <button type="button" id="btn-submit-onboarding-saju" style="padding: 0.6rem 1.5rem; border-radius: 8px; background: var(--primary); border: none; color: #1a1400; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(242, 202, 80, 0.3);">
+          <span>저장</span>
         </button>
       </div>
     </div>

@@ -21,6 +21,7 @@ import { UserSajuStore } from '../state/user-saju-store.js';
 import { UserAddressStore } from '../state/user-address-store.js';
 import { renderMemberLuckyCalendarWidget, renderMemberMagiCalendarWidget } from './MemberCalendarWidgets.js';
 import { getUserSubscription, isEligibleFor7DayRefund } from './SubscriptionView.js';
+import { renderUnifiedSajuGrid } from '../components/UnifiedSajuForm.js';
 
 let activeMemberTabId = 'tab-daily';
 
@@ -32,9 +33,26 @@ export function getMemberActiveTab(): string {
   return activeMemberTabId;
 }
 
+export function resetMemberDashboardState(): void {
+  activeMemberTabId = 'tab-daily';
+}
+
 export function renderMemberDashboardView(state: AppStateData): string {
   const user = AuthService.getCurrentUser();
-  const userName = user.role !== 'guest' ? user.name : (state?.userName || '의뢰인');
+  if (!user || user.role === 'guest') {
+    return `
+      <div style="min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #cbd5e1; text-align: center; padding: 2rem;">
+        <span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary); margin-bottom: 0.85rem;">lock</span>
+        <h2 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 0.5rem 0;">로그인이 필요한 서비스입니다</h2>
+        <p style="font-size: 0.9rem; color: #94a3b8; margin: 0 0 1.5rem 0;">마이페이지는 로그인 후 이용하실 수 있습니다.</p>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
+          <button type="button" id="btn-header-login" class="btn-cta-primary" style="padding: 0.65rem 1.4rem; border-radius: 8px; cursor: pointer;">로그인하기</button>
+          <a href="/" data-nav="/" style="padding: 0.65rem 1.4rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); color: #e2e8f0; text-decoration: none;">홈으로 이동</a>
+        </div>
+      </div>
+    `;
+  }
+  const userName = user.name || state?.userName || '의뢰인';
   const summary = UserOrderService.getCurrentUserOrderSummarySync();
   const currentTab = activeMemberTabId;
   const userSub = getUserSubscription();
@@ -44,15 +62,14 @@ export function renderMemberDashboardView(state: AppStateData): string {
   // 내가 작성한 문의 조회 (회원 ID, 사용자명, 이메일 다각도 포괄 매칭)
   const allInquiries = CustomerInquiryStore.getInquiries();
   const myInquiries = allInquiries.filter(i => {
-    if (user.role !== 'guest') {
-      if (i.userId && (i.userId === user.id || i.userId === user.username)) return true;
-      if (user.email && i.replyEmail && i.replyEmail.toLowerCase() === user.email.toLowerCase()) return true;
-      if (user.name && i.userName && i.userName.trim() === user.name.trim()) return true;
-    }
-    return i.userName === userName || i.userId === 'guest';
+    if (i.userId && (i.userId === user.id || i.userId === user.username)) return true;
+    if (user.email && i.replyEmail && i.replyEmail.toLowerCase() === user.email.toLowerCase()) return true;
+    if (user.name && i.userName && i.userName.trim() === user.name.trim()) return true;
+    return i.userName === userName;
   });
 
   const profileStatus = UserAddressStore.getProfileCompleteness(user);
+  const hasBasicSaju = Boolean(UserSajuStore.getProfile(user.id)?.solarBirthDate || user.birthDate);
 
   // 카테고리 탭 목록 (PG 결제 실사 최적화: 행운쿠폰, 구독관리 제거)
   const tabs = [
@@ -60,7 +77,7 @@ export function renderMemberDashboardView(state: AppStateData): string {
     { id: 'tab-lucky-calendar', icon: 'event_available', label: '행운달력', badge: '' },
     { id: 'tab-magi-calendar', icon: 'event_busy', label: '마기달력', badge: '' },
     { id: 'tab-orders', icon: 'receipt_long', label: '주문내역', badge: summary.pendingTransfers.length > 0 ? `${summary.pendingTransfers.length}건 대기` : '' },
-    { id: 'tab-account', icon: 'manage_accounts', label: '회원정보', badge: !profileStatus.isComplete ? '정보보완' : '' },
+    { id: 'tab-account', icon: 'manage_accounts', label: '회원정보', badge: (!hasBasicSaju && !profileStatus.isComplete) ? '정보보완' : '' },
     { id: 'tab-inquiries', icon: 'support_agent', label: '고객센터', badge: myInquiries.some(i => i.status === 'pending') ? '답변대기' : '' },
   ];
 
@@ -161,7 +178,7 @@ export function renderMemberDashboardView(state: AppStateData): string {
 
       <!-- [우측 메인 워크스페이스] -->
       <main class="member-workspace" style="flex: 1; min-width: 0;">
-        ${!profileStatus.isComplete ? `
+        ${!hasBasicSaju && !profileStatus.isComplete ? `
           <div style="background: linear-gradient(135deg, rgba(242, 202, 80, 0.12), rgba(239, 68, 68, 0.08)); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
             <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
               <span class="material-symbols-outlined" style="color: var(--primary); font-size: 22px; margin-top: 0.1rem;">notification_important</span>
@@ -400,24 +417,107 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
     case 'tab-account':
     default:
       const rawUser = AuthService.getCurrentUser();
-      const birthDateVal = rawUser.birthDate || ((state as any)?.birthDate ? `${(state as any).birthYear || '1993'}-${String((state as any).birthMonth || '8').padStart(2, '0')}-${String((state as any).birthDay || '15').padStart(2, '0')}` : '1993-08-15');
-      const birthTimeVal = rawUser.birthTime || ((state as any)?.birthHour !== undefined ? String((state as any).birthHour) : '12');
-      const calendarVal = rawUser.calendarType || (state?.calendarType === 'lunar' ? 'lunar' : 'solar');
-      const genderVal = rawUser.gender || (state?.gender === 'female' ? 'female' : 'male');
+      const sajuProfile = UserSajuStore.getProfile(rawUser.id);
+      const birthDateVal = sajuProfile?.solarBirthDate || rawUser.birthDate || '';
+      const birthParts = birthDateVal.split('-');
+      const profileYear = birthParts[0] || '';
+      const profileMonth = birthParts[1] ? String(parseInt(birthParts[1], 10) || '') : '';
+      const profileDay = birthParts[2] ? String(parseInt(birthParts[2], 10) || '') : '';
+      const birthTimeVal = sajuProfile?.birthTime ?? rawUser.birthTime ?? '';
+      const calendarVal = (sajuProfile?.calendarType || rawUser.calendarType || (state?.calendarType === 'lunar' ? 'lunar' : 'solar')) as 'solar' | 'lunar';
+      const genderVal = (sajuProfile?.gender || rawUser.gender || (state?.gender === 'male' ? 'male' : 'female')) as 'male' | 'female';
+      const isUnknownTimeVal = Boolean(sajuProfile?.isUnknownTime);
+      const isLeapMonthVal = Boolean(sajuProfile?.isLeapMonth);
+      const regionVal = sajuProfile?.birthRegion || '서울';
 
       return `
         <div style="display: flex; flex-direction: column; gap: 1.5rem;">
           
-          <!-- 회원 프로필 & 계정 설정 폼 -->
+          <!-- 회원 프로필, 배송지 및 계정 설정 통합 폼 -->
           <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
-            <div style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
-              <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0 0 0.25rem 0;">회원정보 관리</h2>
-              <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">로그인 아이디, 비밀번호 변경 및 사주 분석에 필요한 기본 프로필 정보를 등록하고 수정합니다.</p>
-            </div>
-
             <form id="form-user-account-settings" onsubmit="return false;" style="display: flex; flex-direction: column; gap: 1.25rem;">
               
-              <!-- 1. 로그인 계정 보안 정보 -->
+              <!-- 1. 이용자 프로필 (최상단) -->
+              <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.15rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin: 0 0 0.85rem 0; gap: 0.5rem;">
+                  <h3 style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.4rem;">
+                    <span class="material-symbols-outlined" style="font-size: 18px; color: #cbd5e1;">badge</span>
+                    이용자 프로필
+                  </h3>
+                  <button type="button" id="btn-save-user-profile" style="background: var(--primary); color: #1c1500; font-weight: 800; font-size: 0.78rem; padding: 0.42rem 0.9rem; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem; box-shadow: 0 2px 8px rgba(242, 202, 80, 0.25);">
+                    <span class="material-symbols-outlined" style="font-size: 15px;">check</span>
+                    <span>저장</span>
+                  </button>
+                </div>
+
+                ${renderUnifiedSajuGrid({
+                  prefix: 'profile',
+                  nameField: {
+                    id: 'input-profile-name',
+                    label: '이름 <span style="color: #f87171;">*</span>',
+                    value: rawUser.name || '',
+                    placeholder: '성함 입력',
+                  },
+                  gender: genderVal,
+                  birthDate: birthDateVal,
+                  birthTime: birthTimeVal,
+                  calendarType: calendarVal,
+                  birthRegion: regionVal,
+                  isUnknownTime: isUnknownTimeVal,
+                  isLeapMonth: isLeapMonthVal,
+                })}
+              </div>
+
+              <!-- 2. 주소 및 추가 배송지 정보 (프로필 바로 아래 통합 배치) -->
+              <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.15rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                  <div>
+                    <h3 style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 0 0 0.2rem 0; display: flex; align-items: center; gap: 0.4rem;">
+                      <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">home_pin</span>
+                      회원 등록 배송지 주소록
+                    </h3>
+                    <p style="font-size: 0.76rem; color: var(--text-muted); margin: 0;">주문·배송 및 추가 배송지 관리를 위해 기본으로 사용되는 주소 정보입니다.</p>
+                  </div>
+                  <button type="button" id="btn-add-member-address" style="background: var(--primary); color: #1c1500; font-weight: 800; font-size: 0.78rem; border: none; padding: 0.45rem 0.85rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; box-shadow: 0 2px 8px rgba(242,202,80,0.25);">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">add_location_alt</span>
+                    <span>+ 새 배송지 등록</span>
+                  </button>
+                </div>
+
+                ${(() => {
+                  const addrs = UserAddressStore.getAddresses();
+                  if (addrs.length === 0) {
+                    return '<div style="font-size: 0.82rem; color: #94a3b8; background: rgba(255,255,255,0.02); padding: 1.15rem; border-radius: 10px; border: 1px dashed rgba(255,255,255,0.12); text-align: center;">등록된 기본 배송지가 없습니다. 위 [+ 새 배송지 등록] 버튼을 눌러 주소 및 추가 배송지를 등록해주세요.</div>';
+                  }
+                  return `
+                    <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+                      ${addrs.map(a => `
+                        <div class="member-address-card" data-address-id="${a.id}" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.9rem 1.1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; flex-wrap: wrap; gap: 0.65rem;">
+                          <div>
+                            <div style="display: flex; align-items: center; gap: 0.45rem; color: #fff; font-weight: 800;">
+                              ${a.isDefault ? '<span style="background: var(--primary); color: #000; font-size: 0.68rem; padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 900;">기본 배송지</span>' : ''}
+                              <span>${a.recipientName} (${a.recipientPhone})</span>
+                            </div>
+                            <div style="color: #cbd5e1; margin-top: 0.35rem; font-size: 0.83rem;">${a.zipCode ? `[${a.zipCode}] ` : ''}${a.address} ${a.detailAddress || ''}</div>
+                            ${a.deliveryMemo ? `<div style="color: #94a3b8; font-size: 0.78rem; margin-top: 0.2rem;">배송 메모: ${a.deliveryMemo}</div>` : ''}
+                          </div>
+                          <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 0.75rem; color: #64748b; margin-right: 0.25rem;">${new Date(a.updatedAt).toLocaleDateString()}</span>
+                            <button type="button" class="btn-edit-member-address" data-address-id="${a.id}" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 6px; padding: 0.25rem 0.55rem; font-size: 0.75rem; cursor: pointer;">
+                              수정
+                            </button>
+                            <button type="button" class="btn-delete-member-address" data-address-id="${a.id}" style="background: none; border: 1px solid rgba(239,68,68,0.4); color: #f87171; border-radius: 6px; padding: 0.25rem 0.55rem; font-size: 0.75rem; cursor: pointer;">
+                              삭제
+                            </button>
+                          </div>
+                        </div>
+                      `).join('')}
+                    </div>
+                  `;
+                })()}
+              </div>
+
+              <!-- 3. 로그인 계정 보안 설정 (회원 탈퇴 위쪽) -->
               <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.15rem;">
                 <h3 style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 0 0 0.85rem 0; display: flex; align-items: center; gap: 0.4rem;">
                   <span class="material-symbols-outlined" style="font-size: 18px; color: #cbd5e1;">lock</span>
@@ -448,136 +548,7 @@ function renderMemberTabContent(tabId: string, state: AppStateData, summary: any
                 </div>
               </div>
 
-              <!-- 2. 이용자 기본 및 명리 프로필 정보 -->
-              <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.15rem;">
-                <h3 style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 0 0 0.85rem 0; display: flex; align-items: center; gap: 0.4rem;">
-                  <span class="material-symbols-outlined" style="font-size: 18px; color: #cbd5e1;">badge</span>
-                  이용자 기본 &amp; 사주 프로필
-                </h3>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                  <div>
-                    <label style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-                      이름 / 닉네임 <span style="color: #f87171;">*</span>
-                    </label>
-                    <input type="text" id="input-profile-name" value="${rawUser.name || ''}" required placeholder="성함 또는 닉네임" style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #fff; font-size: 0.85rem;" />
-                  </div>
-
-                  <div>
-                    <label style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-                      연락처 (휴대폰)
-                    </label>
-                    <input type="tel" id="input-profile-phone" value="${rawUser.phone || ''}" placeholder="010-0000-0000" style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #fff; font-size: 0.85rem;" />
-                  </div>
-
-                  <div>
-                    <label style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-                      생년월일
-                    </label>
-                    <input type="date" id="input-profile-birthdate" value="${birthDateVal}" style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.55rem 0.75rem; color: #fff; font-size: 0.85rem;" />
-                  </div>
-
-                  <div>
-                    <label style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-                      양력 / 음력
-                    </label>
-                    <select id="input-profile-calendar" style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #fff; font-size: 0.85rem;">
-                      <option value="solar" ${calendarVal === 'solar' ? 'selected' : ''}>양력 (Solar)</option>
-                      <option value="lunar" ${calendarVal === 'lunar' ? 'selected' : ''}>음력 (Lunar)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-                      태어난 시간
-                    </label>
-                    <select id="input-profile-birthtime" style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #fff; font-size: 0.85rem;">
-                      <option value="12" ${birthTimeVal === '12' ? 'selected' : ''}>시간 모름 (오시 12:00 기준)</option>
-                      <option value="0" ${birthTimeVal === '0' ? 'selected' : ''}>자시 (23:30 ~ 01:29)</option>
-                      <option value="2" ${birthTimeVal === '2' ? 'selected' : ''}>축시 (01:30 ~ 03:29)</option>
-                      <option value="4" ${birthTimeVal === '4' ? 'selected' : ''}>인시 (03:30 ~ 05:29)</option>
-                      <option value="6" ${birthTimeVal === '6' ? 'selected' : ''}>묘시 (05:30 ~ 07:29)</option>
-                      <option value="8" ${birthTimeVal === '8' ? 'selected' : ''}>진시 (07:30 ~ 09:29)</option>
-                      <option value="10" ${birthTimeVal === '10' ? 'selected' : ''}>사시 (09:30 ~ 11:29)</option>
-                      <option value="12" ${birthTimeVal === '12' ? 'selected' : ''}>오시 (11:30 ~ 13:29)</option>
-                      <option value="14" ${birthTimeVal === '14' ? 'selected' : ''}>미시 (13:30 ~ 15:29)</option>
-                      <option value="16" ${birthTimeVal === '16' ? 'selected' : ''}>신시 (15:30 ~ 17:29)</option>
-                      <option value="18" ${birthTimeVal === '18' ? 'selected' : ''}>유시 (17:30 ~ 19:29)</option>
-                      <option value="20" ${birthTimeVal === '20' ? 'selected' : ''}>술시 (19:30 ~ 21:29)</option>
-                      <option value="22" ${birthTimeVal === '22' ? 'selected' : ''}>해시 (21:30 ~ 23:29)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-                      성별
-                    </label>
-                    <select id="input-profile-gender" style="width: 100%; box-sizing: border-box; background: #161b26; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem 0.75rem; color: #fff; font-size: 0.85rem;">
-                      <option value="male" ${genderVal === 'male' ? 'selected' : ''}>남성</option>
-                      <option value="female" ${genderVal === 'female' ? 'selected' : ''}>여성</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 수정 저장 버튼 -->
-              <div style="display: flex; justify-content: flex-end; gap: 0.65rem; padding-top: 0.5rem;">
-                <button type="button" id="btn-save-user-profile" style="background: var(--primary); color: #241a00; font-weight: 800; font-size: 0.85rem; padding: 0.65rem 1.6rem; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; box-shadow: 0 4px 14px rgba(242, 202, 80, 0.35); transition: all 0.15s ease;">
-                  <span class="material-symbols-outlined" style="font-size: 18px;">check</span>
-                  <span>회원 정보 수정 저장</span>
-                </button>
-              </div>
-
             </form>
-          </div>
-
-          <!-- 3. [회원정보] 회원 등록 배송지 주소록 현황 및 관리 -->
-          <div style="background: rgba(14, 18, 28, 0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.85rem; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
-              <div>
-                <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin: 0 0 0.25rem 0; display: flex; align-items: center; gap: 0.45rem;">
-                  <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">home_pin</span>
-                  회원 등록 배송지 주소록
-                </h3>
-                <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0;">주문·배송 및 본인 확인 등 정확한 서비스 제공을 위해 기본으로 사용되는 주소 정보입니다.</p>
-              </div>
-              <button type="button" id="btn-add-member-address" style="background: var(--primary); color: #1c1500; font-weight: 800; font-size: 0.78rem; border: none; padding: 0.45rem 0.85rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.35rem; box-shadow: 0 2px 8px rgba(242,202,80,0.25);">
-                <span class="material-symbols-outlined" style="font-size: 16px;">add_location_alt</span>
-                <span>+ 새 배송지 등록</span>
-              </button>
-            </div>
-
-            ${(() => {
-              const addrs = UserAddressStore.getAddresses();
-              if (addrs.length === 0) {
-                return '<div style="font-size: 0.82rem; color: #94a3b8; background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 10px; border: 1px dashed rgba(255,255,255,0.12); text-align: center;">등록된 기본 배송지가 없습니다. 위 [+ 새 배송지 등록] 버튼을 눌러 등록해주세요.</div>';
-              }
-              return `
-                <div style="display: flex; flex-direction: column; gap: 0.65rem;">
-                  ${addrs.map(a => `
-                    <div class="member-address-card" data-address-id="${a.id}" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.9rem 1.1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; flex-wrap: wrap; gap: 0.65rem;">
-                      <div>
-                        <div style="display: flex; align-items: center; gap: 0.45rem; color: #fff; font-weight: 800;">
-                          ${a.isDefault ? '<span style="background: var(--primary); color: #000; font-size: 0.68rem; padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 900;">기본 배송지</span>' : ''}
-                          <span>${a.recipientName} (${a.recipientPhone})</span>
-                        </div>
-                        <div style="color: #cbd5e1; margin-top: 0.35rem; font-size: 0.83rem;">${a.zipCode ? `[${a.zipCode}] ` : ''}${a.address} ${a.detailAddress || ''}</div>
-                        ${a.deliveryMemo ? `<div style="color: #94a3b8; font-size: 0.78rem; margin-top: 0.2rem;">배송 메모: ${a.deliveryMemo}</div>` : ''}
-                      </div>
-                      <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="font-size: 0.75rem; color: #64748b; margin-right: 0.25rem;">${new Date(a.updatedAt).toLocaleDateString()}</span>
-                        <button type="button" class="btn-edit-member-address" data-address-id="${a.id}" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 6px; padding: 0.25rem 0.55rem; font-size: 0.75rem; cursor: pointer;">
-                          수정
-                        </button>
-                        <button type="button" class="btn-delete-member-address" data-address-id="${a.id}" style="background: none; border: 1px solid rgba(239,68,68,0.4); color: #f87171; border-radius: 6px; padding: 0.25rem 0.55rem; font-size: 0.75rem; cursor: pointer;">
-                          삭제
-                        </button>
-                      </div>
-                    </div>
-                  `).join('')}
-                </div>
-              `;
-            })()}
           </div>
 
           <!-- 4. 회원 탈퇴 (바로 노출되지 않고 안전한 접이식 아코디언 설계) -->

@@ -1,4 +1,6 @@
 
+import { renderUnifiedSajuGrid } from '../components/UnifiedSajuForm.js';
+
 /**
  * [신규] 대운별 명리 인과 요인(호재/악재) 추출기
  * - 십년대운, 일년세운과 동일하게 호재/악재 뱃지 및 위키 사전 연동
@@ -2163,43 +2165,26 @@ export function renderAdminLifeAnalysisPanel(): string {
         </div>
       </div>
 
-      <form id="form-life-analysis-input" onsubmit="return false;" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; align-items: flex-end;">
-        <div>
-          <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">성별</label>
-          <select id="la-gender" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 0.45rem 0.5rem; color: #fff; font-size: 0.82rem;">
-            <option value="female" ${inp.gender === 'female' ? 'selected' : ''}>여성</option>
-            <option value="male" ${inp.gender === 'male' ? 'selected' : ''}>남성</option>
-          </select>
-        </div>
-        <div>
-          <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">출생 연도</label>
-          <input type="number" id="la-year" value="${bYear}" min="1920" max="2030" style="width: 100%; box-sizing: border-box; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 0.45rem 0.5rem; color: #fff; font-size: 0.82rem;" />
-        </div>
-        <div>
-          <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">출생 월</label>
-          <input type="number" id="la-month" value="${bMonth}" min="1" max="12" style="width: 100%; box-sizing: border-box; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 0.45rem 0.5rem; color: #fff; font-size: 0.82rem;" />
-        </div>
-        <div>
-          <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">출생 일</label>
-          <input type="number" id="la-day" value="${bDay}" min="1" max="31" style="width: 100%; box-sizing: border-box; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 0.45rem 0.5rem; color: #fff; font-size: 0.82rem;" />
-        </div>
-        <div>
-          <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">출생 시분</label>
-          <input type="text" id="la-time-input" value="${inp.birthTime || '09:20'}" placeholder="0920" style="width: 100%; box-sizing: border-box; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 0.45rem 0.5rem; color: #fff; font-size: 0.82rem;" />
-        </div>
-        <div>
-          <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">양력/음력</label>
-          <select id="la-calendar" style="width: 100%; background: #181c28; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 0.45rem 0.5rem; color: #fff; font-size: 0.82rem;">
-            <option value="solar" ${inp.calendarType === 'solar' ? 'selected' : ''}>양력</option>
-            <option value="lunar" ${inp.calendarType === 'lunar' ? 'selected' : ''}>음력</option>
-          </select>
-        </div>
-        <div>
-          <button type="submit" id="btn-run-life-analysis" style="width: 100%; background: var(--primary); color: #1c1500; font-weight: 800; border: none; border-radius: 6px; padding: 0.55rem; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
-            <span class="material-symbols-outlined" style="font-size: 16px;">play_arrow</span>
-            사주 재계산
-          </button>
-        </div>
+      <form id="form-life-analysis-input" onsubmit="return false;">
+        ${renderUnifiedSajuGrid({
+          prefix: 'la',
+          compact: true,
+          gender: inp.gender === 'male' ? 'male' : 'female',
+          birthDate: `${bYear}${String(bMonth).padStart(2, '0')}${String(bDay).padStart(2, '0')}`,
+          birthTime: inp.birthTime || '09:20',
+          calendarType: inp.calendarType === 'lunar' ? 'lunar' : 'solar',
+          birthRegion: (inp as any).birthRegion || '서울',
+          isUnknownTime: Boolean((inp as any).isUnknownTime),
+          isLeapMonth: Boolean((inp as any).isLeapMonth),
+          trailingActionHtml: `
+            <div style="min-width: 110px;">
+              <button type="submit" id="btn-run-life-analysis" style="width: 100%; background: var(--primary); color: #1c1500; font-weight: 800; border: none; border-radius: 6px; padding: 0.38rem 0.65rem; font-size: 0.78rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem; white-space: nowrap;">
+                <span class="material-symbols-outlined" style="font-size: 14px;">play_arrow</span>
+                사주 재계산
+              </button>
+            </div>
+          `,
+        })}
       </form>
     </div>
 

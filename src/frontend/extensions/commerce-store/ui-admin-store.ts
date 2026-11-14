@@ -17,6 +17,7 @@ import {
   deleteStoreCategory,
 } from './store-service.js';
 import type { DeliveryType, StoreCategoryType, StoreProduct } from './types.js';
+import { paginateAdminList, renderAdminPagination, setAdminListPage } from '../../utils/admin-pagination.js';
 
 const ADMIN_STORE_SUBTAB_KEY = 'mm_admin_store_subtab';
 let adminSubTab: 'products' | 'register' | 'orders' | 'categories' =
@@ -36,14 +37,17 @@ export function setAdminStoreSubTab(tab: 'products' | 'register' | 'orders' | 'c
 
 export function setAdminStoreFilter(cat: StoreCategoryType): void {
   adminFilterCategory = cat;
+  setAdminListPage('admin-store-products', 1);
 }
 
 export function setAdminStoreStatusFilter(status: 'all' | 'active' | 'hidden' | 'soldout'): void {
   adminFilterStatus = status;
+  setAdminListPage('admin-store-products', 1);
 }
 
 export function setAdminStoreSearch(q: string): void {
   adminSearchQuery = q;
+  setAdminListPage('admin-store-products', 1);
 }
 
 export function setAdminStoreSort(sort: any): void {
@@ -192,9 +196,12 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                 </tr>
               </thead>
               <tbody>
-                ${filtered.length === 0 ? `
-                  <tr><td colspan="7" style="padding: 2.5rem; text-align: center; color: var(--text-muted);">조건에 일치하는 상품이 없습니다.</td></tr>
-                ` : filtered.map(p => {
+                ${(() => {
+                  const prodPage = paginateAdminList('admin-store-products', filtered);
+                  if (prodPage.pagedItems.length === 0) {
+                    return '<tr><td colspan="7" style="padding: 2.5rem; text-align: center; color: var(--text-muted);">조건에 일치하는 상품이 없습니다.</td></tr>';
+                  }
+                  return prodPage.pagedItems.map(p => {
                   const catItem = allCategories.find(c => c.id === p.category);
                   const meta = CATEGORY_META[p.category] || { title: p.category, badgeColor: '#f2ca50', icon: 'menu_book' };
                   const displayCatTitle = catItem ? esc(catItem.label) : meta.title;
@@ -261,10 +268,15 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                       </td>
                     </tr>
                   `;
-                }).join('')}
+                  }).join('');
+                })()}
               </tbody>
             </table>
           </div>
+          ${(() => {
+            const prodPage = paginateAdminList('admin-store-products', filtered);
+            return renderAdminPagination('admin-store-products', prodPage.currentPage, prodPage.totalPages, prodPage.totalItems, prodPage.pageSize);
+          })()}
         </div>
       </div>
 
@@ -530,9 +542,12 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                 </tr>
               </thead>
               <tbody>
-                ${orders.length === 0 ? `
-                  <tr><td colspan="7" style="padding: 2.5rem; text-align: center; color: var(--text-muted);">아직 발생한 주문이 없습니다.</td></tr>
-                ` : orders.map(o => {
+                ${(() => {
+                  const ordPage = paginateAdminList('admin-store-orders', orders);
+                  if (ordPage.pagedItems.length === 0) {
+                    return '<tr><td colspan="7" style="padding: 2.5rem; text-align: center; color: var(--text-muted);">아직 발생한 주문이 없습니다.</td></tr>';
+                  }
+                  return ordPage.pagedItems.map(o => {
                   return `
                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
                       <td style="padding: 0.6rem; font-family: monospace;">${o.orderId}</td>
@@ -571,10 +586,15 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                       </td>
                     </tr>
                   `;
-                }).join('')}
+                  }).join('');
+                })()}
               </tbody>
             </table>
           </div>
+          ${(() => {
+            const ordPage = paginateAdminList('admin-store-orders', orders);
+            return renderAdminPagination('admin-store-orders', ordPage.currentPage, ordPage.totalPages, ordPage.totalItems, ordPage.pageSize);
+          })()}
         </div>
       </div>
 
@@ -627,7 +647,10 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                   </tr>
                 </thead>
                 <tbody>
-                  ${allCategories.filter(c => c.id !== 'all').map(c => `
+                  ${(() => {
+                    const catList = allCategories.filter(c => c.id !== 'all');
+                    const catPage = paginateAdminList('admin-store-categories', catList);
+                    return catPage.pagedItems.map(c => `
                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
                       <td style="padding: 0.75rem 1rem;">
                         <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary); vertical-align: middle;">${c.icon || 'category'}</span>
@@ -644,9 +667,15 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                         </button>
                       </td>
                     </tr>
-                  `).join('')}
+                  `).join('');
+                  })()}
                 </tbody>
               </table>
+              ${(() => {
+                const catList = allCategories.filter(c => c.id !== 'all');
+                const catPage = paginateAdminList('admin-store-categories', catList);
+                return renderAdminPagination('admin-store-categories', catPage.currentPage, catPage.totalPages, catPage.totalItems, catPage.pageSize);
+              })()}
             </div>
           </div>
         </div>

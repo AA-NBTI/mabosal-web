@@ -2,6 +2,7 @@
  * [최고 관리자 전용] 무통장 입금 승인 및 쿠폰 관리 통제탑 컴포넌트
  */
 import { VoucherStore, VoucherCoupon, BankTransferRequest } from './voucher-store.js';
+import { paginateAdminList, renderAdminPagination } from '../../utils/admin-pagination.js';
 
 /**
  * [1] 무통장 입금 승인 전용 패널
@@ -10,6 +11,8 @@ export function renderAdminBankTransferPanel(): string {
   const transfers = VoucherStore.getBankTransfers();
   const pendingTransfers = transfers.filter(t => t.status === 'pending');
   const approvedTransfers = transfers.filter(t => t.status === 'approved');
+  const pendingPage = paginateAdminList('admin-bank-pending', pendingTransfers);
+  const approvedPage = paginateAdminList('admin-bank-approved', approvedTransfers);
   const totalApprovedAmount = approvedTransfers.reduce((sum, t) => sum + t.requestedAmount, 0);
 
   return `
@@ -71,7 +74,7 @@ export function renderAdminBankTransferPanel(): string {
               </tr>
             </thead>
             <tbody>
-              ${pendingTransfers.map(t => `
+              ${pendingPage.pagedItems.map(t => `
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(255, 107, 107, 0.04);">
                   <td style="padding: 0.85rem 0.75rem; color: #94a3b8; font-size: 0.8rem;">${t.createdAt}</td>
                   <td style="padding: 0.85rem 0.75rem; font-weight: 800; color: #ffffff;">
@@ -102,6 +105,7 @@ export function renderAdminBankTransferPanel(): string {
               `).join('')}
             </tbody>
           </table>
+          ${renderAdminPagination('admin-bank-pending', pendingPage.currentPage, pendingPage.totalPages, pendingPage.totalItems, pendingPage.pageSize)}
         </div>
       `}
 
@@ -112,7 +116,7 @@ export function renderAdminBankTransferPanel(): string {
             최근 승인 완료 내역 (${approvedTransfers.length}건)
           </div>
           <div style="display: flex; flex-direction: column; gap: 0.45rem;">
-            ${approvedTransfers.slice(0, 5).map(at => `
+            ${approvedPage.pagedItems.map(at => `
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.55rem 0.75rem; background: rgba(0,0,0,0.2); border-radius: 8px; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.04);">
                 <div>
                   <span style="font-weight: 800; color: #fff;">${at.depositorName}</span>
@@ -128,6 +132,7 @@ export function renderAdminBankTransferPanel(): string {
               </div>
             `).join('')}
           </div>
+          ${renderAdminPagination('admin-bank-approved', approvedPage.currentPage, approvedPage.totalPages, approvedPage.totalItems, approvedPage.pageSize)}
         </div>
       ` : ''}
     </div>
@@ -140,6 +145,7 @@ export function renderAdminBankTransferPanel(): string {
  */
 export function renderAdminCouponPanel(): string {
   const coupons = VoucherStore.getCoupons();
+  const couponPage = paginateAdminList('admin-coupons', coupons);
 
   return `
   <div class="admin-coupon-panel" style="display: flex; flex-direction: column; gap: 1.25rem;">
@@ -216,7 +222,7 @@ export function renderAdminCouponPanel(): string {
             </tr>
           </thead>
           <tbody>
-            ${coupons.map(c => `
+            ${couponPage.pagedItems.map(c => `
               <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
                 <td style="padding: 0.8rem 0.75rem; font-weight: 800; color: #ffffff; font-family: monospace; font-size: 0.95rem;">
                   ${c.code}
@@ -243,6 +249,7 @@ export function renderAdminCouponPanel(): string {
             `).join('')}
           </tbody>
         </table>
+        ${renderAdminPagination('admin-coupons', couponPage.currentPage, couponPage.totalPages, couponPage.totalItems, couponPage.pageSize)}
       </div>
     </div>
   </div>

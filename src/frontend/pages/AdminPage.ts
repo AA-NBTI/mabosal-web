@@ -4,6 +4,7 @@ import { ensureAdminMembersLoaded } from '../views/AdminMembersPanel.js';
 import { ensurePaymentLedgerSynced, setPaymentLedgerFilter } from '../modules/payment/AdminPaymentLedgerPanel.js';
 import { syncOrdersFromSupabase } from '../extensions/commerce-store/store-service.js';
 import { supabase } from '../modules/supabase/supabase-client.js';
+import { AuthService } from '../state/auth-service.js';
 
 let cachedRenderAdminDashboard: (() => string) | null = null;
 let adminLoadPromise: Promise<void> | null = null;
@@ -124,9 +125,27 @@ function syncPaymentLedgerOnAdminEnter(container: HTMLElement, force = false): v
   }, force);
 }
 
+export function cleanupAdminRealtime(): void {
+  if (realtimeOrdersChannel && typeof (supabase as any)?.removeChannel === 'function') {
+    try {
+      void (supabase as any).removeChannel(realtimeOrdersChannel);
+    } catch {}
+  }
+  realtimeOrdersChannel = null;
+  activeAdminContainer = null;
+}
+
 export const AdminPage: PageModule = {
   id: 'admin',
   render(_ctx: PageContext): string {
+    if (!AuthService.isAdmin()) {
+      return `
+        <div style="min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 0.95rem; text-align: center; padding: 2rem;">
+          <p style="margin-bottom: 1rem;">최고 관리자 계정으로 로그인 후 이용하실 수 있습니다.</p>
+          <a href="/" data-nav="/" class="btn-cta-primary" style="padding: 0.65rem 1.4rem; border-radius: 8px; text-decoration: none;">홈으로 이동</a>
+        </div>
+      `;
+    }
     if (cachedRenderAdminDashboard) {
       return cachedRenderAdminDashboard();
     }
@@ -137,6 +156,7 @@ export const AdminPage: PageModule = {
     `;
   },
   onMount(container: HTMLElement): void {
+    if (!AuthService.isAdmin()) return;
     ensureAdminOrdersRealtimeAndEvents(container);
     if (cachedRenderAdminDashboard) {
       syncMembersIfActive(container);

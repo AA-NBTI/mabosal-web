@@ -3,6 +3,7 @@
  */
 import { getAllStoreOrders, syncOrdersFromSupabase, syncPortOnePaymentsIntoOrders } from '../../extensions/commerce-store/store-service.js';
 import { VoucherStore } from '../voucher/voucher-store.js';
+import { paginateAdminList, renderAdminPagination, setAdminListPage } from '../../utils/admin-pagination.js';
 
 export type PaymentLedgerFilter = 'all' | 'refund_requested' | 'completed' | 'pending' | 'refunded';
 
@@ -41,6 +42,7 @@ export function ensurePaymentLedgerSynced(onUpdated: () => void, force = false):
 
 export function setPaymentLedgerFilter(filter: PaymentLedgerFilter): void {
   ledgerFilter = filter;
+  setAdminListPage('admin-payment-ledger', 1);
 }
 
 export function getPaymentLedgerFilter(): PaymentLedgerFilter {
@@ -49,6 +51,7 @@ export function getPaymentLedgerFilter(): PaymentLedgerFilter {
 
 export function setPaymentLedgerSearch(query: string): void {
   ledgerSearch = query;
+  setAdminListPage('admin-payment-ledger', 1);
 }
 
 function esc(str: string | undefined): string {
@@ -111,6 +114,14 @@ export function renderAdminPaymentLedgerPanel(): string {
     }
     return true;
   });
+
+  const {
+    pagedItems: pagedOrders,
+    currentPage,
+    totalPages,
+    totalItems,
+    pageSize,
+  } = paginateAdminList('admin-payment-ledger', filtered);
 
   const filterButtons: { id: PaymentLedgerFilter; label: string; count: number }[] = [
     { id: 'all', label: '전체', count: allOrders.length },
@@ -194,9 +205,9 @@ export function renderAdminPaymentLedgerPanel(): string {
             </tr>
           </thead>
           <tbody>
-            ${filtered.length === 0 ? `
+            ${pagedOrders.length === 0 ? `
               <tr><td colspan="7" style="padding: 2.5rem; text-align: center; color: var(--text-muted);">조건에 맞는 결제 내역이 없습니다.</td></tr>
-            ` : filtered.map(o => {
+            ` : pagedOrders.map(o => {
               const isPg = o.paymentMethod !== 'bank_transfer' && o.paymentMethod !== 'voucher' && (o.amount || 0) > 0;
               const pgKey = o.paymentKey || o.orderId;
               return `
@@ -251,6 +262,7 @@ export function renderAdminPaymentLedgerPanel(): string {
           </tbody>
         </table>
       </div>
+      ${renderAdminPagination('admin-payment-ledger', currentPage, totalPages, totalItems, pageSize)}
     </div>
   </div>`;
 }

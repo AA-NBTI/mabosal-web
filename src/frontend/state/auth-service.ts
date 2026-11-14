@@ -4,6 +4,7 @@
 
 import { getStorage } from '../modules/persistence/index.js';
 import { supabase, SUPABASE_CONFIG } from '../modules/supabase/supabase-client.js';
+import { appState } from './app-state.js';
 
 export type UserRole = 'guest' | 'user' | 'partner' | 'admin';
 export type PartnerType = 'AFFILIATE' | 'EXPERT' | 'HYBRID';
@@ -489,9 +490,11 @@ export class AuthService {
   }
   public static logout(): void {
     this.currentSession = null;
-    if (true) {
-      getStorage().removeItem(STORAGE_KEY_CURRENT_SESSION);
-    }
+    const storage = getStorage();
+    storage.removeItem(STORAGE_KEY_CURRENT_SESSION);
+    storage.removeItem('mm_last_active_order_id');
+    storage.removeItem('mm_last_active_tier');
+    appState.resetAllUserData();
     this.notifyAuthChange();
     try {
       void supabase.auth.signOut()

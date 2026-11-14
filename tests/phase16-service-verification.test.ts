@@ -25,9 +25,9 @@ describe('Phase 16 — 실서비스 검증 및 Phase 15 보정 감사 (E2E & Ser
       const state = appState.getState();
       const html = renderBirthInputView(state);
       expect(html).toContain('성별');
-      expect(html).toContain('btn-gender-male');
-      expect(html).toContain('btn-gender-female');
-      expect(html).toContain('gender-toggle-group');
+      expect(html).toContain('analyze-gender');
+      expect(html).toContain('남성');
+      expect(html).toContain('여성');
     });
 
     it('1-2. 성별 입력 원천 데이터 보존: male/female 입력 시 세션 입력 데이터에 정확히 보존된다', () => {
@@ -114,9 +114,9 @@ describe('Phase 16 — 실서비스 검증 및 Phase 15 보정 감사 (E2E & Ser
     it('2-2. Mobile 렌더링: 반응형 그리드 및 모바일 전용 래퍼 요소가 존재한다', () => {
       const state = appState.getState();
       const inputHtml = renderBirthInputView(state);
-      expect(inputHtml).toContain('gender-toggle-group');
-      expect(inputHtml).toContain('btn-gender-male');
-      expect(inputHtml).toContain('btn-gender-female');
+      expect(inputHtml).toContain('analyze-gender');
+      expect(inputHtml).toContain('analyze-calendar');
+      expect(inputHtml).toContain('input-birth-date');
       expect(inputHtml).toContain('btn-submit-analyze');
     });
 

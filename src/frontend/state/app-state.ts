@@ -118,7 +118,7 @@ class AppStateManager {
     errorMessage: null,
     calendarType: 'solar',
     isLeapMonth: false,
-    gender: 'male',
+    gender: 'female',
     userName: '',
     userTroubleText: '특별한 문제는 없고 올해 전체적인 운의 흐름과 기회를 알고 싶어요.',
     selectedTier: 'free_diagnosis',
@@ -323,12 +323,23 @@ class AppStateManager {
     this.state.selectedSituation = '';
     this.state.additionalContext = '';
     this.state.desiredQuestion = '';
+    this.state.selectedTier = 'free_diagnosis';
+    this.state.activeTierTab = 'FREE';
+    this.state.calendarType = 'solar';
+    this.state.isLeapMonth = false;
+    this.state.gender = 'male';
     this.state.isPaidUser = false;
+    this.state.isAnalyzing = false;
+    this.state.loadingStepText = '';
+    this.state.isOnboarding = false;
     this.state.sessionState = null;
+    this.state.calcResult = undefined;
     this.state.integratedResult = null;
     this.state.latestProduct = null;
     this.state.deepResult = null;
     this.state.productOutputSet = null;
+    this.state.gunghapResult = null;
+    this.state.partnerInfo = undefined;
     this.state.chatMessages = [];
     this.state.currentView = 'landing';
     this.state.errorMessage = null;

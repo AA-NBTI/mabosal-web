@@ -13,7 +13,7 @@ create table if not exists public.user_addresses (
   delivery_memo   text not null default '',
   is_default      boolean not null default false,
   updated_at      timestamptz not null default now()
-);
+);수
 
 create index if not exists idx_user_addresses_user_id
   on public.user_addresses (user_id);

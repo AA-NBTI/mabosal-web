@@ -83,9 +83,9 @@ describe('Phase 15: Real User Experience & Design Audit Suite', () => {
 
       // 모바일에서 입력하기 쉬운 기본 input 및 명확한 체크박스
       expect(inputHtml).toContain('check-missing-hour');
-      expect(inputHtml).toContain('출생시간을 정확히 모릅니다');
+      expect(inputHtml).toContain('출생시간 모름');
       // 성별 토글 그룹 복원 확인 (원천 사용자 데이터 입력)
-      expect(inputHtml).toContain('gender-toggle-group');
+      expect(inputHtml).toContain('analyze-gender');
     });
 
     it('USER 05 (즉시 상담 사용자): 결과 확인 후 원클릭으로 1:1 상담실로 이동하여 추천 질문을 수행한다', async () => {
@@ -139,8 +139,8 @@ describe('Phase 15: Real User Experience & Design Audit Suite', () => {
       const inputHtml = renderBirthInputView(appState.getState());
       expect(inputHtml).toContain('생년월일');
       expect(inputHtml).toContain('성별');
-      expect(inputHtml).toContain('btn-gender-male');
-      expect(inputHtml).toContain('btn-gender-female');
+      expect(inputHtml).toContain('analyze-gender');
+      expect(inputHtml).toContain('analyze-calendar');
     });
 
     it('3. Core Result UX & 6 Theme UX: 최상단에서 핵심을 요약하고 6대 삶의 영역으로 자연스럽게 안내한다', () => {
