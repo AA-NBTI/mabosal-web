@@ -13,7 +13,7 @@ import { UserSajuStore } from '../state/user-saju-store.js';
 import { canViewTier } from '../modules/entitlement/index.js';
 import { ReportRouterMapper } from '../modules/checkout/report-router-mapper.js';
 import { appState } from '../state/app-state.js';
-import { buildDynamicVisualChartProps, extractReportContext, getPremiumReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
+import { buildDynamicVisualChartProps, extractNarrativeTocItems, extractReportContext, getPremiumReportMarkdown, renderNarrativeReport, renderReportTocBox } from '../components/tier-templates.js';
 import { renderMiniSajuPillarsCard, renderAffiliatePromoBanner, renderEmptySajuGuideView } from '../components/common-components.js';
 import { renderPdfReportCover } from '../components/PdfPrintCover.js';
 import { renderCheonmyeongwonFiveElementsMultiBar, renderCheonmyeongwonDayMasterArchetype } from '../components/VisualCharts.js';
@@ -52,6 +52,7 @@ export function renderPremiumResultView(state: AppStateData): string {
  const reportCtx = extractReportContext(state);
  const narrativeMarkdown = getPremiumReportMarkdown(reportCtx);
  const narrativeHtml = renderNarrativeReport(narrativeMarkdown);
+ const tocHtml = renderReportTocBox(extractNarrativeTocItems(narrativeMarkdown), 'VIP 프리미엄 리포트 목차');
 
  const savedProf = UserSajuStore.getProfile();
  const user = AuthService.getCurrentUser();
@@ -100,6 +101,9 @@ export function renderPremiumResultView(state: AppStateData): string {
  원국·격국·신살·대운·세운 전수 분석, 현실 딜레마 A/B 대조표, 업무 변경 기록표 양식, 4주차 단계별 실행 로드맵 완결판입니다.
  </p>
  </div>
+
+ <!-- 리포트 최상단 숫자 목차 -->
+ ${tocHtml}
 
  <!-- 공통 1: 사주 4주 8자 만세력 미니 원국 카드 -->
  ${renderMiniSajuPillarsCard({

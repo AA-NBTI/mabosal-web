@@ -1611,6 +1611,68 @@ function getSectionIcon(no: number): string {
   }
 }
 
+export interface ReportTocItem {
+  no: number;
+  title: string;
+  targetId?: string;
+}
+
+/**
+ * 마크다운 리포트에서 숫자 목차(1, 2, 3...) 항목 추출
+ */
+export function extractNarrativeTocItems(md: string): ReportTocItem[] {
+  if (!md) return [];
+  const items: ReportTocItem[] = [];
+  let autoNo = 0;
+
+  for (const rawLine of md.split('\n')) {
+    const trimmed = rawLine.trim();
+    if (!trimmed.startsWith('## ')) continue;
+    const rawTitle = trimmed.substring(3).trim();
+    const match = rawTitle.match(/^(\d+)\.\s*(.+)$/);
+    if (match) {
+      autoNo = parseInt(match[1], 10);
+      items.push({ no: autoNo, title: match[2].trim(), targetId: `nsec-${autoNo}` });
+    } else {
+      autoNo++;
+      items.push({ no: autoNo, title: rawTitle, targetId: `nsec-${autoNo}` });
+    }
+  }
+  return items;
+}
+
+/**
+ * 리포트 최상단 숫자 목차(TOC) 카드 렌더링
+ */
+export function renderReportTocBox(items: ReportTocItem[], headingLabel: string = '리포트 전체 목차'): string {
+  if (!items || items.length === 0) return '';
+
+  const listHtml = items.map(item => {
+    const numStr = String(item.no).padStart(2, '0');
+    const clickAttr = item.targetId
+      ? `onclick="document.getElementById('${item.targetId}')?.scrollIntoView({behavior:'smooth',block:'start'})"`
+      : '';
+    return `
+      <button type="button" ${clickAttr} class="report-toc-item" style="display:flex;align-items:flex-start;gap:0.55rem;padding:0.42rem 0.6rem;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);text-align:left;cursor:${item.targetId ? 'pointer' : 'default'};color:#e2e8f0;font-size:0.82rem;line-height:1.4;transition:border-color 0.15s ease;" onmouseover="this.style.borderColor='rgba(242,202,80,0.45)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+        <span style="flex-shrink:0;min-width:24px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:5px;background:rgba(242,202,80,0.16);color:var(--primary);border:1px solid rgba(242,202,80,0.35);font-size:0.72rem;font-weight:800;font-variant-numeric:tabular-nums;">${numStr}</span>
+        <span style="font-weight:600;word-break:keep-all;">${escapeHtml(item.title)}</span>
+      </button>
+    `;
+  }).join('');
+
+  return `
+    <nav class="report-toc-box" aria-label="리포트 목차" style="background:var(--surface-container);border:1px solid rgba(242,202,80,0.28);border-radius:14px;padding:1.1rem 1.25rem;margin-bottom:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.25);">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.75rem;padding-bottom:0.55rem;border-bottom:1px solid rgba(255,255,255,0.07);">
+        <span style="font-size:0.85rem;font-weight:800;color:var(--primary);letter-spacing:0.02em;">INDEX · ${escapeHtml(headingLabel)}</span>
+        <span style="font-size:0.76rem;color:var(--text-muted);font-weight:700;">총 ${items.length}개 항목</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:0.45rem 0.65rem;">
+        ${listHtml}
+      </div>
+    </nav>
+  `;
+}
+
 // ============================================================================
 // 5. 마크다운 리포트를 프리미엄 UI 섹션 카드 HTML로 변환하는 파서
 // ============================================================================
@@ -1660,7 +1722,7 @@ export function renderNarrativeReport(md: string): string {
                 <span class="material-symbols-outlined" style="font-size: 20px;">${iconName}</span>
               </div>
               <div>
-                <h3 class="section-heading" style="margin: 0; font-size: 1.2rem; font-weight: 700; color: #ffffff; font-family: var(--font-serif); letter-spacing: -0.01em;">${escapeHtml(currentSectionTitle)}</h3>
+                <h3 class="section-heading" style="margin: 0; font-size: 1.2rem; font-weight: 700; color: #ffffff; font-family: var(--font-serif); letter-spacing: -0.01em;"><span style="color: var(--primary); font-weight: 800; margin-right: 0.4rem; font-variant-numeric: tabular-nums;">${String(currentSectionNo).padStart(2, '0')}.</span>${escapeHtml(currentSectionTitle)}</h3>
               </div>
             </div>
           </div>

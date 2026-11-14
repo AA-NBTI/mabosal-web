@@ -34,7 +34,7 @@ import { gunghapEngine, GunghapAnalysisResult } from '../../modules/chemistry/gu
 import { AppStateData } from '../state/app-state.js';
 import { renderMiniSajuPillarsCard, renderAffiliatePromoBanner, renderEmptySajuGuideView } from '../components/common-components.js';
 import { renderSplineMonthlyChart, renderGoldProgressRing } from '../components/VisualCharts.js';
-import { extractReportContext, buildDynamicMonthlyScores } from '../components/tier-templates.js';
+import { extractReportContext, buildDynamicMonthlyScores, renderReportTocBox } from '../components/tier-templates.js';
 
 /**
  * 1. 2027 정미년 신년 총운 & 12절기 월운 비책 (19,900원)
@@ -85,23 +85,35 @@ export function renderYear2027SingleProductView(state: AppStateData): string {
  </p>
  </div>
 
+ <!-- 리포트 최상단 숫자 목차 -->
+ ${renderReportTocBox([
+   { no: 1, title: '2027 성취 지수 & 4주 8자 원국 요약', targetId: 'sp-y27-1' },
+   { no: 2, title: '12개월 월운 스플라인 에너지 곡선', targetId: 'sp-y27-2' },
+   { no: 3, title: '1월~12월(12절기) 월별 에너지 흐름 지수표', targetId: 'sp-y27-3' },
+   { no: 4, title: "2027년 상·하반기 Do & Don't 행동 타임라인", targetId: 'sp-y27-4' },
+ ], '2027 신년운세 목차')}
+
  <!-- [천명원 핵심 비주얼 1] 2027 골드 프로그레스 성취 지수 링 -->
+ <div id="sp-y27-1" style="scroll-margin-top:80px;">
  ${renderGoldProgressRing(avgScore2027, '2027 성취 지수', ringSubtitle)}
 
  ${renderMiniSajuPillarsCard({
  year: pillars.year, month: pillars.month, day: pillars.day, hour: pillars.hour,
  dayMasterDesc: yearRelation2027,
  })}
+ </div>
 
  <!-- [천명원 핵심 비주얼 2] 12개월 월운 스플라인 추이 SVG 인터랙티브 차트 -->
+ <div id="sp-y27-2" style="scroll-margin-top:80px;">
  ${renderSplineMonthlyChart({
  yearTitle: '2027 정미년(丁未年)',
  subTitle: '12개월 월운 스플라인 에너지 곡선',
  data: monthly2027,
  })}
+ </div>
 
  <!-- 2027 독점 산출물 1: 12절기 월별 에너지 지수 곡선 -->
- <div class="result-section-box" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+ <div id="sp-y27-3" class="result-section-box" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; scroll-margin-top:80px;">
  <h3 style="color: var(--text-gold); font-size: 1.2rem; margin: 0 0 0.5rem 0;">
  1. 2027년 1월~12월(12절기) 월별 에너지 흐름 지수표
  </h3>
@@ -120,7 +132,7 @@ export function renderYear2027SingleProductView(state: AppStateData): string {
  </div>
 
  <!-- 2027 독점 산출물 2: 상·하반기 Do & Don't 타임라인 -->
- <div class="result-section-box" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+ <div id="sp-y27-4" class="result-section-box" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; scroll-margin-top:80px;">
  <h3 style="color: var(--text-gold); font-size: 1.2rem; margin: 0 0 0.5rem 0;">
  2. 2027년 상·하반기 Do & Don't 행동 타임라인
  </h3>
@@ -201,8 +213,17 @@ export function renderChemistrySingleProductView(state: AppStateData): string {
  </p>
  </div>
 
+ <!-- 리포트 최상단 숫자 목차 -->
+ ${renderReportTocBox([
+   { no: 1, title: '종합 궁합 점수 & 티어 진단', targetId: 'sp-chem-1' },
+   { no: 2, title: '두 사람의 명리 원국 기운 대조', targetId: 'sp-chem-2' },
+   { no: 3, title: '4대 영역별 정밀 궁합 지수', targetId: 'sp-chem-3' },
+   { no: 4, title: '3대 감정 폭발 버튼 & 실전 화해 스크립트', targetId: 'sp-chem-4' },
+   { no: 5, title: '마보살 실전 궁합 수호 비책 & 처방전', targetId: 'sp-chem-5' },
+ ], '2인 정밀 궁합 목차')}
+
  <!-- 종합 궁합 점수 & 티어 카드 -->
- <div style="background: var(--surface-container); border: 1px solid ${goldBorder}; border-radius: 16px; padding: 1.75rem; margin-bottom: 1.75rem; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;">
+ <div id="sp-chem-1" style="background: var(--surface-container); border: 1px solid ${goldBorder}; border-radius: 16px; padding: 1.75rem; margin-bottom: 1.75rem; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; scroll-margin-top:80px;">
  <div style="display: flex; align-items: center; gap: 1.5rem;">
  <div style="width: 96px; height: 96px; border-radius: 50%; background: conic-gradient(${primaryGold} ${score}%, rgba(255, 255, 255, 0.08) 0); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(242, 202, 80, 0.2);">
  <div style="width: 80px; height: 80px; border-radius: 50%; background: #13141f; display: flex; flex-direction: column; align-items: center; justify-content: center;">
@@ -223,7 +244,7 @@ export function renderChemistrySingleProductView(state: AppStateData): string {
  </div>
 
  <!-- 2인 사주 대조 카드 (Person A vs Person B) -->
- <div style="background: var(--surface-container); border: 1px solid ${goldBorder}; border-radius: 14px; padding: 1.5rem; margin-bottom: 1.75rem; box-shadow: var(--shadow-sm);">
+ <div id="sp-chem-2" style="background: var(--surface-container); border: 1px solid ${goldBorder}; border-radius: 14px; padding: 1.5rem; margin-bottom: 1.75rem; box-shadow: var(--shadow-sm); scroll-margin-top:80px;">
  <div style="font-size: 0.85rem; font-weight: 700; color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.35rem;">
  <span class="material-symbols-outlined" style="font-size: 18px;">compare_arrows</span>
  두 사람의 명리 원국 기운 대조
@@ -263,7 +284,7 @@ export function renderChemistrySingleProductView(state: AppStateData): string {
  </div>
 
  <!-- 4대 세부 케미 지수 게이지 (기본 컨셉 컬러로 조화롭게 통일) -->
- <div style="background: var(--surface-container); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.75rem;">
+ <div id="sp-chem-3" style="background: var(--surface-container); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.75rem; scroll-margin-top:80px;">
  <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.4rem;">
  <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">equalizer</span>
  4대 영역별 정밀 궁합 지수
@@ -335,7 +356,7 @@ export function renderChemistrySingleProductView(state: AppStateData): string {
  </div>
 
  <!-- 3대 감정 폭발 버튼 및 실전 화해 스크립트 -->
- <div class="result-section-box" style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1.75rem; margin-bottom: 1.75rem;">
+ <div id="sp-chem-4" class="result-section-box" style="background: var(--surface-container); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1.75rem; margin-bottom: 1.75rem; scroll-margin-top:80px;">
  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem;">
  <h3 style="font-family: var(--font-serif); color: var(--primary); font-size: 1.25rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
  <span class="material-symbols-outlined" style="font-size: 24px; color: var(--primary);">warning</span>
@@ -378,7 +399,7 @@ export function renderChemistrySingleProductView(state: AppStateData): string {
  </div>
 
  <!-- [4번 요구사항] 마보살 실전 궁합 수호 비책 & 관계 수호 멘트 -->
- <div style="background: var(--surface-container); border: 1px solid ${goldBorder}; border-radius: 14px; padding: 1.5rem; margin-bottom: 1.75rem;">
+ <div id="sp-chem-5" style="background: var(--surface-container); border: 1px solid ${goldBorder}; border-radius: 14px; padding: 1.5rem; margin-bottom: 1.75rem; scroll-margin-top:80px;">
  <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--primary); margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.4rem;">
  <span class="material-symbols-outlined" style="font-size: 22px;">verified</span>
  마보살 실전 궁합 수호 비책 & 처방전
@@ -431,8 +452,13 @@ export function renderCareerSingleProductView(state: AppStateData): string {
  </p>
  </div>
 
+ <!-- 리포트 최상단 숫자 목차 -->
+ ${renderReportTocBox([
+   { no: 1, title: '[현 직장 잔류 vs 이직 vs 독립] 3대 선택지 득실 비교표', targetId: 'sp-career-1' },
+ ], '직장·이직 타이밍 목차')}
+
  <!-- 이직 독점 산출물: 잔류 vs 이직 득실 비교표 -->
- <div class="result-section-box" style="background: var(--surface-container); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+ <div id="sp-career-1" class="result-section-box" style="background: var(--surface-container); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; scroll-margin-top:80px;">
  <h3 style="font-family: var(--font-serif); color: var(--primary); font-size: 1.18rem; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.4rem;">
  <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">balance</span>
  [현 직장 잔류 vs 이직 vs 독립] 3대 선택지 득실 비교표
@@ -497,13 +523,22 @@ export function renderWealthSingleProductView(state: AppStateData): string {
  </p>
  </div>
 
+ <!-- 리포트 최상단 숫자 목차 -->
+ ${renderReportTocBox([
+   { no: 1, title: '사주 원국 & 재성 보존력 분석', targetId: 'sp-wealth-1' },
+   { no: 2, title: '2027년 분기별 자산 운용 전략표', targetId: 'sp-wealth-2' },
+   { no: 3, title: '재물운을 갉아먹는 3대 절대 금기 행동', targetId: 'sp-wealth-3' },
+ ], '재물·투자운 목차')}
+
+ <div id="sp-wealth-1" style="scroll-margin-top:80px;">
  ${renderMiniSajuPillarsCard({
  year: pillars.year, month: pillars.month, day: pillars.day, hour: pillars.hour,
  dayMasterDesc: '정재(正財) 보존력 우수 · 단기 레버리지 위험 방어 중심',
  })}
+ </div>
 
  <!-- 재물 독점 산출물 1: 현금 보유 최적기 vs 공격 투자 타이밍 -->
- <div class="result-section-box" style="background: var(--surface-container); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+ <div id="sp-wealth-2" class="result-section-box" style="background: var(--surface-container); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; scroll-margin-top:80px;">
  <h3 style="font-family: var(--font-serif); color: var(--primary); font-size: 1.18rem; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.4rem;">
  <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">trending_up</span>
  1. 2027년 분기별 자산 운용 전략표
@@ -533,7 +568,7 @@ export function renderWealthSingleProductView(state: AppStateData): string {
  </div>
 
  <!-- 재물 독점 산출물 2: 절대 금기 행동 -->
- <div class="result-section-box" style="background: var(--surface-container); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+ <div id="sp-wealth-3" class="result-section-box" style="background: var(--surface-container); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; scroll-margin-top:80px;">
  <h3 style="font-family: var(--font-serif); color: var(--error); font-size: 1.18rem; margin: 0 0 0.65rem 0; display: flex; align-items: center; gap: 0.4rem;">
  <span class="material-symbols-outlined" style="font-size: 22px; color: var(--error);">block</span>
  재물운을 갉아먹는 3대 절대 금기 행동
@@ -577,13 +612,22 @@ export function renderLoveReunionSingleProductView(state: AppStateData): string 
  </p>
  </div>
 
+ <!-- 리포트 최상단 숫자 목차 -->
+ ${renderReportTocBox([
+   { no: 1, title: '사주 원국 & 배우자궁 분석', targetId: 'sp-love-1' },
+   { no: 2, title: '상대방 연락 가능성 & 재회 골든타임', targetId: 'sp-love-2' },
+   { no: 3, title: '재회 성사율을 3배 높이는 행동 수칙', targetId: 'sp-love-3' },
+ ], '연애·재회운 목차')}
+
+ <div id="sp-love-1" style="scroll-margin-top:80px;">
  ${renderMiniSajuPillarsCard({
  year: pillars.year, month: pillars.month, day: pillars.day, hour: pillars.hour,
  dayMasterDesc: '배우자궁 정화 필요 · 감정 집착 완화 및 주도권 회복',
  })}
+ </div>
 
  <!-- 연애 독점 산출물 1: 상대방 연락 가능성 월별 지수 -->
- <div class="result-section-box" style="background: var(--surface-container); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+ <div id="sp-love-2" class="result-section-box" style="background: var(--surface-container); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; scroll-margin-top:80px;">
  <h3 style="font-family: var(--font-serif); color: var(--tertiary); font-size: 1.18rem; margin: 0 0 0.85rem 0; display: flex; align-items: center; gap: 0.4rem;">
  <span class="material-symbols-outlined" style="font-size: 22px; color: var(--tertiary);">mark_email_read</span>
  상대방 연락 가능성 & 재회 골든타임
@@ -608,7 +652,7 @@ export function renderLoveReunionSingleProductView(state: AppStateData): string 
  </div>
 
  <!-- 연애 독점 산출물 2: 재회 성공을 위한 실전 처방 -->
- <div class="result-section-box" style="background: var(--surface-container); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+ <div id="sp-love-3" class="result-section-box" style="background: var(--surface-container); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; scroll-margin-top:80px;">
  <h3 style="font-family: var(--font-serif); color: var(--primary); font-size: 1.18rem; margin: 0 0 0.75rem 0; display: flex; align-items: center; gap: 0.4rem;">
  <span class="material-symbols-outlined" style="font-size: 22px; color: var(--primary);">lightbulb</span>
  재회 성사율을 3배 높이는 행동 수칙

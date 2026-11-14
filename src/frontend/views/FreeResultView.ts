@@ -8,7 +8,7 @@
 import { AppStateData } from '../state/app-state.js';
 import { AuthService } from '../state/auth-service.js';
 import { ModuleRegistry } from '../state/module-registry.js';
-import { buildDynamicVisualChartProps, extractReportContext, getFreeReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
+import { buildDynamicVisualChartProps, extractNarrativeTocItems, extractReportContext, getFreeReportMarkdown, renderNarrativeReport, renderReportTocBox } from '../components/tier-templates.js';
 import { renderMiniSajuPillarsCard, renderEmptySajuGuideView } from '../components/common-components.js';
 import { renderPdfReportCover } from '../components/PdfPrintCover.js';
 import {
@@ -30,7 +30,9 @@ export function renderFreeResultView(state: AppStateData): string {
  const narrativeMarkdown = getFreeReportMarkdown(reportCtx);
  const markdownSections = narrativeMarkdown.split(/\n---\n/);
  const guestPreviewMarkdown = markdownSections.slice(0, 2).join('\n\n---\n\n');
- const narrativeHtml = renderNarrativeReport(isGuest ? guestPreviewMarkdown : narrativeMarkdown);
+ const activeMarkdown = isGuest ? guestPreviewMarkdown : narrativeMarkdown;
+ const narrativeHtml = renderNarrativeReport(activeMarkdown);
+ const tocHtml = renderReportTocBox(extractNarrativeTocItems(activeMarkdown), isGuest ? '무료 체험 목차' : '무료 사주 진단 목차');
 
  const userName = state.userName || (state.userTroubleText ? '의뢰인' : '홍길동');
  const genderTag = state.gender === 'female' ? '坤命 · 陰' : '乾命 · 陽';
@@ -73,6 +75,9 @@ export function renderFreeResultView(state: AppStateData): string {
  </div>
 
 
+
+ <!-- 리포트 최상단 숫자 목차 -->
+ ${tocHtml}
 
  <!-- 공통 1: 사주 4주 8자 만세력 정통 원국표 & 천문 태극 엠블럼 (천명원 _5 규격) -->
  ${renderMiniSajuPillarsCard({

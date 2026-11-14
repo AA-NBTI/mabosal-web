@@ -7,7 +7,7 @@
  */
 
 import { AppStateData } from '../state/app-state.js';
-import { buildDynamicVisualChartProps, extractReportContext, getConflictMalSalReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
+import { buildDynamicVisualChartProps, extractNarrativeTocItems, extractReportContext, getConflictMalSalReportMarkdown, renderNarrativeReport, renderReportTocBox } from '../components/tier-templates.js';
 import { renderMiniSajuPillarsCard, renderAffiliatePromoBanner, renderEmptySajuGuideView } from '../components/common-components.js';
 import { renderPdfReportCover } from '../components/PdfPrintCover.js';
 import { renderCheonmyeongwonFiveElementsMultiBar, renderCheonmyeongwonDayMasterArchetype } from '../components/VisualCharts.js';
@@ -23,6 +23,7 @@ export function renderConflictResultView(state: AppStateData): string {
  const reportCtx = extractReportContext(state);
  const narrativeMarkdown = getConflictMalSalReportMarkdown(reportCtx);
  const narrativeHtml = renderNarrativeReport(narrativeMarkdown);
+ const tocHtml = renderReportTocBox(extractNarrativeTocItems(narrativeMarkdown), '상충·마·살 특화 목차');
 
  const userName = state.userName || (state.userTroubleText ? '의뢰인' : '홍길동');
  const genderTag = state.gender === 'female' ? '坤命 · 陰' : '乾命 · 陽';
@@ -67,6 +68,9 @@ export function renderConflictResultView(state: AppStateData): string {
  인간관계 충돌(축진파/인사해), 망신살·신살 위치, 퇴사 vs 잔류 4주 점검표, 갈등 방어 대화법 집중 분석 완결본입니다.
  </p>
  </div>
+
+ <!-- 리포트 최상단 숫자 목차 -->
+ ${tocHtml}
 
  <!-- 공통 1: 사주 4주 8자 만세력 미니 원국 카드 -->
  ${renderMiniSajuPillarsCard({

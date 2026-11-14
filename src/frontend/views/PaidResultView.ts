@@ -12,7 +12,7 @@ import { AuthService } from '../state/auth-service.js';
 import { canViewTier } from '../modules/entitlement/index.js';
 import { ReportRouterMapper } from '../modules/checkout/report-router-mapper.js';
 import { UserOrderService } from '../modules/order/user-order-service.js';
-import { buildDynamicDaewunProps, buildDynamicMonthlyScores, buildDynamicVisualChartProps, extractReportContext, getPaidReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
+import { buildDynamicDaewunProps, buildDynamicMonthlyScores, buildDynamicVisualChartProps, extractNarrativeTocItems, extractReportContext, getPaidReportMarkdown, renderNarrativeReport, renderReportTocBox } from '../components/tier-templates.js';
 import { renderMiniSajuPillarsCard, renderEmptySajuGuideView } from '../components/common-components.js';
 import { renderPdfReportCover } from '../components/PdfPrintCover.js';
 import {
@@ -60,6 +60,7 @@ export function renderPaidResultView(state: AppStateData): string {
  const reportCtx = extractReportContext(state);
  const narrativeMarkdown = getPaidReportMarkdown(reportCtx);
  const narrativeHtml = renderNarrativeReport(narrativeMarkdown);
+ const tocHtml = renderReportTocBox(extractNarrativeTocItems(narrativeMarkdown), '심층 사주풀이 목차');
 
  const savedProf = UserSajuStore.getProfile();
  const user = AuthService.getCurrentUser();
@@ -110,6 +111,9 @@ export function renderPaidResultView(state: AppStateData): string {
  </div>
 
 
+
+ <!-- 리포트 최상단 숫자 목차 -->
+ ${tocHtml}
 
  <!-- [천명원 핵심 비주얼 1] 사주 성취 지수 골드 링 -->
  ${renderGoldProgressRing(reportCtx.rsiScore, '성취지수', reportCtx.rsiScore >= 85 ? '대도약과 재물 결실기' : '균형 조율과 내실 성장기')}
