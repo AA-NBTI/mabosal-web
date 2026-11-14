@@ -8,7 +8,6 @@
 import { AppStateData } from '../state/app-state.js';
 import { AuthService } from '../state/auth-service.js';
 import { ModuleRegistry } from '../state/module-registry.js';
-import { UserOrderService } from '../modules/order/user-order-service.js';
 import { buildDynamicVisualChartProps, extractReportContext, getFreeReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
 import { renderMiniSajuPillarsCard, renderEmptySajuGuideView } from '../components/common-components.js';
 import {
@@ -16,7 +15,6 @@ import {
  renderCheonmyeongwonDayMasterArchetype,
  renderCheonmyeongwonDailyDashboard,
  renderCheonmyeongwonTalismanCard,
- renderCheonmyeongwonArchiveVault,
 } from '../components/VisualCharts.js';
 
 export function renderFreeResultView(state: AppStateData): string {
@@ -113,10 +111,7 @@ export function renderFreeResultView(state: AppStateData): string {
  </button>
  </div>
  </section>
- ` : (ModuleRegistry.isEnabled('archive_digital_vault') ? renderCheonmyeongwonArchiveVault({
- userName,
- totalRecordsCount: Math.max(1, UserOrderService.getCurrentUserOrderSummarySync().orders.length),
- }) : '')}
+ ` : ''}
  </div>
  `;
 }

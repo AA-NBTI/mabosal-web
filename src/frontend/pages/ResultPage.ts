@@ -1,6 +1,5 @@
 import { PageModule, PageContext } from './types.js';
 import { renderResultView } from '../components/views.js';
-import { renderSolutionHub } from '../extensions/solution-hub/index.js';
 import { renderFunnelResultView } from '../views/pages/FunnelResultView.js';
 import { AbTestService } from '../modules/ab-test/ab-test-service.js';
 
@@ -11,6 +10,6 @@ export const ResultPage: PageModule = {
     if (AbTestService.isFunnelVariantB()) {
       return renderFunnelResultView(ctx.state);
     }
-    return renderResultView(ctx.state) + renderSolutionHub(ctx.state);
+    return renderResultView(ctx.state);
   },
 };
