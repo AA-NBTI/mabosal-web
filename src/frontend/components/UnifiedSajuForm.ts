@@ -136,17 +136,10 @@ export function renderUnifiedSajuGrid(opts: UnifiedSajuFormOptions): string {
 
   if (compact) {
     return `
-      <div aria-label="생년월일 및 출생 정보" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 0.5rem; align-items: flex-end;">
+      <div aria-label="생년월일 및 출생 정보" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(115px, 1fr)); gap: 0.5rem; align-items: flex-end;">
         <div>
           <label for="${ids.birthDate}" style="${LABEL_STYLE}">생년월일 (8자리)</label>
           <input type="text" id="${ids.birthDate}" class="unified-saju-birthdate-input" value="${cleanBirth}" maxlength="10" inputmode="numeric" placeholder="19980412" autocomplete="off" style="${inputStyle}" />
-        </div>
-        <div>
-          <label for="${ids.gender}" style="${LABEL_STYLE}">성별</label>
-          <select id="${ids.gender}" style="${inputStyle}">
-            <option value="female" ${gender === 'female' ? 'selected' : ''}>여성</option>
-            <option value="male" ${gender === 'male' ? 'selected' : ''}>남성</option>
-          </select>
         </div>
         <div>
           <label for="${ids.time}" style="${LABEL_STYLE}">출생시간</label>
@@ -157,6 +150,13 @@ export function renderUnifiedSajuGrid(opts: UnifiedSajuFormOptions): string {
           <select id="${ids.calendar}" class="unified-saju-calendar" data-prefix="${prefix}" style="${inputStyle}">
             <option value="solar" ${calendarType === 'solar' ? 'selected' : ''}>양력</option>
             <option value="lunar" ${calendarType === 'lunar' ? 'selected' : ''}>음력</option>
+          </select>
+        </div>
+        <div>
+          <label for="${ids.gender}" style="${LABEL_STYLE}">성별</label>
+          <select id="${ids.gender}" style="${inputStyle}">
+            <option value="female" ${gender === 'female' ? 'selected' : ''}>여성</option>
+            <option value="male" ${gender === 'male' ? 'selected' : ''}>남성</option>
           </select>
         </div>
         ${trailingActionHtml}
@@ -207,17 +207,17 @@ export function renderUnifiedSajuGrid(opts: UnifiedSajuFormOptions): string {
 
       <div style="display: grid; grid-template-columns: ${row2Cols}; gap: 0.65rem; align-items: flex-end;">
         <div>
-          <label for="${ids.gender}" style="${LABEL_STYLE}">성별 <span style="color: #f87171;">*</span></label>
-          <select id="${ids.gender}" style="${inputStyle}">
-            <option value="female" ${gender === 'female' ? 'selected' : ''}>여성</option>
-            <option value="male" ${gender === 'male' ? 'selected' : ''}>남성</option>
-          </select>
-        </div>
-        <div>
           <label for="${ids.calendar}" style="${LABEL_STYLE}">양력/음력 <span style="color: #f87171;">*</span></label>
           <select id="${ids.calendar}" class="unified-saju-calendar" data-prefix="${prefix}" style="${inputStyle}">
             <option value="solar" ${calendarType === 'solar' ? 'selected' : ''}>양력</option>
             <option value="lunar" ${calendarType === 'lunar' ? 'selected' : ''}>음력</option>
+          </select>
+        </div>
+        <div>
+          <label for="${ids.gender}" style="${LABEL_STYLE}">성별 <span style="color: #f87171;">*</span></label>
+          <select id="${ids.gender}" style="${inputStyle}">
+            <option value="female" ${gender === 'female' ? 'selected' : ''}>여성</option>
+            <option value="male" ${gender === 'male' ? 'selected' : ''}>남성</option>
           </select>
         </div>
         ${showRegion ? `

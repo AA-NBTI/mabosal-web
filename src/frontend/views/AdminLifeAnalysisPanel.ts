@@ -1872,7 +1872,10 @@ export function renderAdminLifeAnalysisPanel(): string {
   const dwSewoon = sewoon.records.filter(s => s.age >= selectedDw.startAge && s.age <= selectedDw.endAge);
 
   const inp = wh.metadata.input;
-  const [bYear, bMonth, bDay] = inp.birthDate.split('-').map(Number);
+  const birthMatch = String(inp.birthDate || '').match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  const bYear = birthMatch ? Number(birthMatch[1]) : 1998;
+  const bMonth = birthMatch ? Number(birthMatch[2]) : 4;
+  const bDay = birthMatch ? Number(birthMatch[3]) : 12;
   const bHour = inp.birthTime ? parseInt(inp.birthTime.split(':')[0], 10) : 12;
 
   const isFullscreen = getLifeChartFullscreen();
@@ -2107,7 +2110,7 @@ export function renderAdminLifeAnalysisPanel(): string {
           <strong style="color: #fff;">${inp.birthDate}</strong>
           <span style="color: #94a3b8;">(${inp.gender === 'female' ? '여성' : '남성'}, ${inp.calendarType === 'solar' ? '양력' : '음력'} ${inp.birthTime || '시간미상'})</span>
           <span style="color: #64748b;">·</span>
-          <span>일간: <strong style="color: var(--primary); font-size: 0.95rem;">${natal.dayMaster.stem}${natal.dayMaster.element}</strong> (${natal.strength.classification})</span>
+          <span>사주팔자: <strong style="color: #fff; font-size: 0.94rem; letter-spacing: 0.04em;">${natal.pillars[0]?.stem || ''}${natal.pillars[0]?.branch || ''} ${natal.pillars[1]?.stem || ''}${natal.pillars[1]?.branch || ''} <span style="color: var(--primary);">${natal.pillars[2]?.stem || ''}${natal.pillars[2]?.branch || ''}</span> ${(inp as any).isUnknownTime ? '미상' : `${natal.pillars[3]?.stem || ''}${natal.pillars[3]?.branch || ''}`}</strong> <span style="font-size: 0.78rem; color: #94a3b8;">(${natal.pillars[0]?.stemHanja || ''}${natal.pillars[0]?.branchHanja || ''} ${natal.pillars[1]?.stemHanja || ''}${natal.pillars[1]?.branchHanja || ''} ${natal.pillars[2]?.stemHanja || ''}${natal.pillars[2]?.branchHanja || ''} ${(inp as any).isUnknownTime ? '未詳' : `${natal.pillars[3]?.stemHanja || ''}${natal.pillars[3]?.branchHanja || ''}`})</span></span>
           <span style="color: #64748b;">·</span>
           <span style="background: rgba(255,255,255,0.06); padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; color: #cbd5e1;">
             대운수 ${daewoon.daewoonNumber} (${daewoon.direction})
@@ -2121,7 +2124,7 @@ export function renderAdminLifeAnalysisPanel(): string {
         <button type="button" class="btn-toggle-saju-input"
           style="background: ${isSajuOpen ? 'var(--primary)' : 'rgba(255,255,255,0.06)'}; color: ${isSajuOpen ? '#1c1500' : '#cbd5e1'}; font-weight: 700; border: 1px solid ${isSajuOpen ? 'var(--primary)' : 'rgba(255,255,255,0.15)'}; border-radius: 6px; padding: 0.35rem 0.7rem; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
           <span class="material-symbols-outlined" style="font-size: 16px;">tune</span>
-          ${isSajuOpen ? '입력창 닫기' : '사주 변경/프리셋'}
+          ${isSajuOpen ? '입력창 닫기' : '사주입력'}
         </button>
 
         <!-- 전체 펼치기 / 접기 토글 -->
@@ -2147,22 +2150,11 @@ export function renderAdminLifeAnalysisPanel(): string {
 
     <!-- [숨은 사주 입력 폼] 토글 시 노출 -->
     <div id="saju-input-section" style="${isSajuOpen ? 'display: block;' : 'display: none;'} background: #0b0f19; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.15rem; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
         <span style="font-size: 0.82rem; font-weight: 700; color: #dfe2f1; display: flex; align-items: center; gap: 0.35rem;">
           <span class="material-symbols-outlined" style="font-size: 18px; color: var(--primary);">tune</span>
-          사주 입력 및 빠른 프리셋
+          사주입력
         </span>
-        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-          <button type="button" id="btn-load-current-user-saju" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; font-size: 0.72rem; padding: 0.35rem 0.65rem; border-radius: 6px; cursor: pointer;">
-            현재 유저 사주 로드
-          </button>
-          <button type="button" class="btn-preset-saju" data-year="1998" data-month="4" data-day="12" data-hour="9" data-gender="female" style="background: rgba(242,202,80,0.12); border: 1px solid rgba(242,202,80,0.3); color: var(--primary); font-size: 0.72rem; padding: 0.35rem 0.65rem; border-radius: 6px; cursor: pointer;">
-            1998년 기축 女 (토다자)
-          </button>
-          <button type="button" class="btn-preset-saju" data-year="1985" data-month="2" data-day="15" data-hour="14" data-gender="male" style="background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.3); color: #60a5fa; font-size: 0.72rem; padding: 0.35rem 0.65rem; border-radius: 6px; cursor: pointer;">
-            1985년 갑목 男 (신강)
-          </button>
-        </div>
       </div>
 
       <form id="form-life-analysis-input" onsubmit="return false;">
@@ -2180,7 +2172,7 @@ export function renderAdminLifeAnalysisPanel(): string {
             <div style="min-width: 110px;">
               <button type="submit" id="btn-run-life-analysis" style="width: 100%; background: var(--primary); color: #1c1500; font-weight: 800; border: none; border-radius: 6px; padding: 0.38rem 0.65rem; font-size: 0.78rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem; white-space: nowrap;">
                 <span class="material-symbols-outlined" style="font-size: 14px;">play_arrow</span>
-                사주 재계산
+                사주계산
               </button>
             </div>
           `,

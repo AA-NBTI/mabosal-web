@@ -13,7 +13,7 @@ import { UserSajuStore } from '../state/user-saju-store.js';
 import { canViewTier } from '../modules/entitlement/index.js';
 import { ReportRouterMapper } from '../modules/checkout/report-router-mapper.js';
 import { appState } from '../state/app-state.js';
-import { extractReportContext, getPremiumReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
+import { buildDynamicVisualChartProps, extractReportContext, getPremiumReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
 import { renderMiniSajuPillarsCard, renderAffiliatePromoBanner } from '../components/common-components.js';
 import { renderCheonmyeongwonFiveElementsMultiBar, renderCheonmyeongwonDayMasterArchetype } from '../components/VisualCharts.js';
 
@@ -121,28 +121,14 @@ export function renderPremiumResultView(state: AppStateData): string {
  hour: pillars.hour,
  })}
 
- <!-- 천명원 5번 규격: 오행 에너지 분포도 (Multi-Bar) -->
- ${renderCheonmyeongwonFiveElementsMultiBar({
- wood: reportCtx.woodCount,
- fire: reportCtx.fireCount,
- earth: reportCtx.earthCount,
- metal: reportCtx.metalCount,
- water: reportCtx.waterCount,
- dominantElement: '토(土)',
- deficientElement: '수(水)',
- yongshin: '금(金) / 수(水)',
- heeshin: '수(水)',
- shingangStatus: '신강(身强) · 득령득지',
- rsiScore: 92,
- })}
-
- <!-- 천명원 5번 규격: 일주 본원 핵심 성향 카드 & 기운 보완 처방 -->
- ${renderCheonmyeongwonDayMasterArchetype({
- dayPillarTitle: `${pillars.day.stem}${pillars.day.branch} 일주`,
- archetypeEn: 'Sovereign Destiny Archetype',
- heroCopy: '"천명을 주도하고 시대를 이끄는 고귀한 황금 리더십"',
- keywords: ['#천명주도', '#황금대운', '#위기돌파', '#최고의사결정', '#평생보관'],
- })}
+ <!-- 천명원 5번 규격: 오행 에너지 분포도 & 일주 본원 핵심 성향 카드 -->
+ ${(() => {
+ const dynCharts = buildDynamicVisualChartProps(reportCtx, `${pillars.day.stem}${pillars.day.branch} 일주`, ['#천명주도', '#황금대운', '#위기돌파', '#최고의사결정', '#평생보관']);
+ return `
+ ${renderCheonmyeongwonFiveElementsMultiBar(dynCharts.fiveElements)}
+ ${renderCheonmyeongwonDayMasterArchetype(dynCharts.dayMasterArchetype)}
+ `;
+ })()}
 
  <!-- 29개 VIP 전수 서술형 결과지 본문 -->
  <div class="product-sections-container premium-sections-body" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 2.5rem;">

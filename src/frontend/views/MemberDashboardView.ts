@@ -178,7 +178,7 @@ export function renderMemberDashboardView(state: AppStateData): string {
 
       <!-- [우측 메인 워크스페이스] -->
       <main class="member-workspace" style="flex: 1; min-width: 0;">
-        ${!hasBasicSaju && !profileStatus.isComplete ? `
+        ${currentTab === 'tab-account' && !hasBasicSaju && !profileStatus.isComplete ? `
           <div style="background: linear-gradient(135deg, rgba(242, 202, 80, 0.12), rgba(239, 68, 68, 0.08)); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
             <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
               <span class="material-symbols-outlined" style="color: var(--primary); font-size: 22px; margin-top: 0.1rem;">notification_important</span>

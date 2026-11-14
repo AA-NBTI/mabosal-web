@@ -7,7 +7,7 @@
  */
 
 import { AppStateData } from '../state/app-state.js';
-import { extractReportContext, getConflictMalSalReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
+import { buildDynamicVisualChartProps, extractReportContext, getConflictMalSalReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
 import { renderMiniSajuPillarsCard, renderAffiliatePromoBanner } from '../components/common-components.js';
 import { renderCheonmyeongwonFiveElementsMultiBar, renderCheonmyeongwonDayMasterArchetype } from '../components/VisualCharts.js';
 import { renderStoreProductButton } from './pages/CategoryCommon.js';
@@ -88,28 +88,14 @@ export function renderConflictResultView(state: AppStateData): string {
  hour: pillars.hour,
  })}
 
- <!-- 천명원 5번 규격: 오행 에너지 분포도 (Multi-Bar) -->
- ${renderCheonmyeongwonFiveElementsMultiBar({
- wood: reportCtx.woodCount,
- fire: reportCtx.fireCount,
- earth: reportCtx.earthCount,
- metal: reportCtx.metalCount,
- water: reportCtx.waterCount,
- dominantElement: '토(土)',
- deficientElement: '수(水)',
- yongshin: '금(金) / 수(水)',
- heeshin: '수(水)',
- shingangStatus: '신강(身强) · 득령득지',
- rsiScore: 82,
- })}
-
- <!-- 천명원 5번 규격: 일주 본원 핵심 성향 카드 & 기운 보완 처방 -->
- ${renderCheonmyeongwonDayMasterArchetype({
- dayPillarTitle: `${pillars.day.stem}${pillars.day.branch} 일주`,
- archetypeEn: 'Conflict & Harmony Archetype',
- heroCopy: '"상충과 마살의 파도를 넘어 중심을 지키는 굳건한 기상"',
- keywords: ['#갈등방어', '#상충극복', '#현실대안', '#멘탈방어', '#타이밍'],
- })}
+ <!-- 천명원 5번 규격: 오행 에너지 분포도 & 일주 본원 핵심 성향 카드 -->
+ ${(() => {
+ const dynCharts = buildDynamicVisualChartProps(reportCtx, `${pillars.day.stem}${pillars.day.branch} 일주`, ['#갈등방어', '#상충극복', '#현실대안', '#멘탈방어', '#타이밍']);
+ return `
+ ${renderCheonmyeongwonFiveElementsMultiBar(dynCharts.fiveElements)}
+ ${renderCheonmyeongwonDayMasterArchetype(dynCharts.dayMasterArchetype)}
+ `;
+ })()}
 
  <!-- 20개 상충마살 특화 서술형 결과지 본문 -->
  <div class="product-sections-container conflict-sections-body" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 2.5rem;">

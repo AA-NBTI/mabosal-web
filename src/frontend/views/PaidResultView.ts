@@ -11,7 +11,7 @@ import { UserSajuStore } from '../state/user-saju-store.js';
 import { AuthService } from '../state/auth-service.js';
 import { canViewTier } from '../modules/entitlement/index.js';
 import { ReportRouterMapper } from '../modules/checkout/report-router-mapper.js';
-import { extractReportContext, getPaidReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
+import { buildDynamicVisualChartProps, extractReportContext, getPaidReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
 import { renderMiniSajuPillarsCard } from '../components/common-components.js';
 import {
  renderDaewunLifeCycleChart,
@@ -139,27 +139,15 @@ export function renderPaidResultView(state: AppStateData): string {
  })}
 
  <!-- 천명원 _5 규격 1: 오행(五行) 에너지 분포도 (Segmented Multi-Bar + 5대 뱃지 + 진단 메시지) -->
- ${ModuleRegistry.isEnabled('five_elements_multibar') ? renderCheonmyeongwonFiveElementsMultiBar({
- wood: reportCtx.woodCount,
- fire: reportCtx.fireCount,
- earth: reportCtx.earthCount,
- metal: reportCtx.metalCount,
- water: reportCtx.waterCount,
- dominantElement: '토(土)',
- deficientElement: '수(水)',
- yongshin: '금(金) / 수(水)',
- heeshin: '수(水)',
- shingangStatus: '신강(身强) · 득령득지',
- rsiScore: 95,
- }) : ''}
+ ${(() => {
+ const dynCharts = buildDynamicVisualChartProps(reportCtx, `${pillars.day.stem}${pillars.day.branch} 일주`);
+ return `
+ ${ModuleRegistry.isEnabled('five_elements_multibar') ? renderCheonmyeongwonFiveElementsMultiBar(dynCharts.fiveElements) : ''}
 
  <!-- 천명원 _5 규격 2: 일주(日柱) 본원 핵심 성향 카드 & 기운 보완 처방 (풍수 & 라이프) -->
- ${ModuleRegistry.isEnabled('day_master_archetype') ? renderCheonmyeongwonDayMasterArchetype({
- dayPillarTitle: `${pillars.day.stem}${pillars.day.branch} 일주`,
- archetypeEn: 'Golden Earth Master Archetype',
- heroCopy: '"기름진 땅 위에 뿌리내린 현실적 지혜와 신뢰의 기상"',
- keywords: ['#현실감각', '#지속력', '#관리능력', '#신중함', '#신뢰'],
- }) : ''}
+ ${ModuleRegistry.isEnabled('day_master_archetype') ? renderCheonmyeongwonDayMasterArchetype(dynCharts.dayMasterArchetype) : ''}
+ `;
+ })()}
 
  <!-- [천명원 핵심 비주얼 2] 대운 10년 주기 라이프사이클 곡선 차트 -->
  ${ModuleRegistry.isEnabled('daewun_lifecycle_curve') ? renderDaewunLifeCycleChart({

@@ -19,12 +19,66 @@ export interface ReportMetaContext {
   hourPillar: string;
   dayMaster: string;
   dayMasterHanja: string;
+  dayMasterElement: '목' | '화' | '토' | '금' | '수';
   woodCount: number;
   fireCount: number;
   earthCount: number;
   metalCount: number;
   waterCount: number;
+  dominantElement: string;
+  deficientElement: string;
+  yongshin: string;
+  heeshin: string;
+  shingangStatus: string;
+  rsiScore: number;
   troubleText: string;
+}
+
+const ELEMENT_FULL_LABEL: Record<'목' | '화' | '토' | '금' | '수', string> = {
+  목: '목(木)',
+  화: '화(火)',
+  토: '토(土)',
+  금: '금(金)',
+  수: '수(水)',
+};
+
+const STEM_ELEMENT_MAP: Record<string, '목' | '화' | '토' | '금' | '수'> = {
+  갑: '목', 을: '목',
+  병: '화', 정: '화',
+  무: '토', 기: '토',
+  경: '금', 신: '금',
+  임: '수', 계: '수',
+};
+
+const BRANCH_ELEMENT_MAP: Record<string, '목' | '화' | '토' | '금' | '수'> = {
+  인: '목', 묘: '목',
+  사: '화', 오: '화',
+  진: '토', 술: '토', 축: '토', 미: '토',
+  신: '금', 유: '금',
+  해: '수', 자: '수',
+};
+
+const ELEMENT_HANJA_CHAR: Record<'목' | '화' | '토' | '금' | '수', string> = {
+  목: '木', 화: '火', 토: '土', 금: '金', 수: '水',
+};
+
+const GENERATES: Record<'목' | '화' | '토' | '금' | '수', '목' | '화' | '토' | '금' | '수'> = {
+  목: '화', 화: '토', 토: '금', 금: '수', 수: '목',
+};
+const GENERATED_BY: Record<'목' | '화' | '토' | '금' | '수', '목' | '화' | '토' | '금' | '수'> = {
+  목: '수', 화: '목', 토: '화', 금: '토', 수: '금',
+};
+const CONTROLS: Record<'목' | '화' | '토' | '금' | '수', '목' | '화' | '토' | '금' | '수'> = {
+  목: '토', 화: '금', 토: '수', 금: '목', 수: '화',
+};
+const CONTROLLED_BY: Record<'목' | '화' | '토' | '금' | '수', '목' | '화' | '토' | '금' | '수'> = {
+  목: '금', 화: '수', 토: '목', 금: '화', 수: '토',
+};
+
+function readElementCount(entry: any): number | null {
+  if (typeof entry === 'number') return entry;
+  if (entry && typeof entry.count === 'number') return entry.count;
+  return null;
 }
 
 export function extractReportContext(state: AppStateData): ReportMetaContext {
@@ -61,10 +115,62 @@ export function extractReportContext(state: AppStateData): ReportMetaContext {
   const dp = `${pillars.day.stem}${pillars.day.branch}(${STEM_HANJA[pillars.day.stem] || ''}${BRANCH_HANJA[pillars.day.branch] || ''})`;
   const hp = pillars.hour ? `${pillars.hour.stem}${pillars.hour.branch}(${STEM_HANJA[pillars.hour.stem] || ''}${BRANCH_HANJA[pillars.hour.branch] || ''})` : '시주 미상';
 
-  const dayMaster = pillars.day.stem === '기' ? '기토' : `${pillars.day.stem}토`;
-  const dayMasterHanja = STEM_HANJA[pillars.day.stem] ? `${STEM_HANJA[pillars.day.stem]}土` : '己土';
+  const dayMasterElement = STEM_ELEMENT_MAP[pillars.day.stem] || '토';
+  const dayMaster = `${pillars.day.stem}${dayMasterElement}`;
+  const dayMasterHanja = `${STEM_HANJA[pillars.day.stem] || '己'}${ELEMENT_HANJA_CHAR[dayMasterElement]}`;
 
-  const ohaeng = session?.fact?.five_elements?.distribution || { 목: 1, 화: 2, 토: 5, 금: 0, 수: 0 };
+  // 원국 4주에서 직접 오행 개수 집계 (엔진 distribution 누락/불일치 방지)
+  const calculatedCounts: Record<'목' | '화' | '토' | '금' | '수', number> = {
+    목: 0, 화: 0, 토: 0, 금: 0, 수: 0,
+  };
+  for (const p of [pillars.year, pillars.month, pillars.day, pillars.hour]) {
+    if (!p) continue;
+    const se = STEM_ELEMENT_MAP[p.stem];
+    const be = BRANCH_ELEMENT_MAP[p.branch];
+    if (se) calculatedCounts[se] += 1;
+    if (be) calculatedCounts[be] += 1;
+  }
+
+  const dist = session?.fact?.five_elements?.distribution as any;
+  const woodCount = readElementCount(dist?.['목']) ?? calculatedCounts.목;
+  const fireCount = readElementCount(dist?.['화']) ?? calculatedCounts.화;
+  const earthCount = readElementCount(dist?.['토']) ?? calculatedCounts.토;
+  const metalCount = readElementCount(dist?.['금']) ?? calculatedCounts.금;
+  const waterCount = readElementCount(dist?.['수']) ?? calculatedCounts.수;
+
+  const countEntries: Array<{ el: '목' | '화' | '토' | '금' | '수'; count: number }> = [
+    { el: '목', count: woodCount },
+    { el: '화', count: fireCount },
+    { el: '토', count: earthCount },
+    { el: '금', count: metalCount },
+    { el: '수', count: waterCount },
+  ];
+
+  const sortedDesc = [...countEntries].sort((a, b) => b.count - a.count);
+  const sortedAsc = [...countEntries].sort((a, b) => a.count - b.count);
+  const engineDom = session?.fact?.five_elements?.dominantElement as ('목' | '화' | '토' | '금' | '수' | undefined);
+  const domEl = (engineDom && ELEMENT_FULL_LABEL[engineDom]) ? engineDom : sortedDesc[0].el;
+  const defEl = sortedAsc[0].el;
+
+  const rawStrength = String(session?.fact?.day_master_strength?.classification || '중화');
+  const isStrong = rawStrength.includes('강');
+  const isWeak = rawStrength.includes('약');
+  const shingangStatus = isStrong
+    ? '신강(身强)'
+    : isWeak
+      ? '신약(身弱)'
+      : '중화(中和)';
+
+  const yongEl1 = isStrong ? GENERATES[dayMasterElement] : isWeak ? GENERATED_BY[dayMasterElement] : defEl;
+  const yongEl2 = isStrong ? CONTROLLED_BY[dayMasterElement] : isWeak ? dayMasterElement : CONTROLS[domEl];
+  const yongshin = yongEl1 === yongEl2
+    ? ELEMENT_FULL_LABEL[yongEl1]
+    : `${ELEMENT_FULL_LABEL[yongEl1]} / ${ELEMENT_FULL_LABEL[yongEl2]}`;
+  const heeshin = ELEMENT_FULL_LABEL[yongEl2];
+
+  const rsiScore = typeof (session?.phase7Output?.rsi as any)?.score === 'number'
+    ? Math.round((session?.phase7Output?.rsi as any).score)
+    : 86;
 
   return {
     birthText,
@@ -77,12 +183,76 @@ export function extractReportContext(state: AppStateData): ReportMetaContext {
     hourPillar: hp,
     dayMaster,
     dayMasterHanja,
-    woodCount: typeof (ohaeng as any)['목'] === 'number' ? (ohaeng as any)['목'] : 1,
-    fireCount: typeof (ohaeng as any)['화'] === 'number' ? (ohaeng as any)['화'] : 2,
-    earthCount: typeof (ohaeng as any)['토'] === 'number' ? (ohaeng as any)['토'] : 5,
-    metalCount: typeof (ohaeng as any)['금'] === 'number' ? (ohaeng as any)['금'] : 0,
-    waterCount: typeof (ohaeng as any)['수'] === 'number' ? (ohaeng as any)['수'] : 0,
+    dayMasterElement,
+    woodCount,
+    fireCount,
+    earthCount,
+    metalCount,
+    waterCount,
+    dominantElement: ELEMENT_FULL_LABEL[domEl],
+    deficientElement: ELEMENT_FULL_LABEL[defEl],
+    yongshin,
+    heeshin,
+    shingangStatus,
+    rsiScore,
     troubleText: state.userTroubleText || '지금 퇴사하는 것이 맞는지, 아니면 현재 직장에서 버티면서 상황을 바꾸는 것이 맞는지 알고 싶습니다.',
+  };
+}
+
+const ARCHETYPE_BY_ELEMENT: Record<'목' | '화' | '토' | '금' | '수', { archetypeEn: string; heroCopy: string; keywords: string[] }> = {
+  목: {
+    archetypeEn: 'Verdant Wood Pioneer',
+    heroCopy: '"곧게 뻗어 오르는 생명력과 새로운 길을 여는 개척의 기상"',
+    keywords: ['#성장동력', '#기획력', '#추진력', '#자존심', '#개척정신'],
+  },
+  화: {
+    archetypeEn: 'Radiant Flame Visionary',
+    heroCopy: '"어둠을 밝히는 직관과 사람을 이끄는 뜨거운 열정의 기상"',
+    keywords: ['#표현력', '#열정', '#리더십', '#직관력', '#명예'],
+  },
+  토: {
+    archetypeEn: 'Golden Earth Archetype',
+    heroCopy: '"기름진 땅 위에 뿌리내린 현실적 지혜와 신뢰의 기상"',
+    keywords: ['#현실감각', '#지속력', '#관리능력', '#신중함', '#신뢰'],
+  },
+  금: {
+    archetypeEn: 'Refined Metal Strategist',
+    heroCopy: '"예리한 결단력과 흐트러짐 없는 원칙으로 결실을 맺는 기상"',
+    keywords: ['#결단력', '#원칙주의', '#실행력', '#의리', '#정확성'],
+  },
+  수: {
+    archetypeEn: 'Deep Water Philosopher',
+    heroCopy: '"깊은 지혜와 유연한 흐름으로 어떤 환경도 품어내는 기상"',
+    keywords: ['#지혜', '#유연함', '#통찰력', '#적응력', '#소통'],
+  },
+};
+
+export function buildDynamicVisualChartProps(
+  ctx: ReportMetaContext,
+  dayPillarTitle: string,
+  overrideKeywords?: string[]
+) {
+  const arch = ARCHETYPE_BY_ELEMENT[ctx.dayMasterElement] || ARCHETYPE_BY_ELEMENT['토'];
+  return {
+    fiveElements: {
+      wood: ctx.woodCount,
+      fire: ctx.fireCount,
+      earth: ctx.earthCount,
+      metal: ctx.metalCount,
+      water: ctx.waterCount,
+      dominantElement: ctx.dominantElement,
+      deficientElement: ctx.deficientElement,
+      yongshin: ctx.yongshin,
+      heeshin: ctx.heeshin,
+      shingangStatus: ctx.shingangStatus,
+      rsiScore: ctx.rsiScore,
+    },
+    dayMasterArchetype: {
+      dayPillarTitle,
+      archetypeEn: arch.archetypeEn,
+      heroCopy: arch.heroCopy,
+      keywords: overrideKeywords || arch.keywords,
+    },
   };
 }
 
@@ -90,6 +260,17 @@ export function extractReportContext(state: AppStateData): ReportMetaContext {
 // 1. 무료 사주 진단 마크다운 생성 (13개 섹션)
 // ============================================================================
 export function getFreeReportMarkdown(ctx: ReportMetaContext): string {
+  const zeroList = [
+    ctx.woodCount === 0 ? '목(木)' : '',
+    ctx.fireCount === 0 ? '화(火)' : '',
+    ctx.earthCount === 0 ? '토(土)' : '',
+    ctx.metalCount === 0 ? '금(金)' : '',
+    ctx.waterCount === 0 ? '수(水)' : '',
+  ].filter(Boolean);
+  const weakSummary = zeroList.length > 0
+    ? `${zeroList.join('과 ')} 기운이 원국 표면에 드러나지 않아`
+    : `${ctx.deficientElement} 기운이 상대적으로 부족하여`;
+
   return `# 무료 사주 진단
 
 **${ctx.birthText}**
@@ -100,13 +281,13 @@ export function getFreeReportMarkdown(ctx: ReportMetaContext): string {
 
 일간은 **${ctx.dayMaster}(${ctx.dayMasterHanja})**입니다.
 
-이 명식은 토(土)의 비중이 매우 높아 **현실적인 판단력, 지속력, 관리 능력**이 강하게 나타납니다.
+이 명식은 **${ctx.dominantElement}** 기운이 가장 강하게 작용하며, 현재 일간 강약은 **${ctx.shingangStatus}** 흐름으로 나타납니다.
 
-반면 금(金)과 수(水)가 원국에 드러나지 않아, 이미 정해진 일을 꾸준히 수행하는 힘에 비해 **상황을 빠르게 전환하거나 감정을 유연하게 흘려보내는 것**은 의식적으로 보완할 필요가 있습니다.
+반면 **${weakSummary}**, 이미 잘 작동하는 강점에 비해 부족한 오행의 리듬을 의식적으로 보완해 균형을 맞추는 것이 중요합니다.
 
 **핵심 키워드**
 
-> 현실감각 · 지속력 · 관리능력 · 신중함 · 전환의 유연성
+> ${ctx.dayMaster} 본질 · ${ctx.dominantElement} 주도 · ${ctx.shingangStatus} · ${ctx.yongshin} 보완
 
 ---
 
@@ -114,26 +295,19 @@ export function getFreeReportMarkdown(ctx: ReportMetaContext): string {
 
 **목(木) ${ctx.woodCount} · 화(火) ${ctx.fireCount} · 토(土) ${ctx.earthCount} · 금(金) ${ctx.metalCount} · 수(水) ${ctx.waterCount}**
 
-토(土)가 가장 강하게 자리하고 있습니다.
+원국에서는 **${ctx.dominantElement}**이 가장 주도적인 자리를 차지하고 있고, **${ctx.deficientElement}** 기운이 가장 약하거나 비어 있는 구조입니다.
 
-쉽게 말하면 **버티고 쌓고 관리하는 힘은 강한데, 비우고 바꾸고 흘려보내는 힘은 상대적으로 약한 구조**입니다.
+쉽게 말하면 **주도 오행(${ctx.dominantElement}) 쪽의 성향과 에너지는 강하게 발현되지만, ${ctx.deficientElement}이 담당하는 균형감은 상대적으로 보완이 필요한 구조**입니다.
 
-그래서 익숙한 방식과 이미 책임지고 있는 일을 쉽게 놓지 않는 경향이 나타날 수 있습니다.
-
-특히 금(金)과 수(水)가 원국에 드러나지 않는다는 점은 생활에서 중요한 힌트가 됩니다.
-
-- **금(金)** → 기준을 정리하고 불필요한 것을 잘라내는 힘
-- **수(水)** → 유연하게 이동하고 새로운 가능성을 받아들이는 힘
-
-따라서 이 사주에서는 **더 많이 하는 것보다 필요 없는 것을 줄이고, 새로운 방식으로 전환하는 능력**을 의식적으로 키우는 것이 중요합니다.
+따라서 이 사주에서는 **강한 기운을 무리하게 밀어붙이기보다 용신인 ${ctx.yongshin} 기운을 생활 속에서 채우며 균형을 잡는 전략**이 중요합니다.
 
 ---
 
 ## 3. 내가 가진 가장 큰 장점
 
-이 사주의 가장 큰 강점은 **꾸준히 쌓아가는 힘**입니다.
+이 사주의 가장 큰 강점은 **${ctx.dayMaster}(${ctx.dayMasterHanja}) 고유의 일간 힘과 ${ctx.dominantElement}의 추진력**입니다.
 
-${ctx.dayMaster} 일간에 토(土)가 강하기 때문에 단기간에 결과를 내기보다 경험과 결과를 축적하면서 자신의 기반을 만드는 데 강점이 있습니다.
+${ctx.dayMaster} 일간을 중심으로 ${ctx.dominantElement} 에너지가 받쳐주기 때문에 자신의 기준과 리듬을 세워 꾸준히 결과를 만들어가는 데 강점이 있습니다.
 
 한번 맡은 일은 쉽게 포기하지 않고 끝까지 책임지려는 성향도 강합니다.
 

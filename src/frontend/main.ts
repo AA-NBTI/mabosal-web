@@ -5063,8 +5063,19 @@ ${content}
  return;
  }
 
+ if (target.closest('#btn-guest-signup-unlock')) {
+ this.openAuthModal('register');
+ return;
+ }
+
+ if (target.closest('#btn-guest-login-unlock')) {
+ this.openAuthModal('login');
+ return;
+ }
+
  // 1. [정석 아이디/비밀번호 로그인 제출]
  if (target.closest('#btn-submit-login')) {
+ const preLoginState = appState.getState();
  const inputU = document.getElementById('input-login-username') as HTMLInputElement;
  const inputP = document.getElementById('input-login-password') as HTMLInputElement;
  const username = inputU?.value || '';
@@ -5077,6 +5088,27 @@ ${content}
  }
 
  this.closeAuthModal();
+
+ // 비회원 사주체험 결과 화면에서 가입·로그인한 경우 체험 사주 자동 연동 및 전체 풀이 즉시 해제
+ if (res.user?.role === 'user' && preLoginState.currentView === 'result') {
+   const req = preLoginState.sessionState?.request as any;
+   if (req?.birthDate && !UserSajuStore.hasSajuProfile(res.user.id)) {
+     UserSajuStore.syncUserSajuProfile({
+       userId: res.user.id,
+       userName: preLoginState.userName || res.user.name,
+       birthDate: req.birthDate,
+       birthTime: req.birthTime || null,
+       calendarType: preLoginState.calendarType || 'solar',
+       gender: preLoginState.gender || 'female',
+       isLeapMonth: Boolean(preLoginState.isLeapMonth),
+       birthRegion: req.birthRegion || '서울',
+     });
+   }
+   this.render(appState.getState());
+   window.scrollTo({ top: 0, behavior: 'smooth' });
+   alert(` [로그인 완료]\n\n환영합니다, ${res.user.name} 님!\n전체 무료 사주 풀이가 잠금 해제되었습니다.`);
+   return;
+ }
  
  // [주문 대기 상품이 있는 경우 즉시 스토어 주문서 오픈]
  const pendingProdId = OrderAuthGuard.consumePendingOrderProduct();
