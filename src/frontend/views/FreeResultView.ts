@@ -10,11 +10,11 @@ import { AuthService } from '../state/auth-service.js';
 import { ModuleRegistry } from '../state/module-registry.js';
 import { buildDynamicVisualChartProps, extractReportContext, getFreeReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
 import { renderMiniSajuPillarsCard, renderEmptySajuGuideView } from '../components/common-components.js';
+import { renderPdfReportCover } from '../components/PdfPrintCover.js';
 import {
  renderCheonmyeongwonFiveElementsMultiBar,
  renderCheonmyeongwonDayMasterArchetype,
  renderCheonmyeongwonDailyDashboard,
- renderCheonmyeongwonTalismanCard,
 } from '../components/VisualCharts.js';
 
 export function renderFreeResultView(state: AppStateData): string {
@@ -40,6 +40,16 @@ export function renderFreeResultView(state: AppStateData): string {
 
  return `
  <div class="result-view-container free-result-view" style="max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem;">
+ ${renderPdfReportCover({
+   tierLabel: isGuest ? '무료 사주 체험 리포트' : '무료 사주 진단서 · 13 CHAPTERS',
+   reportTitle: isGuest ? '마보살 무료 사주 체험' : '마보살 무료 사주 진단서',
+   reportSubtitle: '의뢰인의 4주 원천 기운과 오행 기본 구조, 핵심 전환점을 요약 정리한 A4 진단서입니다.',
+   userName,
+   genderTag,
+   birthSummary,
+   dayPillar: `${pillars.day.stem}${pillars.day.branch} 일주`,
+   chapterCount: isGuest ? 2 : 13,
+ })}
  <!-- 최상단 서비스 타이틀 -->
  <div style="margin-bottom: 1.5rem; text-align: left;">
  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
@@ -93,7 +103,7 @@ export function renderFreeResultView(state: AppStateData): string {
 
  <!-- [천명원 6번 & 4번 규격] 사주 리포트 마이페이지 [주문내역] 단일 확인 시스템 / 비회원 가입 유도 게이트 -->
  ${isGuest ? `
- <section style="background: linear-gradient(145deg, rgba(20, 26, 42, 0.96), rgba(12, 16, 28, 0.98)); border: 1px solid rgba(242, 202, 80, 0.45); border-radius: 16px; padding: 1.85rem 1.5rem; text-align: center; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);">
+ <section class="no-print" style="background: linear-gradient(145deg, rgba(20, 26, 42, 0.96), rgba(12, 16, 28, 0.98)); border: 1px solid rgba(242, 202, 80, 0.45); border-radius: 16px; padding: 1.85rem 1.5rem; text-align: center; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);">
  <span class="material-symbols-outlined" style="font-size: 36px; color: var(--primary); margin-bottom: 0.65rem;">lock_open</span>
  <h3 style="font-size: 1.18rem; font-weight: 800; color: #fff; margin: 0 0 0.5rem 0;">
  나머지 상세 사주 풀이와 맞춤 처방 확인하기

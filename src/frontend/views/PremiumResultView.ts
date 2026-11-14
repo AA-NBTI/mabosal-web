@@ -15,6 +15,7 @@ import { ReportRouterMapper } from '../modules/checkout/report-router-mapper.js'
 import { appState } from '../state/app-state.js';
 import { buildDynamicVisualChartProps, extractReportContext, getPremiumReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
 import { renderMiniSajuPillarsCard, renderAffiliatePromoBanner, renderEmptySajuGuideView } from '../components/common-components.js';
+import { renderPdfReportCover } from '../components/PdfPrintCover.js';
 import { renderCheonmyeongwonFiveElementsMultiBar, renderCheonmyeongwonDayMasterArchetype } from '../components/VisualCharts.js';
 
 export function renderPremiumResultView(state: AppStateData): string {
@@ -65,27 +66,16 @@ export function renderPremiumResultView(state: AppStateData): string {
 
  return `
  <div class="result-view-container premium-result-view" style="max-width: 580px; margin: 0 auto; padding: 1.25rem 1rem 4rem; font-family: var(--font-body);">
- <!-- 천명원 상단 사용자 프로필 바 -->
- <section style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 14px; background: var(--surface-container-high); border: 1px solid var(--border-subtle); margin-bottom: 1.25rem; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
- <div style="display: flex; align-items: center; gap: 0.65rem; min-width: 0;">
- <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--surface-container-highest); display: flex; align-items: center; justify-content: center; color: var(--primary); box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);">
- <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
- </div>
- <div style="display: flex; flex-direction: column; min-width: 0;">
- <div style="display: flex; align-items: center; gap: 0.4rem;">
- <span style="font-size: 1rem; font-weight: 700; color: #dfe2f1;">${userName}</span>
- <span style="font-family: var(--font-display); font-size: 0.68rem; color: var(--primary); padding: 0.1rem 0.4rem; border-radius: 9999px; background: var(--surface-container-lowest); font-weight: 600;">${genderTag}</span>
- </div>
- <span style="font-size: 0.75rem; color: var(--text-muted);">${birthSummary}</span>
- </div>
- </div>
- <div style="display: flex; align-items: center; gap: 0.35rem;">
- <span style="font-size: 0.75rem; color: var(--primary); font-weight: 700; background: rgba(242, 202, 80, 0.15); padding: 0.25rem 0.6rem; border-radius: 6px; border: 1px solid rgba(242, 202, 80, 0.4);">
- VIP 프리미엄
- </span>
- </div>
- </section>
-
+ ${renderPdfReportCover({
+   tierLabel: 'VIP PREMIUM · 29 CHAPTERS',
+   reportTitle: '마보살 프리미엄 정밀 사주 리포트',
+   reportSubtitle: '원국·격국·신살·대운·세운 전수 분석, 현실 딜레마 A/B 대조표, 업무 변경 기록표 양식, 4주차 단계별 실행 로드맵 완결판입니다.',
+   userName,
+   genderTag,
+   birthSummary,
+   dayPillar: `${pillars.day.stem}${pillars.day.branch} 일주`,
+   chapterCount: 29,
+ })}
  <!-- 최상단 서비스 타이틀 & 다운로드 버튼군 -->
  <div style="margin-bottom: 1.5rem; text-align: left;">
  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
@@ -134,7 +124,7 @@ export function renderPremiumResultView(state: AppStateData): string {
  </div>
 
  <!-- 디지털 금고 및 영구 보관 카드 -->
- <div style="background: linear-gradient(135deg, rgba(242, 202, 80, 0.12), rgba(15, 19, 29, 0.95)); border: 1px solid rgba(242, 202, 80, 0.4); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+ <div class="no-print" style="background: linear-gradient(135deg, rgba(242, 202, 80, 0.12), rgba(15, 19, 29, 0.95)); border: 1px solid rgba(242, 202, 80, 0.4); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
  <div>
  <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary); margin-bottom: 0.25rem;">
  ️ 사주 리포트 온라인 영구 보관

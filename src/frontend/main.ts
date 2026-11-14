@@ -1,4 +1,6 @@
 import { OrderAuthGuard } from './modules/order/order-auth-guard.js';
+import { printReportWithTitle } from './components/PdfPrintCover.js';
+import { getActiveCodePreview, setActiveCodePreview } from './modules/catalog/ProductCodeCatalog.js';
 import { PaymentService, PortOneGateway } from './modules/payment/payment-service.js';
 import { markOrderAsViewed, updateStoreOrder } from './extensions/commerce-store/store-service.js';
 import { savePaymentConfigFromDom } from './modules/payment/AdminPaymentPanel.js';
@@ -735,6 +737,11 @@ class MabosalApp {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
   window.addEventListener('popstate', (event) => {
+    if (getActiveCodePreview() && !event.state?.codePreview) {
+      setActiveCodePreview(null);
+      this.render(appState.getState());
+      return;
+    }
     isNavigatingBack = true;
     try {
       const parsed = parseRouteFromLocation();
@@ -1822,8 +1829,9 @@ ${content}
 
  // 0-2. PDF 저장 버튼
  if (target.closest('.btn-download-pdf')) {
- window.print();
- return;
+   const userName = appState.getState().userName || '의뢰인';
+   printReportWithTitle(`${userName}_사주감정서`);
+   return;
  }
 
   // 0-3. 신년 심층 대운 배너 바로가기 (2026/2027 신년 대운 연동)
@@ -2939,6 +2947,148 @@ ${content}
         }
         this.render(appState.getState());
       }
+      return;
+    }
+
+    // [관리자 코드상품: 상단 테스트 사주 적용 (UnifiedSajuForm 통일)]
+    const readCodeSajuInputs = () => {
+      const parsed = parseUnifiedSajuForm('code');
+      const userName = (document.getElementById('code-saju-name') as HTMLInputElement | null)?.value.trim() || '김마보';
+      if (!parsed.ok) {
+        return { ok: false as const, message: parsed.message };
+      }
+      return {
+        ok: true as const,
+        userName,
+        gender: parsed.gender,
+        calendarType: parsed.calendarType,
+        birthDate: parsed.birthDate,
+        birthTime: parsed.birthTime,
+        isLeapMonth: parsed.isLeapMonth,
+      };
+    };
+
+    const ensureCodeSajuSynced = async () => {
+      const inputs = readCodeSajuInputs();
+      if (!inputs.ok) {
+        alert(inputs.message);
+        throw new Error(inputs.message);
+      }
+      const cur = appState.getState();
+      const req = cur.sessionState?.request;
+      const needsSync =
+        !cur.sessionState ||
+        cur.userName !== inputs.userName ||
+        cur.gender !== inputs.gender ||
+        cur.calendarType !== inputs.calendarType ||
+        Boolean(cur.isLeapMonth) !== inputs.isLeapMonth ||
+        req?.birthDate !== inputs.birthDate ||
+        (req?.birthTime || null) !== inputs.birthTime;
+      if (needsSync) {
+        appState.setLeapMonth(inputs.isLeapMonth);
+        await frontendAdapter.analyzeBirthInfoInBackground({
+          userName: inputs.userName,
+          birthDate: inputs.birthDate,
+          birthTime: inputs.birthTime,
+          gender: inputs.gender,
+          calendarType: inputs.calendarType,
+        });
+      }
+    };
+
+    const applyCodeSajuBtn = target.closest('#btn-apply-code-saju') as HTMLButtonElement | null;
+    if (applyCodeSajuBtn) {
+      const inputs = readCodeSajuInputs();
+      if (!inputs.ok) {
+        alert(inputs.message);
+        return;
+      }
+      applyCodeSajuBtn.disabled = true;
+      applyCodeSajuBtn.textContent = '...';
+      appState.setLeapMonth(inputs.isLeapMonth);
+      frontendAdapter.analyzeBirthInfoInBackground({
+        userName: inputs.userName,
+        birthDate: inputs.birthDate,
+        birthTime: inputs.birthTime,
+        gender: inputs.gender,
+        calendarType: inputs.calendarType,
+      }).then(() => {
+        this.render(appState.getState());
+      }).catch((err) => {
+        console.error(err);
+        applyCodeSajuBtn.disabled = false;
+        applyCodeSajuBtn.textContent = '적용';
+      });
+      return;
+    }
+
+    // [관리자 코드상품: 스토어 편집 / 원클릭 웹·PDF 오버레이]
+    const editCodeBtn = target.closest('.btn-edit-code-product') as HTMLElement | null;
+    if (editCodeBtn) {
+      const pid = editCodeBtn.dataset.productId || null;
+      if (pid) {
+        setEditingStoreProductId(pid);
+        setAdminActiveTab('tab-store-register');
+        setAdminStoreSubTab('register');
+        this.render(appState.getState());
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return;
+    }
+
+    const openCodePreview = async (tier: any, mode: 'web' | 'pdf', btnEl: HTMLElement) => {
+      const prevText = btnEl.textContent;
+      btnEl.textContent = '...';
+      try {
+        await ensureCodeSajuSynced();
+        setActiveCodePreview({ tier, mode });
+        if (!window.history.state?.codePreview) {
+          window.history.pushState({ view: 'admin', codePreview: true }, '', window.location.href);
+        }
+        this.render(appState.getState());
+      } finally {
+        btnEl.textContent = prevText;
+      }
+    };
+
+    const previewCodeBtn = target.closest('.btn-preview-code-product') as HTMLElement | null;
+    if (previewCodeBtn) {
+      const tier = (previewCodeBtn.dataset.tier || 'FREE') as any;
+      void openCodePreview(tier, 'web', previewCodeBtn);
+      return;
+    }
+
+    const pdfPreviewCodeBtn = target.closest('.btn-pdf-preview-code-product') as HTMLElement | null;
+    if (pdfPreviewCodeBtn) {
+      const tier = (pdfPreviewCodeBtn.dataset.tier || 'FREE') as any;
+      void openCodePreview(tier, 'pdf', pdfPreviewCodeBtn);
+      return;
+    }
+
+    const switchModeBtn = target.closest('.btn-switch-code-preview-mode') as HTMLElement | null;
+    if (switchModeBtn) {
+      const curPreview = getActiveCodePreview();
+      const nextMode = (switchModeBtn.dataset.mode || 'web') as 'web' | 'pdf';
+      if (curPreview) {
+        setActiveCodePreview({ tier: curPreview.tier, mode: nextMode });
+        this.render(appState.getState());
+      }
+      return;
+    }
+
+    if (target.closest('#btn-close-code-pdf-modal') || target.id === 'code-pdf-preview-modal' || target.classList?.contains('pdf-preview-scroll')) {
+      if (window.history.state?.codePreview) {
+        window.history.back();
+      } else {
+        setActiveCodePreview(null);
+        this.render(appState.getState());
+      }
+      return;
+    }
+
+    if (target.closest('#btn-code-pdf-print')) {
+      const userName = appState.getState().userName || '의뢰인';
+      printReportWithTitle(`${userName}_사주감정서`);
       return;
     }
 
@@ -5902,8 +6052,9 @@ ${content}
  // 14. PDF 리포트 다운로드 / 인쇄
  const pdfBtn = target.closest('#btn-download-pdf, .btn-download-pdf') as HTMLElement;
  if (pdfBtn) {
- window.print();
- return;
+   const userName = appState.getState().userName || '의뢰인';
+   printReportWithTitle(`${userName}_사주감정서`);
+   return;
  }
 
  // 15. Phase 78: 무료 결과 [4부] 상황 칩 클릭 이벤트

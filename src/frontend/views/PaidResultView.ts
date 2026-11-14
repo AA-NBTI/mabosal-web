@@ -14,6 +14,7 @@ import { ReportRouterMapper } from '../modules/checkout/report-router-mapper.js'
 import { UserOrderService } from '../modules/order/user-order-service.js';
 import { buildDynamicDaewunProps, buildDynamicMonthlyScores, buildDynamicVisualChartProps, extractReportContext, getPaidReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
 import { renderMiniSajuPillarsCard, renderEmptySajuGuideView } from '../components/common-components.js';
+import { renderPdfReportCover } from '../components/PdfPrintCover.js';
 import {
  renderDaewunLifeCycleChart,
  renderSplineMonthlyChart,
@@ -22,7 +23,6 @@ import {
  renderCheonmyeongwonFiveElementsMultiBar,
  renderCheonmyeongwonDayMasterArchetype,
  renderCheonmyeongwonDailyDashboard,
- renderCheonmyeongwonTalismanCard,
  renderCheonmyeongwonArchiveVault,
 } from '../components/VisualCharts.js';
 
@@ -73,8 +73,18 @@ export function renderPaidResultView(state: AppStateData): string {
 
  return `
  <div class="result-view-container paid-result-view" style="max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem;">
+ ${renderPdfReportCover({
+   tierLabel: '유료 심층 분석 · 18 CHAPTERS',
+   reportTitle: '마보살 유료 심층 사주풀이',
+   reportSubtitle: '격국·용신·신강약 심층 규명, 12개월 월별 상세 운세, 재물·직업·연애 3개년 변화 순서와 실천 행동 처방 완결본입니다.',
+   userName,
+   genderTag,
+   birthSummary,
+   dayPillar: `${pillars.day.stem}${pillars.day.branch} 일주`,
+   chapterCount: 18,
+ })}
  <!-- 최상단 서비스 타이틀 & 다운로드 버튼군 -->
- <div style="margin-bottom: 1.5rem; text-align: left;">
+ <div class="no-print" style="margin-bottom: 1.5rem; text-align: left;">
  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
  <span class="card-badge gold-badge" style="font-size: 0.82rem; padding: 0.2rem 0.65rem; background: rgba(242, 202, 80, 0.15); color: var(--primary); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 6px; font-weight: 700;">
  심층 분석 리포트
@@ -144,20 +154,10 @@ export function renderPaidResultView(state: AppStateData): string {
  ${narrativeHtml}
  </div>
 
- <!-- [천명원 12번 & 3번 규격] 대길 황금 결실 수호 부적 카드 (VIP 전용 고해상도) -->
+ <!-- [천명원 6번 & 4번 규격] 사주 리포트 마이페이지 [주문내역] 단일 확인 시스템 -->
  ${(() => {
- const primaryYongshin = reportCtx.yongshin.split('/')[0].trim();
  const orderCount = Math.max(1, UserOrderService.getCurrentUserOrderSummarySync().orders.length);
  return `
- ${ModuleRegistry.isEnabled('talisman_harvest_card') ? renderCheonmyeongwonTalismanCard({
- userName,
- talismanTitle: `${pillars.day.stem}${pillars.day.branch}일주 VIP ${primaryYongshin} 수호 부적`,
- subTitle: `용신 ${reportCtx.yongshin} 기운 보완 • ${reportCtx.shingangStatus} 균형 동기화`,
- absorptionRate: Math.min(99, Math.max(72, reportCtx.rsiScore + 4)),
- noblemanScore: Math.min(99, Math.max(70, reportCtx.rsiScore + 2)),
- }) : ''}
-
- <!-- [천명원 6번 & 4번 규격] 사주 리포트 마이페이지 [주문내역] 단일 확인 시스템 -->
  ${ModuleRegistry.isEnabled('archive_digital_vault') ? renderCheonmyeongwonArchiveVault({
  userName,
  totalRecordsCount: orderCount,

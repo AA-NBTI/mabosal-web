@@ -1,6 +1,6 @@
 import { KOREA_REGIONS } from '../../modules/calendar/korea-timezone.js';
 
-export type UnifiedSajuPrefix = 'onboarding' | 'analyze' | 'profile' | 'la';
+export type UnifiedSajuPrefix = 'onboarding' | 'analyze' | 'profile' | 'la' | 'code';
 
 export interface UnifiedSajuRegionOption {
   value: string;
@@ -135,8 +135,14 @@ export function renderUnifiedSajuGrid(opts: UnifiedSajuFormOptions): string {
   const matchedPreset = !isUnknownTime && SIJIN_PRESETS.some((p) => p.value === birthTime) ? birthTime : 'direct';
 
   if (compact) {
+    const nameCell = nameField ? `
+        <div>
+          <label for="${nameField.id}" style="${LABEL_STYLE}">${nameField.label || '성명'}</label>
+          <input type="text" id="${nameField.id}" value="${nameField.value || ''}" placeholder="${nameField.placeholder || '성명'}" autocomplete="off" style="${inputStyle}" />
+        </div>` : '';
     return `
-      <div aria-label="생년월일 및 출생 정보" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(115px, 1fr)); gap: 0.5rem; align-items: flex-end;">
+      <div aria-label="생년월일 및 출생 정보" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.5rem; align-items: flex-end;">
+        ${nameCell}
         <div>
           <label for="${ids.birthDate}" style="${LABEL_STYLE}">생년월일 (8자리)</label>
           <input type="text" id="${ids.birthDate}" class="unified-saju-birthdate-input" value="${cleanBirth}" maxlength="10" inputmode="numeric" placeholder="19980412" autocomplete="off" style="${inputStyle}" />

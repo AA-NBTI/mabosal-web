@@ -331,27 +331,6 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
     salesCount: 520,
   },
 
-  // 7. [런칭 프로모션] 마보살 정통 사주 진단서 (19,900원) - [꺼둠]
-  {
-    id: 'prod-saju-entry-promo',
-    title: '마보살 정통 사주 진단서 (입문 원국 & 오행 정밀 분석)',
-    category: 'report',
-    price: 19900,
-    originalPrice: 19900,
-    tagLine: '4주 8자 천명 원국표와 오행 과다·결핍 균형을 정밀 판별하는 입문 리포트',
-    badge: '런칭 쿠폰 무료',
-    description: '사주 원국표와 일간의 기운, 오행 분포도를 체계적으로 진단해 드리는 입문 진단서입니다.',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&auto=format&fit=crop&q=80',
-    thumbnailIcon: 'fact_check',
-    deliveryType: 'saju_report',
-    contentPayload: 'PROMO_ENTRY',
-    reportTier: 'ENTRY',
-    targetSignals: ['wealth.flow', 'career.change'],
-    status: 'hidden',
-    createdAt: '2026-10-12',
-    salesCount: 389,
-  },
-
   // 8. [5대 특화 운세 리포트군 - 신년/직장/재물/애정/재회/궁합] - [꺼둠]
   {
     id: 'prod-report-year2027',
@@ -549,6 +528,19 @@ export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
 
 import { isBrowserRuntime } from '../../utils/runtime-env.js';
 
+/** 폐기된 카테고리/상품(상품권, 1:1 상담권, 구 입문진단 나 등) 자동 차단 목록 */
+const DEPRECATED_PRODUCT_IDS = new Set([
+  'prod-voucher-50k',
+  'prod-voucher-30k',
+  'prod-voucher-10k',
+  'prod-consult-vip',
+  'prod-saju-entry-promo',
+]);
+
+function isDeprecatedProduct(p: { id: string; category?: string }): boolean {
+  return DEPRECATED_PRODUCT_IDS.has(p.id) || p.category === 'voucher' || p.category === 'consulting';
+}
+
 let memoryProducts: StoreProduct[] | null = null;
 
 /** 삭제된 상품 ID 세트 조회 (테스트/오프라인 전용) */
@@ -595,10 +587,9 @@ export function getAllStoreProducts(): StoreProduct[] {
       changed = true;
     }
 
-    // [PG 심사용] 폐기된 카테고리/상품(상품권, 1:1 상담권 등) 자동 소거
-    const deprecatedProductIds = new Set(['prod-voucher-50k', 'prod-voucher-30k', 'prod-voucher-10k', 'prod-consult-vip']);
-    if (saved.some(p => deprecatedProductIds.has(p.id) || p.category === 'voucher' || p.category === 'consulting')) {
-      saved = saved.filter(p => !deprecatedProductIds.has(p.id) && p.category !== 'voucher' && p.category !== 'consulting');
+    // [PG 심사용 / 폐기 상품] 카테고리/상품(상품권, 1:1 상담권, 구 입문진단 등) 자동 소거
+    if (saved.some(p => isDeprecatedProduct(p))) {
+      saved = saved.filter(p => !isDeprecatedProduct(p));
       changed = true;
     }
 
@@ -654,11 +645,34 @@ export async function syncStoreProductsFromSupabase(): Promise<StoreProduct[]> {
       return getAllStoreProducts();
     }
 
+    // 폐기/제거된 상품이 원격 DB에 남아있는 경우 실제 Supabase DB에서도 영구 삭제
+    const deprecatedIdsInDb = data
+      .filter((p: any) => isDeprecatedProduct({ id: p.id, category: p.category }))
+      .map((p: any) => String(p.id));
+    if (deprecatedIdsInDb.length > 0) {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData?.session?.user) {
+          const { error: delErr } = await supabase
+            .from('products')
+            .delete()
+            .in('id', deprecatedIdsInDb);
+          if (delErr) {
+            console.warn('[store-service] Deprecated DB products delete deferred:', delErr.message);
+          }
+        }
+      } catch (e) {
+        console.warn('[store-service] Deprecated DB products cleanup skipped:', e);
+      }
+    }
+
     // 원격 DB를 단일 진실 공급원(SSOT)으로 사용 (로컬 상세 메타데이터만 보조 병합)
     const localAll = getAllStoreProducts();
     const localMap = new Map(localAll.map(p => [p.id, p]));
 
-    const remoteProducts: StoreProduct[] = data.map((p: any) => {
+    const remoteProducts: StoreProduct[] = data
+      .filter((p: any) => !isDeprecatedProduct({ id: p.id, category: p.category }))
+      .map((p: any) => {
       const local = localMap.get(p.id);
       return {
         ...(local || {}),

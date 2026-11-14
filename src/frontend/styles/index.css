@@ -1345,28 +1345,498 @@ html, body {
 
 
 /* ==========================================================================
-   PRINT MEDIA QUERIES & PDF PRINT OPTIMIZATION
+   WEB SCREEN A4 PDF PREVIEW SHEET (관리자 코드상품 PDF 포맷 즉시 확인용)
    ========================================================================== */
+.pdf-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(5, 8, 15, 0.85);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pdf-preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: #111624;
+  border-bottom: 1px solid rgba(242, 202, 80, 0.3);
+  color: #f8fafc;
+  flex-shrink: 0;
+}
+
+.pdf-preview-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.pdf-preview-sheet {
+  width: 210mm;
+  max-width: 100%;
+  margin: 0 auto;
+  background: #ffffff;
+  color: #1a1d24;
+  padding: 14mm;
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+}
+
+.pdf-preview-sheet .pdf-print-only {
+  display: block !important;
+}
+
+.pdf-preview-sheet .no-print,
+.pdf-preview-sheet .btn-download-pdf,
+.pdf-preview-sheet .btn-download-txt,
+.pdf-preview-sheet .btn-select-product,
+.pdf-preview-sheet .affiliate-promo-banner {
+  display: none !important;
+}
+
+.pdf-preview-sheet .pdf-cover-page {
+  min-height: 255mm;
+  padding: 8mm;
+  margin-bottom: 14mm;
+  background: #fdfbf5 !important;
+  border: 2px solid #8a6608 !important;
+  display: flex !important;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.pdf-preview-sheet .pdf-cover-inner {
+  flex: 1;
+  border: 1px solid #d6c594 !important;
+  padding: 16mm 12mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #ffffff !important;
+}
+
+.pdf-preview-sheet .pdf-cover-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px solid #8a6608;
+  padding-bottom: 5mm;
+}
+
+.pdf-preview-sheet .pdf-cover-emblem {
+  font-family: var(--font-display), sans-serif;
+  font-size: 10pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #8a6608 !important;
+}
+
+.pdf-preview-sheet .pdf-cover-meta-line {
+  display: flex;
+  gap: 10px;
+  font-size: 8.5pt;
+  color: #6b7280 !important;
+}
+
+.pdf-preview-sheet .pdf-cover-center {
+  text-align: center;
+  padding: 14mm 0;
+}
+
+.pdf-preview-sheet .pdf-cover-tier-pill {
+  display: inline-block;
+  padding: 4px 14px;
+  border: 1px solid #8a6608;
+  border-radius: 999px;
+  background: #fbf5e4 !important;
+  color: #7c5b06 !important;
+  font-size: 9.5pt;
+  font-weight: 700;
+  margin-bottom: 7mm;
+}
+
+.pdf-preview-sheet .pdf-cover-title {
+  font-family: var(--font-serif), serif;
+  font-size: 24pt !important;
+  line-height: 1.3 !important;
+  font-weight: 800 !important;
+  color: #111827 !important;
+  margin: 0 0 5mm 0 !important;
+}
+
+.pdf-preview-sheet .pdf-cover-divider {
+  width: 44mm;
+  height: 2px;
+  background: #8a6608 !important;
+  margin: 0 auto 5mm auto;
+}
+
+.pdf-preview-sheet .pdf-cover-subtitle {
+  font-size: 10.5pt !important;
+  line-height: 1.65 !important;
+  color: #374151 !important;
+  max-width: 145mm;
+  margin: 0 auto;
+}
+
+.pdf-preview-sheet .pdf-cover-client-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 7mm;
+  border-top: 1.5px solid #8a6608;
+  border-bottom: 1.5px solid #8a6608;
+}
+
+.pdf-preview-sheet .pdf-cover-client-table th,
+.pdf-preview-sheet .pdf-cover-client-table td {
+  padding: 3mm 4mm;
+  font-size: 9.5pt;
+  text-align: left;
+  border-bottom: 1px solid #e5e0cf;
+  color: #1f2937 !important;
+}
+
+.pdf-preview-sheet .pdf-cover-client-table th {
+  width: 32%;
+  font-weight: 700;
+  color: #6b5211 !important;
+  background: #faf6ea !important;
+}
+
+.pdf-preview-sheet .pdf-cover-gender {
+  font-size: 8.5pt;
+  color: #6b7280 !important;
+}
+
+.pdf-preview-sheet .pdf-cover-footer-note {
+  text-align: center;
+  font-size: 8pt;
+  line-height: 1.5;
+  color: #6b7280 !important;
+}
+
+.pdf-preview-sheet .result-view-container {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #ffffff !important;
+  color: #1a1d24 !important;
+}
+
+.pdf-preview-sheet .result-view-container section,
+.pdf-preview-sheet .result-view-container .result-section-box,
+.pdf-preview-sheet .result-view-container .narrative-meta-banner,
+.pdf-preview-sheet .result-view-container .narrative-section-card,
+.pdf-preview-sheet .result-view-container .cheonmyeongwon-editorial-card {
+  background: #ffffff !important;
+  border-color: #d9cfa9 !important;
+  box-shadow: none !important;
+  color: #1a1d24 !important;
+}
+
+.pdf-preview-sheet .result-view-container h1,
+.pdf-preview-sheet .result-view-container h2,
+.pdf-preview-sheet .result-view-container h3,
+.pdf-preview-sheet .result-view-container h4,
+.pdf-preview-sheet .result-view-container .section-heading {
+  color: #111827 !important;
+}
+
+.pdf-preview-sheet .result-view-container p,
+.pdf-preview-sheet .result-view-container li,
+.pdf-preview-sheet .result-view-container td,
+.pdf-preview-sheet .result-view-container th,
+.pdf-preview-sheet .result-view-container .section-narrative-body {
+  color: #1f2937 !important;
+}
+
+.pdf-preview-sheet .result-view-container strong {
+  color: #111827 !important;
+}
+
+.pdf-preview-sheet .aspect-accordion-body,
+.pdf-preview-sheet [data-accordion-body] {
+  display: block !important;
+  max-height: none !important;
+  opacity: 1 !important;
+}
+
+/* ==========================================================================
+   PRINT MEDIA QUERIES & A4 PDF REPORT FORMAT
+   ========================================================================== */
+.pdf-print-only {
+  display: none !important;
+}
+
 @media print {
   @page {
-    margin: 15mm 10mm;
-    size: auto;
+    size: A4 portrait;
+    margin: 16mm 14mm 18mm 14mm;
+    @top-left {
+      content: "MABOSAL · 천명원 정본 사주 감정서";
+      font-size: 8pt;
+      color: #6b7280;
+    }
+    @top-right {
+      content: "개인 맞춤 명리 리포트";
+      font-size: 8pt;
+      color: #6b7280;
+    }
+    @bottom-center {
+      content: "- " counter(page) " / " counter(pages) " -";
+      font-size: 8.5pt;
+      color: #4b5563;
+    }
   }
+
+  @page :first {
+    margin: 12mm;
+    @top-left { content: none; }
+    @top-right { content: none; }
+    @bottom-center { content: none; }
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  html,
   body {
     background: #ffffff !important;
-    color: #000000 !important;
+    color: #1a1d24 !important;
+    font-size: 10pt !important;
+    line-height: 1.6 !important;
   }
+
+  /* 웹 전용 내비게이션/버튼/광고/배너 숨김 */
   .mabosal-header,
   .mabosal-site-footer,
   .floating-bottom-dock,
-  #btn-download-pdf {
+  #btn-download-pdf,
+  .btn-download-pdf,
+  .btn-download-txt,
+  .btn-select-product,
+  .affiliate-promo-banner,
+  .no-print {
     display: none !important;
   }
+
+  /* PDF 전용 표지 활성화 */
+  .pdf-print-only {
+    display: block !important;
+  }
+
+  .pdf-cover-page {
+    min-height: 266mm;
+    box-sizing: border-box;
+    padding: 8mm;
+    background: #fdfbf5 !important;
+    border: 2px solid #8a6608 !important;
+    break-after: page;
+    page-break-after: always;
+    display: flex !important;
+    flex-direction: column;
+  }
+
+  .pdf-cover-inner {
+    flex: 1;
+    border: 1px solid #d6c594 !important;
+    padding: 18mm 14mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #ffffff !important;
+  }
+
+  .pdf-cover-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1.5px solid #8a6608;
+    padding-bottom: 6mm;
+  }
+
+  .pdf-cover-emblem {
+    font-family: var(--font-display), sans-serif;
+    font-size: 10pt;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #8a6608 !important;
+  }
+
+  .pdf-cover-meta-line {
+    display: flex;
+    gap: 10px;
+    font-size: 8.5pt;
+    color: #6b7280 !important;
+  }
+
+  .pdf-cover-center {
+    text-align: center;
+    padding: 16mm 0;
+  }
+
+  .pdf-cover-tier-pill {
+    display: inline-block;
+    padding: 4px 14px;
+    border: 1px solid #8a6608;
+    border-radius: 999px;
+    background: #fbf5e4 !important;
+    color: #7c5b06 !important;
+    font-size: 9.5pt;
+    font-weight: 700;
+    margin-bottom: 8mm;
+  }
+
+  .pdf-cover-title {
+    font-family: var(--font-serif), serif;
+    font-size: 26pt !important;
+    line-height: 1.3 !important;
+    font-weight: 800 !important;
+    color: #111827 !important;
+    margin: 0 0 6mm 0 !important;
+  }
+
+  .pdf-cover-divider {
+    width: 44mm;
+    height: 2px;
+    background: #8a6608 !important;
+    margin: 0 auto 6mm auto;
+  }
+
+  .pdf-cover-subtitle {
+    font-size: 11pt !important;
+    line-height: 1.65 !important;
+    color: #374151 !important;
+    max-width: 145mm;
+    margin: 0 auto;
+  }
+
+  .pdf-cover-client-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 8mm;
+    border-top: 1.5px solid #8a6608;
+    border-bottom: 1.5px solid #8a6608;
+  }
+
+  .pdf-cover-client-table th,
+  .pdf-cover-client-table td {
+    padding: 3.5mm 4mm;
+    font-size: 9.5pt;
+    text-align: left;
+    border-bottom: 1px solid #e5e0cf;
+    color: #1f2937 !important;
+  }
+
+  .pdf-cover-client-table th {
+    width: 32%;
+    font-weight: 700;
+    color: #6b5211 !important;
+    background: #faf6ea !important;
+  }
+
+  .pdf-cover-gender {
+    font-size: 8.5pt;
+    color: #6b7280 !important;
+    font-weight: 500;
+  }
+
+  .pdf-cover-footer-note {
+    text-align: center;
+    font-size: 8pt;
+    line-height: 1.5;
+    color: #6b7280 !important;
+  }
+
+  /* 결과 본문 A4 전폭 확장 및 한지 라이트 톤 변환 */
+  .result-view-container {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #1a1d24 !important;
+  }
+
+  .result-view-container section,
+  .result-view-container .result-section-box,
+  .result-view-container .narrative-meta-banner,
+  .result-view-container .narrative-section-card,
+  .result-view-container .cheonmyeongwon-editorial-card {
+    background: #ffffff !important;
+    border-color: #d9cfa9 !important;
+    box-shadow: none !important;
+    color: #1a1d24 !important;
+  }
+
+  .result-view-container h1,
+  .result-view-container h2,
+  .result-view-container h3,
+  .result-view-container h4,
+  .result-view-container .section-heading {
+    color: #111827 !important;
+  }
+
+  .result-view-container p,
+  .result-view-container li,
+  .result-view-container td,
+  .result-view-container th,
+  .result-view-container .section-narrative-body {
+    color: #1f2937 !important;
+  }
+
+  .result-view-container strong {
+    color: #111827 !important;
+  }
+
+  .result-view-container .card-badge,
+  .result-view-container .gold-badge {
+    background: #fbf5e4 !important;
+    color: #7c5b06 !important;
+    border-color: #c5a244 !important;
+  }
+
+  /* 챕터 카드 및 SVG 페이지 절단 방지 */
+  .narrative-section-card {
+    break-inside: auto;
+    page-break-inside: auto;
+    margin-bottom: 10mm !important;
+    padding: 5mm 6mm !important;
+  }
+
+  .narrative-section-card .section-step-indicator {
+    break-after: avoid;
+    page-break-after: avoid;
+    border-bottom-color: #e5e0cf !important;
+  }
+
+  .narrative-section-card p,
+  .narrative-section-card blockquote,
+  .narrative-section-card table,
+  .narrative-section-card tr,
   .product-showcase-card,
-  .result-section-box,
-  .advisor-card {
+  .advisor-card,
+  .pdf-avoid-break,
+  svg {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  /* 접혀 있는 아코디언 인쇄 시 자동 펼침 */
+  .aspect-accordion-body,
+  [data-accordion-body] {
+    display: block !important;
+    max-height: none !important;
+    opacity: 1 !important;
   }
 }
 

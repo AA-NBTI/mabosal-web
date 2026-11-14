@@ -57,7 +57,7 @@ export class ReportRouterMapper {
     }
 
     // 8. 3.9만원 대표 플래그십 정통 유료 사주 (prod-paid-saju-premium)
-    if (tier === 'PAID' || tier === 'COMPREHENSIVE' || tier === 'ENTRY' || pId === 'prod-paid-saju-premium' || pId.includes('flagship') || (pId.includes('saju') && !pId.includes('book'))) {
+    if (tier === 'PAID' || tier === 'COMPREHENSIVE' || pId === 'prod-paid-saju-premium' || pId.includes('flagship') || (pId.includes('saju') && !pId.includes('book'))) {
       return 'PAID';
     }
 

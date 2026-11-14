@@ -4,7 +4,6 @@
  */
 
 import {
-  deleteStoreProduct,
   getAllStoreOrders,
   getAllStoreProducts,
   getStoreProductById,
@@ -18,6 +17,7 @@ import {
 } from './store-service.js';
 import type { DeliveryType, StoreCategoryType, StoreProduct } from './types.js';
 import { paginateAdminList, renderAdminPagination, setAdminListPage } from '../../utils/admin-pagination.js';
+import { getStoreProductCodeMap } from '../../modules/catalog/ProductCodeCatalog.js';
 
 const ADMIN_STORE_SUBTAB_KEY = 'mm_admin_store_subtab';
 let adminSubTab: 'products' | 'register' | 'orders' | 'categories' =
@@ -186,7 +186,8 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
             <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.82rem; color: #dfe2f1; white-space: nowrap;">
               <thead>
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);">
-                  <th style="padding: 0.75rem 0.6rem; width: 110px;">카테고리</th>
+                  <th style="padding: 0.75rem 0.6rem; width: 64px; text-align: center;">코드</th>
+                  <th style="padding: 0.75rem 0.6rem; width: 100px;">카테고리</th>
                   <th style="padding: 0.75rem 0.6rem;">상품명 (클릭 시 이동)</th>
                   <th style="padding: 0.75rem 0.6rem;">판매 가격</th>
                   <th style="padding: 0.75rem 0.6rem;">누적 판매</th>
@@ -197,32 +198,39 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
               </thead>
               <tbody>
                 ${(() => {
+                  const codeMap = getStoreProductCodeMap();
                   const prodPage = paginateAdminList('admin-store-products', filtered);
                   if (prodPage.pagedItems.length === 0) {
-                    return '<tr><td colspan="7" style="padding: 2.5rem; text-align: center; color: var(--text-muted);">조건에 일치하는 상품이 없습니다.</td></tr>';
+                    return '<tr><td colspan="8" style="padding: 2.5rem; text-align: center; color: var(--text-muted);">조건에 일치하는 상품이 없습니다.</td></tr>';
                   }
                   return prodPage.pagedItems.map(p => {
                   const catItem = allCategories.find(c => c.id === p.category);
                   const meta = CATEGORY_META[p.category] || { title: p.category, badgeColor: '#f2ca50', icon: 'menu_book' };
                   const displayCatTitle = catItem ? esc(catItem.label) : meta.title;
-                  const displayIcon = p.thumbnailIcon || catItem?.icon || meta.icon || 'category';
+                  const productCode = codeMap.get(p.id) || '-';
                   const regDateStr = p.createdAt ? p.createdAt.slice(0, 10).replace(/-/g, '.') : '-';
                   const MAX_TITLE_LEN = 28;
                   const shortTitle = p.title.length > MAX_TITLE_LEN ? p.title.slice(0, MAX_TITLE_LEN) + '…' : p.title;
 
                   return `
                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.04); height: 48px;">
-                      <!-- 1. 카테고리 맨 앞 배치 -->
+                      <!-- 0. 코드명 -->
+                      <td style="padding: 0.55rem 0.6rem; text-align: center; white-space: nowrap;">
+                        <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 24px; padding: 0 7px; border-radius: 6px; background: rgba(242,202,80,0.16); color: var(--primary); border: 1px solid rgba(242,202,80,0.38); font-size: 0.8rem; font-weight: 800;">
+                          ${esc(productCode)}
+                        </span>
+                      </td>
+
+                      <!-- 1. 카테고리 -->
                       <td style="padding: 0.55rem 0.6rem; white-space: nowrap;">
                         <span style="background: rgba(242,202,80,0.12); color: ${meta.badgeColor}; padding: 0.2rem 0.55rem; border-radius: 4px; font-size: 0.74rem; font-weight: 700; display: inline-block;">
                           ${displayCatTitle}
                         </span>
                       </td>
 
-                      <!-- 2. 상품명 (보조 설명 제거, 일정 글자수 노출, 클릭 시 해당 상품 열림) -->
+                      <!-- 2. 상품명 (아이콘 제거, 일정 글자수 노출, 클릭 시 해당 상품 열림) -->
                       <td style="padding: 0.55rem 0.6rem; white-space: nowrap;">
-                        <a href="/store?product=${p.id}" target="_blank" title="${esc(p.title)} (클릭 시 해당 상품 새 창 열기)" style="display: inline-flex; align-items: center; gap: 0.4rem; color: #fff; text-decoration: none; font-size: 0.88rem; font-weight: 700; max-width: 380px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color 0.15s ease;" onmouseover="this.style.color='var(--primary)';" onmouseout="this.style.color='#fff';">
-                          <span class="material-symbols-outlined" style="color: var(--primary); font-size: 20px; flex-shrink: 0;">${displayIcon}</span>
+                        <a href="/store?product=${p.id}" target="_blank" title="${esc(p.title)} (클릭 시 해당 상품 새 창 열기)" style="display: inline-flex; align-items: center; color: #fff; text-decoration: none; font-size: 0.88rem; font-weight: 700; max-width: 380px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color 0.15s ease;" onmouseover="this.style.color='var(--primary)';" onmouseout="this.style.color='#fff';">
                           <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${esc(shortTitle)}</span>
                         </a>
                       </td>
@@ -254,8 +262,7 @@ export function renderAdminStorePanel(editingProductId?: string | null, forcedSu
                       <!-- 7. 관리 조치 -->
                       <td style="padding: 0.55rem 0.6rem; text-align: right; white-space: nowrap;">
                         ${(p.category === 'ebook' || p.id.includes('book')) ? `
-                          <a href="/reader?bookId=${p.id}&from=admin" target="_blank" data-nav="/reader?bookId=${p.id}&from=admin" style="background: rgba(59, 130, 246, 0.18); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.55rem; border-radius: 5px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.2rem; margin-right: 0.3rem;" title="관리자 권한으로 고화질 뷰어 즉시 검수">
-                            <span class="material-symbols-outlined" style="font-size: 14px;">visibility</span>
+                          <a href="/reader?bookId=${p.id}&from=admin" target="_blank" data-nav="/reader?bookId=${p.id}&from=admin" style="background: rgba(59, 130, 246, 0.18); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.55rem; border-radius: 5px; text-decoration: none; display: inline-flex; align-items: center; margin-right: 0.3rem;" title="관리자 권한으로 고화질 뷰어 즉시 검수">
                             뷰어
                           </a>
                         ` : ''}

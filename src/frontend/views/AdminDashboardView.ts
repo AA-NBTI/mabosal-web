@@ -18,6 +18,7 @@ import {
   getPartnerApplications,
 } from '../extensions/solution-hub/index.js';
 import { renderAdminStorePanel, getAllStoreOrders } from '../extensions/commerce-store/index.js';
+import { renderAdminCodeProductsPanel } from '../modules/catalog/ProductCodeCatalog.js';
 import { renderAdminInquiriesPanel, expandSpecificInquiry } from './AdminInquiriesPanel.js';
 import { renderAdminReviewsPanel } from './AdminReviewsPanel.js';
 import { renderAdminLifeAnalysisPanel } from './AdminLifeAnalysisPanel.js';
@@ -100,6 +101,14 @@ export function renderAdminDashboardView(): string {
         { id: 'tab-store-orders', label: '결제내역 / 환불' },
         { id: 'tab-transfers', label: '무통장 승인' },
         { id: 'tab-payments', label: 'PG 결제 설정' },
+      ]
+    },
+    {
+      id: 'group-code-products',
+      label: '코드상품',
+      defaultTab: 'tab-code-products',
+      subTabs: [
+        { id: 'tab-code-products', label: '전체 코드표' },
       ]
     },
     {
@@ -195,6 +204,7 @@ export function renderAdminDashboardView(): string {
     else if (['tab-store-orders', 'tab-orders', 'tab-transfers', 'tab-payments', 'tab-vouchers'].includes(currentTab)) activeGroup = findGroup('group-payment');
     else if (['tab-store', 'tab-store-register', 'tab-store-categories'].includes(currentTab)) activeGroup = findGroup('group-commerce');
     else if (['tab-study-articles', 'tab-study-write', 'tab-study-categories', 'tab-study', 'tab-ebook-library', 'tab-seo-wiki-hub'].includes(currentTab)) activeGroup = findGroup('group-content');
+    else if (currentTab === 'tab-code-products') activeGroup = findGroup('group-code-products');
     else if (currentTab === 'tab-products') activeGroup = findGroup('group-settings');
     else activeGroup = adminGroups[0];
   }
@@ -1405,6 +1415,10 @@ export function renderAdminDashboardView(): string {
           <!-- [쿠폰 & 무통장 입금 승인 센터 패널 (하위 호환)] -->
           <div id="tab-vouchers" class="admin-tab-panel" style="display: ${currentTab === 'tab-vouchers' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
             ${renderAdminVoucherPanel()}
+          </div>
+
+          <div id="tab-code-products" class="admin-tab-panel" style="display: ${currentTab === 'tab-code-products' ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">
+            ${renderAdminCodeProductsPanel()}
           </div>
 
           <div id="tab-store" class="admin-tab-panel" style="display: ${['tab-store', 'tab-store-register', 'tab-store-categories'].includes(currentTab) ? 'block' : 'none'}; width: 100%; box-sizing: border-box;">

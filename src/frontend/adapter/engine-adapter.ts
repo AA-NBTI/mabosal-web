@@ -120,6 +120,92 @@ export class FrontendEngineAdapter {
   }
 
   /**
+   * 화면 전환 없이 백그라운드에서 사주 세션을 즉시 계산·적용 (관리자 코드상품 검토용)
+   */
+  public async analyzeBirthInfoInBackground(params: {
+    userName?: string;
+    birthDate: string;
+    birthTime?: string | null;
+    gender: 'male' | 'female';
+    calendarType: 'solar' | 'lunar';
+  }): Promise<MabosalSessionState> {
+    if (params.userName) appState.setUserName(params.userName);
+    appState.setGender(params.gender);
+    appState.setCalendarType(params.calendarType);
+
+    const request: MabosalSessionRequest = {
+      birthDate: params.birthDate,
+      birthTime: params.birthTime || null,
+      gender: params.gender,
+      region: '서울',
+      depthMode: 'DEEP',
+    };
+
+    const res = this.sessionEngine.createSession(request);
+    if (!res.success || !res.data) {
+      throw new Error(res.userMessage || '사주 계산 중 오류가 발생했습니다.');
+    }
+
+    const currentState = appState.getState();
+    const parts = params.birthDate.split('-');
+    try {
+      const integratedResult = await this.integratedService.analyze({
+        birthInput: {
+          calendar_type: params.calendarType,
+          is_leap_month: false,
+          birth_year: parseInt(parts[0], 10),
+          birth_month: parseInt(parts[1], 10),
+          birth_day: parseInt(parts[2], 10),
+          birth_time: params.birthTime || null,
+          is_time_unknown: !params.birthTime,
+          birth_city: '서울',
+          gender: params.gender,
+        },
+        troubleText: currentState.userTroubleText || '전반적인 운의 흐름과 핵심 방향을 점검하고 싶습니다.',
+        tier: currentState.selectedTier || 'free_diagnosis',
+      });
+      appState.setIntegratedResult(integratedResult);
+    } catch (e) {
+      console.warn('백그라운드 통합 분석 소프트 실패:', e);
+    }
+
+    appState.setSession(res.data);
+
+    try {
+      const generator = new ProductGenerator();
+      const product = generator.generateProduct({
+        birthDate: params.birthDate,
+        birthTime: params.birthTime || undefined,
+        gender: params.gender,
+        currentEvent: currentState.userTroubleText || '올해 전반적인 흐름과 현실 조언',
+        userTrouble: currentState.userTroubleText || '올해 전반적인 흐름과 현실 조언',
+        targetYear: new Date().getFullYear(),
+      }, { insightDepth: 5, prescription: true });
+      appState.setLatestProduct(product);
+
+      const productSet = generateAllProductOutputs({
+        solarBirthDate: params.birthDate,
+        birthTime: params.birthTime || null,
+        isUnknownTime: !params.birthTime,
+        gender: params.gender,
+        calendarType: params.calendarType,
+        isLeapMonth: false,
+        birthRegion: '서울',
+        coreTrouble: currentState.userTroubleText || '올해 전반적인 운의 흐름과 기회를 알고 싶어요.',
+        desiredQuestion: currentState.desiredQuestion || '앞으로 어떤 선택을 하는 것이 가장 유리할까요?',
+        currentSituation: currentState.selectedSituation || undefined,
+        additionalContext: currentState.additionalContext || undefined,
+        targetYear: new Date().getFullYear(),
+      });
+      appState.setProductOutputSet(productSet);
+    } catch (err) {
+      console.warn('백그라운드 ProductOutputSet 생성 실패:', err);
+    }
+
+    return res.data;
+  }
+
+  /**
    * Phase 17~25 통합 사주 & Phase 82 15대 섹션 무결성 분석 실행
    */
   public async analyzeIntegrated(req: IntegratedAnalysisRequest): Promise<IntegratedAnalysisResult> {
