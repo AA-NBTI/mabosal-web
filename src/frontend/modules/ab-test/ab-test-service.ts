@@ -33,36 +33,7 @@ export class AbTestService {
    * 현재 B안(구매 전환 킬러 퍼널)이 활성화되어 있는지 여부 판정
    */
   public static isFunnelVariantB(): boolean {
-    if (typeof window === 'undefined') return false;
-
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const abParam = urlParams.get('ab')?.toLowerCase();
-      const funnelParam = urlParams.get('funnel')?.toLowerCase();
-
-      // 1. URL 파라미터 강제 오버라이드 및 세션 저장
-      if (abParam === 'b' || funnelParam === 'killer' || funnelParam === 'b') {
-        sessionStorage.setItem('mabosal_ab_assigned_variant', 'b');
-        return true;
-      }
-      if (abParam === 'a' || funnelParam === 'a') {
-        sessionStorage.setItem('mabosal_ab_assigned_variant', 'a');
-        return false;
-      }
-
-      // 2. 관리자 마스터 토글 확인
-      if (ModuleRegistry.isMasterEnabled('cro_funnel_ab_test')) {
-        return true;
-      }
-
-      // 3. 세션에 저장된 A/B 배정값 확인 (페이지 이동 시 유지)
-      const assigned = sessionStorage.getItem('mabosal_ab_assigned_variant');
-      if (assigned === 'b') return true;
-      if (assigned === 'a') return false;
-    } catch {
-      // ignore
-    }
-
+    // A안 단일 경로 통일: PC/모바일 결과 일관성을 위해 B안 분기 비활성화
     return false;
   }
 

@@ -22,19 +22,17 @@
  */
 
 import { AppStateData } from '../../state/app-state.js';
-import { renderMiniSajuPillarsCard, DAY_MASTER_DEFAULT_DESC } from '../../components/common-components.js';
+import { renderMiniSajuPillarsCard, DAY_MASTER_DEFAULT_DESC, renderEmptySajuGuideView } from '../../components/common-components.js';
 import { renderCheonmyeongwonFiveElementsMultiBar } from '../../components/VisualCharts.js';
 import { isProductAlreadyPurchased } from '../../extensions/commerce-store/store-service.js';
 import { extractReportContext } from '../../components/tier-templates.js';
 
 export function renderFunnelResultView(state: AppStateData): string {
   const session = state.sessionState;
-  const pillars = session?.fact?.four_pillars || state.productOutputSet?.common?.pillars || {
-    year: { stem: '무', branch: '인' },
-    month: { stem: '병', branch: '진' },
-    day: { stem: '기', branch: '축' },
-    hour: { stem: '기', branch: '사' },
-  };
+  const pillars = session?.fact?.four_pillars || state.productOutputSet?.common?.pillars;
+  if (!pillars) {
+    return renderEmptySajuGuideView('마보살 무료 사주 진단');
+  }
   const reportCtx = extractReportContext(state);
   const userName = state.userName || '의뢰인';
 

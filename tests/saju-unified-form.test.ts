@@ -6,6 +6,7 @@ import { renderFreeResultView } from '../src/frontend/views/FreeResultView.js';
 import { renderYear2027SingleProductView } from '../src/frontend/views/SingleProductViews.js';
 import { renderDaewunLifeCycleChart, renderSplineMonthlyChart } from '../src/frontend/components/VisualCharts.js';
 import { buildDynamicDaewunProps, buildDynamicMonthlyScores, extractReportContext } from '../src/frontend/components/tier-templates.js';
+import { dailyZodiacMagiEngine } from '../src/frontend/services/DailyZodiacMagiEngine.js';
 import { appState } from '../src/frontend/state/app-state.js';
 
 describe('Unified Baekse-style Simple Saju Form', () => {
@@ -228,5 +229,53 @@ describe('Unified Baekse-style Simple Saju Form', () => {
     expect(ctx.year2026Summary).not.toContain('축오원진');
     expect(ctx.year2027Summary).not.toContain('축미충');
     expect(ctx.sinsalTableMarkdown).toContain('| 신살 | 발생 위치 |');
+  });
+
+  it('오늘의 운세 · 행운달력 · 마기달력이 단일 점수 엔진으로 100% 연동되고 1점 단위 및 90점↑ 대길 변별력을 갖는다', () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const todayDate = now.getDate();
+
+    const reading = dailyZodiacMagiEngine.getReading('자', 1984);
+    const luckyCal = dailyZodiacMagiEngine.getMonthlyLuckyCalendarData(year, month, '자', 1984);
+    const magiCal = dailyZodiacMagiEngine.getMonthlyMagiCalendarData(year, month, '자', 1984);
+
+    expect(reading.fortune.luckyRate + reading.fortune.magiRate).toBe(100);
+    expect(luckyCal.days.length).toBe(magiCal.days.length);
+
+    for (let i = 0; i < luckyCal.days.length; i++) {
+      expect(luckyCal.days[i].luckyRate + magiCal.days[i].magiRate).toBe(100);
+      if (luckyCal.days[i].isGoldenDay) {
+        expect(luckyCal.days[i].luckyRate).toBeGreaterThanOrEqual(90);
+      }
+    }
+
+    const todayLucky = luckyCal.days.find(d => d.date === todayDate)!;
+    const todayMagi = magiCal.days.find(d => d.date === todayDate)!;
+    expect(todayLucky.luckyRate).toBe(reading.fortune.luckyRate);
+    expect(todayMagi.magiRate).toBe(reading.fortune.magiRate);
+
+    // 1점 단위 다양성 및 대길일(90%+) 변별력 (한 달 0~5일 수준)
+    const uniqueScores = new Set(luckyCal.days.map(d => d.luckyRate));
+    expect(uniqueScores.size).toBeGreaterThanOrEqual(8);
+    expect(luckyCal.bestDays.length).toBeLessThanOrEqual(5);
+
+    // 회원용 1:1 개인화 행운달력·마기달력도 모든 날짜에서 합산 100% 보장
+    const mockSajuCore = {
+      four_pillars: {
+        year: { stem: { char: '을', element: '목' }, branch: { char: '묘', element: '목' } },
+        month: { stem: { char: '정', element: '화' }, branch: { char: '해', element: '수' } },
+        day: { stem: { char: '갑', element: '목' }, branch: { char: '신', element: '금' } },
+        hour: { stem: { char: '갑', element: '목' }, branch: { char: '자', element: '수' } },
+      },
+      day_master_strength: { yongshin: '금', heeshin: '수' },
+    };
+    const pLucky = dailyZodiacMagiEngine.getPersonalizedMonthlyLuckyCalendarData(year, month, { sajuCore: mockSajuCore });
+    const pMagi = dailyZodiacMagiEngine.getPersonalizedMonthlyMagiCalendarData(year, month, { sajuCore: mockSajuCore });
+    expect(pLucky.days.length).toBe(pMagi.days.length);
+    for (let i = 0; i < pLucky.days.length; i++) {
+      expect(pLucky.days[i].luckyRate + pMagi.days[i].magiRate).toBe(100);
+    }
   });
 });

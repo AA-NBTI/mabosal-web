@@ -111,6 +111,169 @@ function getYearGanjiData(year: number) {
   };
 }
 
+const CHEON_EUL_GUIN: Record<string, string[]> = {
+  갑: ['축', '미'], 무: ['축', '미'], 경: ['축', '미'],
+  을: ['자', '신'], 기: ['자', '신'],
+  병: ['해', '유'], 정: ['해', '유'],
+  임: ['사', '묘'], 계: ['사', '묘'],
+  신: ['인', '오'],
+};
+
+const STEM_HARMONY_PAIRS: Record<string, string> = {
+  갑: '기', 기: '갑', 을: '경', 경: '을', 병: '신', 신: '병', 정: '임', 임: '정', 무: '계', 계: '무',
+};
+
+interface ZodiacDayMetrics {
+  luckyRate: number;
+  magiRate: number;
+  isSixHarm: boolean;
+  isThreeHarm: boolean;
+  isClash: boolean;
+  isPenalty: boolean;
+  isSameBranch: boolean;
+  isGoldenDay: boolean;
+  isWarningDay: boolean;
+  actionTag: string;
+  avoidTag: string;
+}
+
+/**
+ * 오늘의 운세 · 행운달력 · 마기달력이 공통 사용하는 단일 일진 점수 엔진
+ * - 행운지수(%) + 마기지수(%) = 100% 제로섬 보장
+ * - 지지(육합/삼합/충/형살) + 천간(합/상생/상극) + 천을귀인 + 미세 음양 보정으로 1점 단위 변별력 산출
+ * - 90% 이상만 대길(isGoldenDay)로 엄선
+ */
+function computeZodiacDayMetrics(
+  yearInfo: ReturnType<typeof getYearGanjiData>,
+  todayStem: string,
+  todayBranch: string
+): ZodiacDayMetrics {
+  const yStem = yearInfo.stem;
+  const yBr = yearInfo.branch;
+  const tStem = todayStem;
+  const tBr = todayBranch;
+
+  const isSixHarm =
+    (yBr === '자' && tBr === '축') || (yBr === '축' && tBr === '자') ||
+    (yBr === '인' && tBr === '해') || (yBr === '해' && tBr === '인') ||
+    (yBr === '묘' && tBr === '술') || (yBr === '술' && tBr === '묘') ||
+    (yBr === '진' && tBr === '유') || (yBr === '유' && tBr === '진') ||
+    (yBr === '사' && tBr === '신') || (yBr === '신' && tBr === '사') ||
+    (yBr === '오' && tBr === '미') || (yBr === '미' && tBr === '오');
+
+  // 자기 지지(비견)는 삼합 대길에서 제외
+  const isSameBranch = yBr === tBr;
+  const isThreeHarm = !isSameBranch && (
+    (['신', '자', '진'].includes(yBr) && ['신', '자', '진'].includes(tBr)) ||
+    (['해', '묘', '미'].includes(yBr) && ['해', '묘', '미'].includes(tBr)) ||
+    (['인', '오', '술'].includes(yBr) && ['인', '오', '술'].includes(tBr)) ||
+    (['사', '유', '축'].includes(yBr) && ['사', '유', '축'].includes(tBr))
+  );
+
+  const isClash =
+    (yBr === '자' && tBr === '오') || (yBr === '오' && tBr === '자') ||
+    (yBr === '축' && tBr === '미') || (yBr === '미' && tBr === '축') ||
+    (yBr === '인' && tBr === '신') || (yBr === '신' && tBr === '인') ||
+    (yBr === '묘' && tBr === '유') || (yBr === '유' && tBr === '묘') ||
+    (yBr === '진' && tBr === '술') || (yBr === '술' && tBr === '진') ||
+    (yBr === '사' && tBr === '해') || (yBr === '해' && tBr === '사');
+
+  const isPenalty =
+    (['인', '사', '신'].includes(yBr) && ['인', '사', '신'].includes(tBr) && yBr !== tBr) ||
+    (['축', '술', '미'].includes(yBr) && ['축', '술', '미'].includes(tBr) && yBr !== tBr);
+
+  // 1. 지지 기본 점수
+  let score = 62;
+  if (isClash) {
+    score = 20;
+  } else if (isPenalty && !isSixHarm) {
+    score = 31;
+  } else if (isSixHarm) {
+    score = isPenalty ? 61 : 77;
+  } else if (isThreeHarm) {
+    score = 73;
+  } else if (isSameBranch) {
+    score = 54;
+  }
+
+  // 2. 천간(10천간) 관계 가감점
+  const yEl = yearInfo.stemElement;
+  const tEl = STEM_ELEMENTS[tStem] || '화';
+  if (STEM_HARMONY_PAIRS[yStem] === tStem) {
+    score += 10;
+  } else if (
+    (tEl === '목' && yEl === '화') || (tEl === '화' && yEl === '토') ||
+    (tEl === '토' && yEl === '금') || (tEl === '금' && yEl === '수') || (tEl === '수' && yEl === '목')
+  ) {
+    score += 8; // 인성 생조
+  } else if (
+    (yEl === '목' && tEl === '화') || (yEl === '화' && tEl === '토') ||
+    (yEl === '토' && tEl === '금') || (yEl === '금' && tEl === '수') || (yEl === '수' && tEl === '목')
+  ) {
+    score += 5; // 식상
+  } else if (
+    (yEl === '목' && tEl === '토') || (yEl === '화' && tEl === '금') ||
+    (yEl === '토' && tEl === '수') || (yEl === '금' && tEl === '목') || (yEl === '수' && tEl === '화')
+  ) {
+    score += 3; // 재성
+  } else if (yEl === tEl) {
+    const yIdx = STEMS.indexOf(yStem);
+    const tIdx = STEMS.indexOf(tStem);
+    score += (yIdx % 2 !== tIdx % 2) ? 2 : -2; // 비겁
+  } else {
+    score -= 5; // 관살 극제
+  }
+
+  // 3. 천을귀인 보정
+  if ((CHEON_EUL_GUIN[yStem] || []).includes(tBr)) {
+    score += isClash ? 3 : 7;
+  }
+
+  // 4. 1점 단위 결정론적 음양/오행 리듬 보정 (-3 ~ +3)
+  const yS = Math.max(0, STEMS.indexOf(yStem));
+  const tS = Math.max(0, STEMS.indexOf(tStem));
+  const tB = Math.max(0, BRANCHES.indexOf(tBr));
+  const fineDelta = ((yS * 3 + tS * 7 + tB * 5) % 7) - 3;
+  score += fineDelta;
+
+  const luckyRate = Math.max(12, Math.min(97, Math.round(score)));
+  const magiRate = 100 - luckyRate;
+  const isGoldenDay = luckyRate >= 90 && !isClash && !isPenalty;
+  const isWarningDay = isClash || isPenalty || magiRate >= 65;
+
+  let actionTag = '계획 추진';
+  if (isGoldenDay) {
+    actionTag = isSixHarm ? '계약·협상 대길' : '귀인·성과 대길';
+  } else if (luckyRate >= 75) {
+    actionTag = '협업·확장 유리';
+  } else if (isWarningDay) {
+    actionTag = '신중·방어 우선';
+  }
+
+  let avoidTag = '방어 양호';
+  if (isClash) {
+    avoidTag = '날인·이동 주의 필요';
+  } else if (isPenalty) {
+    avoidTag = '언쟁·계약 신중 권고';
+  } else if (magiRate >= 50) {
+    avoidTag = '무리한 결정 자제';
+  }
+
+  return {
+    luckyRate,
+    magiRate,
+    isSixHarm,
+    isThreeHarm,
+    isClash,
+    isPenalty,
+    isSameBranch,
+    isGoldenDay,
+    isWarningDay,
+    actionTag,
+    avoidTag,
+  };
+}
+
 export const dailyZodiacMagiEngine = {
   getYearsForZodiac(zodiacKey: string): number[] {
     const meta = ZODIAC_INFOS.find(z => z.key === zodiacKey || z.animal === zodiacKey)
@@ -209,17 +372,16 @@ export const dailyZodiacMagiEngine = {
                     (yBr === '진' && tBr === '술') || (yBr === '술' && tBr === '진') ||
                     (yBr === '사' && tBr === '해') || (yBr === '해' && tBr === '사');
 
-    let luckyRate = 80;
-    let magiRate = 20; // 80 + 20 = 100%
+    const dayMetrics = computeZodiacDayMetrics(yearInfo, todayStem, todayBranch);
+    const luckyRate = dayMetrics.luckyRate;
+    const magiRate = dayMetrics.magiRate; // luckyRate + magiRate === 100
     let firstHour = '09:00 ~ 11:00';
     let firstHourAct = '오전 기획 및 제안';
     let secondHour = '14:00 ~ 16:00';
     let secondHourAct = '오후 성과 협의 및 실행';
 
     if (isSixHarm) {
-      // 대길한 육합: 행운 85% / 마기 15%
-      luckyRate = 85;
-      magiRate = 15;
+      // 대길한 육합
       branchRelation = `지지 육합(六合) 결속: ${yearInfo.branchFull}과 ${todayBranch}의 화합 밀착`;
       magiType = '안일함과 확인누락의 마';
       defenseKeyword = '도장주의';
@@ -230,9 +392,7 @@ export const dailyZodiacMagiEngine = {
       firstHour = '09:30 ~ 11:30'; firstHourAct = '중요 협의 및 미팅';
       secondHour = '15:00 ~ 17:00'; secondHourAct = '합의문 서면 정리';
     } else if (isThreeHarm) {
-      // 강한 삼합: 행운 80% / 마기 20%
-      luckyRate = 80;
-      magiRate = 20;
+      // 강한 삼합
       branchRelation = `지지 삼합(三合) 연합: ${yearInfo.branchFull}과 ${todayBranch}의 세력 형성`;
       magiType = '과속과 무리한 확장의 마';
       defenseKeyword = '돈조심';
@@ -243,9 +403,7 @@ export const dailyZodiacMagiEngine = {
       firstHour = '08:30 ~ 10:30'; firstHourAct = '핵심 목표 착수';
       secondHour = '13:30 ~ 15:30'; secondHourAct = '성과 도출 및 결재';
     } else if (isClash) {
-      // 정면 충돌: 행운 30% / 마기 70%
-      luckyRate = 30;
-      magiRate = 70;
+      // 정면 충돌
       branchRelation = `지지 정면 충(沖) 격돌: ${yearInfo.branchFull}과 ${todayBranch}의 상충 변화`;
       magiType = '감정 마찰과 충동 결정의 마';
       
@@ -269,9 +427,7 @@ export const dailyZodiacMagiEngine = {
       firstHour = '11:00 ~ 12:30'; firstHourAct = '단독 업무 및 마음 정돈';
       secondHour = '16:00 ~ 17:30'; secondHourAct = '루틴 업무 차분히 마무리';
     } else if (yBr === tBr) {
-      // 비견/자형: 행운 50% / 마기 50%
-      luckyRate = 50;
-      magiRate = 50;
+      // 비견/자형
       branchRelation = `지지 비견(比肩) 자형: ${yearInfo.branchFull}과 ${todayBranch}의 기운 중복`;
       magiType = '고집과 독단의 마';
       defenseKeyword = '말조심';
@@ -282,9 +438,7 @@ export const dailyZodiacMagiEngine = {
       firstHour = '10:00 ~ 12:00'; firstHourAct = '동료와 사전 조율';
       secondHour = '14:30 ~ 16:30'; secondHourAct = '분업 실행';
     } else {
-      // 일반 상생: 행운 70% / 마기 30%
-      luckyRate = 70;
-      magiRate = 30;
+      // 일반 상생
       branchRelation = `지지 상생(相生) 완충: ${yearInfo.branchFull}과 ${todayBranch}의 순리 소통`;
       magiType = '미룸과 방심의 마';
       defenseKeyword = '남쪽주의';
@@ -541,55 +695,15 @@ export const dailyZodiacMagiEngine = {
       const pillar = DailyFortuneEngine.getDailyPillar(targetDate);
       const tStem = pillar.stem || '병';
       const tBr = pillar.branch || '신';
-      const yBr = yearInfo.branch;
-
-      // 육합 & 삼합 대길 판별
-      const isSixHarm = (yBr === '자' && tBr === '축') || (yBr === '축' && tBr === '자') ||
-                        (yBr === '인' && tBr === '해') || (yBr === '해' && tBr === '인') ||
-                        (yBr === '묘' && tBr === '술') || (yBr === '술' && tBr === '묘') ||
-                        (yBr === '진' && tBr === '유') || (yBr === '유' && tBr === '진') ||
-                        (yBr === '사' && tBr === '신') || (yBr === '신' && tBr === '사') ||
-                        (yBr === '오' && tBr === '미') || (yBr === '미' && tBr === '오');
-
-      const isThreeHarm = (['신', '자', '진'].includes(yBr) && ['신', '자', '진'].includes(tBr)) ||
-                          (['해', '묘', '미'].includes(yBr) && ['해', '묘', '미'].includes(tBr)) ||
-                          (['인', '오', '술'].includes(yBr) && ['인', '오', '술'].includes(tBr)) ||
-                          (['사', '유', '축'].includes(yBr) && ['사', '유', '축'].includes(tBr));
-
-      const isClash = (yBr === '자' && tBr === '오') || (yBr === '오' && tBr === '자') ||
-                      (yBr === '축' && tBr === '미') || (yBr === '미' && tBr === '축') ||
-                      (yBr === '인' && tBr === '신') || (yBr === '신' && tBr === '인') ||
-                      (yBr === '묘' && tBr === '유') || (yBr === '유' && tBr === '묘') ||
-                      (yBr === '진' && tBr === '술') || (yBr === '술' && tBr === '진') ||
-                      (yBr === '사' && tBr === '해') || (yBr === '해' && tBr === '사');
-
-      let luckyRate = 60;
-      let isGoldenDay = false;
-      let actionTag = '평온';
-
-      if (isSixHarm) {
-        luckyRate = 92;
-        isGoldenDay = true;
-        actionTag = '계약·협상 대길';
-      } else if (isThreeHarm) {
-        luckyRate = 86;
-        isGoldenDay = true;
-        actionTag = '투자·성과 창출';
-      } else if (isClash) {
-        luckyRate = 25;
-        actionTag = '신중';
-      } else {
-        luckyRate = 60 + ((day * 7) % 20); // 60~79의 안정적 일진
-        actionTag = '계획 추진';
-      }
+      const metrics = computeZodiacDayMetrics(yearInfo, tStem, tBr);
 
       daysData.push({
         date: day,
         dayOfWeek: targetDate.getDay(),
         pillarName: pillar.pillarName || `${tStem}${tBr}`,
-        luckyRate,
-        isGoldenDay,
-        actionTag,
+        luckyRate: metrics.luckyRate,
+        isGoldenDay: metrics.isGoldenDay,
+        actionTag: metrics.actionTag,
       });
     }
 
@@ -620,44 +734,17 @@ export const dailyZodiacMagiEngine = {
       const pillar = DailyFortuneEngine.getDailyPillar(targetDate);
       const tStem = pillar.stem || '병';
       const tBr = pillar.branch || '신';
-      const yBr = yearInfo.branch;
-
-      const isClash = (yBr === '자' && tBr === '오') || (yBr === '오' && tBr === '자') ||
-                      (yBr === '축' && tBr === '미') || (yBr === '미' && tBr === '축') ||
-                      (yBr === '인' && tBr === '신') || (yBr === '신' && tBr === '인') ||
-                      (yBr === '묘' && tBr === '유') || (yBr === '유' && tBr === '묘') ||
-                      (yBr === '진' && tBr === '술') || (yBr === '술' && tBr === '진') ||
-                      (yBr === '사' && tBr === '해') || (yBr === '해' && tBr === '사');
-
-      const isPenalty = (['인', '사', '신'].includes(yBr) && ['인', '사', '신'].includes(tBr) && yBr !== tBr) ||
-                        (['축', '술', '미'].includes(yBr) && ['축', '술', '미'].includes(tBr) && yBr !== tBr);
-
-      let magiRate = 20;
-      let isWarningDay = false;
-      let avoidTag = '무탈';
-
-      if (isClash) {
-        magiRate = 88;
-        isWarningDay = true;
-        avoidTag = '날인·이동 주의 필요';
-      } else if (isPenalty) {
-        magiRate = 78;
-        isWarningDay = true;
-        avoidTag = '언쟁·계약 신중 권고';
-      } else {
-        magiRate = 15 + ((day * 3) % 25);
-        avoidTag = '방어 양호';
-      }
+      const metrics = computeZodiacDayMetrics(yearInfo, tStem, tBr);
 
       daysData.push({
         date: day,
         dayOfWeek: targetDate.getDay(),
         pillarName: pillar.pillarName || `${tStem}${tBr}`,
-        magiRate,
-        isWarningDay,
-        avoidTag,
-        isClash,
-        isPenalty,
+        magiRate: metrics.magiRate,
+        isWarningDay: metrics.isWarningDay,
+        avoidTag: metrics.avoidTag,
+        isClash: metrics.isClash,
+        isPenalty: metrics.isPenalty,
       });
     }
 
@@ -672,9 +759,87 @@ export const dailyZodiacMagiEngine = {
   },
 
   /**
+   * [1:1 개인 사주 원국 맞춤 일진 지표 공통 산출]
+   * 개인화 행운달력·마기달력이 동일 지표를 공유하여 항상 행운% + 마기% = 100% 보장
+   */
+  _computePersonalizedDayMetrics(
+    targetDate: Date,
+    dayBranch: string,
+    sajuContext: { sajuCore: any; signal?: any; relationship?: any; userName?: string; gender?: 'male' | 'female' }
+  ) {
+    const { sajuCore, signal, relationship, userName = '의뢰인', gender = 'male' } = sajuContext;
+    const pillar = DailyFortuneEngine.getDailyPillar(targetDate);
+    const tBr = pillar.branch;
+
+    const isClash =
+      (dayBranch === '자' && tBr === '오') || (dayBranch === '오' && tBr === '자') ||
+      (dayBranch === '축' && tBr === '미') || (dayBranch === '미' && tBr === '축') ||
+      (dayBranch === '인' && tBr === '신') || (dayBranch === '신' && tBr === '인') ||
+      (dayBranch === '묘' && tBr === '유') || (dayBranch === '유' && tBr === '묘') ||
+      (dayBranch === '진' && tBr === '술') || (dayBranch === '술' && tBr === '진') ||
+      (dayBranch === '사' && tBr === '해') || (dayBranch === '해' && tBr === '사');
+
+    const isPenalty =
+      (['인', '사', '신'].includes(dayBranch) && ['인', '사', '신'].includes(tBr) && dayBranch !== tBr) ||
+      (['축', '술', '미'].includes(dayBranch) && ['축', '술', '미'].includes(tBr) && dayBranch !== tBr);
+
+    const scores = DailyFortuneEngine.calculate({
+      sajuCore,
+      signal,
+      relationship,
+      userName,
+      gender,
+      targetDate,
+    });
+
+    let luckyRate = Math.round(scores.celestialScore);
+    if (isClash) {
+      luckyRate = Math.min(luckyRate, 22);
+    } else if (isPenalty) {
+      luckyRate = Math.min(luckyRate, 32);
+    }
+    luckyRate = Math.max(10, Math.min(97, luckyRate));
+    const magiRate = 100 - luckyRate;
+
+    const isGoldenDay = luckyRate >= 90 && !isClash && !isPenalty;
+    const isWarningDay = isClash || isPenalty || magiRate >= 65;
+
+    let actionTag = '계획 추진';
+    if (isGoldenDay) {
+      if (scores.moneyScore >= 80) actionTag = '재물·계약 대길';
+      else if (scores.loveScore >= 80) actionTag = '인연·협상 대길';
+      else actionTag = '성취·도약 대길';
+    } else if (luckyRate >= 72) {
+      actionTag = '순조로운 진행';
+    } else if (isWarningDay || luckyRate < 50) {
+      actionTag = '신중·내실 점검';
+    }
+
+    let avoidTag = '평온·무탈';
+    if (isClash) {
+      avoidTag = '일지충·날인 주의 필요';
+    } else if (isPenalty) {
+      avoidTag = '삼형·언쟁 신중 권고';
+    } else if (isWarningDay) {
+      avoidTag = '기운상극·결정 신중 권고';
+    }
+
+    return {
+      pillar,
+      scores,
+      luckyRate,
+      magiRate,
+      isGoldenDay,
+      isWarningDay,
+      isClash,
+      isPenalty,
+      actionTag,
+      avoidTag,
+    };
+  },
+
+  /**
    * [1:1 개인 사주 원국 맞춤 월간 행운달력 데이터 생성]
-   * 사용자의 일간, 일지, 용신/희신, 십신, 5대 축 신호를 당월 1~말일 일진과 대조하여
-   * 개인 맞춤형 대길일(골든데이)과 일일 천기지수 산출
    */
   getPersonalizedMonthlyLuckyCalendarData(
     year: number,
@@ -704,41 +869,19 @@ export const dailyZodiacMagiEngine = {
 
     for (let day = 1; day <= totalDays; day++) {
       const targetDate = new Date(year, month - 1, day);
-      const scores = DailyFortuneEngine.calculate({
-        sajuCore,
-        signal,
-        relationship,
-        userName,
-        gender,
-        targetDate,
-      });
-
-      const pillar = DailyFortuneEngine.getDailyPillar(targetDate);
-      const luckyRate = scores.celestialScore;
-      const isGoldenDay = luckyRate >= 80 || scores.gradeBadge.includes('대길');
-
-      let actionTag = '계획 추진';
-      if (isGoldenDay) {
-        if (scores.moneyScore >= 80) actionTag = '재물·계약 대길';
-        else if (scores.loveScore >= 80) actionTag = '인연·협상 대길';
-        else actionTag = '성취·도약 대길';
-      } else if (luckyRate >= 65) {
-        actionTag = '순조로운 진행';
-      } else if (luckyRate < 55) {
-        actionTag = '신중·내실 점검';
-      }
+      const m = this._computePersonalizedDayMetrics(targetDate, dayBranch, sajuContext);
 
       daysData.push({
         date: day,
         dayOfWeek: targetDate.getDay(),
-        pillarName: pillar.pillarName,
-        luckyRate,
-        isGoldenDay,
-        actionTag,
-        gradeBadge: scores.gradeBadge,
-        moneyScore: scores.moneyScore,
-        loveScore: scores.loveScore,
-        vitalityScore: scores.vitalityScore,
+        pillarName: m.pillar.pillarName,
+        luckyRate: m.luckyRate,
+        isGoldenDay: m.isGoldenDay,
+        actionTag: m.actionTag,
+        gradeBadge: m.scores.gradeBadge,
+        moneyScore: m.scores.moneyScore,
+        loveScore: m.scores.loveScore,
+        vitalityScore: m.scores.vitalityScore,
       });
     }
 
@@ -789,57 +932,17 @@ export const dailyZodiacMagiEngine = {
 
     for (let day = 1; day <= totalDays; day++) {
       const targetDate = new Date(year, month - 1, day);
-      const pillar = DailyFortuneEngine.getDailyPillar(targetDate);
-      const tBr = pillar.branch;
-
-      const isClash = (dayBranch === '자' && tBr === '오') || (dayBranch === '오' && tBr === '자') ||
-                      (dayBranch === '축' && tBr === '미') || (dayBranch === '미' && tBr === '축') ||
-                      (dayBranch === '인' && tBr === '신') || (dayBranch === '신' && tBr === '인') ||
-                      (dayBranch === '묘' && tBr === '유') || (dayBranch === '유' && tBr === '묘') ||
-                      (dayBranch === '진' && tBr === '술') || (dayBranch === '술' && tBr === '진') ||
-                      (dayBranch === '사' && tBr === '해') || (dayBranch === '해' && tBr === '사');
-
-      const isPenalty = (['인', '사', '신'].includes(dayBranch) && ['인', '사', '신'].includes(tBr) && dayBranch !== tBr) ||
-                        (['축', '술', '미'].includes(dayBranch) && ['축', '술', '미'].includes(tBr) && dayBranch !== tBr);
-
-      const scores = DailyFortuneEngine.calculate({
-        sajuCore,
-        signal,
-        relationship,
-        userName,
-        gender,
-        targetDate,
-      });
-
-      let magiRate = Math.max(12, Math.min(94, 100 - scores.celestialScore));
-      let isWarningDay = false;
-      let avoidTag = '방어 양호';
-
-      if (isClash) {
-        magiRate = Math.max(magiRate, 88);
-        isWarningDay = true;
-        avoidTag = '일지충·날인 주의 필요';
-      } else if (isPenalty) {
-        magiRate = Math.max(magiRate, 78);
-        isWarningDay = true;
-        avoidTag = '삼형·언쟁 신중 권고';
-      } else if (scores.celestialScore < 56 || scores.gradeBadge.includes('주의')) {
-        magiRate = Math.max(magiRate, 68);
-        isWarningDay = true;
-        avoidTag = '기운상극·결정 신중 권고';
-      } else {
-        avoidTag = '평온·무탈';
-      }
+      const m = this._computePersonalizedDayMetrics(targetDate, dayBranch, sajuContext);
 
       daysData.push({
         date: day,
         dayOfWeek: targetDate.getDay(),
-        pillarName: pillar.pillarName,
-        magiRate,
-        isWarningDay,
-        avoidTag,
-        isClash,
-        isPenalty,
+        pillarName: m.pillar.pillarName,
+        magiRate: m.magiRate,
+        isWarningDay: m.isWarningDay,
+        avoidTag: m.avoidTag,
+        isClash: m.isClash,
+        isPenalty: m.isPenalty,
       });
     }
 
