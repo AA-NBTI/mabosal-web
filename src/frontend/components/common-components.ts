@@ -387,3 +387,27 @@ export function renderAffiliatePromoBanner(): string {
     </div>
   `;
 }
+
+/**
+ * 4. 사주 분석 세션 미존재 시 임의 샘플 폴백 대신 출력하는 사주 입력 안내 카드
+ */
+export function renderEmptySajuGuideView(reportLabel: string): string {
+  return `
+    <div class="result-view-container empty-saju-guide-view" style="max-width: 580px; margin: 3rem auto; padding: 2rem 1.5rem; text-align: center;">
+      <div style="background: rgba(14, 18, 28, 0.88); border: 1.5px solid rgba(242, 202, 80, 0.32); border-radius: 18px; padding: 2.75rem 1.5rem; box-shadow: 0 12px 40px rgba(0,0,0,0.55);">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(242, 202, 80, 0.12); border: 1px solid var(--primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; color: var(--primary);">
+          <span class="material-symbols-outlined" style="font-size: 28px;">calendar_month</span>
+        </div>
+        <h2 style="font-size: 1.35rem; font-weight: 800; color: #fff; margin: 0 0 0.6rem 0;">
+          ${reportLabel}을(를) 확인하려면 사주 입력이 필요합니다
+        </h2>
+        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.6; margin: 0 0 1.75rem 0;">
+          아직 분석된 생년월일시 데이터가 없습니다. 정확한 만세력 원국 산출을 위해 사주 정보를 먼저 입력해 주세요.
+        </p>
+        <button type="button" class="btn-cta-primary" data-nav="analyze" style="width: 100%; max-width: 280px; padding: 0.9rem 1.25rem; border-radius: 10px; background: var(--primary); color: #1c1500; font-size: 1rem; font-weight: 800; border: none; cursor: pointer;">
+          사주 정보 입력하기
+        </button>
+      </div>
+    </div>
+  `;
+}

@@ -24,16 +24,84 @@ export interface MonthlyScorePoint {
 export interface MonthlyChartOptions {
  yearTitle?: string;
  subTitle?: string;
+ summaryText?: string;
  data?: MonthlyScorePoint[];
 }
 
+const DEFAULT_MONTHLY_DATA: MonthlyScorePoint[] = [
+ { month: 1, stemBranch: '壬寅', score: 78 },
+ { month: 2, stemBranch: '癸卯', score: 82 },
+ { month: 3, stemBranch: '甲辰', score: 85 },
+ { month: 4, stemBranch: '乙巳', score: 65, isDip: true },
+ { month: 5, stemBranch: '丙午', score: 91 },
+ { month: 6, stemBranch: '丁未', score: 88 },
+ { month: 7, stemBranch: '戊申', score: 86 },
+ { month: 8, stemBranch: '己酉', score: 80 },
+ { month: 9, stemBranch: '庚戌', score: 76 },
+ { month: 10, stemBranch: '辛亥', score: 95, isPeak: true },
+ { month: 11, stemBranch: '壬子', score: 84 },
+ { month: 12, stemBranch: '癸丑', score: 89 },
+];
+
 /**
  * 1. 12개월 월운 스플라인 추이 SVG 차트
- * 천명원 고유의 골드 글로우 스플라인 곡선과 주의(4월)/피크(10월) 하이라이트 시스템
+ * 천명원 고유의 골드 글로우 스플라인 곡선과 주의/피크 자동 하이라이트 시스템
  */
 export function renderSplineMonthlyChart(options?: MonthlyChartOptions): string {
  const yearTitle = options?.yearTitle || '2027 정미년(丁未年)';
  const subTitle = options?.subTitle || '12개월 에너지 스플라인 추이';
+ const points = (options?.data && options.data.length === 12) ? options.data : DEFAULT_MONTHLY_DATA;
+
+ let peakIdx = points.findIndex(p => p.isPeak);
+ if (peakIdx < 0) {
+  peakIdx = points.reduce((best, p, idx) => (p.score > points[best].score ? idx : best), 0);
+ }
+ let dipIdx = points.findIndex(p => p.isDip);
+ if (dipIdx < 0) {
+  dipIdx = points.reduce((worst, p, idx) => (p.score < points[worst].score ? idx : worst), 0);
+ }
+ if (dipIdx === peakIdx) {
+  dipIdx = (peakIdx + 6) % 12;
+ }
+
+ const coords = points.map((p, i) => {
+  const clamped = Math.max(30, Math.min(100, p.score));
+  const x = Number((18 + i * ((330 - 18) / 11)).toFixed(1));
+  const y = Number((144 - ((clamped - 30) / 70) * 116).toFixed(1));
+  return { ...p, x, y, idx: i };
+ });
+
+ const buildSmoothPath = (pts: { x: number; y: number }[]) => {
+  if (pts.length === 0) return '';
+  let d = `M ${pts[0].x},${pts[0].y}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+   const p0 = pts[Math.max(0, i - 1)];
+   const p1 = pts[i];
+   const p2 = pts[i + 1];
+   const p3 = pts[Math.min(pts.length - 1, i + 2)];
+   const cp1x = Number((p1.x + (p2.x - p0.x) / 6).toFixed(1));
+   const cp1y = Number((p1.y + (p2.y - p0.y) / 6).toFixed(1));
+   const cp2x = Number((p2.x - (p3.x - p1.x) / 6).toFixed(1));
+   const cp2y = Number((p2.y - (p3.y - p1.y) / 6).toFixed(1));
+   d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+  }
+  return d;
+ };
+
+ const mainPath = buildSmoothPath(coords);
+ const areaPath = `${mainPath} L ${coords[coords.length - 1].x},150 L ${coords[0].x},150 Z`;
+ const subCoords = coords.map((c, i) => ({
+  x: c.x,
+  y: Number(Math.max(24, Math.min(142, c.y + (i % 2 === 0 ? 7 : -6))).toFixed(1)),
+ }));
+ const subPath = buildSmoothPath(subCoords);
+
+ const peakPt = coords[peakIdx];
+ const dipPt = coords[dipIdx];
+ const badgeX = Math.max(4, Math.min(298, Number((peakPt.x - 19).toFixed(1))));
+ const badgeY = Math.max(2, Number((peakPt.y - 28).toFixed(1)));
+ const summaryHtml = options?.summaryText
+  || `<strong>${peakPt.month}월(${peakPt.stemBranch}, ${peakPt.score}점)</strong>에 연간 최고 도약 타이밍이 도래하며, <strong>${dipPt.month}월(${dipPt.score}점)</strong>은 내실 점검 구간입니다.`;
 
  return `
  <div class="spline-chart-card" style="background: rgba(15, 20, 34, 0.95); border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 16px; padding: 1.25rem; box-shadow: 0 8px 32px rgba(0,0,0,0.5); margin-bottom: 1.5rem;">
@@ -79,94 +147,66 @@ export function renderSplineMonthlyChart(options?: MonthlyChartOptions): string 
  <line x1="16" y1="36" x2="330" y2="36" stroke="#313540" stroke-width="0.8" stroke-dasharray="3 3" />
  <text x="10" y="39" fill="#99907c" font-size="7.5" font-family="'Outfit', sans-serif" text-anchor="end">95</text>
  
- <line x1="16" y1="60" x2="330" y2="60" stroke="#313540" stroke-width="0.8" stroke-dasharray="3 3" />
- <text x="10" y="63" fill="#99907c" font-size="7.5" font-family="'Outfit', sans-serif" text-anchor="end">75</text>
+ <line x1="16" y1="69" x2="330" y2="69" stroke="#313540" stroke-width="0.8" stroke-dasharray="3 3" />
+ <text x="10" y="72" fill="#99907c" font-size="7.5" font-family="'Outfit', sans-serif" text-anchor="end">75</text>
  
- <line x1="16" y1="96" x2="330" y2="96" stroke="#313540" stroke-width="0.8" stroke-dasharray="3 3" />
- <text x="10" y="99" fill="#99907c" font-size="7.5" font-family="'Outfit', sans-serif" text-anchor="end">50</text>
+ <line x1="16" y1="111" x2="330" y2="111" stroke="#313540" stroke-width="0.8" stroke-dasharray="3 3" />
+ <text x="10" y="114" fill="#99907c" font-size="7.5" font-family="'Outfit', sans-serif" text-anchor="end">50</text>
 
- <!-- 4월 주의 구간 하이라이트 -->
- <rect x="91" y="24" width="24" height="126" rx="4" fill="#ffb4ab" fill-opacity="0.08" />
- <text x="103" y="20" fill="#ff8a80" font-size="7.5" font-weight="700" text-anchor="middle">주의</text>
+ <!-- 주의 구간 하이라이트 -->
+ <rect x="${Number((dipPt.x - 12).toFixed(1))}" y="24" width="24" height="126" rx="4" fill="#ffb4ab" fill-opacity="0.08" />
+ <text x="${dipPt.x}" y="20" fill="#ff8a80" font-size="7.5" font-weight="700" text-anchor="middle">주의</text>
 
- <!-- 10월 연간 최고 피크 골든 하이라이트 -->
- <rect x="261" y="16" width="24" height="134" rx="4" fill="#f2ca50" fill-opacity="0.12" />
- <line x1="273" y1="28" x2="273" y2="150" stroke="#f2ca50" stroke-width="1.2" stroke-dasharray="2 2" />
+ <!-- 연간 최고 피크 골든 하이라이트 -->
+ <rect x="${Number((peakPt.x - 12).toFixed(1))}" y="16" width="24" height="134" rx="4" fill="#f2ca50" fill-opacity="0.12" />
+ <line x1="${peakPt.x}" y1="28" x2="${peakPt.x}" y2="150" stroke="#f2ca50" stroke-width="1.2" stroke-dasharray="2 2" />
 
  <!-- 보조선 (재물/문서운 점선) -->
- <path d="M 18,65 C 46,62 74,55 102,68 C 131,80 159,48 187,46 C 216,45 244,66 273,34 C 301,48 316,44 330,42"
- fill="none" stroke="#93c5fd" stroke-width="1.4" stroke-dasharray="3 3" opacity="0.65" />
+ <path d="${subPath}" fill="none" stroke="#93c5fd" stroke-width="1.4" stroke-dasharray="3 3" opacity="0.65" />
 
  <!-- 주 스플라인 면적 그라데이션 -->
- <path d="M 18,56.4 C 32,54 39,52.5 46.4,51.6 C 60,50 67,49 74.7,48 C 88,46.5 95,60 103,61.2 C 117,63 124,42 131.4,40.8 C 145,39 152,43.5 159.7,44.4 C 173,46 181,46 188,46.8 C 202,48 209,53 216.4,54 C 230,56 238,58 244.7,58.8 C 258,60 265,37 273,36 C 287,35 294,48 301.4,49.2 C 315,51 322,44 330,43.2 L 330,150 L 18,150 Z"
- fill="url(#splineAreaGrad)" />
+ <path d="${areaPath}" fill="url(#splineAreaGrad)" />
 
  <!-- 주 스플라인 황금 곡선 (글로우 효과) -->
- <path d="M 18,56.4 C 32,54 39,52.5 46.4,51.6 C 60,50 67,49 74.7,48 C 88,46.5 95,60 103,61.2 C 117,63 124,42 131.4,40.8 C 145,39 152,43.5 159.7,44.4 C 173,46 181,46 188,46.8 C 202,48 209,53 216.4,54 C 230,56 238,58 244.7,58.8 C 258,60 265,37 273,36 C 287,35 294,48 301.4,49.2 C 315,51 322,44 330,43.2"
- fill="none" stroke="#f2ca50" stroke-width="2.6" filter="url(#goldChartGlow)" />
+ <path d="${mainPath}" fill="none" stroke="#f2ca50" stroke-width="2.6" filter="url(#goldChartGlow)" />
 
  <!-- 월별 노드 포인트 (1월 ~ 12월) -->
- <circle cx="18" cy="56.4" r="2.8" fill="#0f131d" stroke="#f2ca50" stroke-width="1.8" />
- <circle cx="46.4" cy="51.6" r="2.8" fill="#0f131d" stroke="#f2ca50" stroke-width="1.8" />
- <circle cx="74.7" cy="48" r="2.8" fill="#0f131d" stroke="#f2ca50" stroke-width="1.8" />
- <!-- 4월 주의 노드 -->
- <circle cx="103" cy="61.2" r="3.4" fill="#ff8a80" stroke="#0f131d" stroke-width="1.5" />
- <!-- 5월 상승 노드 -->
- <circle cx="131.4" cy="40.8" r="3.4" fill="#f2ca50" stroke="#0f131d" stroke-width="1.5" />
- <text x="131.4" y="33" fill="#f2ca50" font-size="8" font-weight="700" text-anchor="middle">91</text>
- 
- <circle cx="159.7" cy="44.4" r="2.8" fill="#0f131d" stroke="#f2ca50" stroke-width="1.8" />
- <circle cx="188" cy="46.8" r="2.8" fill="#0f131d" stroke="#f2ca50" stroke-width="1.8" />
- <circle cx="216.4" cy="54" r="2.8" fill="#0f131d" stroke="#f2ca50" stroke-width="1.8" />
- <circle cx="244.7" cy="58.8" r="2.8" fill="#0f131d" stroke="#f2ca50" stroke-width="1.8" />
- <!-- 10월 최고 정점 노드 & 펄스 링 -->
- <circle cx="273" cy="36" r="6" fill="#f2ca50" fill-opacity="0.3" class="pulse-node" />
- <circle cx="273" cy="36" r="3.8" fill="#f2ca50" stroke="#0f131d" stroke-width="2" />
- <!-- 10월 플로팅 배지 -->
- <g transform="translate(254, 8)">
- <rect width="38" height="17" rx="8.5" fill="#d4af37" />
- <text x="19" y="11.5" fill="#0f131d" font-size="8.5" font-weight="800" text-anchor="middle"> 95점</text>
- </g>
+ ${coords.map((c, idx) => {
+  if (idx === peakIdx) {
+   return `
+    <circle cx="${c.x}" cy="${c.y}" r="6" fill="#f2ca50" fill-opacity="0.3" class="pulse-node" />
+    <circle cx="${c.x}" cy="${c.y}" r="3.8" fill="#f2ca50" stroke="#0f131d" stroke-width="2" />
+    <g transform="translate(${badgeX}, ${badgeY})">
+     <rect width="38" height="17" rx="8.5" fill="#d4af37" />
+     <text x="19" y="11.5" fill="#0f131d" font-size="8.5" font-weight="800" text-anchor="middle">${c.score}점</text>
+    </g>
+   `;
+  }
+  if (idx === dipIdx) {
+   return `<circle cx="${c.x}" cy="${c.y}" r="3.4" fill="#ff8a80" stroke="#0f131d" stroke-width="1.5" />`;
+  }
+  return `<circle cx="${c.x}" cy="${c.y}" r="2.8" fill="#0f131d" stroke="#f2ca50" stroke-width="1.8" />`;
+ }).join('')}
 
- <circle cx="301.4" cy="49.2" r="2.8" fill="#0f131d" stroke="#f2ca50" stroke-width="1.8" />
- <circle cx="330" cy="43.2" r="2.8" fill="#0f131d" stroke="#f2ca50" stroke-width="1.8" />
-
- <!-- 하단 월 라벨 (1월 ~ 12월) -->
- <text x="18" y="165" fill="#d0c5af" font-size="8" text-anchor="middle">1월</text>
- <text x="46.4" y="165" fill="#d0c5af" font-size="8" text-anchor="middle">2월</text>
- <text x="74.7" y="165" fill="#d0c5af" font-size="8" text-anchor="middle">3월</text>
- <text x="103" y="165" fill="#ff8a80" font-size="8" font-weight="700" text-anchor="middle">4월</text>
- <text x="131.4" y="165" fill="#f2ca50" font-size="8" font-weight="700" text-anchor="middle">5월</text>
- <text x="159.7" y="165" fill="#d0c5af" font-size="8" text-anchor="middle">6월</text>
- <text x="188" y="165" fill="#d0c5af" font-size="8" text-anchor="middle">7월</text>
- <text x="216.4" y="165" fill="#d0c5af" font-size="8" text-anchor="middle">8월</text>
- <text x="244.7" y="165" fill="#d0c5af" font-size="8" text-anchor="middle">9월</text>
- <text x="273" y="165" fill="#f2ca50" font-size="8.5" font-weight="800" text-anchor="middle">10월</text>
- <text x="301.4" y="165" fill="#d0c5af" font-size="8" text-anchor="middle">11월</text>
- <text x="330" y="165" fill="#d0c5af" font-size="8" text-anchor="middle">12월</text>
-
- <!-- 하단 간지 라벨 (임인, 계묘, 갑진, 을사, 병오, 정미...) -->
- <text x="18" y="176" fill="#99907c" font-size="6.5" font-family="'Noto Serif KR', serif" text-anchor="middle">壬寅</text>
- <text x="46.4" y="176" fill="#99907c" font-size="6.5" font-family="'Noto Serif KR', serif" text-anchor="middle">癸卯</text>
- <text x="74.7" y="176" fill="#99907c" font-size="6.5" font-family="'Noto Serif KR', serif" text-anchor="middle">甲辰</text>
- <text x="103" y="176" fill="#ff8a80" font-size="6.5" font-family="'Noto Serif KR', serif" text-anchor="middle">乙巳</text>
- <text x="131.4" y="176" fill="#f2ca50" font-size="6.5" font-family="'Noto Serif KR', serif" text-anchor="middle">丙午</text>
- <text x="159.7" y="176" fill="#99907c" font-size="6.5" font-family="'Noto Serif KR', serif" text-anchor="middle">丁未</text>
- <text x="188" y="176" fill="#99907c" font-size="6.5" font-family="'Noto Serif KR', serif" text-anchor="middle">戊申</text>
- <text x="216.4" y="176" fill="#99907c" font-size="6.5" font-family="'Noto Serif KR', serif" text-anchor="middle">己酉</text>
- <text x="244.7" y="176" fill="#99907c" font-size="6.5" font-family="'Noto Serif KR', serif" text-anchor="middle">庚戌</text>
- <text x="273" y="176" fill="#f2ca50" font-size="6.5" font-weight="700" font-family="'Noto Serif KR', serif" text-anchor="middle">辛亥</text>
- <text x="301.4" y="176" fill="#99907c" font-size="6.5" font-family="'Noto Serif KR', serif" text-anchor="middle">壬子</text>
- <text x="330" y="176" fill="#99907c" font-size="6.5" font-family="'Noto Serif KR', serif" text-anchor="middle">癸丑</text>
+ <!-- 하단 월 & 간지 라벨 (1월 ~ 12월) -->
+ ${coords.map((c, idx) => {
+  const color = idx === peakIdx ? '#f2ca50' : (idx === dipIdx ? '#ff8a80' : '#d0c5af');
+  const weight = (idx === peakIdx || idx === dipIdx) ? '700' : '400';
+  const ganjiColor = idx === peakIdx ? '#f2ca50' : (idx === dipIdx ? '#ff8a80' : '#99907c');
+  return `
+   <text x="${c.x}" y="165" fill="${color}" font-size="8" font-weight="${weight}" text-anchor="middle">${c.month}월</text>
+   <text x="${c.x}" y="176" fill="${ganjiColor}" font-size="6.5" font-family="'Noto Serif KR', serif" text-anchor="middle">${c.stemBranch}</text>
+  `;
+ }).join('')}
  </svg>
  </div>
 
  <!-- 월운 요약 바텀 콜아웃 -->
- <div style="margin-top: 0.85rem; padding: 0.75rem 0.95rem; background: rgba(212, 175, 55, 0.08); border-radius: 10px; border-left: 3px solid var(--text-gold); display: flex; justify-content: space-between; align-items: center;">
- <span style="font-size: 0.8rem; color: #fff;">
- <strong>상반기 5월(도약)</strong>과 <strong>하반기 10월(연간 최고 정점)</strong>에 계약·투자 골든타임 도래
+ <div style="margin-top: 0.85rem; padding: 0.75rem 0.95rem; background: rgba(212, 175, 55, 0.08); border-radius: 10px; border-left: 3px solid var(--text-gold); display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
+ <span style="font-size: 0.8rem; color: #fff; line-height: 1.45;">
+ ${summaryHtml}
  </span>
- <span style="font-size: 0.72rem; color: var(--text-gold); font-weight: 700; white-space: nowrap;">비책 해설 →</span>
+ <span style="font-size: 0.72rem; color: var(--text-gold); font-weight: 700; white-space: nowrap;">실전 타이밍</span>
  </div>
  </div>
  `;
@@ -176,10 +216,51 @@ export function renderSplineMonthlyChart(options?: MonthlyChartOptions): string 
  * 2. 대운(大運) 10년 주기 라이프사이클 곡선 SVG 차트
  * 10년 주기 상승 곡선 및 현재 맞이한 대운 펄스 하이라이트
  */
-export function renderDaewunLifeCycleChart(options?: { currentDaewun?: string; ageRange?: string; score?: number }): string {
+export interface DaewunChartNode {
+ ageLabel: string;
+ ganji?: string;
+ score: number;
+ isCurrent?: boolean;
+}
+
+export interface DaewunLifeCycleOptions {
+ currentDaewun?: string;
+ ageRange?: string;
+ score?: number;
+ description?: string;
+ statusBadge?: string;
+ nodes?: DaewunChartNode[];
+}
+
+export function renderDaewunLifeCycleChart(options?: DaewunLifeCycleOptions): string {
  const currentDaewun = options?.currentDaewun || '병오(丙午) 대운';
  const ageRange = options?.ageRange || 'AGE 34 ~ 43';
  const score = options?.score || 98;
+ const statusBadge = options?.statusBadge || (score >= 85 ? '현재 피크' : score >= 70 ? '상승 궤도' : '내실 다지기');
+ const description = options?.description || '현재 대운의 오행 기운이 원국과 조응하며 삶과 사회적 입지의 방향성을 이끄는 핵심 10년 주기입니다.';
+
+ const defaultNodes: DaewunChartNode[] = [
+  { ageLabel: '14~23', score: 52 },
+  { ageLabel: '24~33', score: 70 },
+  { ageLabel: '34~43', score, isCurrent: true },
+  { ageLabel: '44~53', score: 78 },
+ ];
+ const nodes = (options?.nodes && options.nodes.length >= 3) ? options.nodes.slice(0, 4) : defaultNodes;
+ const xSlots = nodes.length === 3 ? [45, 160, 275] : [30, 110, 190, 270];
+ const pts = nodes.map((n, idx) => {
+  const clamped = Math.max(40, Math.min(99, n.score));
+  const y = Number((102 - ((clamped - 40) / 60) * 78).toFixed(1));
+  return { ...n, x: xSlots[idx], y };
+ });
+
+ let curvePath = `M ${pts[0].x},${pts[0].y}`;
+ for (let i = 0; i < pts.length - 1; i++) {
+  const p1 = pts[i];
+  const p2 = pts[i + 1];
+  const mx = Number(((p1.x + p2.x) / 2).toFixed(1));
+  curvePath += ` C ${mx},${p1.y} ${mx},${p2.y} ${p2.x},${p2.y}`;
+ }
+ const areaPath = `${curvePath} L ${pts[pts.length - 1].x},110 L ${pts[0].x},110 Z`;
 
  return `
  <div class="daewun-chart-card" style="background: rgba(15, 20, 34, 0.95); border: 1px solid rgba(255, 51, 133, 0.25); border-radius: 16px; padding: 1.25rem; box-shadow: 0 8px 32px rgba(0,0,0,0.5); margin-bottom: 1.5rem;">
@@ -192,7 +273,7 @@ export function renderDaewunLifeCycleChart(options?: { currentDaewun?: string; a
  </div>
  </div>
  <span style="background: rgba(212, 175, 55, 0.2); color: var(--text-gold); font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 6px; font-weight: 700;">
- 현재 피크
+ ${statusBadge}
  </span>
  </div>
 
@@ -207,7 +288,7 @@ export function renderDaewunLifeCycleChart(options?: { currentDaewun?: string; a
  <span style="font-size: 0.72rem; color: var(--text-muted);">${ageRange}</span>
  </div>
  <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0.2rem 0 0 0; line-height: 1.4;">
- 태양과 같은 화(火)기운이 만개하는 10년. 명예와 사회적 입지가 가장 가파르게 치솟는 황금기입니다.
+ ${description}
  </p>
  </div>
  </div>
@@ -228,33 +309,31 @@ export function renderDaewunLifeCycleChart(options?: { currentDaewun?: string; a
  <line x1="20" y1="110" x2="300" y2="110" stroke="#313540" stroke-width="1" />
 
  <!-- 영역 채움 -->
- <path d="M 30,95 Q 85,85 110,70 T 190,25 T 270,55 L 270,110 L 30,110 Z" fill="url(#daewunGrad)" />
+ <path d="${areaPath}" fill="url(#daewunGrad)" />
 
  <!-- 곡선 라인 -->
- <path d="M 30,95 Q 85,85 110,70 T 190,25 T 270,55" fill="none" stroke="#ff3385" stroke-width="3" stroke-linecap="round" />
+ <path d="${curvePath}" fill="none" stroke="#ff3385" stroke-width="3" stroke-linecap="round" />
 
- <!-- 노드 1: 14~23 -->
- <circle cx="30" cy="95" r="4.5" fill="#0f1422" stroke="#64748b" stroke-width="2" />
- <text x="30" y="122" fill="#a0aec0" font-size="9" text-anchor="middle">14~23</text>
-
- <!-- 노드 2: 24~33 -->
- <circle cx="110" cy="70" r="4.5" fill="#0f1422" stroke="#64748b" stroke-width="2" />
- <text x="110" y="122" fill="#a0aec0" font-size="9" text-anchor="middle">24~33</text>
-
- <!-- 노드 3 (현재 피크): 34~43 -->
- <circle cx="190" cy="25" r="11" fill="rgba(212, 175, 55, 0.2)" class="pulse-node" />
- <circle cx="190" cy="25" r="6" fill="#f2ca50" stroke="#080b12" stroke-width="2" />
- <text x="190" y="14" fill="#f2ca50" font-size="9.5" font-weight="800" text-anchor="middle">현재 (${score}점)</text>
- <text x="190" y="122" fill="#f2ca50" font-size="9.5" font-weight="700" text-anchor="middle">34~43</text>
-
- <!-- 노드 4: 44~53 -->
- <circle cx="270" cy="55" r="4.5" fill="#0f1422" stroke="#64748b" stroke-width="2" />
- <text x="270" y="122" fill="#a0aec0" font-size="9" text-anchor="middle">44~53</text>
+ ${pts.map((pt) => {
+  if (pt.isCurrent) {
+   return `
+    <circle cx="${pt.x}" cy="${pt.y}" r="11" fill="rgba(212, 175, 55, 0.2)" class="pulse-node" />
+    <circle cx="${pt.x}" cy="${pt.y}" r="6" fill="#f2ca50" stroke="#080b12" stroke-width="2" />
+    <text x="${pt.x}" y="${Math.max(11, pt.y - 11)}" fill="#f2ca50" font-size="9.5" font-weight="800" text-anchor="middle">현재 (${pt.score}점)</text>
+    <text x="${pt.x}" y="122" fill="#f2ca50" font-size="9.5" font-weight="700" text-anchor="middle">${pt.ageLabel}</text>
+   `;
+  }
+  return `
+   <circle cx="${pt.x}" cy="${pt.y}" r="4.5" fill="#0f1422" stroke="#64748b" stroke-width="2" />
+   ${pt.ganji ? `<text x="${pt.x}" y="${Math.max(12, pt.y - 8)}" fill="#94a3b8" font-size="7.5" text-anchor="middle">${pt.ganji}</text>` : ''}
+   <text x="${pt.x}" y="122" fill="#a0aec0" font-size="9" text-anchor="middle">${pt.ageLabel}</text>
+  `;
+ }).join('')}
  </svg>
 
  <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); padding: 0.2rem 0.5rem 0 0.5rem;">
  <span>기반 형성기</span>
- <span style="color: var(--text-gold); font-weight: 700;">전성기 (현재)</span>
+ <span style="color: var(--text-gold); font-weight: 700;">핵심 전환기</span>
  <span>수확 및 안정기</span>
  </div>
  </div>
@@ -553,8 +632,19 @@ export function renderCheonmyeongwonFiveElementsMultiBar(options?: Cheonmyeongwo
  const deficient = options?.deficientElement || '수(水)';
  const yongshin = options?.yongshin || '금(金) / 수(水)';
  const heeshin = options?.heeshin || '수(水)';
- const shingangStatus = options?.shingangStatus || '신강(身强) · 득령득지';
+ const shingangStatus = options?.shingangStatus || '신강(身强)';
  const rsiScore = options?.rsiScore ?? 86;
+
+ const traitMap: Record<string, { strong: string; need: string }> = {
+   '목': { strong: '성장과 추진력, 개척 의지가', need: '안정적인 기반과 마무리를' },
+   '화': { strong: '열정과 표현력, 직관적 감각이', need: '차분한 호흡과 내실을' },
+   '토': { strong: '포용력과 현실적 신뢰감이', need: '현실적 중심과 묵직한 지속력을' },
+   '금': { strong: '결단력과 원칙, 정리 능력이', need: '명확한 기준과 결단력을' },
+   '수': { strong: '유연한 소통과 깊은 지혜가', need: '유연한 소통과 감정적 환기를' },
+ };
+ const domKey = Object.keys(traitMap).find(k => dominant.includes(k)) || '토';
+ const defKey = Object.keys(traitMap).find(k => deficient.includes(k)) || '수';
+ const diagnosticDetail = `${traitMap[domKey].strong} 뛰어난 반면, ${traitMap[defKey].need} 채우는 것이 운세 상승의 핵심입니다.`;
 
  return `
  <!-- 천명원 5번 규격: 오행(五行) 에너지 분포도 -->
@@ -568,15 +658,6 @@ export function renderCheonmyeongwonFiveElementsMultiBar(options?: Cheonmyeongwo
  <span style="font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 9999px; background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.08); font-weight: 500;">8개 글자 기준</span>
  <span style="font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 9999px; background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.08); font-weight: 500;">마보살 정밀 분석</span>
  </div>
- </div>
-
- <!-- Segmented Multi-Bar Visualizer (오행 글자 컬러와 100% 동일하게 일치) -->
- <div style="width: 100%; height: 12px; border-radius: 9999px; overflow: hidden; display: flex; background: var(--surface-container-lowest); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); margin-bottom: 1rem;">
- <div style="height: 100%; width: ${wPct}%; background: #22c55e; transition: width 0.6s ease;" title="목(木) ${wPct}%"></div>
- <div style="height: 100%; width: ${fPct}%; background: #ef4444; transition: width 0.6s ease;" title="화(火) ${fPct}%"></div>
- <div style="height: 100%; width: ${ePct}%; background: #f59e0b; transition: width 0.6s ease;" title="토(土) ${ePct}%"></div>
- <div style="height: 100%; width: ${mPct}%; background: #94a3b8; transition: width 0.6s ease;" title="금(金) ${mPct}%"></div>
- <div style="height: 100%; width: ${waPct}%; background: #3b82f6; transition: width 0.6s ease;" title="수(水) ${waPct}%"></div>
  </div>
 
  <!-- Elemental Detail Badges Grid (오행 글자/라인 외 모든 구성 컬러 기본 컬러로 통일) -->
@@ -622,9 +703,18 @@ export function renderCheonmyeongwonFiveElementsMultiBar(options?: Cheonmyeongwo
  <strong style="color: #ffffff;">${deficient}</strong> 기운이 다소 부족하여 균형이 필요한 사주입니다.
  </div>
  <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.45;">
- 포용력과 현실적 신뢰감이 뛰어난 반면, 유연한 소통과 감정적 환기를 채우는 것이 운세 상승의 핵심입니다.
+ ${diagnosticDetail}
  </div>
  </div>
+ </div>
+
+ <!-- Segmented Multi-Bar Visualizer (진단 문구 아래쪽 배치) -->
+ <div style="width: 100%; height: 12px; border-radius: 9999px; overflow: hidden; display: flex; background: var(--surface-container-lowest); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); margin-bottom: 0.95rem;">
+ <div style="height: 100%; width: ${wPct}%; background: #22c55e; transition: width 0.6s ease;" title="목(木) ${wPct}%"></div>
+ <div style="height: 100%; width: ${fPct}%; background: #ef4444; transition: width 0.6s ease;" title="화(火) ${fPct}%"></div>
+ <div style="height: 100%; width: ${ePct}%; background: #f59e0b; transition: width 0.6s ease;" title="토(土) ${ePct}%"></div>
+ <div style="height: 100%; width: ${mPct}%; background: #94a3b8; transition: width 0.6s ease;" title="금(金) ${mPct}%"></div>
+ <div style="height: 100%; width: ${waPct}%; background: #3b82f6; transition: width 0.6s ease;" title="수(水) ${waPct}%"></div>
  </div>
 
  <!-- 마보살 심층 명리 메트릭 (기본 컬러 구성) -->

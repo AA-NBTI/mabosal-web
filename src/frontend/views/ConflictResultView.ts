@@ -8,18 +8,16 @@
 
 import { AppStateData } from '../state/app-state.js';
 import { buildDynamicVisualChartProps, extractReportContext, getConflictMalSalReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
-import { renderMiniSajuPillarsCard, renderAffiliatePromoBanner } from '../components/common-components.js';
+import { renderMiniSajuPillarsCard, renderAffiliatePromoBanner, renderEmptySajuGuideView } from '../components/common-components.js';
 import { renderCheonmyeongwonFiveElementsMultiBar, renderCheonmyeongwonDayMasterArchetype } from '../components/VisualCharts.js';
 import { renderStoreProductButton } from './pages/CategoryCommon.js';
 
 export function renderConflictResultView(state: AppStateData): string {
  const session = state.sessionState;
- const pillars = session?.fact?.four_pillars || state.productOutputSet?.common?.pillars || {
- year: { stem: '무', branch: '인' },
- month: { stem: '병', branch: '진' },
- day: { stem: '기', branch: '축' },
- hour: { stem: '기', branch: '사' },
- };
+ const pillars = session?.fact?.four_pillars || state.productOutputSet?.common?.pillars;
+ if (!pillars) {
+  return renderEmptySajuGuideView('상충·마·살 특화 리포트');
+ }
 
  const reportCtx = extractReportContext(state);
  const narrativeMarkdown = getConflictMalSalReportMarkdown(reportCtx);

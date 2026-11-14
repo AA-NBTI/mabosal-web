@@ -8,8 +8,9 @@
 import { AppStateData } from '../state/app-state.js';
 import { AuthService } from '../state/auth-service.js';
 import { ModuleRegistry } from '../state/module-registry.js';
+import { UserOrderService } from '../modules/order/user-order-service.js';
 import { buildDynamicVisualChartProps, extractReportContext, getFreeReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
-import { renderMiniSajuPillarsCard } from '../components/common-components.js';
+import { renderMiniSajuPillarsCard, renderEmptySajuGuideView } from '../components/common-components.js';
 import {
  renderCheonmyeongwonFiveElementsMultiBar,
  renderCheonmyeongwonDayMasterArchetype,
@@ -22,12 +23,10 @@ export function renderFreeResultView(state: AppStateData): string {
  const currentUser = AuthService.getCurrentUser();
  const isGuest = !currentUser || currentUser.role === 'guest';
  const session = state.sessionState;
- const pillars = session?.fact?.four_pillars || state.productOutputSet?.common?.pillars || {
- year: { stem: '무', branch: '인' },
- month: { stem: '병', branch: '진' },
- day: { stem: '기', branch: '축' },
- hour: { stem: '기', branch: '사' },
- };
+ const pillars = session?.fact?.four_pillars || state.productOutputSet?.common?.pillars;
+ if (!pillars) {
+  return renderEmptySajuGuideView('무료 사주 진단 리포트');
+ }
 
  const reportCtx = extractReportContext(state);
  const narrativeMarkdown = getFreeReportMarkdown(reportCtx);
@@ -43,32 +42,7 @@ export function renderFreeResultView(state: AppStateData): string {
 
  return `
  <div class="result-view-container free-result-view" style="max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem;">
- <!-- 천명원 상단 사용자 프로필 & 퀵 전환 바 -->
- <section style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 14px; background: var(--surface-container-high); border: 1px solid var(--border-subtle); margin-bottom: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
- <div style="display: flex; align-items: center; gap: 0.65rem; min-width: 0;">
- <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--surface-container-highest); display: flex; align-items: center; justify-content: center; color: var(--primary); box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);">
- <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
- </div>
- <div style="display: flex; flex-direction: column; min-width: 0;">
- <div style="display: flex; align-items: center; gap: 0.4rem;">
- <span style="font-size: 1rem; font-weight: 700; color: #dfe2f1;">${userName}</span>
- <span style="font-family: var(--font-display); font-size: 0.68rem; color: var(--primary); padding: 0.1rem 0.4rem; border-radius: 9999px; background: var(--surface-container-lowest); font-weight: 600;">${genderTag}</span>
- </div>
- <span style="font-size: 0.75rem; color: var(--text-muted);">${birthSummary}</span>
- </div>
- </div>
- <div style="display: flex; align-items: center; gap: 0.35rem;">
- <button type="button" aria-label="프로필 전환" id="switchUserBtn" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: var(--surface-container-highest); color: var(--text-secondary); border: 1px solid var(--border-subtle); cursor: pointer;">
- <span class="material-symbols-outlined" style="font-size: 18px;">swap_vert</span>
- </button>
- <button type="button" id="addUserBtn" style="display: flex; align-items: center; gap: 0.2rem; padding: 0 0.65rem; height: 32px; border-radius: 8px; background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.35); color: var(--primary); font-size: 0.78rem; font-weight: 600; cursor: pointer;">
- <span class="material-symbols-outlined" style="font-size: 16px;">add</span>
- <span>추가</span>
- </button>
- </div>
- </section>
-
- <!-- 최상단 서비스 타이틀 & 소장용 TXT 다운로드 버튼 -->
+ <!-- 최상단 서비스 타이틀 -->
  <div style="margin-bottom: 1.5rem; text-align: left;">
  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
  <span class="card-badge gold-badge" style="font-size: 0.82rem; padding: 0.2rem 0.65rem; background: rgba(242, 202, 80, 0.15); color: var(--primary); border: 1px solid rgba(242, 202, 80, 0.35); border-radius: 6px; font-weight: 700;">
@@ -78,21 +52,7 @@ export function renderFreeResultView(state: AppStateData): string {
  <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 600;">
  사주 원국 · 핵심 풀이 미리보기
  </span>
- ` : `
- <div style="display: flex; align-items: center; gap: 0.5rem;">
- <button class="btn-cta-secondary btn-download-txt" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
- <span class="material-symbols-outlined" style="font-size: 16px;">description</span>
- 소장용 TXT 다운로드
- </button>
- <button type="button" class="btn-cta-secondary btn-download-pdf" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; background: rgba(242, 202, 80, 0.12); border: 1px solid rgba(242, 202, 80, 0.4); color: var(--primary); border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.3rem;">
- <span class="material-symbols-outlined" style="font-size: 16px;">picture_as_pdf</span>
- PDF 리포트 저장
- </button>
- <span style="font-size: 0.82rem; color: #50c878; font-weight: 600;">
- 13개 핵심 진단 섹션 무료 제공
- </span>
- </div>
- `}
+ ` : ''}
  </div>
  <h1 style="font-size: 1.85rem; font-weight: 700; color: var(--text-primary); margin: 0 0 0.35rem 0;">
  ${isGuest ? '마보살 무료 사주 체험' : '마보살 무료 사주 진단서'}
@@ -155,7 +115,7 @@ export function renderFreeResultView(state: AppStateData): string {
  </section>
  ` : (ModuleRegistry.isEnabled('archive_digital_vault') ? renderCheonmyeongwonArchiveVault({
  userName,
- totalRecordsCount: 1,
+ totalRecordsCount: Math.max(1, UserOrderService.getCurrentUserOrderSummarySync().orders.length),
  }) : '')}
  </div>
  `;

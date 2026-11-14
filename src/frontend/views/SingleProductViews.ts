@@ -32,20 +32,44 @@ import { gunghapEngine, GunghapAnalysisResult } from '../../modules/chemistry/gu
  */
 
 import { AppStateData } from '../state/app-state.js';
-import { renderMiniSajuPillarsCard, renderAffiliatePromoBanner } from '../components/common-components.js';
+import { renderMiniSajuPillarsCard, renderAffiliatePromoBanner, renderEmptySajuGuideView } from '../components/common-components.js';
 import { renderSplineMonthlyChart, renderGoldProgressRing } from '../components/VisualCharts.js';
+import { extractReportContext, buildDynamicMonthlyScores } from '../components/tier-templates.js';
 
 /**
  * 1. 2027 정미년 신년 총운 & 12절기 월운 비책 (19,900원)
  */
 export function renderYear2027SingleProductView(state: AppStateData): string {
  const session = state.sessionState;
- const pillars = session?.fact?.four_pillars || {
- year: { stem: '무', branch: '인' },
- month: { stem: '병', branch: '진' },
- day: { stem: '기', branch: '축' },
- hour: { stem: '기', branch: '사' },
- };
+ const pillars = session?.fact?.four_pillars || state.productOutputSet?.common?.pillars;
+ if (!pillars) {
+  return renderEmptySajuGuideView('2027 정미년 신년 총운 비책');
+ }
+ const reportCtx = extractReportContext(state);
+ const monthly2027 = buildDynamicMonthlyScores(state, 2027);
+ const avgScore2027 = Math.round(monthly2027.reduce((sum, m) => sum + m.score, 0) / monthly2027.length);
+ const peakMonth = monthly2027.find(m => m.isPeak) || monthly2027[5];
+ const dipMonth = monthly2027.find(m => m.isDip) || monthly2027[3];
+ const firstMonth = monthly2027[0];
+ const harvestMonth = monthly2027.find(m => m.month >= 9 && !m.isPeak && !m.isDip) || monthly2027[9];
+
+ const natalBranches = [pillars.year.branch, pillars.month.branch, pillars.day.branch, pillars.hour?.branch || ''].filter(Boolean);
+ const yearRelation2027 = natalBranches.includes('축')
+  ? '2027년 정미(丁未) 축미충(丑未沖) 환경 적응 및 전환 중심'
+  : natalBranches.includes('오')
+   ? '2027년 정미(丁未) 오미합(午未合) 귀인 협력 및 확장 중심'
+   : (natalBranches.includes('해') || natalBranches.includes('묘'))
+    ? '2027년 정미(丁未) 목국 삼합 결실 및 추진력 강화 중심'
+    : `2027년 정미(丁未) × ${pillars.day.stem}${pillars.day.branch}일주 ${reportCtx.yongshin} 균형 조율`;
+
+ const ringSubtitle = avgScore2027 >= 82 ? '도약과 결실의 해' : avgScore2027 >= 72 ? '확장과 안정의 해' : '내실과 정비의 해';
+
+ const highlightCards = [
+  { pt: firstMonth, tag: '기반 다지기', accent: '#50c878', highlight: false },
+  { pt: dipMonth, tag: '리듬·관계 주의', accent: '#f39c12', highlight: false },
+  { pt: peakMonth, tag: '최고 도약기', accent: 'var(--text-gold)', highlight: true },
+  { pt: harvestMonth, tag: '성과 수확기', accent: '#50c878', highlight: false },
+ ];
 
  return `
  <div class="result-view-container single-product-view" style="max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem;">
@@ -57,22 +81,23 @@ export function renderYear2027SingleProductView(state: AppStateData): string {
  2027 정미년(丁未年) 신년 총운 & 12절기 월운 비책
  </h1>
  <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">
- 2027년 정미(丁未: 화기운과 조토)가 내 사주에 일으키는 화학 반응과 12개월 월별 타이밍 완결 분석서입니다.
+ 2027년 정미(丁未: 화기운과 조토)가 ${pillars.day.stem}${pillars.day.branch}일주 원국에 일으키는 화학 반응과 12개월 월별 타이밍 완결 분석서입니다.
  </p>
  </div>
 
  <!-- [천명원 핵심 비주얼 1] 2027 골드 프로그레스 성취 지수 링 -->
- ${renderGoldProgressRing(92, '2027 성취 지수', '도약과 결실의 해')}
+ ${renderGoldProgressRing(avgScore2027, '2027 성취 지수', ringSubtitle)}
 
  ${renderMiniSajuPillarsCard({
  year: pillars.year, month: pillars.month, day: pillars.day, hour: pillars.hour,
- dayMasterDesc: '2027년 축미충(丑未沖) 환경 적응 및 전환 중심',
+ dayMasterDesc: yearRelation2027,
  })}
 
  <!-- [천명원 핵심 비주얼 2] 12개월 월운 스플라인 추이 SVG 인터랙티브 차트 -->
  ${renderSplineMonthlyChart({
- yearTitle: '2027 정미년',
+ yearTitle: '2027 정미년(丁未年)',
  subTitle: '12개월 월운 스플라인 에너지 곡선',
+ data: monthly2027,
  })}
 
  <!-- 2027 독점 산출물 1: 12절기 월별 에너지 지수 곡선 -->
@@ -81,29 +106,16 @@ export function renderYear2027SingleProductView(state: AppStateData): string {
  1. 2027년 1월~12월(12절기) 월별 에너지 흐름 지수표
  </h3>
  <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5;">
- 기운이 뻗어나가는 '도약월'과 무리한 확장을 멈추어야 하는 '조정월'을 명확히 구분했습니다.
+ 기운이 뻗어나가는 '도약월'과 무리한 확장을 멈추어야 하는 '조정월'을 ${reportCtx.yongshin} 용신 기준으로 구분했습니다.
  </p>
  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.65rem; text-align: center;">
- <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.75rem 0.5rem;">
- <div style="font-size: 0.78rem; color: var(--text-muted);">1월 (임인월)</div>
- <div style="font-size: 1.15rem; font-weight: 700; color: #50c878; margin: 0.2rem 0;">78점</div>
- <div style="font-size: 0.75rem; color: var(--text-secondary);">기반 다지기</div>
+ ${highlightCards.map(({ pt, tag, accent, highlight }) => `
+ <div style="background: ${highlight ? 'rgba(212,175,55,0.1)' : 'rgba(255,255,255,0.03)'}; border: 1px solid ${highlight ? 'rgba(212,175,55,0.5)' : 'var(--border-subtle)'}; border-radius: 8px; padding: 0.75rem 0.5rem;">
+ <div style="font-size: 0.78rem; color: ${highlight ? 'var(--text-gold)' : 'var(--text-muted)'}; ${highlight ? 'font-weight: 700;' : ''}">${pt.month}월 (${pt.stemBranch}월)</div>
+ <div style="font-size: 1.15rem; font-weight: ${highlight ? '800' : '700'}; color: ${accent}; margin: 0.2rem 0;">${pt.score}점</div>
+ <div style="font-size: 0.75rem; color: ${highlight ? 'var(--text-gold)' : 'var(--text-secondary)'}; ${highlight ? 'font-weight: 600;' : ''}">${tag}</div>
  </div>
- <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.75rem 0.5rem;">
- <div style="font-size: 0.78rem; color: var(--text-muted);">4월 (을사월)</div>
- <div style="font-size: 1.15rem; font-weight: 700; color: #f39c12; margin: 0.2rem 0;">65점</div>
- <div style="font-size: 0.75rem; color: var(--text-secondary);">인간관계 주의</div>
- </div>
- <div style="background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.5); border-radius: 8px; padding: 0.75rem 0.5rem;">
- <div style="font-size: 0.78rem; color: var(--text-gold); font-weight: 700;">6월 (정미월)</div>
- <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-gold); margin: 0.2rem 0;">92점</div>
- <div style="font-size: 0.75rem; color: var(--text-gold); font-weight: 600;">최고 도약기</div>
- </div>
- <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.75rem 0.5rem;">
- <div style="font-size: 0.78rem; color: var(--text-muted);">10월 (신해월)</div>
- <div style="font-size: 1.15rem; font-weight: 700; color: #50c878; margin: 0.2rem 0;">88점</div>
- <div style="font-size: 0.75rem; color: var(--text-secondary);">성과 수확기</div>
- </div>
+ `).join('')}
  </div>
  </div>
 

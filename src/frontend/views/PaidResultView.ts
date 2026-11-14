@@ -11,8 +11,9 @@ import { UserSajuStore } from '../state/user-saju-store.js';
 import { AuthService } from '../state/auth-service.js';
 import { canViewTier } from '../modules/entitlement/index.js';
 import { ReportRouterMapper } from '../modules/checkout/report-router-mapper.js';
-import { buildDynamicVisualChartProps, extractReportContext, getPaidReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
-import { renderMiniSajuPillarsCard } from '../components/common-components.js';
+import { UserOrderService } from '../modules/order/user-order-service.js';
+import { buildDynamicDaewunProps, buildDynamicMonthlyScores, buildDynamicVisualChartProps, extractReportContext, getPaidReportMarkdown, renderNarrativeReport } from '../components/tier-templates.js';
+import { renderMiniSajuPillarsCard, renderEmptySajuGuideView } from '../components/common-components.js';
 import {
  renderDaewunLifeCycleChart,
  renderSplineMonthlyChart,
@@ -51,12 +52,10 @@ export function renderPaidResultView(state: AppStateData): string {
   }
 
  const session = state.sessionState;
- const pillars = session?.fact?.four_pillars || state.productOutputSet?.common?.pillars || {
- year: { stem: '무', branch: '인' },
- month: { stem: '병', branch: '진' },
- day: { stem: '기', branch: '축' },
- hour: { stem: '기', branch: '사' },
- };
+ const pillars = session?.fact?.four_pillars || state.productOutputSet?.common?.pillars;
+ if (!pillars) {
+  return renderEmptySajuGuideView('유료 심층 사주 리포트');
+ }
 
  const reportCtx = extractReportContext(state);
  const narrativeMarkdown = getPaidReportMarkdown(reportCtx);
@@ -74,31 +73,6 @@ export function renderPaidResultView(state: AppStateData): string {
 
  return `
  <div class="result-view-container paid-result-view" style="max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem;">
- <!-- 천명원 상단 사용자 프로필 & 퀵 전환 바 -->
- <section style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 14px; background: var(--surface-container-high); border: 1px solid var(--border-subtle); margin-bottom: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
- <div style="display: flex; align-items: center; gap: 0.65rem; min-width: 0;">
- <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--surface-container-highest); display: flex; align-items: center; justify-content: center; color: var(--primary); box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);">
- <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
- </div>
- <div style="display: flex; flex-direction: column; min-width: 0;">
- <div style="display: flex; align-items: center; gap: 0.4rem;">
- <span style="font-size: 1rem; font-weight: 700; color: #dfe2f1;">${userName}</span>
- <span style="font-family: var(--font-display); font-size: 0.68rem; color: var(--primary); padding: 0.1rem 0.4rem; border-radius: 9999px; background: var(--surface-container-lowest); font-weight: 600;">${genderTag}</span>
- </div>
- <span style="font-size: 0.75rem; color: var(--text-muted);">${birthSummary}</span>
- </div>
- </div>
- <div style="display: flex; align-items: center; gap: 0.35rem;">
- <button type="button" aria-label="프로필 전환" id="switchUserBtn" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: var(--surface-container-highest); color: var(--text-secondary); border: 1px solid var(--border-subtle); cursor: pointer;">
- <span class="material-symbols-outlined" style="font-size: 18px;">swap_vert</span>
- </button>
- <button type="button" id="addUserBtn" style="display: flex; align-items: center; gap: 0.2rem; padding: 0 0.65rem; height: 32px; border-radius: 8px; background: rgba(242, 202, 80, 0.15); border: 1px solid rgba(242, 202, 80, 0.35); color: var(--primary); font-size: 0.78rem; font-weight: 600; cursor: pointer;">
- <span class="material-symbols-outlined" style="font-size: 16px;">add</span>
- <span>추가</span>
- </button>
- </div>
- </section>
-
  <!-- 최상단 서비스 타이틀 & 다운로드 버튼군 -->
  <div style="margin-bottom: 1.5rem; text-align: left;">
  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
@@ -128,7 +102,7 @@ export function renderPaidResultView(state: AppStateData): string {
 
 
  <!-- [천명원 핵심 비주얼 1] 사주 성취 지수 골드 링 -->
- ${renderGoldProgressRing(95, '성취지수', '대도약과 재물 결실기')}
+ ${renderGoldProgressRing(reportCtx.rsiScore, '성취지수', reportCtx.rsiScore >= 85 ? '대도약과 재물 결실기' : '균형 조율과 내실 성장기')}
 
  <!-- 공통 1: 사주 4주 8자 만세력 미니 원국 카드 -->
  ${renderMiniSajuPillarsCard({
@@ -150,17 +124,17 @@ export function renderPaidResultView(state: AppStateData): string {
  })()}
 
  <!-- [천명원 핵심 비주얼 2] 대운 10년 주기 라이프사이클 곡선 차트 -->
- ${ModuleRegistry.isEnabled('daewun_lifecycle_curve') ? renderDaewunLifeCycleChart({
- currentDaewun: '병오(丙午) 대운',
- ageRange: 'AGE 34 ~ 43',
- score: 98,
- }) : ''}
+ ${ModuleRegistry.isEnabled('daewun_lifecycle_curve') ? renderDaewunLifeCycleChart(buildDynamicDaewunProps(state)) : ''}
 
  <!-- [천명원 핵심 비주얼 3] 12개월 월운 스플라인 추이 SVG 차트 -->
- ${ModuleRegistry.isEnabled('spline_monthly_chart') ? renderSplineMonthlyChart({
- yearTitle: '올해의 세운(歲運)',
+ ${(() => {
+ const targetYear = new Date().getFullYear();
+ return ModuleRegistry.isEnabled('spline_monthly_chart') ? renderSplineMonthlyChart({
+ yearTitle: `${targetYear}년 세운(歲運)`,
  subTitle: '12개월 월별 에너지 파동',
- }) : ''}
+ data: buildDynamicMonthlyScores(state, targetYear),
+ }) : '';
+ })()}
 
  <!-- [천명원 핵심 비주얼 4] 4대 핵심 영역별 심층 분석 아코디언 (재물, 직업, 애정) -->
  ${renderCheonmyeongwonLifeAspectsAccordion()}
@@ -171,19 +145,25 @@ export function renderPaidResultView(state: AppStateData): string {
  </div>
 
  <!-- [천명원 12번 & 3번 규격] 대길 황금 결실 수호 부적 카드 (VIP 전용 고해상도) -->
+ ${(() => {
+ const primaryYongshin = reportCtx.yongshin.split('/')[0].trim();
+ const orderCount = Math.max(1, UserOrderService.getCurrentUserOrderSummarySync().orders.length);
+ return `
  ${ModuleRegistry.isEnabled('talisman_harvest_card') ? renderCheonmyeongwonTalismanCard({
  userName,
- talismanTitle: '갑진일 VIP 황금 결실 부적',
- subTitle: '대운 황금 재고(財庫) 개방 • 대도약의 기운 완전 동기화',
- absorptionRate: 98,
- noblemanScore: 96,
+ talismanTitle: `${pillars.day.stem}${pillars.day.branch}일주 VIP ${primaryYongshin} 수호 부적`,
+ subTitle: `용신 ${reportCtx.yongshin} 기운 보완 • ${reportCtx.shingangStatus} 균형 동기화`,
+ absorptionRate: Math.min(99, Math.max(72, reportCtx.rsiScore + 4)),
+ noblemanScore: Math.min(99, Math.max(70, reportCtx.rsiScore + 2)),
  }) : ''}
 
  <!-- [천명원 6번 & 4번 규격] 사주 리포트 마이페이지 [주문내역] 단일 확인 시스템 -->
  ${ModuleRegistry.isEnabled('archive_digital_vault') ? renderCheonmyeongwonArchiveVault({
  userName,
- totalRecordsCount: 2,
+ totalRecordsCount: orderCount,
  }) : ''}
+ `;
+ })()}
  </div>
  `;
 }

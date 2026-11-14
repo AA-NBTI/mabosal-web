@@ -3,7 +3,9 @@ import { renderFortuneDetailModals } from '../src/frontend/components/FortuneDet
 import { renderBirthInputView } from '../src/frontend/components/views.js';
 import { renderUnifiedSajuGrid } from '../src/frontend/components/UnifiedSajuForm.js';
 import { renderFreeResultView } from '../src/frontend/views/FreeResultView.js';
-import { extractReportContext } from '../src/frontend/components/tier-templates.js';
+import { renderYear2027SingleProductView } from '../src/frontend/views/SingleProductViews.js';
+import { renderDaewunLifeCycleChart, renderSplineMonthlyChart } from '../src/frontend/components/VisualCharts.js';
+import { buildDynamicDaewunProps, buildDynamicMonthlyScores, extractReportContext } from '../src/frontend/components/tier-templates.js';
 import { appState } from '../src/frontend/state/app-state.js';
 
 describe('Unified Baekse-style Simple Saju Form', () => {
@@ -87,7 +89,21 @@ describe('Unified Baekse-style Simple Saju Form', () => {
   });
 
   it('비회원 사주체험 결과 화면은 원국표·간단 풀이(1~2섹션)와 회원가입 유도 카드를 표시한다', () => {
-    const guestHtml = renderFreeResultView(appState.getState());
+    const guestState = {
+      ...appState.getState(),
+      sessionState: {
+        request: { birthDate: '1993-08-15', birthTime: '14:30', gender: 'female' },
+        fact: {
+          four_pillars: {
+            year: { stem: '계', branch: '유' },
+            month: { stem: '경', branch: '신' },
+            day: { stem: '을', branch: '미' },
+            hour: { stem: '계', branch: '미' },
+          },
+        },
+      } as any,
+    };
+    const guestHtml = renderFreeResultView(guestState);
     expect(guestHtml).toContain('무료 사주 체험');
     expect(guestHtml).toContain('한눈에 보는 나의 사주');
     expect(guestHtml).toContain('오행으로 보는 나의 기본 구조');
@@ -139,5 +155,78 @@ describe('Unified Baekse-style Simple Saju Form', () => {
     expect(html).toContain('50%');
     expect(html).toContain('24%');
     expect(html).toContain('목(木) 4 · 화(火) 1 · 토(土) 0 · 금(金) 1 · 수(水) 2');
+  });
+
+  it('대운·월운 차트와 2027 단품 뷰가 사주 원국 및 만세력 엔진에 따라 동적으로 계산·렌더링된다', () => {
+    const mockState = {
+      ...appState.getState(),
+      gender: 'male' as const,
+      sessionState: {
+        request: { birthDate: '1975-11-02', birthTime: '00:30', gender: 'male' },
+        fact: {
+          four_pillars: {
+            year: { stem: '을', branch: '묘' },
+            month: { stem: '정', branch: '해' },
+            day: { stem: '갑', branch: '신' },
+            hour: { stem: '갑', branch: '자' },
+          },
+          five_elements: {
+            dominantElement: '목',
+            distribution: { 목: { count: 4 }, 화: { count: 1 }, 토: { count: 0 }, 금: { count: 1 }, 수: { count: 2 } },
+          },
+          day_master_strength: { classification: '신강' },
+        },
+      } as any,
+    };
+
+    const daewun = buildDynamicDaewunProps(mockState);
+    expect(daewun.currentDaewun).not.toBe('병오(丙午) 대운');
+    expect(daewun.nodes && daewun.nodes.length).toBeGreaterThanOrEqual(3);
+    const daewunHtml = renderDaewunLifeCycleChart(daewun);
+    expect(daewunHtml).toContain(daewun.currentDaewun!);
+    expect(daewunHtml).not.toContain('태양과 같은 화(火)기운이 만개하는 10년');
+
+    const monthly2027 = buildDynamicMonthlyScores(mockState, 2027);
+    expect(monthly2027).toHaveLength(12);
+    expect(monthly2027[0].stemBranch).toBe('壬寅'); // 2027 정미년(丁) 오호둔월법 1월=임인
+    const monthlyHtml = renderSplineMonthlyChart({ yearTitle: '2027 정미년(丁未年)', data: monthly2027 });
+    expect(monthlyHtml).toContain('2027 정미년(丁未年)');
+    expect(monthlyHtml).toContain('壬寅');
+
+    const singleHtml = renderYear2027SingleProductView(mockState);
+    expect(singleHtml).toContain('갑신일주');
+    expect(singleHtml).toContain('9월 (庚戌월)');
+    expect(singleHtml).not.toContain('6월 (정미월)');
+  });
+
+  it('세션이 비어 있을 때 임의 샘플 사주 대신 입력 안내 화면을 표시하고, ⑥ 리포트 본문이 실제 원국·신살·대운과 연동된다', () => {
+    const emptyHtml = renderFreeResultView({ ...appState.getState(), sessionState: null, productOutputSet: null });
+    expect(emptyHtml).toContain('사주 입력이 필요합니다');
+    expect(emptyHtml).not.toContain('무인 · 병진 · 기축 · 기사');
+
+    const mockState = {
+      ...appState.getState(),
+      gender: 'male' as const,
+      sessionState: {
+        request: { birthDate: '1975-11-02', birthTime: '00:30', gender: 'male' },
+        fact: {
+          four_pillars: {
+            year: { stem: '을', branch: '묘' },
+            month: { stem: '정', branch: '해' },
+            day: { stem: '갑', branch: '신' },
+            hour: { stem: '갑', branch: '자' },
+          },
+          five_elements: {
+            dominantElement: '목',
+            distribution: { 목: { count: 4 }, 화: { count: 1 }, 토: { count: 0 }, 금: { count: 1 }, 수: { count: 2 } },
+          },
+          day_master_strength: { classification: '신강' },
+        },
+      } as any,
+    };
+    const ctx = extractReportContext(mockState);
+    expect(ctx.year2026Summary).not.toContain('축오원진');
+    expect(ctx.year2027Summary).not.toContain('축미충');
+    expect(ctx.sinsalTableMarkdown).toContain('| 신살 | 발생 위치 |');
   });
 });

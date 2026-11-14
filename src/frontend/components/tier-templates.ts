@@ -7,6 +7,8 @@
 
 import { AppStateData } from '../state/app-state.js';
 import { UserSajuStore } from '../state/user-saju-store.js';
+import { LifeAnalysisWarehouseBuilder, detectBranchSinsals } from '../../modules/life-analysis/life-analysis-warehouse.js';
+import type { DaewunLifeCycleOptions, MonthlyScorePoint } from './VisualCharts.js';
 
 export interface ReportMetaContext {
   birthText: string;
@@ -32,6 +34,16 @@ export interface ReportMetaContext {
   shingangStatus: string;
   rsiScore: number;
   troubleText: string;
+  natalRelationsSummary: string;
+  year2026Summary: string;
+  year2027Summary: string;
+  year2028Summary: string;
+  nextDaewunSummary: string;
+  sinsalTableMarkdown: string;
+  primarySinsalName: string;
+  primarySinsalLocation: string;
+  monthly2027ListMarkdown: string;
+  monthly2027TableMarkdown: string;
 }
 
 const ELEMENT_FULL_LABEL: Record<'목' | '화' | '토' | '금' | '수', string> = {
@@ -172,6 +184,153 @@ export function extractReportContext(state: AppStateData): ReportMetaContext {
     ? Math.round((session?.phase7Output?.rsi as any).score)
     : 86;
 
+  // 원국 지지 기반 충/합/원진/형 및 신살 동적 계산
+  const pillarSlots: Array<{ label: string; stem: string; branch: string }> = [
+    { label: '연지', stem: pillars.year.stem, branch: pillars.year.branch },
+    { label: '월지', stem: pillars.month.stem, branch: pillars.month.branch },
+    { label: '일지', stem: pillars.day.stem, branch: pillars.day.branch },
+  ];
+  if (pillars.hour) {
+    pillarSlots.push({ label: '시지', stem: pillars.hour.stem, branch: pillars.hour.branch });
+  }
+  const natalBranches = pillarSlots.map(s => s.branch);
+
+  const CLASH_LABEL: Record<string, Record<string, string>> = {
+    자: { 오: '자오충(子午沖)' }, 오: { 자: '자오충(子午沖)' },
+    축: { 미: '축미충(丑未沖)' }, 미: { 축: '축미충(丑未沖)' },
+    인: { 신: '인신충(寅申沖)' }, 신: { 인: '인신충(寅申沖)' },
+    묘: { 유: '묘유충(卯酉沖)' }, 유: { 묘: '묘유충(卯酉沖)' },
+    진: { 술: '진술충(辰戌沖)' }, 술: { 진: '진술충(辰戌沖)' },
+    사: { 해: '사해충(巳亥沖)' }, 해: { 사: '사해충(巳亥沖)' },
+  };
+  const HARMONY_LABEL: Record<string, Record<string, string>> = {
+    자: { 축: '자축합(子丑合)' }, 축: { 자: '자축합(子丑合)' },
+    인: { 해: '인해합(寅亥合)' }, 해: { 인: '인해합(寅亥合)' },
+    묘: { 술: '묘술합(卯戌合)' }, 술: { 묘: '묘술합(卯戌合)' },
+    진: { 유: '진유합(辰酉合)' }, 유: { 진: '진유합(辰酉合)' },
+    사: { 신: '사신합(巳申合)' }, 신: { 사: '사신합(巳申合)' },
+    오: { 미: '오미합(午未合)' }, 미: { 오: '오미합(午未合)' },
+  };
+  const WONJIN_LABEL: Record<string, Record<string, string>> = {
+    자: { 미: '자미원진(子未怨嗔)' }, 미: { 자: '자미원진(子未怨嗔)' },
+    축: { 오: '축오원진(丑午怨嗔)' }, 오: { 축: '축오원진(丑午怨嗔)' },
+    인: { 유: '인유원진(寅酉怨嗔)' }, 유: { 인: '인유원진(寅酉怨嗔)' },
+    묘: { 신: '묘신원진(卯申怨嗔)' }, 신: { 묘: '묘신원진(卯申怨嗔)' },
+    진: { 해: '진해원진(辰亥怨嗔)' }, 해: { 진: '진해원진(辰亥怨嗔)' },
+    사: { 술: '사술원진(巳戌怨嗔)' }, 술: { 사: '사술원진(巳戌怨嗔)' },
+  };
+
+  const describeTargetBranch = (target: string): { tags: string[]; desc: string } => {
+    const tags: string[] = [];
+    for (const slot of pillarSlots) {
+      const c = CLASH_LABEL[slot.branch]?.[target];
+      if (c) tags.push(`${slot.label} ${slot.branch}과 ${c}`);
+      const h = HARMONY_LABEL[slot.branch]?.[target];
+      if (h) tags.push(`${slot.label} ${slot.branch}과 ${h}`);
+      const w = WONJIN_LABEL[slot.branch]?.[target];
+      if (w) tags.push(`${slot.label} ${slot.branch}과 ${w}`);
+    }
+    if (tags.length === 0) {
+      const el = BRANCH_ELEMENT_MAP[target] || '토';
+      return { tags: [`${target}(${el}) 기운 유입`], desc: `원국 지지와의 직접 충·원진 없이 ${ELEMENT_FULL_LABEL[el]} 기운이 완만하게 유입되는 흐름` };
+    }
+    return { tags, desc: tags.join(', ') + ' 작용' };
+  };
+
+  // 원국 내부 관계 요약
+  const natalPairTags: string[] = [];
+  for (let i = 0; i < pillarSlots.length; i++) {
+    for (let j = i + 1; j < pillarSlots.length; j++) {
+      const a = pillarSlots[i].branch;
+      const b = pillarSlots[j].branch;
+      const hit = CLASH_LABEL[a]?.[b] || WONJIN_LABEL[a]?.[b] || HARMONY_LABEL[a]?.[b];
+      if (hit) natalPairTags.push(hit);
+    }
+  }
+  const natalRelationsSummary = natalPairTags.length > 0
+    ? natalPairTags.join(' · ')
+    : `${dp} 일주를 중심으로 큰 내부 충돌 없이 균형을 이루는 구조`;
+
+  const r2026 = describeTargetBranch('오');
+  const r2027 = describeTargetBranch('미');
+  const r2028 = describeTargetBranch('신');
+
+  const year2026Summary = `2026년 병오년(丙午年)은 화(火) 기운이 강해지며 원국에서 **${r2026.desc}**이 나타납니다. 무리한 확장보다는 소모 요인을 점검하고 기준을 세우는 시기로 활용하는 것이 좋습니다.`;
+  const year2027Summary = `2027년 정미년(丁未年)은 **${r2027.desc}**이 작동하며, 기존의 관계·역할·생활환경을 현실에 맞게 재조정하고 ${yongshin} 기운을 중심으로 균형을 잡는 해입니다.`;
+  const year2028Summary = `2028년 무신년(戊申年)은 금(金)·토(土) 기운과 함께 **${r2028.desc}**이 형성되어, 이전까지 정리한 선택 기준을 실제 행동과 결과로 굳히는 전환점입니다.`;
+
+  // 신살 동적 계산
+  const SINSAL_DESC: Record<string, string> = {
+    역마살: '이동·변동·출장 및 외부 활동 확대',
+    도화살: '대인관계 매력·인상·표현 및 주목도 상승',
+    화개살: '전문성·연구·사색 및 내적 집중력 강화',
+    천을귀인: '어려운 순간 외부의 도움과 귀인 인연 형성',
+    양인살: '강한 추진력과 승부근성, 과열 시 충돌 주의',
+    백호살: '집중 폭발력·전문 분야 몰입, 급격한 변화 주의',
+    괴강살: '뚜렷한 주관과 리더십, 결단력 발휘',
+    홍염살: '대인관계에서의 인상·주목도·호감 형성',
+    망신살: '공개적 평가·평판·외부 시선에 대한 민감도 증가',
+    공망: '기대가 빗나가거나 속도를 늦추고 재검토가 필요한 영역',
+  };
+  const sinsalRows: Array<{ name: string; pillar: string; branch: string; meaning: string }> = [];
+  for (const slot of pillarSlots) {
+    const found = detectBranchSinsals(slot.branch, pillars.day.stem, pillars.day.branch, pillars.year.branch);
+    for (const sName of found) {
+      if (!sinsalRows.some(r => r.name === sName && r.pillar === slot.label)) {
+        sinsalRows.push({
+          name: sName,
+          pillar: slot.label,
+          branch: slot.branch,
+          meaning: SINSAL_DESC[sName] || '원국과 운의 흐름에 따라 작동하는 보조 신살 신호',
+        });
+      }
+    }
+  }
+  const primarySinsal = sinsalRows[0] || { name: '천을·화개 보조신호', pillar: '일지', branch: pillars.day.branch, meaning: '일상의 균형과 내실 정리 신호' };
+  const sinsalTableMarkdown = sinsalRows.length > 0
+    ? ['| 신살 | 발생 위치 | 발생 지지 | 현실적 의미 |', '| :--- | :--- | :--- | :--- |',
+       ...sinsalRows.slice(0, 6).map(r => `| ${r.name} | ${r.pillar} | ${r.branch} | ${r.meaning} |`)].join('\n')
+    : `| 신살 | 발생 위치 | 발생 지지 | 현실적 의미 |\n| :--- | :--- | :--- | :--- |\n| 주요 흉살 없음 | 일지 | ${pillars.day.branch} | 원국 기본 오행과 합충 위주로 안정적 해석 가능 |`;
+
+  // 2027 정미년 12개월 동적 흐름 (오호둔월법: 정/임년 1월=임인)
+  const stems10 = ['갑', '을', '병', '정', '무', '기', '경', '신', '임', '계'];
+  const monthBranches12 = ['인', '묘', '진', '사', '오', '미', '신', '유', '술', '해', '자', '축'];
+  const monthly2027Entries = monthBranches12.map((b, i) => {
+    const stem = stems10[(8 + i) % 10]; // 2027 정미년 -> 1월 임인(index 8)
+    const rel = describeTargetBranch(b);
+    const point = rel.tags.join(', ');
+    return { month: i + 1, ganji: `${stem}${b}`, branch: b, point };
+  });
+  const monthly2027ListMarkdown = monthly2027Entries
+    .map(m => `- **${m.month}월 (${m.ganji}월):** ${m.point}`)
+    .join('\n');
+  const monthly2027TableMarkdown = [
+    '| 절기 기준 월 | 월운 간지 | 원국 상호작용 | 현실 포인트 |',
+    '| :--- | :--- | :--- | :--- |',
+    ...monthly2027Entries.map(m => `| ${m.month}월 | ${m.ganji}월 | ${m.branch} 지지 작용 | ${m.point} |`),
+  ].join('\n');
+
+  // 다음 대운 동적 계산
+  let nextDaewunSummary = `${yongshin} 기운이 보강되는 다음 대운 전환기에는 기존 경험을 경제적 가치와 새로운 선택지로 연결하는 흐름이 강해집니다.`;
+  try {
+    const wh = new LifeAnalysisWarehouseBuilder().buildWarehouse({
+      birthYear: parseInt(solarDate.split('-')[0], 10) || 1990,
+      birthMonth: parseInt(solarDate.split('-')[1], 10) || 2,
+      birthDay: parseInt(solarDate.split('-')[2], 10) || 25,
+      birthTimeRaw: birthTime || '14:30',
+      gender: state.gender || UserSajuStore.getProfile()?.gender || 'female',
+      calendarType: state.calendarType || UserSajuStore.getProfile()?.calendarType || 'solar',
+    });
+    const recs = wh.daewoonLayer.records;
+    const curIdx = recs.findIndex(r => r.isCurrent);
+    const nextRec = curIdx >= 0 && curIdx + 1 < recs.length ? recs[curIdx + 1] : recs[0];
+    if (nextRec) {
+      nextDaewunSummary = `**${nextRec.ganji} 대운 (${nextRec.startYear}년 전후 전환 · ${nextRec.startAge}~${nextRec.endAge}세)**에는 ${nextRec.stemTenGod}·${nextRec.twelveStage} 운성이 열리며, ${yongshin} 중심의 새로운 역할과 기회 확장이 본격화됩니다.`;
+    }
+  } catch {
+    // fallback above
+  }
+
   return {
     birthText,
     solarDate,
@@ -196,6 +355,16 @@ export function extractReportContext(state: AppStateData): ReportMetaContext {
     shingangStatus,
     rsiScore,
     troubleText: state.userTroubleText || '지금 퇴사하는 것이 맞는지, 아니면 현재 직장에서 버티면서 상황을 바꾸는 것이 맞는지 알고 싶습니다.',
+    natalRelationsSummary,
+    year2026Summary,
+    year2027Summary,
+    year2028Summary,
+    nextDaewunSummary,
+    sinsalTableMarkdown,
+    primarySinsalName: primarySinsal.name,
+    primarySinsalLocation: `${primarySinsal.pillar} ${primarySinsal.branch}`,
+    monthly2027ListMarkdown,
+    monthly2027TableMarkdown,
   };
 }
 
@@ -254,6 +423,175 @@ export function buildDynamicVisualChartProps(
       keywords: overrideKeywords || arch.keywords,
     },
   };
+}
+
+const STEM_HANJA_MAP: Record<string, string> = {
+  갑: '甲', 을: '乙', 병: '丙', 정: '丁', 무: '戊', 기: '己', 경: '庚', 신: '辛', 임: '壬', 계: '癸',
+};
+const BRANCH_HANJA_MAP: Record<string, string> = {
+  자: '子', 축: '丑', 인: '寅', 묘: '卯', 진: '辰', 사: '巳', 오: '午', 미: '未', 신: '申', 유: '酉', 술: '戌', 해: '亥',
+};
+
+function toGanjiHanja(stem: string, branch: string): string {
+  return `${STEM_HANJA_MAP[stem] || ''}${BRANCH_HANJA_MAP[branch] || ''}`;
+}
+
+/**
+ * 실제 만세력 대운 엔진(LifeAnalysisWarehouseBuilder) 결과를 VisualCharts 대운 차트 옵션으로 변환
+ */
+export function buildDynamicDaewunProps(state: AppStateData): DaewunLifeCycleOptions {
+  const saved = UserSajuStore.getProfile();
+  const rawDate = state.sessionState?.request?.birthDate || saved?.solarBirthDate || '1990-02-25';
+  const normalizedDate = rawDate.replace(/\./g, '-');
+  const [yStr, mStr, dStr] = normalizedDate.split('-');
+  const birthYear = parseInt(yStr, 10) || 1990;
+  const birthMonth = parseInt(mStr, 10) || 2;
+  const birthDay = parseInt(dStr, 10) || 25;
+  const birthTime = state.sessionState?.request?.birthTime || saved?.birthTime || '14:30';
+  const gender = (state.gender || saved?.gender || 'female') as 'male' | 'female';
+  const calendarType = (state.calendarType || saved?.calendarType || 'solar') as 'solar' | 'lunar';
+
+  try {
+    const builder = new LifeAnalysisWarehouseBuilder();
+    const wh = builder.buildWarehouse({
+      birthYear,
+      birthMonth,
+      birthDay,
+      birthTimeRaw: birthTime,
+      gender,
+      calendarType,
+    });
+    const records = wh.daewoonLayer.records;
+    if (records.length > 0) {
+      let curIdx = records.findIndex(r => r.isCurrent);
+      if (curIdx < 0) curIdx = Math.min(2, records.length - 1);
+
+      // 현재 대운 전후 4개 구간 슬라이스
+      let startIdx = Math.max(0, curIdx - 2);
+      if (startIdx + 4 > records.length) {
+        startIdx = Math.max(0, records.length - 4);
+      }
+      const slice = records.slice(startIdx, startIdx + 4);
+      const curRec = records[curIdx];
+      const toScore = (energy: number) => Math.max(46, Math.min(98, 66 + Math.round(energy * 0.62)));
+      const curScore = toScore(curRec.energyScore);
+      const ganjiHanja = toGanjiHanja(curRec.stem, curRec.branch);
+      const stemEl = STEM_ELEMENT_MAP[curRec.stem] || '목';
+
+      const levelDescMap: Record<string, string> = {
+        대길: '원국의 부족한 기운을 강하게 채워주며 명예와 재물 운이 크게 열리는 황금 전환기입니다.',
+        호운: '운의 흐름이 원국과 조화롭게 맞물려 추진하는 일에 안정적인 성과가 따르는 시기입니다.',
+        평운: '큰 기복 없이 실력을 다지고 기반을 정비하며 다음 도약을 준비하기 좋은 10년입니다.',
+        주의: '외부 변수와 변동성이 커질 수 있으므로 리스크 관리와 내실 다지기에 집중해야 하는 시기입니다.',
+        위험: '무리한 확장보다 건강과 자산을 지키며 신중하게 방향을 조율해야 하는 10년입니다.',
+      };
+
+      const statusBadge = curRec.level === '대길' ? '현재 피크' : curRec.level === '호운' ? '상승 궤도' : `${curRec.level} 구간`;
+      return {
+        currentDaewun: `${curRec.ganji}(${ganjiHanja}) 대운`,
+        ageRange: `AGE ${curRec.startAge} ~ ${curRec.endAge}`,
+        score: curScore,
+        statusBadge,
+        description: `${stemEl} 기운과 ${curRec.stemTenGod}·${curRec.twelveStage} 운성이 함께 흐르는 시기. ${levelDescMap[curRec.level] || ''}`,
+        nodes: slice.map(r => ({
+          ageLabel: `${r.startAge}~${r.endAge}`,
+          ganji: `${r.ganji}(${toGanjiHanja(r.stem, r.branch)})`,
+          score: toScore(r.energyScore),
+          isCurrent: r.order === curRec.order,
+        })),
+      };
+    }
+  } catch {
+    // fallback below
+  }
+
+  const ctx = extractReportContext(state);
+  return {
+    currentDaewun: `${ctx.monthPillar} 흐름 대운`,
+    ageRange: '현재 대운 구간',
+    score: ctx.rsiScore,
+    statusBadge: ctx.rsiScore >= 85 ? '상승 궤도' : '균형 조율',
+    description: `${ctx.yongshin} 기운을 중심으로 원국의 균형을 맞추어 나가는 핵심 10년 주기입니다.`,
+  };
+}
+
+const STEMS_ORDER = ['갑', '을', '병', '정', '무', '기', '경', '신', '임', '계'];
+const MONTH_BRANCHES = ['인', '묘', '진', '사', '오', '미', '신', '유', '술', '해', '자', '축'];
+const CLASH_PAIRS: Record<string, string> = {
+  자: '오', 오: '자', 축: '미', 미: '축', 인: '신', 신: '인',
+  묘: '유', 유: '묘', 진: '술', 술: '진', 사: '해', 해: '사',
+};
+const HARMONY_PAIRS: Record<string, string> = {
+  자: '축', 축: '자', 인: '해', 해: '인', 묘: '술', 술: '묘',
+  진: '유', 유: '진', 사: '신', 신: '사', 오: '미', 미: '오',
+};
+
+/**
+ * 사주 원국 + 대상 연도(targetYear) 기반 12개월 월운 간지(오호둔월법) 및 동적 점수 산출
+ */
+export function buildDynamicMonthlyScores(state: AppStateData, targetYear: number): MonthlyScorePoint[] {
+  const ctx = extractReportContext(state);
+  // 1984년 = 갑자년 (index 0)
+  const yearStemIdx = ((targetYear - 1984) % 10 + 10) % 10;
+  // 오호둔월법(五虎遁月法): 갑기→병인(2), 을경→무인(4), 병신→경인(6), 정임→임인(8), 무계→갑인(0)
+  const firstMonthStemIdx = ((yearStemIdx % 5) * 2 + 2) % 10;
+
+  const pillars = state.sessionState?.fact?.four_pillars;
+  const natalBranches = pillars
+    ? [pillars.year.branch, pillars.month.branch, pillars.day.branch, pillars.hour?.branch || ''].filter(Boolean)
+    : [];
+  const dayBranch = pillars?.day?.branch || '';
+  const yongshinClean = ctx.yongshin.replace(/\(.*?\)/g, '').trim();
+  const heeshinClean = ctx.heeshin.replace(/\(.*?\)/g, '').trim();
+
+  const rawPoints = MONTH_BRANCHES.map((branch, idx) => {
+    const stem = STEMS_ORDER[(firstMonthStemIdx + idx) % 10];
+    const stemEl = STEM_ELEMENT_MAP[stem];
+    const branchEl = BRANCH_ELEMENT_MAP[branch];
+    const ganjiHanja = toGanjiHanja(stem, branch);
+
+    let score = Math.round(70 + (ctx.rsiScore - 75) * 0.25);
+    if (yongshinClean.includes(stemEl)) score += 9;
+    if (yongshinClean.includes(branchEl)) score += 9;
+    if (heeshinClean.includes(stemEl) || heeshinClean.includes(branchEl)) score += 5;
+
+    // 기신(과다 오행)과의 상호작용
+    if (ctx.dominantElement.startsWith(stemEl)) score -= 5;
+    if (ctx.dominantElement.startsWith(branchEl)) score -= 5;
+
+    // 원국 지지와 육합/충
+    if (dayBranch && HARMONY_PAIRS[dayBranch] === branch) score += 8;
+    if (dayBranch && CLASH_PAIRS[dayBranch] === branch) score -= 11;
+    else if (natalBranches.some(b => CLASH_PAIRS[b] === branch)) score -= 6;
+    else if (natalBranches.some(b => HARMONY_PAIRS[b] === branch)) score += 4;
+
+    // 동점 방지용 미세 월별 리듬 보정
+    score += ((idx * 3 + yearStemIdx) % 5) - 2;
+    score = Math.max(52, Math.min(97, score));
+
+    return {
+      month: idx + 1,
+      stemBranch: ganjiHanja,
+      korGanji: `${stem}${branch}`,
+      score,
+    };
+  });
+
+  // 최고점과 최저점 표시
+  let peakIdx = 0;
+  let dipIdx = 0;
+  rawPoints.forEach((p, i) => {
+    if (p.score > rawPoints[peakIdx].score) peakIdx = i;
+    if (p.score < rawPoints[dipIdx].score) dipIdx = i;
+  });
+
+  return rawPoints.map((p, i) => ({
+    month: p.month,
+    stemBranch: p.stemBranch,
+    score: p.score,
+    isPeak: i === peakIdx,
+    isDip: i === dipIdx && i !== peakIdx,
+  }));
 }
 
 // ============================================================================
@@ -600,19 +938,19 @@ ${ctx.dayMaster} 일간에서 토는 비견·겁재에 해당합니다.
 반대로 한쪽만 계속 책임지거나 상대의 불안정성을 자신이 보완해야 하는 관계는 시간이 갈수록 부담이 커질 수 있습니다.
 
 ### 2026년
-병오년의 화 기운이 강해지면서 관계에서 기존의 부담이나 감정적인 피로가 커질 수 있습니다. 원국의 축토와 오화가 만나 **축오원진**이 작용하므로, 큰 갈등 하나보다 작은 불편이 반복적으로 쌓이는 형태에 주의할 필요가 있습니다.
+${ctx.year2026Summary}
 
 ### 2027년
-정미년은 **축미충**이 작동합니다. 기존 관계의 방식이나 생활방식을 그대로 유지하기보다 관계의 기준과 역할을 다시 조정하는 흐름으로 볼 수 있습니다.
+${ctx.year2027Summary}
 
 ### 2028년
-무신년에는 원국의 인목과 신금이 만나 **인신충**이 작동하고, 인사신 삼형의 구조도 함께 형성됩니다. 따라서 사람을 보는 기준, 관계의 역할, 생활방식을 다시 정리하는 흐름이 나타날 수 있습니다.
+${ctx.year2028Summary}
 
 ---
 
 ## 7. 인간관계
 
-원국의 **축진파와 인사해**는 인간관계에서 단순한 정면충돌보다는 미묘한 불편이나 역할의 엇갈림으로 나타날 수 있습니다.
+원국의 **${ctx.natalRelationsSummary}** 구조는 인간관계에서 단순한 정면충돌보다는 미묘한 불편이나 역할의 엇갈림으로 나타날 수 있습니다.
 
 특히 상대방의 요구를 바로 거절하지 못하고 일단 받아준 뒤 나중에 부담을 느끼는 방식이 반복되지 않도록 하는 것이 중요합니다.
 
@@ -630,7 +968,7 @@ ${ctx.dayMaster} 일간에서 토는 비견·겁재에 해당합니다.
 
 그러나 안정성이 지나치게 강해지면 변화가 필요한 상황에서도 기존 방식을 계속 유지할 수 있습니다.
 
-따라서 생활환경에서도 금·수의 기능을 활용하는 것이 좋습니다.
+따라서 생활환경에서도 부족한 **${ctx.yongshin}** 기운을 현실적으로 보완하는 것이 좋습니다.
 
 - 불필요한 물건과 일정 정리
 - 공간의 여백 확보
@@ -681,11 +1019,7 @@ ${ctx.dayMaster} 일간에서 토는 비견·겁재에 해당합니다.
 
 ## 12. 2026년 병오
 
-2026년은 화의 작용이 강해지는 해입니다.
-
-특히 원국의 일지 축토와 오화가 만나 **축오원진**이 작동합니다.
-
-따라서 관계나 생활에서 큰 사건 하나보다 작은 불편과 피로가 반복적으로 누적되는 형태에 주의할 필요가 있습니다.
+${ctx.year2026Summary}
 
 이 시기의 핵심은 무조건적인 변화보다
 
@@ -697,9 +1031,7 @@ ${ctx.dayMaster} 일간에서 토는 비견·겁재에 해당합니다.
 
 ## 13. 2027년 정미
 
-2027년은 정미년입니다.
-
-원국의 일지 축토와 미토가 **축미충**을 이루므로 기존 생활방식이나 관계 구조를 다시 조정하는 흐름이 강해집니다.
+${ctx.year2027Summary}
 
 따라서 2027년은
 
@@ -713,37 +1045,22 @@ ${ctx.dayMaster} 일간에서 토는 비견·겁재에 해당합니다.
 
 ※ 월운은 절기 기준으로 구분합니다.
 
-- **1월 — 축월:** 원국 일지의 축토와 같은 기운이 반복됩니다. 기존 역할을 구분하는 시기입니다.
-- **2월 — 인월:** 인사해와 연결되므로 사람·조직·관계에서 새로운 움직임이나 역할 변화가 나타납니다.
-- **3월 — 묘월:** 묘진해가 연결되므로 서로의 기대와 실제 역할이 어긋나는 부분을 점검합니다.
-- **4월 — 진월:** 기존에 미뤄둔 문제를 확인하고 업무·관계 역할을 문서화하여 정리합니다.
-- **5월 — 사월:** 활동량과 책임이 증가하므로 우선순위를 정하고 불필요한 책임을 거절합니다.
-- **6월 — 오월:** 축오원진이 다시 강하게 작동하므로 작은 불편을 즉시 확인하고 조정합니다.
-- **7월 — 미월:** 축미충이 직접 작동하여 관계·생활환경·업무방식 조정이 본격화됩니다.
-- **8월 — 신월:** 인신충이 형성되므로 기준을 세우고 새로운 방향을 선택하는 것이 중요합니다.
-- **9월 — 유월:** 진유합이 연결되므로 일과 관계를 하나의 기준으로 정리하고 집중하기 좋습니다.
-- **10월 — 술월:** 진술충과 축술형이 함께 작용하므로 애매하게 유지하던 문제를 명확히 정리합니다.
-- **11월 — 해월:** 인해합으로 새로운 정보, 사람, 환경과의 연결이 확대됩니다.
-- **12월 — 자월:** 자축합으로 앞에서 검토한 선택지를 실제 생활의 기준과 연결하여 구체화합니다.
+${ctx.monthly2027ListMarkdown}
 
 ---
 
-## 15. 2028년 무신 — 인신충과 인사신 삼형
+## 15. 2028년 무신
 
-2028년에는 신금이 들어오면서 원국의 인목과 **인신충**이 작동합니다.
-
-동시에 원국의 인목·사화와 운에서 들어오는 신금이 연결되면서 **인사신 삼형**의 구조도 형성됩니다.
-
-즉 2028년은 **기존의 사람·역할·환경을 동시에 재조정하는 하나의 흐름**으로 보는 것이 좋습니다.
+${ctx.year2028Summary}
 
 ---
 
-## 16. 환경 처방 — 금·수 보완
+## 16. 환경 처방 — ${ctx.yongshin} 보완
 
-이 사주에서는 부족한 금·수를 현실적인 생활 방식으로 보완하는 것이 중요합니다.
+이 사주에서는 부족한 **${ctx.yongshin}** 기운을 현실적인 생활 방식으로 보완하는 것이 중요합니다.
 
-- **금(金) 보완:** 불필요한 물건 정리, 업무 우선순위 정리, 문서와 계약 확인, 공간의 여백 확보
-- **수(水) 보완:** 새로운 정보 습득, 다른 사람의 의견 듣기, 새로운 환경 경험, 선택지 비교
+- **핵심 용신(${ctx.yongshin}) 보완:** 공간 정리, 업무 우선순위와 문서·계약 기준 명확화, 필요한 정보 탐색 및 환경 환기
+- **과다 기운(${ctx.dominantElement}) 조율:** 무리한 고집이나 과부하를 줄이고 선택지를 비교하며 균형 유지
 
 ---
 
@@ -871,9 +1188,9 @@ export function getConflictMalSalReportMarkdown(ctx: ReportMetaContext): string 
 
 ---
 
-## 6. 2026년 병오 — 축오원진
+## 6. 2026년 병오
 
-2026년 병오가 들어오면서 원국의 일지 축(丑)과 오(午)가 만나 **축오원진(丑午怨嗔)** 관계가 활성화됩니다.
+${ctx.year2026Summary}
 - 계속 신경 쓰이는 문제
 - 이유를 설명하기 어려운 불편함
 - 같은 문제를 반복해서 생각하는 상태
@@ -883,67 +1200,53 @@ export function getConflictMalSalReportMarkdown(ctx: ReportMetaContext): string 
 
 ---
 
-## 7. 2027년 정미 — 축미충
+## 7. 2027년 정미
 
-2027년 정미년에는 원국 일지 축(丑)과 미(未)가 정면으로 부딪혀 **축미충(丑未沖)**이 작용합니다.
-
-- **2027년 오월:** 축오원진 재활성화 → 기존 불편함 다시 체감
-- **2027년 미월:** 축미충 직접 활성화 → 기존 생활·직업 구조를 실제로 조정할지 검토하는 핵심 구간
-- **2027년 신월:** 인신충(寅申沖) 활성화 → 외부 환경 및 사회적 관계 변화 압력 증가
-- **2027년 술월:** 진술충(辰戌沖) 및 축술형(丑戌刑) → 직업환경과 생활 기반 충돌 표면화
+${ctx.year2027Summary}
 
 ---
 
-## 8. 2028년 무신 — 관계 변화가 가장 복합적으로 나타나는 시기
+## 8. 2028년 무신 — 환경과 기준의 재정립
 
-2028년은 무신년입니다.
-신(申)이 들어오면서 원국 연지 인(寅)과 **인신충(寅申沖)**이 발생하며, 인목·사화와 신금이 더해져 **인사신 삼형(寅巳申三刑)**이 함께 작용합니다.
-
-따라서 2028년은 **이전까지 누적된 문제를 어떤 기준으로 정리하고 새로운 환경을 선택할 것인가**가 중요한 해입니다.
+${ctx.year2028Summary}
 
 ---
 
 ## 9. 관계 변화 흐름
 
-> **원국:** 축진파 + 인사해
+> **원국:** ${ctx.natalRelationsSummary}
 > 
 > ↓
 > 
-> **2026 병오:** 축오원진 (불편함의 체감 · 문제 인식)
+> **2026 병오:** ${ctx.year2026Summary}
 > 
 > ↓
 > 
-> **2027 정미:** 오월(재활성화) → 미월(축미충) → 신월(인신충) → 술월(진술충/축술형)
+> **2027 정미:** ${ctx.year2027Summary}
 > 
 > ↓
 > 
-> **2028 무신:** 인신충 + 인사신 삼형 (환경과 관계 기준의 재정립)
+> **2028 무신:** ${ctx.year2028Summary}
 
 ---
 
 ## 10. 신살 — 실제 발생 위치까지 확인
 
-| 신살 | 발생 위치 | 발생 지지 | 산출 기준 |
-| :--- | :--- | :--- | :--- |
-| 지살 | 연지 | 인(寅) | 연지 인(寅) 기준 |
-| 월살 | 월지 | 진(辰) | 연지 인(寅) 기준 |
-| 천살 | 일지 | 축(丑) | 연지 인(寅) 기준 |
-| 망신살 | 시지 | 사(巳) | 연지 인(寅) 기준 |
-| 홍염살 | 월지 | 진(辰) | 일간 기토 기준 |
+${ctx.sinsalTableMarkdown}
 
-홍염살은 대인관계에서 인상·주목도·호감 형성에 영향을 줄 수 있는 보조 신호로 해석합니다.
+원국의 신살은 일방적인 길흉 단정보다 현재 상황과 대인관계의 신호를 읽는 보조 지표로 해석합니다.
 
 ---
 
-## 11. 망신살 — 이번 고민과 직접 연결되는 신살
+## 11. ${ctx.primarySinsalName} — 이번 고민과 직접 연결되는 신살
 
-망신살은 이 명식에서 **시지 사(巳)**에 위치합니다.
+**${ctx.primarySinsalName}**은 이 명식에서 **${ctx.primarySinsalLocation}**에 위치합니다.
 - 자신의 말이나 행동이 예상보다 크게 받아들여짐
-- 업무 과정에서 공개적인 지적을 신경 쓰게 됨
-- 평판이나 평가에 대한 부담 증가
-- 사람들의 시선을 의식하면서 피로가 커짐
+- 업무 과정에서 공개적인 지적이나 평가를 신경 쓰게 됨
+- 환경 변화·대인관계에 대한 부담 증가
+- 사람들의 시선과 기준을 의식하면서 피로가 커짐
 
-따라서 망신살을 “망신을 당한다”로 단정하지 않고, **평판·노출·대인 평가에 민감해질 수 있는 구조**로 변환하여 대응합니다.
+따라서 신살을 막연한 불길함으로 단정하지 않고, **평판·노출·환경 변화에 민감해질 수 있는 구조**로 변환하여 대응합니다.
 
 ---
 
@@ -1163,70 +1466,48 @@ ${ctx.dayMaster}에게 금은 식상, 수는 재성입니다. 따라서 생각�
 
 ---
 
-## 14. 다음 대운 — 임자대운
+## 14. 다음 대운 전환 흐름
 
-**2030년 8월 14일 전후 전환 · 만 32세 전후**
-
-임수와 자수는 재성 흐름을 강화합니다. 앞으로는 조직 안에서 오래 버티는 것보다 **자신의 능력을 경제적 가치와 기회로 연결하는 능력**이 중요해집니다.
+${ctx.nextDaewunSummary}
 
 ---
 
 ## 15. 2026년 병오
 
-원국의 일지 축(丑)과 **축오원진(丑午怨嗔)**이 작용합니다.
-사람과 상황에 대한 불편함, 반복되는 지시 변경, 평가에 대한 피로감이 체감될 수 있는 시기입니다.
+${ctx.year2026Summary}
 
 ---
 
 ## 16. 2027년 정미 — 월별 흐름
 
-| 절기 기준 월 | 주요 작용 | 현실 포인트 |
-| :--- | :--- | :--- |
-| 인월 | 인사해 | 새로운 역할·환경 변화에 대한 적응 |
-| 묘월 | 인묘진 방합 + 묘진해 | 조직 기준과 관계 피로가 동시에 커질 수 있음 |
-| 진월 | 축진파 | 업무환경과 생활조건의 충돌 점검 |
-| 사월 | 인사해 | 사람 사이의 피로와 행동 방식 점검 |
-| 오월 | 축오원진 | 감정적 불편과 관계 스트레스 주의 |
-| 미월 | 축미충 | 직장·역할·생활조건의 실제 변화 가능성 점검 |
-| 신월 | 인신충 | 기존 방식과 새로운 방향의 충돌 |
-| 유월 | 사유축 삼합 + 진유합 | 금 기운 강화, 성과·표현·결과 전환에 유리 |
-| 술월 | 진술충 + 축술형 | 기존 환경의 문제를 다시 정리할 필요 |
-| 해월 | 인해합 + 사해충 | 새로운 선택지는 넓어지지만 변동성도 커짐 |
-| 자월 | 자축합 | 현실 조건과 자원 재정리 |
-| 축월 | 원국 일지 축과 중첩 | 생활·직장 조건을 다시 점검하는 시기 |
+${ctx.monthly2027TableMarkdown}
 
 ---
 
 ## 17. 2028년 무신
 
-**인신충(寅申沖)**과 **인사신 삼형(寅巳申三刑)**이 함께 작용하는 시기입니다. 신월(입추~백로)은 기존 환경과 새로운 방향 사이의 충돌이 강하게 나타날 수 있습니다.
+${ctx.year2028Summary}
 
 ---
 
 ## 18. 2026~2028 핵심 흐름
 
-- **2026:** 불편함을 정확히 확인하는 시기
+- **2026:** 불편함과 소모 요인을 정확히 확인하는 시기
 - **2027:** 관계·업무·역할을 실제로 조정하는 시기
 - **2028:** 기존 방식과 새로운 방향을 비교하여 선택 기준을 재정립하는 시기
-- **2030 전후:** 재성 흐름이 강화되면서 경제적 가치와 새로운 기회를 본격적으로 고려하는 시기
+- **다음 대운 전환:** ${ctx.nextDaewunSummary}
 
 ---
 
 ## 19. 신살
 
-| 신살 | 발생 위치 | 현실적 의미 |
-| :--- | :--- | :--- |
-| 지살 | 연지 인(寅) | 환경 변화와 이동 |
-| 월살 | 월지 진(辰) | 외부 기준과 압박 |
-| 천살 | 일지 축(丑) | 자신의 통제 밖에서 발생하는 변수 |
-| 망신살 | 시지 사(巳) | 평가·평판·노출 |
-| 홍염살 | 월지 진(辰) | 대인관계에서의 인상과 표현 |
+${ctx.sinsalTableMarkdown}
 
 ---
 
-## 20. 망신살·홍염살
+## 20. ${ctx.primarySinsalName} 집중 해석
 
-망신살은 공개적인 지적과 평가 스트레스와 연결됩니다. **공개 지적 → 평가 민감도 상승 → 자신감 저하 → 더 많이 참음 → 부담 증가**라는 패턴을 끊어야 합니다.
+**${ctx.primarySinsalName}**(${ctx.primarySinsalLocation})은 대인관계와 평가, 환경 변화에 대한 민감도와 연결됩니다. **외부 압박 → 민감도 상승 → 부담 누적 → 충동적 결정**이라는 패턴을 끊고 구조적 기준을 세워야 합니다.
 
 ---
 
